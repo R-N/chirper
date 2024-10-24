@@ -18,7 +18,8 @@ class ChirpController extends Controller
     {
         //return response('Hello, World!');
         return Inertia::render('Chirps/Index', [
-            //
+            // Chirps has belongsTo relationship with User as user
+            'chirps' => Chirp::with('user:id,name')->latest()->get(),
         ]);
     }
 
