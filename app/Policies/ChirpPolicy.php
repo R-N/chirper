@@ -1,5 +1,7 @@
 <?php
 
+// created with php artisan make:policy ChirpPolicy --model=Chirp
+
 namespace App\Policies;
 
 use App\Models\Chirp;

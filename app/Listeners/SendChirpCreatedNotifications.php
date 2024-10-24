@@ -1,5 +1,7 @@
 <?php
 
+//created with php artisan make:listener SendChirpCreatedNotifications --event=ChirpCreated
+
 namespace App\Listeners;
 
 use App\Events\ChirpCreated;

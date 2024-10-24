@@ -1,5 +1,7 @@
 <?php
 
+// created with php artisan make:notification NewChirp
+
 namespace App\Notifications;
 
 use App\Models\Chirp;

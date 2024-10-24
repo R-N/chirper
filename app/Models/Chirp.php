@@ -1,5 +1,7 @@
 <?php
 
+// created with php artisan make:model -mrc Chirp
+
 namespace App\Models;
 
 use App\Events\ChirpCreated;
