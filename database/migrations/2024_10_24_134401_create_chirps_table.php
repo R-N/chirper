@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('chirps', function (Blueprint $table) {
             $table->id();
+            //add fields manually here
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('message');
             $table->timestamps();
         });
     }
