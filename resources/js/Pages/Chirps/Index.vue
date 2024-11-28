@@ -1,15 +1,35 @@
-<script setup>
+<script>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Chirp from '@/Components/Chirp.vue';
 import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { useForm, Head } from '@inertiajs/vue3';
 
-defineProps(['chirps']);
- 
-const form = useForm({
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+
+@Component({
+  components: {
+    AuthenticatedLayout,
+    Chirp,
+    InputError,
+    PrimaryButton
+  }
+})
+class ChirpsPage extends Vue {
+    @Prop() chirps = []; // Adjust the type as necessary for chirps
+
+  // Form data
+  form = useForm({
     message: '',
-});
+  });
+
+  mounted(){
+    console.log("Hello!");
+  }
+
+  // This is where you would handle methods and computed properties if needed
+}
+export default toNative(ChirpsPage);
 </script>
  
 <template>
