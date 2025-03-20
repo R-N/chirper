@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Chirp from '@/Components/Chirp.vue';
 import InputError from '@/Components/InputError.vue';
