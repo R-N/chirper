@@ -44,7 +44,7 @@ class UpdatePasswordForm extends Vue {
     //     },
     // });
     try{
-        let res = await axios.put(route('password.update'), this.form);
+        let res = await axios.put('/user/password', this.form);
         this.form.reset();
         router.visit(res.data.redirect || "/login");
     }catch{
