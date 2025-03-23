@@ -114,7 +114,6 @@ export default toNative(AuthenticatedLayout);
                                         </DropdownLink>
                                         <DropdownLink
                                             @click="logout" 
-                                            method="post"
                                             as="button"
                                         >
                                             Log Out
@@ -208,7 +207,6 @@ export default toNative(AuthenticatedLayout);
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 @click="logout" 
-                                method="post"
                                 as="button"
                             >
                                 Log Out
