@@ -1,22 +1,61 @@
-<script setup>
+<script lang="ts">
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import { useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
- 
-dayjs.extend(relativeTime);
-const props = defineProps(['chirp']);
- 
-const form = useForm({
-    message: props.chirp.message,
-});
- 
-//ref is reactive value i guess
-const editing = ref(false);
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import axios from '@/boot/axios'; 
+
+@Component({
+  components: {
+    Dropdown,
+    DropdownLink,
+    InputError,
+    PrimaryButton,
+  }
+})
+class Chirp extends Vue {
+  @Prop(Object) chirp;
+  editing = false;
+  form = useForm({
+    message: '',
+  });
+
+  mounted(){
+    this.resetForm();
+  }
+
+  get createdAt(){
+    return dayjs(this.chirp.created_at).fromNow();
+  }
+
+  resetForm(editing=false){
+    this.editing = editing;
+    this.form.reset();
+    this.form.message = this.chirp.message;
+  }
+
+  async update(){
+    // await this.form.put(route('chirps.update', chirp.id));
+    let res = await axios.put(route('chirps.update', this.chirp.id), {
+        message: this.form.message,
+    });
+
+    this.$emit('update', res.data.chirp);
+    this.resetForm();
+    this.editing = false;
+  }
+
+  async remove(){
+    // route('chirps.destroy', chirp.id);
+    let res = await axios.delete(route('chirps.destroy', this.chirp.id));
+    console.log(res);
+    this.$emit('remove', this.chirp.id);
+  }
+}
+export default toNative(Chirp);
 </script>
  
 <template>
@@ -28,7 +67,7 @@ const editing = ref(false);
             <div class="flex justify-between items-center">
                 <div>
                     <span class="text-gray-800">{{ chirp.user.name }}</span>
-                    <small class="ml-2 text-sm text-gray-600">{{ dayjs(chirp.created_at).fromNow() }}</small>
+                    <small class="ml-2 text-sm text-gray-600">{{ this.createdAt }}</small>
                     <small v-if="chirp.created_at !== chirp.updated_at" class="text-sm text-gray-600"> &middot; edited</small>
                 </div>
                 <Dropdown v-if="chirp.user.id === $page.props.auth.user.id">
@@ -40,21 +79,21 @@ const editing = ref(false);
                         </button>
                     </template>
                     <template #content>
-                        <button class="block w-full px-4 py-2 text-left text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:bg-gray-100 transition duration-150 ease-in-out" @click="editing = true">
+                        <button class="block w-full px-4 py-2 text-left text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:bg-gray-100 transition duration-150 ease-in-out" @click="this.resetForm(true)">
                             Edit
                         </button>
-                        <DropdownLink as="button" :href="route('chirps.destroy', chirp.id)" method="delete">
+                        <DropdownLink as="button" @click.prevent="remove">
                             Delete
                         </DropdownLink>
                     </template>
                 </Dropdown>
             </div>
-            <form v-if="editing" @submit.prevent="form.put(route('chirps.update', chirp.id), { onSuccess: () => editing = false })">
+            <form v-if="editing" @submit.prevent="update">
                 <textarea v-model="form.message" class="mt-4 w-full text-gray-900 border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"></textarea>
                 <InputError :message="form.errors.message" class="mt-2" />
                 <div class="space-x-2">
                     <PrimaryButton class="mt-4">Save</PrimaryButton>
-                    <button class="mt-4" @click="editing = false; form.reset(); form.clearErrors()">Cancel</button>
+                    <button class="mt-4" @click="this.resetForm(false)">Cancel</button>
                 </div>
             </form>
             <p v-else class="mt-4 text-lg text-gray-900">{{ chirp.message }}</p>

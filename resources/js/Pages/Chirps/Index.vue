@@ -4,6 +4,7 @@ import Chirp from '@/Components/Chirp.vue';
 import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { useForm, Head } from '@inertiajs/vue3';
+import axios from '@/boot/axios'; 
 
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
@@ -16,7 +17,7 @@ import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
   }
 })
 class ChirpsPage extends Vue {
-    @Prop() chirps = []; // Adjust the type as necessary for chirps
+  @Prop(Array) chirps = []; // Adjust the type as necessary for chirps
 
   // Form data
   form = useForm({
@@ -24,10 +25,26 @@ class ChirpsPage extends Vue {
   });
 
   mounted(){
-    console.log("Hello!");
   }
 
-  // This is where you would handle methods and computed properties if needed
+  async create(){
+    // await this.form.post(route('chirps.store'));
+
+    let res = await axios.post(route('chirps.store'), this.form);
+    this.chirps.unshift(res.data.chirp);
+
+    this.form.reset();
+  }
+  update(chirp){
+    const index = this.chirps.findIndex(chirp => chirp.id === chirp.id);
+    if (index !== -1) {
+      this.chirps[index] = chirp; // Replace with updated chirp
+    }
+  }
+  remove(id){
+    const index = this.chirps.findIndex(chirp => chirp.id === id);
+    this.chirps.splice(index, 1);
+  }
 }
 export default toNative(ChirpsPage);
 </script>
@@ -37,7 +54,7 @@ export default toNative(ChirpsPage);
  
     <AuthenticatedLayout>
         <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
-            <form @submit.prevent="form.post(route('chirps.store'), { onSuccess: () => form.reset() })">
+            <form @submit.prevent="create">
                 <textarea
                     v-model="form.message"
                     placeholder="What's on your mind?"
@@ -51,6 +68,8 @@ export default toNative(ChirpsPage);
                     v-for="chirp in chirps"
                     :key="chirp.id"
                     :chirp="chirp"
+                    @remove="remove" 
+                    @update="update" 
                 />
             </div>
         </div>

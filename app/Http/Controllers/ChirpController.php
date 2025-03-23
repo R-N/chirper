@@ -9,18 +9,25 @@ use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response; 
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 
 class ChirpController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response 
+    public function index(Request $request): Response
     {
         //return response('Hello, World!');
-        return Inertia::render('Chirps/Index', [
-            // Chirps has belongsTo relationship with User as user
-            'chirps' => Chirp::with('user:id,name')->latest()->get(),
+        // Chirps has belongsTo relationship with User as user
+        $chirps = Chirp::with('user:id,name')->latest()->get();
+        if (!$request->wantsJson()) {
+            return Inertia::render('Chirps/Index', [
+                'chirps' => $chirps,
+            ]);
+        }
+        return response()->json([
+            'chirps' => $chirps,
         ]);
     }
 
@@ -35,7 +42,7 @@ class ChirpController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse|JsonResponse
     {
         //
         $validated = $request->validate([
@@ -44,17 +51,32 @@ class ChirpController extends Controller
  
         //user() gets the User object (model)
         //the User model has hasMany relationship to Chirps as chirps function
-        $request->user()->chirps()->create($validated);
+        $chirp = $request->user()->chirps()->create($validated)->load('user:id,name');
  
-        return redirect(route('chirps.index'));
+        if (!$request->wantsJson()) {
+            return redirect(route('chirps.index'));
+        }
+
+        return response()->json([
+            'message' => 'Chirp created successfully!',
+            'chirp' => $chirp,
+        ], 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Chirp $chirp)
+    public function show(Chirp $chirp): Response|JsonResponse
     {
-        //
+        $chirp = $chirp->load('user:id,name');
+        if (!$request->wantsJson()) {
+            return Inertia::render('Chirps/Chirp', [
+                'chirp' => $chirp,
+            ]);
+        }
+        return response()->json([
+            'chirp' => $chirp,
+        ]);
     }
 
     /**
@@ -68,7 +90,7 @@ class ChirpController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Chirp $chirp) : RedirectResponse
+    public function update(Request $request, Chirp $chirp) : RedirectResponse|JsonResponse
     {
         Gate::authorize('update', $chirp);
  
@@ -77,19 +99,33 @@ class ChirpController extends Controller
         ]);
  
         $chirp->update($validated);
+        $chirp->load('user:id,name');
  
-        return redirect(route('chirps.index'));
+        if (!$request->wantsJson()) {
+            return redirect(route('chirps.index'));
+        }
+
+        return response()->json([
+            'message' => 'Chirp updated successfully!',
+            'chirp' => $chirp,
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Chirp $chirp): RedirectResponse
+    public function destroy(Request $request, Chirp $chirp): RedirectResponse|JsonResponse
     {
         Gate::authorize('delete', $chirp);
  
         $chirp->delete();
  
-        return redirect(route('chirps.index'));
+        if (!$request->wantsJson()) {
+            return redirect(route('chirps.index'));
+        }
+
+        return response()->json([
+            'message' => 'Chirp deleted successfully!',
+        ]);
     }
 }

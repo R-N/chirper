@@ -1,4 +1,5 @@
-<script setup>
+<script lang="ts">
+import axios from '@/boot/axios'; 
 import Checkbox from '@/Components/Checkbox.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
@@ -7,26 +8,42 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
-defineProps({
-    canResetPassword: {
-        type: Boolean,
-    },
-    status: {
-        type: String,
-    },
-});
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import { useAuthStore } from '@/Stores/auth';
+import { router } from '@inertiajs/vue3';
 
-const form = useForm({
-    email: '',
-    password: '',
-    remember: false,
-});
+@Component({
+  components: {
+    Checkbox,
+    GuestLayout,
+    InputError,
+    InputLabel,
+    PrimaryButton,
+    TextInput
+  }
+})
+class LoginPage extends Vue {
+  @Prop(Boolean) canResetPassword;
+  @Prop(String) status;
 
-const submit = () => {
-    form.post(route('login'), {
-        onFinish: () => form.reset('password'),
-    });
-};
+  form = useForm({
+      email: '',
+      password: '',
+      remember: false,
+  });
+
+  async login() {
+    const authStore = useAuthStore();
+
+    //await this.form.post(route('login'));
+    let res = await axios.post("/login", this.form);
+    this.form.reset('password');
+    authStore.updateUser(res.data.user);
+    authStore.setAuthToken(res.data.auth_token);
+    router.visit(res.data.redirect || "/dashboard");
+  }
+}
+export default toNative(LoginPage);
 </script>
 
 <template>
@@ -37,7 +54,7 @@ const submit = () => {
             {{ status }}
         </div>
 
-        <form @submit.prevent="submit">
+        <form @submit.prevent="login">
             <div>
                 <InputLabel for="email" value="Email" />
 

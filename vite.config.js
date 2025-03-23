@@ -1,8 +1,7 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
-// import babel from 'vite-plugin-babel';
-// import commonjsRollup from '@rollup/plugin-commonjs';
+//import babel from '@qubit-ltd/vite-plugin-babel';
 
 export default defineConfig({
   plugins: [
@@ -18,13 +17,10 @@ export default defineConfig({
         },
       },
       script: {
-        babelParserPlugins: ['decorators-legacy'],
+        babelParserPlugins: ['decorators'],
       },
     }),
-    // // this causes 'require' error
-    // babel({
-    //   babelConfig: babelConfig
-    // }),
+    //babel(),
   ],
   server: {
     host: 'localhost',

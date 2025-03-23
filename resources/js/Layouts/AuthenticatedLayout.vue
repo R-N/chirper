@@ -1,13 +1,46 @@
-<script setup>
-import { ref } from 'vue';
+<script lang="ts">
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
+import Cookies from 'js-cookie'
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import { useAuthStore } from '@/Stores/auth';
+import { router } from '@inertiajs/vue3';
+import axios from '@/boot/axios'; 
 
-const showingNavigationDropdown = ref(false);
+@Component({
+  components: {
+    ApplicationLogo,
+    Dropdown,
+    DropdownLink,
+    NavLink,
+    ResponsiveNavLink,
+    Link
+  }
+})
+class AuthenticatedLayout extends Vue {
+  showingNavigationDropdown;
+
+  async logout() {
+    const authStore = useAuthStore();
+
+    let res = await axios.post("/logout");
+    authStore.logout();
+    // Object.keys(Cookies.get()).forEach(cookieName => {
+    //     console.log("removing cookie " + cookieName)
+    //     Cookies.remove(cookieName, { 
+    //         path: '/',
+    //         domain: import.meta.env.VITE_COOKIE_DOMAIN,
+    //         secure: true, 
+    //     }); 
+    // });
+    router.visit(res.data.redirect || "/");
+  }
+}
+export default toNative(AuthenticatedLayout);
 </script>
 
 <template>
@@ -80,7 +113,7 @@ const showingNavigationDropdown = ref(false);
                                             Profile
                                         </DropdownLink>
                                         <DropdownLink
-                                            :href="route('logout')"
+                                            @click="logout" 
                                             method="post"
                                             as="button"
                                         >
@@ -174,7 +207,7 @@ const showingNavigationDropdown = ref(false);
                                 Profile
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
-                                :href="route('logout')"
+                                @click="logout" 
                                 method="post"
                                 as="button"
                             >

@@ -6,14 +6,14 @@
         "dev": "vite"
     },
     "devDependencies": {
-        "@babel/core": "^7.26.0",
+        "@babel/core": "^7.26.10",
         "@babel/plugin-proposal-decorators": "^7.25.9",
         "@babel/plugin-transform-class-properties": "^7.25.9",
         "@inertiajs/vue3": "^1.2.0",
         "@tailwindcss/forms": "^0.5.3",
         "@vitejs/plugin-vue": "^5.2.1",
         "autoprefixer": "^10.4.20",
-        "axios": "^1.7.4",
+        "axios": "^1.8.4",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^1.0.6",
         "postcss": "^8.4.49",
@@ -23,6 +23,9 @@
         "vue-facing-decorator": "^3.0.4"
     },
     "dependencies": {
-        "dayjs": "^1.11.13"
+        "dayjs": "^1.11.13",
+        "js-cookie": "^3.0.5",
+        "pinia": "^3.0.1",
+        "pinia-plugin-persistedstate": "^4.2.0"
     }
 }
