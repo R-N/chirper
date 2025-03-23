@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -28,7 +29,7 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse|JsonResponse
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -46,6 +47,19 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        $token = null;
+        if (config('sanctum.guard') === 'api') {
+            $token = $user->createToken('auth_token', ['*'])->plainTextToken;
+        }
+
+        if (!$request->wantsJson()) {
+            return redirect(route('dashboard', absolute: false));
+        }
+        return response()->json([
+            'auth_token' => $token,
+            'user' => $user,
+            'message' => 'User registered',
+            'redirect' => '/dashboard',
+        ], 201);
     }
 }

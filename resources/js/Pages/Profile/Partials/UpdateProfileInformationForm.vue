@@ -1,25 +1,45 @@
-<script setup>
+<script lang="ts">
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 
-defineProps({
-    mustVerifyEmail: {
-        type: Boolean,
-    },
-    status: {
-        type: String,
-    },
-});
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import axios from '@/boot/axios'; 
+import { router } from '@inertiajs/vue3';
 
-const user = usePage().props.auth.user;
+@Component({
+  components: {
+    InputError,
+    InputLabel,
+    PrimaryButton,
+    TextInput
+  }
+})
+class UpdateProfileInformationForm extends Vue {
+  @Prop(Boolean) mustVerifyEmail;
+  @Prop(String) status;
 
-const form = useForm({
-    name: user.name,
-    email: user.email,
-});
+  user = null;
+  form = useForm({
+    name: '',
+    email: '',
+  });
+
+  mounted(){
+    this.user = usePage().props.auth.user;
+    this.form.name = this.user.name;
+    this.form.email = this.user.email;
+  }
+
+  async submit() {
+    //await this.form.post(route('verification.send'));
+    let res = await axios.post(route('verification.send'), this.form);
+    router.visit(res.data.redirect || "/login");
+  }
+}
+export default toNative(UpdateProfileInformationForm);
 </script>
 
 <template>

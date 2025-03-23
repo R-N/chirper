@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
@@ -32,7 +33,7 @@ class NewPasswordController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse|JsonResponse
     {
         $request->validate([
             'token' => 'required',
@@ -59,11 +60,32 @@ class NewPasswordController extends Controller
         // the application's home authenticated view. If there is an error we can
         // redirect them back to where they came from with their error message.
         if ($status == Password::PASSWORD_RESET) {
-            return redirect()->route('login')->with('status', __($status));
+            if (!$request->wantsJson()) {
+                return redirect()->route('login')->with('status', __($status));
+            }
+            if ($status == Password::RESET_LINK_SENT) {
+                return response()->json([
+                    'message' => 'Password reset successful',
+                    'redirect' => '/login',
+                    'status' => __($status),
+                ]);
+            }
         }
 
-        throw ValidationException::withMessages([
+        $exc = ValidationException::withMessages([
             'email' => [trans($status)],
+            'message' => 'Invalid token'
         ]);
+        if (!$request->wantsJson()) {
+            throw $exc;
+        }
+        return response()->json([
+            'error'   => true,
+            'message' => $exc->getMessage(),
+            'code'    => $exc->getCode(),
+            // 'file'    => $exc->getFile(),
+            // 'line'    => $exc->getLine(),
+            // 'trace'   => $exc->getTrace()
+        ], 400);
     }
 }

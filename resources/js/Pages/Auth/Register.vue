@@ -1,30 +1,50 @@
-<script setup>
+<script lang="ts">
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import axios from '@/boot/axios'; 
+import { router } from '@inertiajs/vue3';
+import { useAuthStore } from '@/Stores/auth';
 
-const form = useForm({
+@Component({
+  components: {
+    GuestLayout,
+    InputError,
+    InputLabel,
+    PrimaryButton,
+    TextInput
+  }
+})
+class RegisterPage extends Vue {
+  form = useForm({
     name: '',
     email: '',
     password: '',
     password_confirmation: '',
-});
+  });
 
-const submit = () => {
-    form.post(route('register'), {
-        onFinish: () => form.reset('password', 'password_confirmation'),
-    });
-};
+  async register() {
+    const authStore = useAuthStore();
+    //await this.form.post(route('register'));
+    let res = await axios.post("/register", this.form);
+    this.form.reset('password', 'password_confirmation');
+    authStore.updateUser(res.data.user);
+    authStore.setAuthToken(res.data.auth_token);
+    router.visit(res.data.redirect || "/dashboard");
+  }
+}
+export default toNative(RegisterPage);
 </script>
 
 <template>
     <GuestLayout>
         <Head title="Register" />
 
-        <form @submit.prevent="submit">
+        <form @submit.prevent="register">
             <div>
                 <InputLabel for="name" value="Name" />
 

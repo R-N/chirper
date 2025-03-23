@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts">
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
@@ -6,31 +6,60 @@ import TextInput from '@/Components/TextInput.vue';
 import { useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
-const passwordInput = ref(null);
-const currentPasswordInput = ref(null);
+import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
+import axios from '@/boot/axios'; 
+import { router } from '@inertiajs/vue3';
 
-const form = useForm({
+@Component({
+  components: {
+    InputError,
+    InputLabel,
+    PrimaryButton,
+    TextInput
+  }
+})
+class UpdatePasswordForm extends Vue {
+  @Ref('passwordInput') passwordInput;
+  @Ref('currentPasswordInput') currentPasswordInput;
+
+  form = useForm({
     current_password: '',
     password: '',
     password_confirmation: '',
-});
+  });
 
-const updatePassword = () => {
-    form.put(route('password.update'), {
-        preserveScroll: true,
-        onSuccess: () => form.reset(),
-        onError: () => {
-            if (form.errors.password) {
-                form.reset('password', 'password_confirmation');
-                passwordInput.value.focus();
-            }
-            if (form.errors.current_password) {
-                form.reset('current_password');
-                currentPasswordInput.value.focus();
-            }
-        },
-    });
-};
+  async updatePassword() {
+    // form.put(route('password.update'), {
+    //     preserveScroll: true,
+    //     onSuccess: () => form.reset(),
+    //     onError: () => {
+    //         if (form.errors.password) {
+    //             form.reset('password', 'password_confirmation');
+    //             passwordInput.value.focus();
+    //         }
+    //         if (form.errors.current_password) {
+    //             form.reset('current_password');
+    //             currentPasswordInput.value.focus();
+    //         }
+    //     },
+    // });
+    try{
+        let res = await axios.put(route('password.update'), this.form);
+        this.form.reset();
+        router.visit(res.data.redirect || "/login");
+    }catch{
+        if (this.form.errors.password) {
+            this.form.reset('password', 'password_confirmation');
+            this.passwordInput.focus();
+        }
+        if (this.form.errors.current_password) {
+            this.form.reset('current_password');
+            this.currentPasswordInput.focus();
+        }
+    }
+  }
+}
+export default toNative(UpdatePasswordForm);
 </script>
 
 <template>

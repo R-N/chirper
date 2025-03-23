@@ -1,5 +1,4 @@
 <script lang="ts">
-import axios from '@/boot/axios'; 
 import Checkbox from '@/Components/Checkbox.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
@@ -9,8 +8,9 @@ import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import { useAuthStore } from '@/Stores/auth';
+import axios from '@/boot/axios'; 
 import { router } from '@inertiajs/vue3';
+import { useAuthStore } from '@/Stores/auth';
 
 @Component({
   components: {

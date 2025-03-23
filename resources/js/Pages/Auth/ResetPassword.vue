@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts">
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -6,29 +6,43 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 
-const props = defineProps({
-    email: {
-        type: String,
-        required: true,
-    },
-    token: {
-        type: String,
-        required: true,
-    },
-});
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import axios from '@/boot/axios'; 
+import { router } from '@inertiajs/vue3';
 
-const form = useForm({
-    token: props.token,
-    email: props.email,
+@Component({
+  components: {
+    GuestLayout,
+    InputError,
+    InputLabel,
+    PrimaryButton,
+    TextInput
+  }
+})
+class ResetPasswordPage extends Vue {
+  @Prop({ type: String, required: true}) email;
+  @Prop({ type: String, required: true}) token;
+
+  form = useForm({
+    token: '',
+    email: '',
     password: '',
     password_confirmation: '',
-});
+  });
 
-const submit = () => {
-    form.post(route('password.store'), {
-        onFinish: () => form.reset('password', 'password_confirmation'),
-    });
-};
+  mounted(){
+    this.form.token = this.token;
+    this.form.email = this.email;
+  }
+
+  async submit() {
+    //await this.form.post(route('password.store'));
+    let res = await axios.post(route('password.store'), this.form);
+    this.form.reset('password', 'password_confirmation');
+    router.visit(res.data.redirect || "/login");
+  }
+}
+export default toNative(ResetPasswordPage);
 </script>
 
 <template>

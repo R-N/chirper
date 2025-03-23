@@ -1,24 +1,39 @@
-<script setup>
+<script lang="ts">
 import { computed } from 'vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
-const props = defineProps({
-    status: {
-        type: String,
-    },
-});
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import axios from '@/boot/axios'; 
+import { router } from '@inertiajs/vue3';
 
-const form = useForm({});
+@Component({
+  components: {
+    GuestLayout,
+    InputError,
+    InputLabel,
+    PrimaryButton,
+    TextInput
+  }
+})
+class VerifyEmailPage extends Vue {
+  @Prop(String) status;
+  form = useForm({
+    email: '',
+  });
 
-const submit = () => {
-    form.post(route('verification.send'));
-};
+  get verificationLinkSent(){
+    return this.status === 'verification-link-sent';
+  }
 
-const verificationLinkSent = computed(
-    () => props.status === 'verification-link-sent',
-);
+  async submit() {
+    //await this.form.post(route('verification.send'));
+    let res = await axios.post(route('verification.send'), this.form);
+    router.visit(res.data.redirect || "/login");
+  }
+}
+export default toNative(VerifyEmailPage);
 </script>
 
 <template>

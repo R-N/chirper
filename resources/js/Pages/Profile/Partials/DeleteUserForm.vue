@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts">
 import DangerButton from '@/Components/DangerButton.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -8,34 +8,59 @@ import TextInput from '@/Components/TextInput.vue';
 import { useForm } from '@inertiajs/vue3';
 import { nextTick, ref } from 'vue';
 
-const confirmingUserDeletion = ref(false);
-const passwordInput = ref(null);
+import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
+import axios from '@/boot/axios'; 
+import { router } from '@inertiajs/vue3';
 
-const form = useForm({
+@Component({
+  components: {
+    DangerButton,
+    InputError,
+    InputLabel,
+    Modal,
+    SecondaryButton,
+    TextInput
+  }
+})
+class DeleteUserForm extends Vue {
+  confirmingUserDeletion = false;
+  @Ref('passwordInput') passwordInput;
+
+  form = useForm({
     password: '',
-});
+  });
 
-const confirmUserDeletion = () => {
-    confirmingUserDeletion.value = true;
+  confirmUserDeletion(){
+      this.confirmingUserDeletion = true;
+      nextTick(() => this.passwordInput.focus());
+  };
 
-    nextTick(() => passwordInput.value.focus());
-};
+  closeModal(){
+    this.confirmingUserDeletion = false;
 
-const deleteUser = () => {
-    form.delete(route('profile.destroy'), {
-        preserveScroll: true,
-        onSuccess: () => closeModal(),
-        onError: () => passwordInput.value.focus(),
-        onFinish: () => form.reset(),
-    });
-};
+    this.form.clearErrors();
+    this.form.reset();
+  };
 
-const closeModal = () => {
-    confirmingUserDeletion.value = false;
-
-    form.clearErrors();
-    form.reset();
-};
+  async deleteUser() {
+    // form.delete(route('profile.destroy'), {
+    //     preserveScroll: true,
+    //     onSuccess: () => closeModal(),
+    //     onError: () => passwordInput.value.focus(),
+    //     onFinish: () => form.reset(),
+    // });
+    try{
+        let res = await axios.delete(route('profile.destroy'), { data: this.form });
+        this.closeModal();
+        router.visit(res.data.redirect || "/");
+    } catch (error) {
+        this.passwordInput.focus();
+    } finally {
+        this.form.reset();
+    }
+  }
+}
+export default toNative(DeleteUserForm);
 </script>
 
 <template>

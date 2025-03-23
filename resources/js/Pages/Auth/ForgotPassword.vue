@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts">
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -6,19 +6,33 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 
-defineProps({
-    status: {
-        type: String,
-    },
-});
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import axios from '@/boot/axios'; 
+import { router } from '@inertiajs/vue3';
 
-const form = useForm({
+@Component({
+  components: {
+    GuestLayout,
+    InputError,
+    InputLabel,
+    PrimaryButton,
+    TextInput
+  }
+})
+class ForgotPasswordPage extends Vue {
+  @Prop(String) status;
+  form = useForm({
     email: '',
-});
+  });
 
-const submit = () => {
-    form.post(route('password.email'));
-};
+  async submit() {
+    //await this.form.post(route('password.email'));
+    let res = await axios.post(route('password.email'), this.form);
+    this.form.reset();
+    router.visit(res.data.redirect || "/login");
+  }
+}
+export default toNative(ForgotPasswordPage);
 </script>
 
 <template>
