@@ -1,5 +1,6 @@
 <script lang="ts">
-import GuestLayout from '@/Layouts/GuestLayout.vue';
+import AuthenticationCard from '@/Components/AuthenticationCard.vue';
+import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
@@ -12,16 +13,18 @@ import { router } from '@inertiajs/vue3';
 
 @Component({
   components: {
-    GuestLayout,
+    AuthenticationCard,
+    AuthenticationCardLogo,
     InputError,
     InputLabel,
     PrimaryButton,
-    TextInput
+    TextInput,
+    Head
   }
 })
 class ResetPasswordPage extends Vue {
-  @Prop({ type: String, required: true}) email;
-  @Prop({ type: String, required: true}) token;
+  @Prop(String) email;
+  @Prop(String) token;
 
   form = useForm({
     token: '',
@@ -36,8 +39,10 @@ class ResetPasswordPage extends Vue {
   }
 
   async submit() {
-    //await this.form.post(route('password.store'));
-    let res = await axios.post(route('password.store'), this.form);
+    //let target = route('password.store');
+    let target = route('password.update');
+    //await this.form.post(target);
+    let res = await axios.post(target, this.form);
     this.form.reset('password', 'password_confirmation');
     router.visit(res.data.redirect || "/login");
   }
@@ -46,70 +51,59 @@ export default toNative(ResetPasswordPage);
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Reset Password" />
+    <Head title="Reset Password" />
+
+    <AuthenticationCard>
+        <template #logo>
+            <AuthenticationCardLogo />
+        </template>
 
         <form @submit.prevent="submit">
             <div>
                 <InputLabel for="email" value="Email" />
-
                 <TextInput
                     id="email"
+                    v-model="form.email"
                     type="email"
                     class="mt-1 block w-full"
-                    v-model="form.email"
                     required
                     autofocus
                     autocomplete="username"
                 />
-
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
             <div class="mt-4">
                 <InputLabel for="password" value="Password" />
-
                 <TextInput
                     id="password"
+                    v-model="form.password"
                     type="password"
                     class="mt-1 block w-full"
-                    v-model="form.password"
                     required
                     autocomplete="new-password"
                 />
-
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
             <div class="mt-4">
-                <InputLabel
-                    for="password_confirmation"
-                    value="Confirm Password"
-                />
-
+                <InputLabel for="password_confirmation" value="Confirm Password" />
                 <TextInput
                     id="password_confirmation"
+                    v-model="form.password_confirmation"
                     type="password"
                     class="mt-1 block w-full"
-                    v-model="form.password_confirmation"
                     required
                     autocomplete="new-password"
                 />
-
-                <InputError
-                    class="mt-2"
-                    :message="form.errors.password_confirmation"
-                />
+                <InputError class="mt-2" :message="form.errors.password_confirmation" />
             </div>
 
-            <div class="mt-4 flex items-center justify-end">
-                <PrimaryButton
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
+            <div class="flex items-center justify-end mt-4">
+                <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                     Reset Password
                 </PrimaryButton>
             </div>
         </form>
-    </GuestLayout>
+    </AuthenticationCard>
 </template>

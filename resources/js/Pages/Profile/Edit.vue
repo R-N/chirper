@@ -15,6 +15,7 @@ import { router } from '@inertiajs/vue3';
     DeleteUserForm,
     UpdatePasswordForm,
     UpdateProfileInformationForm,
+    Head,
   }
 })
 class ProfileEditPage extends Vue {
