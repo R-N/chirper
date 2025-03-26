@@ -1,1 +1,0 @@
-import{ah as e}from"./app-CPfewmGe.js";const a=e("auth",{state:()=>({auth_token:null,user:{id:0,name:"",email:""}}),getters:{isAuthenticated:t=>!!t.auth_token},actions:{updateUser(t){Object.assign(this.user,t)},setAuthToken(t){this.auth_token=t},logout(){this.auth_token=null,this.updateUser({id:0,name:"",email:""})}},persist:{storage:localStorage}});export{a as u};
