@@ -1,15 +1,20 @@
-<script setup>
-defineProps({
-    on: Boolean,
-});
+<script lang="ts">
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+
+@Component
+class ActionMessage extends Vue {
+  @Prop({ type: Boolean, required: true }) on;
+}
+
+export default toNative(ActionMessage);
 </script>
 
 <template>
-    <div>
-        <transition leave-active-class="transition ease-in duration-1000" leave-from-class="opacity-100" leave-to-class="opacity-0">
-            <div v-show="on" class="text-sm text-gray-600 dark:text-gray-400">
-                <slot />
-            </div>
-        </transition>
-    </div>
+  <div>
+    <VExpandTransition>
+      <div v-show="on" class="text-sm font-weight-medium">
+        <slot />
+      </div>
+    </VExpandTransition>
+  </div>
 </template>

@@ -1,21 +1,28 @@
 <script lang="ts">
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
 import DeleteUserForm from './Partials/DeleteUserForm.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
 import { Head } from '@inertiajs/vue3';
 
+import { VContainer, VRow, VCol, VCard, VCardTitle, VCardText } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import axios from '@/boot/axios'; 
 import { router } from '@inertiajs/vue3';
 
 @Component({
   components: {
-    AuthenticatedLayout,
+    AppLayout,
     DeleteUserForm,
     UpdatePasswordForm,
     UpdateProfileInformationForm,
     Head,
+    VContainer,
+    VRow,
+    VCol,
+    VCard,
+    VCardTitle,
+    VCardText,
   }
 })
 class ProfileEditPage extends Vue {
@@ -32,41 +39,34 @@ export default toNative(ProfileEditPage);
 </script>
 
 <template>
-    <Head title="Profile" />
-
-    <AuthenticatedLayout>
+    <AppLayout>
+        <Head title="Profile" />
         <template #header>
-            <h2
-                class="text-xl font-semibold leading-tight text-gray-800"
-            >
+            <h2 class="text-xl font-semibold leading-tight text-gray-800">
                 Profile
             </h2>
         </template>
 
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                <div
-                    class="bg-white p-4 shadow sm:rounded-lg sm:p-8"
-                >
+        <VContainer class="d-flex flex-column ga-5" justify="center">
+            <VCard title="Update Profile Information">
+                <VCardText>
                     <UpdateProfileInformationForm
                         :must-verify-email="mustVerifyEmail"
                         :status="status"
-                        class="max-w-xl"
+                        :user="$page.props.auth.user"
                     />
-                </div>
-
-                <div
-                    class="bg-white p-4 shadow sm:rounded-lg sm:p-8"
-                >
-                    <UpdatePasswordForm class="max-w-xl" />
-                </div>
-
-                <div
-                    class="bg-white p-4 shadow sm:rounded-lg sm:p-8"
-                >
-                    <DeleteUserForm class="max-w-xl" />
-                </div>
-            </div>
-        </div>
-    </AuthenticatedLayout>
+                </VCardText>
+            </VCard>
+            <VCard title="Update Password">
+                <VCardText>
+                    <UpdatePasswordForm />
+                </VCardText>
+            </VCard>
+            <VCard title="Delete Account">
+                <VCardText>
+                    <DeleteUserForm />
+                </VCardText>
+            </VCard>
+        </VContainer>
+    </AppLayout>
 </template>

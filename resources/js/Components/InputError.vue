@@ -1,13 +1,21 @@
-<script setup>
-defineProps({
-    message: String,
-});
+<script lang="ts">
+import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
+import { VAlert } from "vuetify/components";
+
+@Component({
+  components: {
+    VAlert,
+  },
+})
+class InputError extends Vue {
+  @Prop({ type: String, default: "" }) message!: string;
+}
+
+export default toNative(InputError);
 </script>
 
 <template>
-    <div v-show="message">
-        <p class="text-sm text-red-600 dark:text-red-400">
-            {{ message }}
-        </p>
-    </div>
+  <VAlert v-if="message" type="error" variant="tonal" density="compact">
+    {{ message }}
+  </VAlert>
 </template>

@@ -1,19 +1,20 @@
 <script lang="ts">
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
 import Chirp from '@/Components/Chirp.vue';
-import InputError from '@/Components/InputError.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { useForm, Head } from '@inertiajs/vue3';
 import axios from '@/boot/axios'; 
 
+import { VContainer, VTextarea, VBtn, VCard } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
   components: {
-    AuthenticatedLayout,
+    AppLayout,
     Chirp,
-    InputError,
-    PrimaryButton
+    VContainer,
+    VTextarea,
+    VBtn,
+    VCard
   }
 })
 class ChirpsPage extends Vue {
@@ -50,28 +51,26 @@ export default toNative(ChirpsPage);
 </script>
  
 <template>
-    <Head title="Chirps" />
- 
-    <AuthenticatedLayout>
-        <div class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
-            <form @submit.prevent="create">
-                <textarea
-                    v-model="form.message"
-                    placeholder="What's on your mind?"
-                    class="block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"
-                ></textarea>
-                <InputError :message="form.errors.message" class="mt-2" />
-                <PrimaryButton class="mt-4">Chirp</PrimaryButton>
-            </form>
-            <div class="mt-6 bg-white shadow-sm rounded-lg divide-y">
-                <Chirp
-                    v-for="chirp in chirps"
-                    :key="chirp.id"
-                    :chirp="chirp"
-                    @remove="remove" 
-                    @update="update" 
-                />
-            </div>
-        </div>
-    </AuthenticatedLayout>
+  <Head title="Chirps" />
+  <AppLayout>
+    <VContainer class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
+      <form @submit.prevent="create">
+        <VTextarea
+          v-model="form.message"
+          label="What's on your mind?"
+          variant="outlined"
+        />
+        <VBtn class="mt-4" color="primary" type="submit">Chirp</VBtn>
+      </form>
+      <VCard class="mt-6">
+        <Chirp
+          v-for="chirp in chirps"
+          :key="chirp.id"
+          :chirp="chirp"
+          @remove="remove" 
+          @update="update" 
+        />
+      </VCard>
+    </VContainer>
+  </AppLayout>
 </template>

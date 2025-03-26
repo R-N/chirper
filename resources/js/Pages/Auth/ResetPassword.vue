@@ -1,25 +1,24 @@
 <script lang="ts">
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 
+import { VCard, VCardTitle, VCardText, VCardActions, VTextField, VBtn } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import axios from '@/boot/axios'; 
 import { router } from '@inertiajs/vue3';
 
 @Component({
   components: {
-    AuthenticationCard,
     AuthenticationCardLogo,
     InputError,
-    InputLabel,
-    PrimaryButton,
-    TextInput,
-    Head
+    Head,
+    VCard,
+    VCardTitle,
+    VCardText,
+    VCardActions,
+    VTextField,
+    VBtn,
   }
 })
 class ResetPasswordPage extends Vue {
@@ -51,59 +50,26 @@ export default toNative(ResetPasswordPage);
 </script>
 
 <template>
-    <Head title="Reset Password" />
+  <Head title="Reset Password" />
 
-    <AuthenticationCard>
-        <template #logo>
-            <AuthenticationCardLogo />
-        </template>
+  <VCard class="mx-auto my-10" max-width="400" elevation="10">
+    <VCardTitle class="text-center">
+      <AuthenticationCardLogo />
+    </VCardTitle>
+    <VCardText>
+      <VTextField id="email" v-model="form.email" label="Email" type="email" required autofocus autocomplete="username" />
+      <InputError :message="form.errors.email" class="mt-2" />
 
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="email" value="Email" />
-                <TextInput
-                    id="email"
-                    v-model="form.email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
+      <VTextField id="password" v-model="form.password" label="Password" type="password" required autocomplete="new-password" class="mt-4" />
+      <InputError :message="form.errors.password" class="mt-2" />
 
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-                <TextInput
-                    id="password"
-                    v-model="form.password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="new-password"
-                />
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="password_confirmation" value="Confirm Password" />
-                <TextInput
-                    id="password_confirmation"
-                    v-model="form.password_confirmation"
-                    type="password"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="new-password"
-                />
-                <InputError class="mt-2" :message="form.errors.password_confirmation" />
-            </div>
-
-            <div class="flex items-center justify-end mt-4">
-                <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Reset Password
-                </PrimaryButton>
-            </div>
-        </form>
-    </AuthenticationCard>
+      <VTextField id="password_confirmation" v-model="form.password_confirmation" label="Confirm Password" type="password" required autocomplete="new-password" class="mt-4" />
+      <InputError :message="form.errors.password_confirmation" class="mt-2" />
+    </VCardText>
+    <VCardActions class="justify-end">
+      <VBtn color="primary" variant="elevated" :loading="form.processing" @click="submit">
+        Reset Password
+      </VBtn>
+    </VCardActions>
+  </VCard>
 </template>

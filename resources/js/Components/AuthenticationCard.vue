@@ -1,11 +1,23 @@
-<template>
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-gray-900">
-        <div>
-            <slot name="logo" />
-        </div>
+<script lang="ts">
+import { Component, Vue, toNative } from 'vue-facing-decorator';
+import { VContainer, VCard, VSheet } from 'vuetify/components';
 
-        <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
-            <slot />
-        </div>
-    </div>
+@Component({
+  components: { VContainer, VCard, VSheet },
+})
+class AuthenticationCard extends Vue {}
+
+export default toNative(AuthenticationCard);
+</script>
+
+<template>
+  <VContainer class="d-flex flex-column align-center justify-center min-vh-100 bg-grey-lighten-4 dark:bg-grey-darken-4">
+    <VSheet class="mb-4">
+      <slot name="logo" />
+    </VSheet>
+    
+    <VCard class="w-100 sm:w-md px-6 py-4 elevation-2 rounded-lg">
+      <slot />
+    </VCard>
+  </VContainer>
 </template>

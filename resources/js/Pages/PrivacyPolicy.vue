@@ -1,6 +1,7 @@
 <script setup>
 import { Head } from '@inertiajs/vue3';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
+import { VContainer, VCard, VCardText, VSheet } from 'vuetify/components';
 
 defineProps({
     policy: String,
@@ -10,15 +11,15 @@ defineProps({
 <template>
     <Head title="Privacy Policy" />
 
-    <div class="font-sans text-gray-900 dark:text-gray-100 antialiased">
-        <div class="pt-4 bg-gray-100 dark:bg-gray-900">
-            <div class="min-h-screen flex flex-col items-center pt-6 sm:pt-0">
-                <div>
-                    <AuthenticationCardLogo />
-                </div>
+    <VSheet class="d-flex flex-column align-center justify-center min-vh-100 py-6 bg-grey-lighten-3">
+        <AuthenticationCardLogo />
 
-                <div class="w-full sm:max-w-2xl mt-6 p-6 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg prose dark:prose-invert" v-html="policy" />
-            </div>
-        </div>
-    </div>
+        <VContainer class="mt-6 d-flex justify-center">
+            <VCard class="w-100 sm:w-75 elevation-2 pa-6">
+                <VCardText>
+                    <div v-html="policy" class="prose dark:prose-invert" />
+                </VCardText>
+            </VCard>
+        </VContainer>
+    </VSheet>
 </template>

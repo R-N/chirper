@@ -1,14 +1,8 @@
 <script lang="ts">
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import Checkbox from '@/Components/Checkbox.vue';
-// import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
+import { VTextField, VCheckbox, VBtn, VCard, VCardText, VCardActions, VContainer, VRow, VCol, VImg, VCardTitle } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import axios from '@/boot/axios'; 
 import { router } from '@inertiajs/vue3';
@@ -16,16 +10,20 @@ import { useAuthStore } from '@/Stores/auth';
 
 @Component({
   components: {
-    AuthenticationCard,
     AuthenticationCardLogo,
-    Checkbox,
-    //GuestLayout,
-    InputError,
-    InputLabel,
-    PrimaryButton,
-    TextInput,
     Head,
-    Link
+    Link,
+    VTextField,
+    VCheckbox,
+    VBtn,
+    VCard,
+    VCardTitle,
+    VCardText,
+    VCardActions,
+    VContainer,
+    VRow,
+    VCol,
+    VImg,
   }
 })
 class LoginPage extends Vue {
@@ -58,61 +56,25 @@ export default toNative(LoginPage);
 </script>
 
 <template>
-    <Head title="Log in" />
-
-    <AuthenticationCard>
-        <template #logo>
-            <AuthenticationCardLogo />
-        </template>
-
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
-            {{ status }}
-        </div>
-
-        <form @submit.prevent="login">
-            <div>
-                <InputLabel for="email" value="Email" />
-                <TextInput
-                    id="email"
-                    v-model="form.email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
-
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-                <TextInput
-                    id="password"
-                    v-model="form.password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="current-password"
-                />
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
-
-            <div class="block mt-4">
-                <label class="flex items-center">
-                    <Checkbox v-model:checked="form.remember" name="remember" />
-                    <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">Remember me</span>
-                </label>
-            </div>
-
-            <div class="flex items-center justify-end mt-4">
-                <Link v-if="canResetPassword" :href="route('password.request')" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                    Forgot your password?
-                </Link>
-
-                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Log in
-                </PrimaryButton>
-            </div>
-        </form>
-    </AuthenticationCard>
+  <Head title="Log in" />
+  <VContainer class="fill-height d-flex flex-column justify-center align-center">
+    <AuthenticationCardLogo justify="center" align="center" class="mb-4" />
+    <VCard class="d-flex flex-column pa-6">
+      <VCardTitle>
+        Login
+      </VCardTitle>
+      <VCardText>
+        <div v-if="status" class="mb-4 text-green-600">{{ status }}</div>
+        <VTextField v-model="form.email" label="Email" type="email" name="email" autocomplete="email" required autofocus />
+        <VTextField v-model="form.password" label="Password" type="password" name="password" autocomplete="current-password" required />
+        <VCheckbox v-model="form.remember" label="Remember me" density="compact"/>
+      </VCardText>
+        
+      <VCardActions class="d-flex justify-space-between">
+        <Link v-if="canResetPassword" :href="route('password.request')" class="text-sm">Forgot password?</Link>
+        <VBtn :loading="form.isSubmitting" @click="login" color="primary" variant="elevated">Log in</VBtn>
+      </VCardActions>
+    </VCard>
+  </VContainer>
 </template>
+  

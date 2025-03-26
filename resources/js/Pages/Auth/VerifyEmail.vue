@@ -1,23 +1,24 @@
 <script lang="ts">
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import { VCard, VCardTitle, VCardText, VCardActions, VBtn, VRow, VCol } from 'vuetify/components';
 import axios from '@/boot/axios'; 
 import { router } from '@inertiajs/vue3';
 
 @Component({
   components: {
-    AuthenticationCard,
     AuthenticationCardLogo,
-    // InputError,
-    // InputLabel,
-    PrimaryButton,
-    // TextInput,
-    Link, 
-    Head
+    Head,
+    Link,
+    VCard,
+    VCardTitle,
+    VCardText,
+    VCardActions,
+    VBtn,
+    VRow,
+    VCol,
   }
 })
 class VerifyEmailPage extends Vue {
@@ -41,43 +42,39 @@ export default toNative(VerifyEmailPage);
 
 <template>
     <Head title="Email Verification" />
-
-    <AuthenticationCard>
-        <template #logo>
+  
+    <VRow justify="center">
+      <VCol cols="12" sm="8" md="6" lg="4">
+        <VCard class="pa-6" elevation="4">
+          <VCardTitle class="text-center">
             <AuthenticationCardLogo />
-        </template>
-
-        <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-            Before continuing, could you verify your email address by clicking on the link we just emailed to you? If you didn't receive the email, we will gladly send you another.
-        </div>
-
-        <div v-if="verificationLinkSent" class="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
+          </VCardTitle>
+  
+          <VCardText class="text-secondary text-sm">
+            Before continuing, could you verify your email address by clicking on the link we just emailed to you? 
+            If you didn't receive the email, we will gladly send you another.
+          </VCardText>
+  
+          <VCardText v-if="verificationLinkSent" class="font-medium text-green">
             A new verification link has been sent to the email address you provided in your profile settings.
-        </div>
-
-        <form @submit.prevent="submit">
-            <div class="mt-4 flex items-center justify-between">
-                <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Resend Verification Email
-                </PrimaryButton>
-
-                <div>
-                    <Link
-                        :href="route('profile.show')"
-                        class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
-                    >
-                        Edit Profile</Link>
-
-                    <Link
-                        :href="route('logout')"
-                        method="post"
-                        as="button"
-                        class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 ms-2"
-                    >
-                        Log Out
-                    </Link>
-                </div>
+          </VCardText>
+  
+          <VCardActions class="mt-4 d-flex justify-space-between">
+            <VBtn color="primary" :loading="form.processing" @click.prevent="submit">
+              Resend Verification Email
+            </VBtn>
+  
+            <div>
+              <VBtn variant="text" :href="route('profile.show')">
+                Edit Profile
+              </VBtn>
+  
+              <VBtn variant="text" :href="route('logout')" method="post" as="button" class="ms-2">
+                Log Out
+              </VBtn>
             </div>
-        </form>
-    </AuthenticationCard>
-</template>
+          </VCardActions>
+        </VCard>
+      </VCol>
+    </VRow>
+  </template>

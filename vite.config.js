@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
+import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 //import babel from '@qubit-ltd/vite-plugin-babel';
 
 export default defineConfig({
@@ -13,6 +14,7 @@ export default defineConfig({
     vue({
       template: {
         transformAssetUrls: {
+          ...transformAssetUrls,
           base: null,
           includeAbsolute: false,
         },
@@ -20,6 +22,16 @@ export default defineConfig({
       script: {
         babelParserPlugins: ['decorators'],
       },
+    }),
+    vuetify({ 
+      // styles: { 
+      //   configFile: 'resources/js/settings.scss'
+      // },
+      autoImport: { 
+        labs: true,
+        ignore: [
+        ]
+      }
     }),
     //babel(),
   ],

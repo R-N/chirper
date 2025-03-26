@@ -1,13 +1,10 @@
 <script lang="ts">
 import ActionSection from '@/Components/ActionSection.vue';
-import DangerButton from '@/Components/DangerButton.vue';
-import DialogModal from '@/Components/DialogModal.vue';
 import InputError from '@/Components/InputError.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
 import { useForm } from '@inertiajs/vue3';
 import { nextTick, ref } from 'vue';
 
+import { VDialog, VTextField, VBtn } from 'vuetify/components';
 import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
 import axios from '@/boot/axios'; 
 import { router } from '@inertiajs/vue3';
@@ -15,13 +12,10 @@ import { router } from '@inertiajs/vue3';
 @Component({
   components: {
     ActionSection,
-    DialogModal,
-    DangerButton,
+    VDialog,
+    VTextField,
+    VBtn,
     InputError,
-    // InputLabel,
-    // Modal,
-    SecondaryButton,
-    TextInput
   }
 })
 class DeleteUserForm extends Vue {
@@ -69,65 +63,53 @@ export default toNative(DeleteUserForm);
 
 <template>
     <ActionSection>
-        <template #title>
+      <template #title>
+        Delete Account
+      </template>
+  
+      <template #description>
+        Permanently delete your account.
+      </template>
+  
+      <template #content>
+        <p class="text-sm text-body-1">
+          Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.
+        </p>
+  
+        <div class="mt-5">
+          <VBtn color="error" variant="elevated" @click="confirmUserDeletion">
             Delete Account
-        </template>
-
-        <template #description>
-            Permanently delete your account.
-        </template>
-
-        <template #content>
-            <div class="max-w-xl text-sm text-gray-600 dark:text-gray-400">
-                Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.
+          </VBtn>
+        </div>
+  
+        <VDialog v-model="confirmingUserDeletion" max-width="500">
+          <template #default>
+            <div class="p-5">
+              <h2 class="text-lg font-bold">Delete Account</h2>
+              <p class="mt-2">Are you sure you want to delete your account? This action cannot be undone. Please enter your password to confirm.</p>
+              
+              <VTextField
+                ref="passwordInput"
+                v-model="form.password"
+                label="Password"
+                type="password"
+                variant="outlined"
+                class="mt-4"
+                autocomplete="current-password"
+                @keyup.enter="deleteUser"
+              />
+              <InputError :message="form.errors.password" class="mt-2" />
+              
+              <div class="mt-4 d-flex justify-end">
+                <VBtn variant="text" @click="closeModal">Cancel</VBtn>
+                <VBtn color="error" variant="elevated" class="ms-3" :loading="loading" @click="deleteUser">
+                  Delete Account
+                </VBtn>
+              </div>
             </div>
-
-            <div class="mt-5">
-                <DangerButton @click="confirmUserDeletion">
-                    Delete Account
-                </DangerButton>
-            </div>
-
-            <!-- Delete Account Confirmation Modal -->
-            <DialogModal :show="confirmingUserDeletion" @close="closeModal">
-                <template #title>
-                    Delete Account
-                </template>
-
-                <template #content>
-                    Are you sure you want to delete your account? Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.
-
-                    <div class="mt-4">
-                        <TextInput
-                            ref="passwordInput"
-                            v-model="form.password"
-                            type="password"
-                            class="mt-1 block w-3/4"
-                            placeholder="Password"
-                            autocomplete="current-password"
-                            @keyup.enter="deleteUser"
-                        />
-
-                        <InputError :message="form.errors.password" class="mt-2" />
-                    </div>
-                </template>
-
-
-                <template #footer>
-                    <SecondaryButton @click="closeModal">
-                        Cancel
-                    </SecondaryButton>
-
-                    <DangerButton
-                        class="ms-3"
-                        :class="{ 'opacity-25': form.processing }"
-                        :disabled="form.processing"
-                        @click="deleteUser"
-                    >
-                        Delete Account
-                    </DangerButton>
-                </template>
-            </DialogModal>
-        </template>
+          </template>
+        </VDialog>
+      </template>
     </ActionSection>
-</template>
+  </template>
+  
