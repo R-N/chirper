@@ -2,6 +2,7 @@
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
+import InputError from '@/Components/InputError.vue';
 import { VTextField, VCheckbox, VBtn, VCard, VCardText, VCardActions, VContainer, VRow, VCol, VImg, VCardTitle } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import axios from '@/boot/axios'; 
@@ -24,6 +25,7 @@ import { useAuthStore } from '@/Stores/auth';
     VRow,
     VCol,
     VImg,
+    InputError
   }
 })
 class RegisterPage extends Vue {
@@ -57,9 +59,13 @@ export default toNative(RegisterPage);
         </VCardTitle>
         <VCardText class="d-flex flex-column pa-0 ga-2">
           <VTextField v-model="form.name" label="Name" type="text" name="name" autocomplete="name" required autofocus />
+          <InputError class="mt-2" :message="form.errors.name" />
           <VTextField v-model="form.email" label="Email" type="email" name="email"  autocomplete="email" required />
+          <InputError class="mt-2" :message="form.errors.email" />
           <VTextField v-model="form.password" label="Password" type="password" name="password" autocomplete="new-password" required />
+          <InputError class="mt-2" :message="form.errors.password" />
           <VTextField v-model="form.password_confirmation" label="Confirm Password" type="password" required />
+          <InputError class="mt-2" :message="form.errors.password_confirmation" />
   
           <VCheckbox 
             v-if="$page.props.jetstream.hasTermsAndPrivacyPolicyFeature"

@@ -1,8 +1,9 @@
 <script lang="ts">
 import { nextTick } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
+import InputError from '@/Components/InputError.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import { VTextField, VBtn, VCard, VCardTitle, VCardText, VCardActions } from 'vuetify/components';
+import { VCard, VCardText, VCardTitle, VCardActions, VTextField, VLabel, VBtn, VSpacer } from 'vuetify/components';
 import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
 import axios from '@/boot/axios'; 
 import { router } from '@inertiajs/vue3';
@@ -10,13 +11,16 @@ import { router } from '@inertiajs/vue3';
 @Component({
   components: {
     AuthenticationCardLogo,
-    VTextField,
-    VBtn,
+    InputError,
     VCard,
-    VCardTitle,
     VCardText,
+    VCardTitle,
     VCardActions,
-    Head
+    VTextField,
+    VLabel,
+    VBtn,
+    VSpacer,
+    Head,
   }
 })
 class TwoFactorChallengePage extends Vue {
@@ -57,55 +61,61 @@ export default toNative(TwoFactorChallengePage);
 
 <template>
   <Head title="Two-factor Confirmation" />
-  <div class="d-flex justify-center mt-10">
-    <VCard class="pa-6" width="400">
-      <VCardTitle class="text-center">
-        <AuthenticationCardLogo />
-      </VCardTitle>
-      <VCardText>
-        <p class="text-gray-600 text-sm">
-          <template v-if="!recovery">
-            Please confirm access to your account by entering the authentication code provided by your authenticator application.
-          </template>
-          <template v-else>
-            Please confirm access to your account by entering one of your emergency recovery codes.
-          </template>
-        </p>
+  
+  <VCard class="mx-auto" max-width="400" variant="elevated" elevation="6">
+    <VCardTitle class="text-center">
+      <AuthenticationCardLogo />
+    </VCardTitle>
+    <VCardText class="text-gray-600 dark:text-gray-400">
+      <template v-if="!recovery">
+        Please confirm access to your account by entering the authentication code provided by your authenticator application.
+      </template>
+      <template v-else>
+        Please confirm access to your account by entering one of your emergency recovery codes.
+      </template>
+    </VCardText>
+    
+    <VCardText>
+      <form @submit.prevent="submit">
+        <div v-if="!recovery">
+          <VLabel for="code">Code</VLabel>
+          <VTextField
+            id="code"
+            ref="codeInput"
+            v-model="form.code"
+            type="text"
+            inputmode="numeric"
+            variant="outlined"
+            autocomplete="one-time-code"
+            autofocus
+          />
+          <InputError class="mt-2" :message="form.errors.code" />
+        </div>
         
-        <VTextField
-          v-if="!recovery"
-          id="code"
-          ref="codeInput"
-          v-model="form.code"
-          label="Authentication Code"
-          type="text"
-          inputmode="numeric"
-          autofocus
-          autocomplete="one-time-code"
-          :error-messages="form.errors.code"
-        />
-        
-        <VTextField
-          v-else
-          id="recovery_code"
-          ref="recoveryCodeInput"
-          v-model="form.recovery_code"
-          label="Recovery Code"
-          type="text"
-          autocomplete="one-time-code"
-          :error-messages="form.errors.recovery_code"
-        />
-      </VCardText>
-      
-      <VCardActions class="d-flex justify-space-between">
-        <VBtn variant="text" @click="toggleRecovery">
-          <template v-if="!recovery">Use a recovery code</template>
-          <template v-else>Use an authentication code</template>
-        </VBtn>
-        <VBtn color="primary" variant="elevated" :loading="form.processing" @click="submit">
-          Log in
-        </VBtn>
-      </VCardActions>
-    </VCard>
-  </div>
+        <div v-else>
+          <VLabel for="recovery_code">Recovery Code</VLabel>
+          <VTextField
+            id="recovery_code"
+            ref="recoveryCodeInput"
+            v-model="form.recovery_code"
+            type="text"
+            variant="outlined"
+            autocomplete="one-time-code"
+          />
+          <InputError class="mt-2" :message="form.errors.recovery_code" />
+        </div>
+      </form>
+    </VCardText>
+    
+    <VCardActions class="d-flex justify-end">
+      <VBtn variant="text" @click.prevent="toggleRecovery">
+        <template v-if="!recovery">Use a recovery code</template>
+        <template v-else>Use an authentication code</template>
+      </VBtn>
+      <VSpacer />
+      <VBtn color="primary" variant="elevated" :loading="form.processing" @click="submit">
+        Log in
+      </VBtn>
+    </VCardActions>
+  </VCard>
 </template>

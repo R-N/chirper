@@ -2,7 +2,6 @@
 import ActionMessage from '@/Components/ActionMessage.vue';
 import FormSection from '@/Components/FormSection.vue';
 import InputError from '@/Components/InputError.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { useForm } from '@inertiajs/vue3';
 
 import { VTextField, VBtn, VRow, VCol } from 'vuetify/components';
@@ -15,7 +14,6 @@ import { router } from '@inertiajs/vue3';
     ActionMessage,
     FormSection,
     InputError,
-    PrimaryButton,
     VTextField,
     VBtn,
     VRow,

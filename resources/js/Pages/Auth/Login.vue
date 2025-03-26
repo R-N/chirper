@@ -2,6 +2,7 @@
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
+import InputError from '@/Components/InputError.vue';
 import { VTextField, VCheckbox, VBtn, VCard, VCardText, VCardActions, VContainer, VRow, VCol, VImg, VCardTitle } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import axios from '@/boot/axios'; 
@@ -24,6 +25,7 @@ import { useAuthStore } from '@/Stores/auth';
     VRow,
     VCol,
     VImg,
+    InputError
   }
 })
 class LoginPage extends Vue {
@@ -66,7 +68,9 @@ export default toNative(LoginPage);
       <VCardText>
         <div v-if="status" class="mb-4 text-green-600">{{ status }}</div>
         <VTextField v-model="form.email" label="Email" type="email" name="email" autocomplete="email" required autofocus />
+        <InputError class="mt-2" :message="form.errors.email" />
         <VTextField v-model="form.password" label="Password" type="password" name="password" autocomplete="current-password" required />
+        <InputError class="mt-2" :message="form.errors.password" />
         <VCheckbox v-model="form.remember" label="Remember me" density="compact"/>
       </VCardText>
         

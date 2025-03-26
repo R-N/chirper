@@ -2,10 +2,8 @@
 import ActionMessage from '@/Components/ActionMessage.vue';
 import FormSection from '@/Components/FormSection.vue';
 import InputError from '@/Components/InputError.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
-import { VTextField, VFileInput, VBtn, VCard, VImg } from 'vuetify/components';
+import { VTextField, VFileInput, VBtn, VCard, VImg, VAvatar, VRow, VCol } from 'vuetify/components';
 
 import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
 import axios from '@/boot/axios'; 
@@ -13,16 +11,17 @@ import axios from '@/boot/axios';
 
 @Component({
   components: {
+    InputError,
     ActionMessage,
     FormSection,
-    InputError,
-    PrimaryButton,
-    SecondaryButton,
     VTextField,
     VFileInput,
     VBtn,
     VCard,
     VImg,
+    VAvatar,
+    VRow,
+    VCol,
   }
 })
 class UpdateProfileInformationForm extends Vue {
@@ -138,7 +137,7 @@ export default toNative(UpdateProfileInformationForm);
 </script>
 
 <template>
-  <FormSection @submitted="updateProfileInformation" enctype="multipart/form-data">
+  <FormSection @submitted="updatePassword">
     <template #title>
       Profile Information
     </template>
@@ -147,10 +146,9 @@ export default toNative(UpdateProfileInformationForm);
       Update your account's profile information and email address.
     </template>
 
-    <template #form>
-      <!-- Profile Photo -->
+    <template #form>    
       <VRow>
-        <VCol v-if="$page.props.jetstream.managesProfilePhotos" cols="12"  class="d-flex flex-column">
+        <VCol cols="12" class="d-flex flex-column">
           <VFileInput
             id="photo"
             class="d-none"
@@ -167,7 +165,7 @@ export default toNative(UpdateProfileInformationForm);
             <VBtn color="secondary" class="me-2" @click.prevent="photoInput?.click()">
               Select A New Photo
             </VBtn>
-            <VBtn color="secondary" v-if="user.profile_photo_path" @click.prevent="deletePhoto">
+            <VBtn color="error" v-if="user.profile_photo_path" @click.prevent="deletePhoto">
               Remove Photo
             </VBtn>
           </div>
@@ -176,7 +174,6 @@ export default toNative(UpdateProfileInformationForm);
         </VCol>
       </VRow>
 
-      <!-- Name -->
       <VRow>
         <VCol cols="12">
           <VTextField v-model="form.name" label="Name" required autocomplete="name" />
@@ -184,19 +181,18 @@ export default toNative(UpdateProfileInformationForm);
         </VCol>
       </VRow>
 
-      <!-- Email -->
       <VRow>
         <VCol cols="12">
           <VTextField v-model="form.email" label="Email" required autocomplete="username" type="email" />
           <InputError :message="form.errors.email" class="mt-2" />
 
           <div v-if="$page.props.jetstream.hasEmailVerification && user.email_verified_at === null">
-            <p class="text-sm mt-2">
+            <p class="text-body-2 mt-2">
               Your email address is unverified.
-              <VBtn variant="text" @click.prevent="sendEmailVerification">Click here to re-send the verification email.</VBtn>
+              <VBtn variant="text" @click.prevent="verificationLinkSent = true">Click here to re-send the verification email.</VBtn>
             </p>
 
-            <div v-show="verificationLinkSent" class="mt-2 font-medium text-sm text-green-600">
+            <div v-show="verificationLinkSent" class="mt-2 font-weight-bold text-green">
               A new verification link has been sent to your email address.
             </div>
           </div>
@@ -208,8 +204,7 @@ export default toNative(UpdateProfileInformationForm);
       <ActionMessage :on="form.recentlySuccessful" class="me-3">
         Saved.
       </ActionMessage>
-
-      <VBtn color="primary" variant="elevated" type="submit" :disabled="form.processing">
+      <VBtn color="primary" variant="elevated" type="submit" :loading="form.processing" @click="updateProfileInformation">
         Save
       </VBtn>
     </template>
