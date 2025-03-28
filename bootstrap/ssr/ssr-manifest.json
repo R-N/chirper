@@ -1,199 +1,178 @@
 {
   "\u0000plugin-vue:export-helper": [
-    "/build/assets/_plugin-vue_export-helper-1tPrXgE0.js"
+    "/build/assets/axios-l-eSoL-p.js"
   ],
   "node_modules/laravel-vite-plugin/inertia-helpers/index.js": [],
   "resources/js/Components/ActionMessage.vue": [
-    "/build/assets/ActionMessage-EMJ1eKWh.js"
+    "/build/assets/ActionMessage-D7qvabMp.js"
   ],
   "resources/js/Components/ActionMessage.vue?vue&type=script&lang.ts": [
-    "/build/assets/ActionMessage-EMJ1eKWh.js"
+    "/build/assets/ActionMessage-D7qvabMp.js"
   ],
   "resources/js/Components/ActionSection.vue": [
-    "/build/assets/ActionSection-8zbzdLMG.js"
+    "/build/assets/ActionSection-VPAMaknK.js"
   ],
   "resources/js/Components/ActionSection.vue?vue&type=script&lang.ts": [
-    "/build/assets/ActionSection-8zbzdLMG.js"
+    "/build/assets/ActionSection-VPAMaknK.js"
   ],
   "resources/js/Components/ApplicationLogo.vue": [
-    "/build/assets/AppLayout-DTnU2NY8.js"
+    "/build/assets/AppLayout-CJzwvG5j.js"
   ],
   "resources/js/Components/AuthenticationCardLogo.vue": [
     "/build/assets/AuthenticationCardLogo-BCaUMAMf.js"
   ],
-  "resources/js/Components/Checkbox.vue": [
-    "/build/assets/ApiTokenManager-MT8gQaXl.js"
-  ],
   "resources/js/Components/Chirp.vue": [
-    "/build/assets/Chirp-CYCrUEws.js"
+    "/build/assets/Chirp-CTKjf79B.js"
   ],
   "resources/js/Components/Chirp.vue?vue&type=script&lang.ts": [
-    "/build/assets/Chirp-CYCrUEws.js"
-  ],
-  "resources/js/Components/ConfirmationModal.vue": [
-    "/build/assets/ApiTokenManager-MT8gQaXl.js"
+    "/build/assets/Chirp-CTKjf79B.js"
   ],
   "resources/js/Components/ConfirmsPassword.vue": [
-    "/build/assets/TwoFactorAuthenticationForm-DZYTTFZg.js"
+    "/build/assets/TwoFactorAuthenticationForm-BqvL2ta0.js"
   ],
   "resources/js/Components/ConfirmsPassword.vue?vue&type=script&lang.ts": [
-    "/build/assets/TwoFactorAuthenticationForm-DZYTTFZg.js"
-  ],
-  "resources/js/Components/DangerButton.vue": [
-    "/build/assets/ApiTokenManager-MT8gQaXl.js"
-  ],
-  "resources/js/Components/DialogModal.vue": [
-    "/build/assets/ApiTokenManager-MT8gQaXl.js"
+    "/build/assets/TwoFactorAuthenticationForm-BqvL2ta0.js"
   ],
   "resources/js/Components/FormSection.vue": [
-    "/build/assets/FormSection-DyIRBskR.js"
+    "/build/assets/FormSection-DtCNjUcg.js"
   ],
   "resources/js/Components/FormSection.vue?vue&type=script&lang.ts": [
-    "/build/assets/FormSection-DyIRBskR.js"
+    "/build/assets/FormSection-DtCNjUcg.js"
   ],
   "resources/js/Components/InputError.vue": [
-    "/build/assets/InputError-BIJeS7qt.js"
+    "/build/assets/InputError-BNQz4Gj5.js"
   ],
   "resources/js/Components/InputError.vue?vue&type=script&lang.ts": [
-    "/build/assets/InputError-BIJeS7qt.js"
-  ],
-  "resources/js/Components/InputLabel.vue": [
-    "/build/assets/ApiTokenManager-MT8gQaXl.js"
-  ],
-  "resources/js/Components/Modal.vue": [
-    "/build/assets/ApiTokenManager-MT8gQaXl.js"
-  ],
-  "resources/js/Components/PrimaryButton.vue": [
-    "/build/assets/ApiTokenManager-MT8gQaXl.js"
-  ],
-  "resources/js/Components/SecondaryButton.vue": [
-    "/build/assets/ApiTokenManager-MT8gQaXl.js"
+    "/build/assets/InputError-BNQz4Gj5.js"
   ],
   "resources/js/Components/SectionBorder.vue": [
-    "/build/assets/SectionBorder-DTXjL6cy.js"
+    "/build/assets/Show-DC6MQTZ7.js"
+  ],
+  "resources/js/Components/SectionBorder.vue?vue&type=script&lang.ts": [
+    "/build/assets/Show-DC6MQTZ7.js"
   ],
   "resources/js/Components/SectionTitle.vue": [
-    "/build/assets/SectionTitle-BOMh00mo.js"
+    "/build/assets/SectionTitle-DOkVpph5.js"
   ],
   "resources/js/Components/SectionTitle.vue?vue&type=script&lang.ts": [
-    "/build/assets/SectionTitle-BOMh00mo.js"
-  ],
-  "resources/js/Components/TextInput.vue": [
-    "/build/assets/ApiTokenManager-MT8gQaXl.js"
+    "/build/assets/SectionTitle-DOkVpph5.js"
   ],
   "resources/js/Components/Welcome.vue": [
-    "/build/assets/Dashboard-WE9sHKiw.js"
+    "/build/assets/Dashboard-CGxw9weS.js"
   ],
   "resources/js/Layouts/AppLayout.vue": [
-    "/build/assets/AppLayout-DTnU2NY8.js"
+    "/build/assets/AppLayout-CJzwvG5j.js"
   ],
   "resources/js/Layouts/AppLayout.vue?vue&type=script&lang.ts": [
-    "/build/assets/AppLayout-DTnU2NY8.js"
+    "/build/assets/AppLayout-CJzwvG5j.js"
   ],
   "resources/js/Pages/API/Index.vue": [
-    "/build/assets/Index-wr8hbTIK.js"
+    "/build/assets/Index-D8Z9RrCD.js"
   ],
   "resources/js/Pages/API/Partials/ApiTokenManager.vue": [
-    "/build/assets/ApiTokenManager-MT8gQaXl.js"
+    "/build/assets/ApiTokenManager-7nxV6DLJ.js"
+  ],
+  "resources/js/Pages/API/Partials/ApiTokenManager.vue?vue&type=script&lang.ts": [
+    "/build/assets/ApiTokenManager-7nxV6DLJ.js"
   ],
   "resources/js/Pages/Auth/ConfirmPassword.vue": [
-    "/build/assets/ConfirmPassword-DA6_3K_8.js"
+    "/build/assets/ConfirmPassword-4fQjCbLJ.js"
   ],
   "resources/js/Pages/Auth/ConfirmPassword.vue?vue&type=script&lang.ts": [
-    "/build/assets/ConfirmPassword-DA6_3K_8.js"
+    "/build/assets/ConfirmPassword-4fQjCbLJ.js"
   ],
   "resources/js/Pages/Auth/ForgotPassword.vue": [
-    "/build/assets/ForgotPassword-CA670wLT.js"
+    "/build/assets/ForgotPassword-C7VWd82D.js"
   ],
   "resources/js/Pages/Auth/ForgotPassword.vue?vue&type=script&lang.ts": [
-    "/build/assets/ForgotPassword-CA670wLT.js"
+    "/build/assets/ForgotPassword-C7VWd82D.js"
   ],
   "resources/js/Pages/Auth/Login.vue": [
-    "/build/assets/Login-DEjlHZjd.js"
+    "/build/assets/Login-C6Vgn7st.js"
   ],
   "resources/js/Pages/Auth/Login.vue?vue&type=script&lang.ts": [
-    "/build/assets/Login-DEjlHZjd.js"
+    "/build/assets/Login-C6Vgn7st.js"
   ],
   "resources/js/Pages/Auth/Register.vue": [
-    "/build/assets/Register-DMHXQXvS.js"
+    "/build/assets/Register-CozTfQpL.js"
   ],
   "resources/js/Pages/Auth/Register.vue?vue&type=script&lang.ts": [
-    "/build/assets/Register-DMHXQXvS.js"
+    "/build/assets/Register-CozTfQpL.js"
   ],
   "resources/js/Pages/Auth/ResetPassword.vue": [
-    "/build/assets/ResetPassword-DmLE8ihy.js"
+    "/build/assets/ResetPassword-Bfrui1xq.js"
   ],
   "resources/js/Pages/Auth/ResetPassword.vue?vue&type=script&lang.ts": [
-    "/build/assets/ResetPassword-DmLE8ihy.js"
+    "/build/assets/ResetPassword-Bfrui1xq.js"
   ],
   "resources/js/Pages/Auth/TwoFactorChallenge.vue": [
-    "/build/assets/TwoFactorChallenge-CUAAqEBV.js"
+    "/build/assets/TwoFactorChallenge-CkSm2j-H.js"
   ],
   "resources/js/Pages/Auth/TwoFactorChallenge.vue?vue&type=script&lang.ts": [
-    "/build/assets/TwoFactorChallenge-CUAAqEBV.js"
+    "/build/assets/TwoFactorChallenge-CkSm2j-H.js"
   ],
   "resources/js/Pages/Auth/VerifyEmail.vue": [
-    "/build/assets/VerifyEmail-CqOLm32T.js"
+    "/build/assets/VerifyEmail-DzGErUex.js"
   ],
   "resources/js/Pages/Auth/VerifyEmail.vue?vue&type=script&lang.ts": [
-    "/build/assets/VerifyEmail-CqOLm32T.js"
+    "/build/assets/VerifyEmail-DzGErUex.js"
   ],
   "resources/js/Pages/Chirps/Chirp.vue": [
-    "/build/assets/Chirp-BAUREpj8.js"
+    "/build/assets/Chirp-BFUIh1rx.js"
   ],
   "resources/js/Pages/Chirps/Index.vue": [
-    "/build/assets/Index-Bh2TwqP5.js"
+    "/build/assets/Index-Do76Ldi2.js"
   ],
   "resources/js/Pages/Chirps/Index.vue?vue&type=script&lang.ts": [
-    "/build/assets/Index-Bh2TwqP5.js"
+    "/build/assets/Index-Do76Ldi2.js"
   ],
   "resources/js/Pages/Dashboard.vue": [
-    "/build/assets/Dashboard-WE9sHKiw.js"
+    "/build/assets/Dashboard-CGxw9weS.js"
   ],
   "resources/js/Pages/PrivacyPolicy.vue": [
     "/build/assets/PrivacyPolicy-Dudv4F-7.js"
   ],
   "resources/js/Pages/Profile/Edit.vue": [
-    "/build/assets/Edit-D3YP0Au1.js"
+    "/build/assets/Edit-BOXOEo3z.js"
   ],
   "resources/js/Pages/Profile/Edit.vue?vue&type=script&lang.ts": [
-    "/build/assets/Edit-D3YP0Au1.js"
+    "/build/assets/Edit-BOXOEo3z.js"
   ],
   "resources/js/Pages/Profile/Partials/DeleteUserForm.vue": [
-    "/build/assets/DeleteUserForm-BQF2rJAy.js"
+    "/build/assets/DeleteUserForm-C3sKc2WM.js"
   ],
   "resources/js/Pages/Profile/Partials/DeleteUserForm.vue?vue&type=script&lang.ts": [
-    "/build/assets/DeleteUserForm-BQF2rJAy.js"
+    "/build/assets/DeleteUserForm-C3sKc2WM.js"
   ],
   "resources/js/Pages/Profile/Partials/LogoutOtherBrowserSessionsForm.vue": [
-    "/build/assets/LogoutOtherBrowserSessionsForm-BI6Thsz6.js"
+    "/build/assets/LogoutOtherBrowserSessionsForm-DiBd1teD.js"
   ],
   "resources/js/Pages/Profile/Partials/LogoutOtherBrowserSessionsForm.vue?vue&type=script&lang.ts": [
-    "/build/assets/LogoutOtherBrowserSessionsForm-BI6Thsz6.js"
+    "/build/assets/LogoutOtherBrowserSessionsForm-DiBd1teD.js"
   ],
   "resources/js/Pages/Profile/Partials/TwoFactorAuthenticationForm.vue": [
-    "/build/assets/TwoFactorAuthenticationForm-DZYTTFZg.js"
+    "/build/assets/TwoFactorAuthenticationForm-BqvL2ta0.js"
   ],
   "resources/js/Pages/Profile/Partials/TwoFactorAuthenticationForm.vue?vue&type=script&lang.ts": [
-    "/build/assets/TwoFactorAuthenticationForm-DZYTTFZg.js"
+    "/build/assets/TwoFactorAuthenticationForm-BqvL2ta0.js"
   ],
   "resources/js/Pages/Profile/Partials/UpdatePasswordForm.vue": [
-    "/build/assets/UpdatePasswordForm-TTip9ZN1.js"
+    "/build/assets/UpdatePasswordForm-CIHt6RGn.js"
   ],
   "resources/js/Pages/Profile/Partials/UpdatePasswordForm.vue?vue&type=script&lang.ts": [
-    "/build/assets/UpdatePasswordForm-TTip9ZN1.js"
+    "/build/assets/UpdatePasswordForm-CIHt6RGn.js"
   ],
   "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.vue": [
-    "/build/assets/UpdateProfileInformationForm-Bb337xpc.js"
+    "/build/assets/UpdateProfileInformationForm-Brp6Rq9Q.js"
   ],
   "resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.vue?vue&type=script&lang.ts": [
-    "/build/assets/UpdateProfileInformationForm-Bb337xpc.js"
+    "/build/assets/UpdateProfileInformationForm-Brp6Rq9Q.js"
   ],
   "resources/js/Pages/Profile/Show.vue": [
-    "/build/assets/Show-D1FJIqCM.js"
+    "/build/assets/Show-DC6MQTZ7.js"
   ],
   "resources/js/Pages/Profile/Show.vue?vue&type=script&lang.ts": [
-    "/build/assets/Show-D1FJIqCM.js"
+    "/build/assets/Show-DC6MQTZ7.js"
   ],
   "resources/js/Pages/TermsOfService.vue": [
     "/build/assets/TermsOfService-CajdoPEb.js"
@@ -205,7 +184,7 @@
     "/build/assets/auth-DrKxFB6F.js"
   ],
   "resources/js/boot/axios.js": [
-    "/build/assets/axios-DQioN9B6.js"
+    "/build/assets/axios-l-eSoL-p.js"
   ],
   "resources/js/ssr.js": [],
   "vendor/tightenco/ziggy/dist/index.js": []
