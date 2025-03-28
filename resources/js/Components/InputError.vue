@@ -1,10 +1,11 @@
 <script lang="ts">
 import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
-import { VAlert } from "vuetify/components";
+import { VAlert, VExpandTransition } from "vuetify/components";
 
 @Component({
   components: {
     VAlert,
+    VExpandTransition,
   },
 })
 class InputError extends Vue {
@@ -15,7 +16,9 @@ export default toNative(InputError);
 </script>
 
 <template>
-  <VAlert v-if="message" type="error" variant="tonal" density="compact">
-    {{ message }}
-  </VAlert>
+  <VExpandTransition>
+    <VAlert v-if="message" type="error" variant="tonal" density="compact">
+      {{ message }}
+    </VAlert>
+  </VExpandTransition>
 </template>

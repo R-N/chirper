@@ -8,9 +8,9 @@ import { VRow, VCol } from 'vuetify/components';
     VCol,
   },
 })
-class SectionHeader extends Vue {}
+class SectionTitle extends Vue {}
 
-export default toNative(SectionHeader);
+export default toNative(SectionTitle);
 </script>
 
 <template>
