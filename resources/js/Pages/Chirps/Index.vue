@@ -2,7 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Chirp from '@/Components/Chirp.vue';
 import { useForm, Head } from '@inertiajs/vue3';
-import axios from '@/boot/axios'; 
+import axios from '@/plugins/axios'; 
 
 import { VContainer, VTextarea, VBtn, VCard } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';

@@ -5,7 +5,7 @@ import ActionSection from '@/Components/ActionSection.vue';
 
 import { VDialog, VTextField, VBtn, VRow, VCol } from 'vuetify/components';
 import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
-import axios from '@/boot/axios'; 
+import profileService from '@/services/user/profile.js';
 import { router } from '@inertiajs/vue3';
 
 @Component({
@@ -33,15 +33,8 @@ class LogoutOtherBrowserSessionsForm extends Vue {
   };
 
   async logoutOtherBrowserSessions(){
-    let target = route('other-browser-sessions.destroy');
-    // form.delete(target, {
-    //   preserveScroll: true,
-    //   onSuccess: () => closeModal(),
-    //   onError: () => passwordInput.value.focus(),
-    //   onFinish: () => form.reset(),
-    // });
     try{
-      let res = await axios.delete(target, { data: this.form });
+      let res = await profileService.logoutOtherBrowserSessions(this.form);
       this.closeModal();
     } catch (error) {
       this.passwordInput.focus();

@@ -5,7 +5,7 @@ import { useForm } from '@inertiajs/vue3';
 
 import { VMenu, VTextarea, VBtn, VIcon, VList, VListItem } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import axios from '@/boot/axios'; 
+import axios from '@/plugins/axios'; 
 
 @Component({
   components: {

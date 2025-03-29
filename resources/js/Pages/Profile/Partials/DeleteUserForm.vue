@@ -6,7 +6,7 @@ import { nextTick, ref } from 'vue';
 
 import { VDialog, VTextField, VBtn } from 'vuetify/components';
 import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
-import axios from '@/boot/axios'; 
+import profileService from '@/services/user/profile.js';
 import { router } from '@inertiajs/vue3';
 
 @Component({
@@ -39,18 +39,10 @@ class DeleteUserForm extends Vue {
   };
 
   async deleteUser() {
-    //let target = route('profile.destroy');
-    let target = route('current-user.destroy');
-    // form.delete(target, {
-    //     preserveScroll: true,
-    //     onSuccess: () => closeModal(),
-    //     onError: () => passwordInput.value.focus(),
-    //     onFinish: () => form.reset(),
-    // });
     try{
-        let res = await axios.delete(target, { data: this.form });
+        let res = await profileService.deleteUser(this.form);
         this.closeModal();
-        router.visit(res.data.redirect || "/");
+        router.visit(res.redirect || "/");
     } catch (error) {
         this.passwordInput.focus();
     } finally {

@@ -5,9 +5,8 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 import InputError from '@/Components/InputError.vue';
 import { VTextField, VCheckbox, VBtn, VCard, VCardText, VCardActions, VContainer, VRow, VCol, VImg, VCardTitle } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import axios from '@/boot/axios'; 
+import authService from '@/services/user/auth.js';
 import { router } from '@inertiajs/vue3';
-import { useAuthStore } from '@/Stores/auth';
 
 @Component({
   components: {
@@ -39,19 +38,9 @@ class LoginPage extends Vue {
   });
 
   async login() {
-    const authStore = useAuthStore();
-
-    let form = this.form.transform(data => ({
-        ...data,
-        remember: this.form.remember ? 'on' : '',
-    }));
-
-    //await form.post(route('login'));
-    let res = await axios.post("/login", form);
+    let res = await authService.login(this.form);
     this.form.reset('password');
-    authStore.updateUser(res.data.user);
-    authStore.setAuthToken(res.data.auth_token);
-    router.visit(res.data.redirect || "/dashboard");
+    router.visit(res.redirect || "/dashboard");
   }
 }
 export default toNative(LoginPage);

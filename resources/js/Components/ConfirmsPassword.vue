@@ -1,7 +1,7 @@
 <script lang="ts">
 import { Component, Vue, Ref, toNative, Prop } from 'vue-facing-decorator';
 import { VDialog, VCard, VCardTitle, VCardText, VCardActions, VTextField, VBtn } from 'vuetify/components';
-import axios from '@/boot/axios';
+import axios from '@/plugins/axios';
 import { useForm } from "@inertiajs/vue3";
 
 @Component({

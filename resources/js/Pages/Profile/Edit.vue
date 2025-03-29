@@ -7,7 +7,7 @@ import { Head } from '@inertiajs/vue3';
 
 import { VContainer, VRow, VCol, VCard, VCardTitle, VCardText } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import axios from '@/boot/axios'; 
+import profileService from '@/services/user/profile.js';
 import { router } from '@inertiajs/vue3';
 
 @Component({
@@ -28,12 +28,6 @@ import { router } from '@inertiajs/vue3';
 class ProfileEditPage extends Vue {
   @Prop(Boolean) mustVerifyEmail;
   @Prop(String) status;
-
-  async submit() {
-    //await this.form.post(route('verification.send'));
-    let res = await axios.post(route('verification.send'), this.form);
-    router.visit(res.data.redirect || "/login");
-  }
 }
 export default toNative(ProfileEditPage);
 </script>

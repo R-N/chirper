@@ -4,8 +4,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import { VAppBar, VToolbarTitle, VBtn, VMenu, VList, VListItem, VAvatar, VIcon, VContainer, VRow, VCol, VNavigationDrawer, VImg, VMain  } from 'vuetify/components';
 
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import { useAuthStore } from '@/Stores/auth';
-import axios from '@/boot/axios'; 
+import authService from '@/services/user/auth.js';
 
 @Component({
   components: {
@@ -34,22 +33,11 @@ class AppLayout extends Vue {
   appName = import.meta.env.VITE_APP_NAME || 'Chirper';
 
   async logout() {
-    const authStore = useAuthStore();
-
-    //router.post(route('logout'));
-    let res = await axios.post("/logout");
-    authStore.logout();
-    router.visit(res.data.redirect || "/");
+    let res = await authService.logout();
+    router.visit(res.redirect || "/");
   }
   async switchToTeam(team){
-    // router.put(route('current-team.update'), {
-    //   team_id: team.id,
-    // }, {
-    //   preserveState: false,
-    // });
-    let res = await axios.put(route('current-team.update'), {
-      team_id: team.id,
-    });
+    let res = await authService.switchToTeam(team);
   };
 }
 export default toNative(AppLayout);

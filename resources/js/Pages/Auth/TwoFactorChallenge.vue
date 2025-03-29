@@ -5,7 +5,7 @@ import InputError from '@/Components/InputError.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 import { VCard, VCardText, VCardTitle, VCardActions, VTextField, VLabel, VBtn, VSpacer } from 'vuetify/components';
 import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
-import axios from '@/boot/axios'; 
+import authService from '@/services/user/auth.js';
 import { router } from '@inertiajs/vue3';
 
 @Component({
@@ -49,9 +49,8 @@ class TwoFactorChallengePage extends Vue {
   };
 
   async submit() {
-    // await this.form.post(route('two-factor.login'));
-    let res = await axios.post(route('two-factor.login'), this.form);
-    router.visit(res.data.redirect || "/dashboard");
+    let res = await authService.twoFactorLogin(this.form);
+    router.visit(res.redirect || "/dashboard");
   }
 }
 export default toNative(TwoFactorChallengePage);

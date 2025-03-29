@@ -28,7 +28,7 @@
         "resources/js/**/*.js",
         "resources/js/**/*.jsx",
         "resources/js/**/*.vue",
-        "resources/js/boot/axios.js"
+        "resources/js/plugins/axios.js"
     ],
     "exclude": ["node_modules", "public"]
 }

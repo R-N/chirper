@@ -6,7 +6,7 @@ import { useForm } from '@inertiajs/vue3';
 
 import { VTextField, VBtn, VRow, VCol } from 'vuetify/components';
 import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
-import axios from '@/boot/axios'; 
+import profileService from '@/services/user/profile.js';
 import { router } from '@inertiajs/vue3';
 
 @Component({
@@ -31,28 +31,10 @@ class UpdatePasswordForm extends Vue {
   });
 
   async updatePassword() {
-    // let target = route('password.update');
-    // let target = '/user/password';
-    let target = route('user-password.update');
-    // form.put(target, {
-    //     errorBag: 'updatePassword',
-    //     preserveScroll: true,
-    //     onSuccess: () => form.reset(),
-    //     onError: () => {
-    //         if (form.errors.password) {
-    //             form.reset('password', 'password_confirmation');
-    //             passwordInput.value.focus();
-    //         }
-    //         if (form.errors.current_password) {
-    //             form.reset('current_password');
-    //             currentPasswordInput.value.focus();
-    //         }
-    //     },
-    // });
     try{
-      let res = await axios.put(target, this.form);
+      let res = await profileService.updatePassword(this.form);
       this.form.reset();
-      router.visit(res.data.redirect || "/login");
+      router.visit(res.redirect || "/login");
     }catch(error){
       if (error.response?.status === 422) {
         this.form.errors = error.response.data.errors;

@@ -5,7 +5,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 
 import { VCard, VCardTitle, VCardText, VCardActions, VTextField, VBtn } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import axios from '@/boot/axios'; 
+import authService from '@/services/user/auth.js'; 
 import { router } from '@inertiajs/vue3';
 
 @Component({
@@ -38,12 +38,9 @@ class ResetPasswordPage extends Vue {
   }
 
   async submit() {
-    //let target = route('password.store');
-    let target = route('password.update');
-    //await this.form.post(target);
-    let res = await axios.post(target, this.form);
+    let res = await authService.resetPassword(this.form);
     this.form.reset('password', 'password_confirmation');
-    router.visit(res.data.redirect || "/login");
+    router.visit(res.redirect || "/login");
   }
 }
 export default toNative(ResetPasswordPage);

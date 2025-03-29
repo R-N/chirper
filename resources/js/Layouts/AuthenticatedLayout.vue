@@ -4,9 +4,8 @@ import { Link } from '@inertiajs/vue3';
 import { VApp, VAppBar, VToolbarTitle, VBtn, VIcon, VMenu, VList, VListItem, VAvatar, VImg, VNavigationDrawer, VContainer, VSpacer, VMain } from 'vuetify/components';
 
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import { useAuthStore } from '@/Stores/auth';
 import { router } from '@inertiajs/vue3';
-import axios from '@/boot/axios'; 
+import authService from '@/services/user/auth.js';
 
 @Component({
   components: {
@@ -33,19 +32,8 @@ class AuthenticatedLayout extends Vue {
   appName = import.meta.env.VITE_APP_NAME || 'Chirper';
 
   async logout() {
-    const authStore = useAuthStore();
-
-    let res = await axios.post("/logout");
-    authStore.logout();
-    // Object.keys(Cookies.get()).forEach(cookieName => {
-    //     console.log("removing cookie " + cookieName)
-    //     Cookies.remove(cookieName, { 
-    //         path: '/',
-    //         domain: import.meta.env.VITE_COOKIE_DOMAIN,
-    //         secure: true, 
-    //     }); 
-    // });
-    router.visit(res.data.redirect || "/");
+    let res = await authService.logout();
+    router.visit(res.redirect || "/");
   }
 }
 export default toNative(AuthenticatedLayout);

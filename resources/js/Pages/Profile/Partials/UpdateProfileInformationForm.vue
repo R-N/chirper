@@ -6,7 +6,7 @@ import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import { VTextField, VFileInput, VBtn, VCard, VImg, VAvatar, VRow, VCol } from 'vuetify/components';
 
 import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
-import axios from '@/boot/axios'; 
+import profileService from '@/services/user/profile.js';
 
 
 @Component({
@@ -46,40 +46,13 @@ class UpdateProfileInformationForm extends Vue {
     this.form.email = this.user.email;
   }
 
-  async submit() {
-    //await this.form.patch(route('profile.update'));
-    let res = await axios.patch(route('profile.update'), this.form);
-  }
-
   async updateProfileInformation(){
     if (this.photoInput) {
       this.form.photo = this.photoInput.files[0];
     }
-
-    // this.form.post(route('user-profile-information.update'), {
-    //     errorBag: 'updateProfileInformation',
-    //     preserveScroll: true,
-    //     onSuccess: () => this.clearPhotoFileInput(),
-    // });
-
-    const formData = new FormData();
-    
-    formData.append("name", this.form.name);
-    formData.append("email", this.form.email);
-    //formData.append('_method', 'PUT');
-    if (this.photoInput && this.photoInput.files[0]) {
-      formData.append("photo", this.photoInput.files[0]);
-    }
     
     try{
-      let res = await axios.post(route('user-profile-information.update'), formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        params: {
-          // Laravel won't process multipart/form-data in a PUT request
-          // So we send a POST request but spoof it as PUT
-          _method: "PUT", 
-        },
-      });
+      let res = await profileService.updateProfileInformation(this.form, this.photoInput.files[0]);
       this.clearPhotoFileInput();
       router.reload({ preserveScroll: true });
     } catch (error) {
@@ -114,14 +87,7 @@ class UpdateProfileInformationForm extends Vue {
   };
 
   async deletePhoto(){
-    // router.delete(route('current-user-photo.destroy'), {
-    //     preserveScroll: true,
-    //     onSuccess: () => {
-    //         this.photoPreview = null;
-    //         this.clearPhotoFileInput();
-    //     },
-    // });
-    let res = await axios.delete(route('current-user-photo.destroy'));
+    let res = await profileService.deletePhoto();
     this.photoPreview = null;
     this.clearPhotoFileInput();
     router.reload({ preserveScroll: true });

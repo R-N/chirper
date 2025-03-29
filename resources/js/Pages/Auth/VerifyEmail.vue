@@ -4,7 +4,7 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import { VCard, VCardTitle, VCardText, VCardActions, VBtn, VRow, VCol } from 'vuetify/components';
-import axios from '@/boot/axios'; 
+import authService from '@/services/user/auth.js'; 
 import { router } from '@inertiajs/vue3';
 
 @Component({
@@ -32,9 +32,8 @@ class VerifyEmailPage extends Vue {
   }
 
   async submit() {
-    //await this.form.post(route('verification.send'));
-    let res = await axios.post(route('verification.send'), this.form);
-    router.visit(res.data.redirect || "/login");
+    let res = await authService.verifyEmail(this.form);
+    router.visit(res.redirect || "/login");
   }
 }
 export default toNative(VerifyEmailPage);

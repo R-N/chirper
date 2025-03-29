@@ -6,7 +6,8 @@ import InputError from '@/Components/InputError.vue';
 
 import { VRow, VCol, VTextField, VBtn, VAlert, VCard, VCardText } from 'vuetify/components';
 import { Component, Prop, Vue, toNative, Ref, Watch } from 'vue-facing-decorator';
-import axios from '@/boot/axios'; 
+import twoFactorAuthService from '@/services/user/twofactor.js';
+import profileService from '@/services/user/profile';
 
 @Component({
   components: {
@@ -47,62 +48,27 @@ class TwoFactorAuthenticationForm extends Vue {
     }
   }
   async enableTwoFactorAuthentication(){
-    this.enabling.value = true;
-
-    // router.post(route('two-factor.enable'), {}, {
-    //   preserveScroll: true,
-    //   onSuccess: () => Promise.all([
-    //     showQrCode(),
-    //     showSetupKey(),
-    //     showRecoveryCodes(),
-    //   ]),
-    //   onFinish: () => {
-    //     enabling.value = false;
-    //     confirming.value = props.requiresConfirmation;
-    //   },
-    // });
+    this.enabling = true;
     try{
-      let res = await axios.post(route('two-factor.enable'));
-      await this.showQrCode();
-      await this.showSetupKey();
-      await this.showRecoveryCodes();
+      let res = await twoFactorAuthService.enableTwoFactorAuthentication();
+      this.qrCode = res.qrCode;
+      this.setupKey = res.setupKey;
+      this.recoveryCodes = res.recoveryCodes;
     } finally {
       this.enabling = false;
       this.confirming = this.requiresConfirmation;
     }
   };
 
-  async showQrCode(){
-    return await axios.get(route('two-factor.qr-code')).then(response => {
-      this.qrCode = response.data.svg;
-    });
-  };
-
-  async showSetupKey(){
-    return await axios.get(route('two-factor.secret-key')).then(response => {
-      this.setupKey = response.data.secretKey;
-    });
-  }
 
   async showRecoveryCodes(){
-    return await axios.get(route('two-factor.recovery-codes')).then(response => {
-      this.recoveryCodes = response.data;
-    });
+    let res = await profileService.showRecoveryCodes();
+    this.recoveryCodes = res.data;
   };
 
   async confirmTwoFactorAuthentication(){
-    // confirmationForm.post(route('two-factor.confirm'), {
-    //   errorBag: "confirmTwoFactorAuthentication",
-    //   preserveScroll: true,
-    //   preserveState: true,
-    //   onSuccess: () => {
-    //     confirming = false;
-    //     qrCode = null;
-    //     setupKey = null;
-    //   },
-    // });
     try{
-      let res = await axios.post(route('two-factor.confirm'), this.confirmationForm);
+      let res = await twoFactorAuthService.confirmTwoFactorAuthentication(this.confirmationForm);
       this.confirming = false;
       this.qrCode = null;
       this.setupKey = null;
@@ -116,21 +82,13 @@ class TwoFactorAuthenticationForm extends Vue {
   };
 
   async regenerateRecoveryCodes(){
-    let res = await axios.post(route('two-factor.confirm'));
-    this.showRecoveryCodes();
+    let res = await twoFactorAuthService.regenerateRecoveryCodes();
   };
 
   async disableTwoFactorAuthentication(){
     this.disabling = true;
 
-    // router.delete(route('two-factor.disable'), {
-    //     preserveScroll: true,
-    //     onSuccess: () => {
-    //         disabling = false;
-    //         confirming = false;
-    //     },
-    // });
-    let res = await axios.delete(route('two-factor.disable'));
+    let res = await twoFactorAuthService.disableTwoFactorAuthentication();
     this.disabling = false;
     this.confirming = false;
   };

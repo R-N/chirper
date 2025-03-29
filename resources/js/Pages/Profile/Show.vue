@@ -8,7 +8,7 @@ import UpdatePasswordForm from '@/Pages/Profile/Partials/UpdatePasswordForm.vue'
 import UpdateProfileInformationForm from '@/Pages/Profile/Partials/UpdateProfileInformationForm.vue';
 
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import axios from '@/boot/axios'; 
+import profileService from '@/services/user/profile.js';
 import { router } from '@inertiajs/vue3';
 
 @Component({
@@ -39,19 +39,19 @@ export default toNative(ProfileShowPage);
 
         <div>
             <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-                <div v-if="$page.jetstream.canUpdateProfileInformation">
-                    <UpdateProfileInformationForm :user="$page.auth.user" />
+                <div v-if="$page.props.jetstream.canUpdateProfileInformation">
+                    <UpdateProfileInformationForm :user="$page.props.auth.user" />
 
                     <SectionBorder />
                 </div>
 
-                <div v-if="$page.jetstream.canUpdatePassword">
+                <div v-if="$page.props.jetstream.canUpdatePassword">
                     <UpdatePasswordForm class="mt-10 sm:mt-0" />
 
                     <SectionBorder />
                 </div>
 
-                <div v-if="$page.jetstream.canManageTwoFactorAuthentication">
+                <div v-if="$page.props.jetstream.canManageTwoFactorAuthentication">
                     <TwoFactorAuthenticationForm
                         :requires-confirmation="confirmsTwoFactorAuthentication"
                         class="mt-10 sm:mt-0"
@@ -62,7 +62,7 @@ export default toNative(ProfileShowPage);
 
                 <LogoutOtherBrowserSessionsForm :sessions="sessions" class="mt-10 sm:mt-0" />
 
-                <template v-if="$page.jetstream.hasAccountDeletionFeatures">
+                <template v-if="$page.props.jetstream.hasAccountDeletionFeatures">
                     <SectionBorder />
 
                     <DeleteUserForm class="mt-10 sm:mt-0" />

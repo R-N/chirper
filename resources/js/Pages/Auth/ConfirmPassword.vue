@@ -5,7 +5,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 
 import { VCard, VCardText, VCardTitle, VTextField, VBtn } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import axios from '@/boot/axios'; 
+import authService from '@/services/user/auth.js';
 import { router } from '@inertiajs/vue3';
 
 @Component({
@@ -28,11 +28,10 @@ class ConfirmPasswordPage extends Vue {
   @Ref('passwordInput') passwordInput;
 
   async submit() {
-    //await this.form.post(route('password.confirm'));
-    let res = await axios.post(route('password.confirm'), this.form);
+    let res = await authService.confirmPassword(this.form);
     this.form.reset();
     this.passwordInput.value.focus();
-    router.visit(res.data.redirect || "/login");
+    router.visit(res.redirect || "/login");
   }
 }
 export default toNative(ConfirmPasswordPage);

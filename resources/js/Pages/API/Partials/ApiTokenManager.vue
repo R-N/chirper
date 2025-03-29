@@ -6,7 +6,7 @@ import FormSection from '@/Components/FormSection.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import { VCard, VCardTitle, VCardText, VCardActions, VTextField, VCheckbox, VBtn, VDialog, VRow, VCol, VSnackbar } from 'vuetify/components';
-import axios from '@/boot/axios'; 
+import axios from '@/plugins/axios'; 
 import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
 
 @Component({
