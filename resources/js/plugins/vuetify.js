@@ -2,7 +2,7 @@ import { createVuetify } from 'vuetify';
 import 'vuetify/styles';
 
 export default createVuetify({
-    ssr: true,
+    // ssr: true,
     defaults: {
       VTextField: { hideDetails: 'auto', density: 'compact', variant: 'underlined' },
       VSelect: { hideDetails: 'auto', density: 'compact' },
