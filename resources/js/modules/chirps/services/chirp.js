@@ -1,30 +1,13 @@
-import { useAuthStore } from '@/stores/auth';
 import _axios from '@/plugins/axios'; 
+import CrudService from '@/services/crud';
 
-class ChirpService{
-  constructor(axios) {
-    this.axios = axios || _axios;
-  }
-
-  async store(form){
-    // await this.form.post(route('chirps.store'));
-    let res = await axios.post(route('chirps.store'), form);
-    return res.data;
-  }
-
-  async update(chirp, form){
-    chirp = chirp?.id ?? chirp;
-    // await form.put(route('chirps.update', chirp));
-    let res = await axios.put(route('chirps.update', chirp), {
-        message: form.message,
-    });
-    return res.data;
-  }
-
-  async destroy(chirp){
-    chirp = chirp?.id ?? chirp;
-    // route('chirps.destroy', chirp);
-    let res = await axios.delete(route('chirps.destroy', chirp));
+class ChirpService extends CrudService{
+  constructor() {
+    super(
+      "Chirp", "/chirps", 
+      ["store", "update", "destroy"],
+      ["message"],
+    );
   }
 }
 
