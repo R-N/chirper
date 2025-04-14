@@ -1,6 +1,23 @@
-<script setup>
+<script lang="ts">
 import ApplicationLogo from '@/components/general/ApplicationLogo.vue';
-import { VContainer, VRow, VCol, VCard, VCardText, VCardTitle, VBtn, VIcon, VImg } from 'vuetify/components';
+import { VContainer, VRow, VCol, VCard, VCardText, VCardTitle, VBtn, VIcon, VCardActions } from 'vuetify/components';
+import { Component, toNative } from 'vue-facing-decorator';
+import {BaseView} from '@/views/BaseView.vue';
+
+@Component({
+  components: {
+    ApplicationLogo
+  }
+})
+class WelcomeView extends BaseView {
+  tryError(){
+    let err = new Error('Unknown error!!!');
+    err.show = true;
+    throw err;
+  }
+}
+export { WelcomeView };
+export default toNative(WelcomeView);
 </script>
 
 <template>
@@ -15,6 +32,9 @@ import { VContainer, VRow, VCol, VCard, VCardText, VCardTitle, VBtn, VIcon, VImg
           Laravel Jetstream provides a beautiful, robust starting point for your next Laravel application...
         </p>
       </VCardText>
+      <VCardActions>
+        <VBtn color="danger" @click.stop.prevent="tryError">Try Error!</VBtn>
+      </VCardActions>
     </VCard>
 
     <VRow class="mt-6">

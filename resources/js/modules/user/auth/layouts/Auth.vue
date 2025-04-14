@@ -8,7 +8,6 @@ import CenterLayout from '@/components/layout/CenterLayout.vue';
 
 @Component({
   name: "AuthLayout",
-  // beforeRouteEnter: authRouter.routeRequireLogoutDialog,
   components: {
     AuthenticationCardLogo,
     CenterLayout,

@@ -31,10 +31,16 @@ class GuestLayout extends BaseView {
     return this.appStore.tabDialogs;
   }
   async popTabDialog(){
-    await this.appStore.popTabDialog();
+    await this.appStore.tabDialogs.pop();
   }
   errorCaptured(error, vm, info) {
-      // return errorHelper.handleUncaughtError(error);
+    if (error.show){
+      this.appStore.showError(error);
+      console.warn(error);
+      return false;
+    }else{
+      throw error;
+    }
   }
 }
 export { GuestLayout };

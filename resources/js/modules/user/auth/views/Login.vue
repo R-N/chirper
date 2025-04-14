@@ -13,7 +13,6 @@ import { AuthLayout } from '../layouts/Auth.vue';
 
 @Component({
   name: "LoginView",
-  // beforeRouteEnter: authRouter.routeRequireLogoutDialog,
   components: {
     AuthenticationCardLogo,
     LoginForm,

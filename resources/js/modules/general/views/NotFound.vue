@@ -1,7 +1,7 @@
 <script lang="ts">
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import { BaseView } from '@/views/BaseView.vue';
-
+import { Inertia } from '@inertiajs/inertia';
 import CenterLayout from '@/components/layout/CenterLayout.vue';
 
 @Component({
@@ -9,14 +9,6 @@ import CenterLayout from '@/components/layout/CenterLayout.vue';
     components:{
       CenterLayout
     },
-  // beforeRouteLeave: function (to, from, next) {
-  //   // stores.app.setRouteValid(true);
-  //   next();
-  // },
-  // beforeRouteEnter: function (to, from, next) {
-  //   // stores.app.setRouteValid(false);
-  //   next();
-  // }
 })
 class NotFoundView extends BaseView {
 

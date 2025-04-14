@@ -11,7 +11,8 @@ export { ImageBackground };
 export default toNative(ImageBackground);
 </script>
 <template>
-  <img class="bg" :src="src"/>
+  <img class="bg" :src="src" v-if="src"/>
+  <slot></slot>
 </template>
 <style scoped>
 .bg {

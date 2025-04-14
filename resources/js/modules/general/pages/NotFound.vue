@@ -10,14 +10,6 @@ import NotFoundView from '../views/NotFound.vue';
       AppLayout,
       NotFoundView
     },
-  // beforeRouteLeave: function (to, from, next) {
-  //   // stores.app.setRouteValid(true);
-  //   next();
-  // },
-  // beforeRouteEnter: function (to, from, next) {
-  //   // stores.app.setRouteValid(false);
-  //   next();
-  // }
 })
 class NotFoundPage extends BaseView {
 
