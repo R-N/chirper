@@ -26,7 +26,6 @@ class MainView extends BaseView{
     }
 
     mounted(){
-        console.log(this.$route);
     }
     get breadcrumbs(){
         return this.appStore.breadcrumbs;

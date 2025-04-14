@@ -4,8 +4,8 @@ import dayjs from 'dayjs';
 import { useForm } from '@inertiajs/vue3';
 
 import { VMenu, VTextarea, VBtn, VIcon, VList, VListItem } from 'vuetify/components';
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import axios from '@/plugins/axios'; 
+import { Component, Prop, Vue, toNative, Emit } from 'vue-facing-decorator';
+import chirpService from '../services/chirp';
 
 @Component({
   components: {
@@ -39,22 +39,27 @@ class Chirp extends Vue {
     this.form.message = this.chirp.message;
   }
 
-  async update(){
-    // await this.form.put(route('chirps.update', chirp.id));
-    let res = await axios.put(route('chirps.update', this.chirp.id), {
-        message: this.form.message,
-    });
-
-    this.$emit('update', res.data.chirp);
+  async updateChirp(){
+    let res = await chirpService.update(this.chirp, this.form);
+    this.emitUpdate(res.chirp);
     this.resetForm();
     this.editing = false;
   }
 
-  async remove(){
+  @Emit('update')
+  emitUpdate(chirp){
+    return chirp;
+  }
+
+  async destroyChirp(){
     // route('chirps.destroy', chirp.id);
-    let res = await axios.delete(route('chirps.destroy', this.chirp.id));
-    console.log(res);
-    this.$emit('remove', this.chirp.id);
+    let res = await chirpService.destroy(this.chirp);
+    this.emitDestroy(this.chirp);
+  }
+
+  @Emit('destroy')
+  emitDestroy(chirp){
+    return chirp?.id ?? chirp;
   }
 }
 export default toNative(Chirp);
@@ -80,12 +85,12 @@ export default toNative(Chirp);
           </template>
           <VList>
             <VListItem @click="resetForm(true)">Edit</VListItem>
-            <VListItem @click.prevent="remove">Delete</VListItem>
+            <VListItem @click.prevent="destroyChirp">Delete</VListItem>
           </VList>
         </VMenu>
       </div>
 
-      <form v-if="editing" @submit.prevent="update">
+      <form v-if="editing" @submit.prevent="updateChirp">
         <VTextarea v-model="form.message" class="mt-4" label="Edit message" auto-grow />
         <InputError :message="form.errors.message" class="mt-2" />
 

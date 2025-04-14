@@ -11,7 +11,10 @@ class DialogStack extends Vue {
 
   get item(){
     if (this.items.length == 0) return null;
-    return this.items[this.items.length-1];
+    let item = this.items[this.items.length-1];
+    if (item.log)
+      console.error(item);
+    return item;
   }
   set item(value){
     if (!value){
@@ -24,7 +27,7 @@ class DialogStack extends Vue {
   }
   @Emit('dialogstackpop')
   dialogStackPop() {
-      return true;
+      return this.item;
   }
 }
 export { DialogStack }

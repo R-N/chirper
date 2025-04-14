@@ -1,11 +1,11 @@
 <script lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import Chirp from '@/modules/chirps/components/Chirp.vue';
-import { useForm, Head } from '@inertiajs/vue3';
-import axios from '@/plugins/axios'; 
+import { useForm } from '@inertiajs/vue3';
 
 import { VContainer, VTextarea, VBtn, VCard } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import chirpService from '../services/chirp';
 
 @Component({
   components: {
@@ -29,21 +29,20 @@ class ChirpsPage extends Vue {
   }
 
   async create(){
-    // await this.form.post(route('chirps.store'));
-
-    let res = await axios.post(route('chirps.store'), this.form);
-    this.chirps.unshift(res.data.chirp);
+    let res = await chirpService.store(this.form);
+    this.chirps.unshift(res.chirp);
 
     this.form.reset();
   }
-  update(chirp){
+  updateChirp(chirp){
     const index = this.chirps.findIndex(chirp => chirp.id === chirp.id);
     if (index !== -1) {
       this.chirps[index] = chirp; // Replace with updated chirp
     }
   }
-  remove(id){
-    const index = this.chirps.findIndex(chirp => chirp.id === id);
+  destroyChirp(chirp){
+    chirp = chirp?.id ?? chirp;
+    const index = this.chirps.findIndex(c => c.id === chirp);
     this.chirps.splice(index, 1);
   }
 }
@@ -51,8 +50,7 @@ export default toNative(ChirpsPage);
 </script>
  
 <template>
-  <Head title="Chirps" />
-  <AppLayout>
+  <AppLayout title="Chirps">
     <VContainer class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
       <form @submit.prevent="create">
         <VTextarea
@@ -67,8 +65,8 @@ export default toNative(ChirpsPage);
           v-for="chirp in chirps"
           :key="chirp.id"
           :chirp="chirp"
-          @remove="remove" 
-          @update="update" 
+          @destroy="destroyChirp" 
+          @update="updateChirp" 
         />
       </VCard>
     </VContainer>
