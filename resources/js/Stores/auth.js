@@ -7,17 +7,17 @@ export const useAuthStore = defineStore('auth', {
       id: 0,
       name: '',
       email: '',
+      role: 0,
     }
   }),
   getters: {
     isAuthenticated: (state) => !!state.auth_token,
+    isLoggedIn: (state) => !!state.auth_token,
+    isSuperAdmin: (state) => state.role===0, // todo
   },
   actions: {
     updateUser(user) {
       Object.assign(this.user, user); 
-    },
-    setAuthToken(auth_token) {
-      this.auth_token = auth_token;
     },
     logout() {
       this.auth_token = null;
@@ -29,6 +29,6 @@ export const useAuthStore = defineStore('auth', {
     },
   },
   persist: {
-    storage: localStorage,  // Explicitly use localStorage
+    storage: localStorage, 
   }
 });

@@ -13,7 +13,8 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import dayjs from 'dayjs';
 import vuetify from './plugins/vuetify';
 import 'vuetify/styles';
-import '@mdi/font/css/materialdesignicons.css'
+import '@mdi/font/css/materialdesignicons.css';
+//import 'vue3-dropzone/dist/vue3Dropzone.min.css';
 import App from './App.vue';
 import '../css/app.css';
 
@@ -25,12 +26,13 @@ createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) =>
         resolvePageComponent(
-            `./Pages/${name}.vue`,
-            import.meta.glob('./Pages/**/*.vue'),
+            `./modules/${name}.vue`,
+            import.meta.glob('./modules/\*\*/pages/\*.vue'),
         ),
     setup({ el, App: InertiaApp, props, plugin }) {
         axios.init();
         const app = createApp({ render: () => h(App, { InertiaApp, props }) });
+        //app.config.devtools = true;
         const pinia = createPinia()
             .use(piniaPersist);
         return app

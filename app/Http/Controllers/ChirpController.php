@@ -22,7 +22,7 @@ class ChirpController extends Controller
         // Chirps has belongsTo relationship with User as user
         $chirps = Chirp::with('user:id,name')->latest()->get();
         if (!$request->wantsJson()) {
-            return Inertia::render('Chirps/Index', [
+            return Inertia::render('chirps/pages/Index', [
                 'chirps' => $chirps,
             ]);
         }
@@ -70,7 +70,7 @@ class ChirpController extends Controller
     {
         $chirp = $chirp->load('user:id,name');
         if (!$request->wantsJson()) {
-            return Inertia::render('Chirps/Chirp', [
+            return Inertia::render('chirps/pages/Chirp', [
                 'chirp' => $chirp,
             ]);
         }

@@ -1,120 +1,82 @@
 <script lang="ts">
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { VAppBar, VToolbarTitle, VBtn, VMenu, VList, VListItem, VAvatar, VIcon, VContainer, VRow, VCol, VNavigationDrawer, VImg, VMain  } from 'vuetify/components';
+import { VMain, VCol, VRow, VContainer, VApp  } from 'vuetify/components';
+import { VFadeTransition, VSlideYTransition, VSlideXTransition, VExpandTransition } from 'vuetify/components';
+import { Component, Prop, Vue, toNative, Watch } from 'vue-facing-decorator';
+import {GuestLayout} from '@/layouts/GuestLayout.vue';
 
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import authService from '@/services/user/auth.js';
+import TopNavBar from "@/components/main/TopNavBar.vue";
+import SideNavDrawer from "@/components/main/SideNavDrawer.vue";
+import ImageBackground from '@/components/general/ImageBackground.vue'
+import LoadingOverlay from '@/components/overlay/LoadingOverlay.vue';
+import DialogStack from '@/components/dialog/DialogStack.vue';
+import IdleOverlay from '@/components/overlay/IdleOverlay.vue';
+
+import ServerDownView from '@/modules/general/views/ServerDown.vue';
+import MainView from '@/views/MainView.vue'
 
 @Component({
   components: {
-    ApplicationLogo,
+    TopNavBar,
+    SideNavDrawer,
+    ImageBackground,
+    LoadingOverlay,
+    DialogStack,
+    IdleOverlay,
+    ServerDownView,
+    MainView,
     Head,
-    Link,
-    VAppBar,
-    VToolbarTitle,
-    VBtn,
-    VMenu,
-    VList,
-    VListItem,
-    VAvatar,
-    VIcon,
-    VContainer,
-    VRow,
-    VCol,
-    VNavigationDrawer,
-    VImg,
-    VMain
   }
 })
-class AppLayout extends Vue {
-  showingNavigationDropdown = false;
-  @Prop(String) title;
+class AppLayout extends GuestLayout {
   appName = import.meta.env.VITE_APP_NAME || 'Chirper';
-
-  async logout() {
-    let res = await authService.logout();
-    router.visit(res.redirect || "/");
+  drawer = false;
+  toggleDrawer(drawer){
+    this.drawer = drawer;
   }
-  async switchToTeam(team){
-    let res = await authService.switchToTeam(team);
-  };
+  get globalRefresh(){
+    return this.appStore.globalRefresh;
+  }
+  get globalLogout(){
+    return this.appStore.globalLogout;
+  }
+  @Watch('globalRefresh')
+  onGlobalRefreshFlagSet(val, oldVal){
+    if(val){
+      this.appStore.routerBusy = true;
+      this.appStore.globalRefresh = false;
+      window.location.reload();
+    }
+  }
+
+  @Watch('globalLogout')
+  onGlobalLogoutFlagSet(val, oldVal){
+    if(val){
+      this.appStore.globalLogout = false;
+      // router.safePush({ name: "beranda" });
+    }
+  }
 }
 export default toNative(AppLayout);
-
 </script>
 <template>
   <VApp>
     <Head :title="title" />
-    
-    <!-- App Bar -->
-    <VAppBar color="primary" app>
-      <!-- Sidebar Toggle Button -->
-      <VBtn icon @click="showingNavigationDropdown = !showingNavigationDropdown">
-        <VIcon>mdi-menu</VIcon>
-      </VBtn>
-
-      <VToolbarTitle>
-        <Link :href="route('dashboard')" class="d-flex align-center gap-2 text-decoration-none">
-          <ApplicationLogo class="h-9 w-auto" />
-          {{ appName }}
-        </Link>
-      </VToolbarTitle>
-
-      <VSpacer />
-
-      <!-- Team Switcher (if enabled) -->
-      <VMenu v-if="$page.props.jetstream.hasTeamFeatures">
-        <template #activator="{ props }">
-          <VBtn v-bind="props">
-            {{ $page.props.auth.user.current_team.name }}
-            <VIcon end>mdi-chevron-down</VIcon>
-          </VBtn>
-        </template>
-        <VList>
-          <VListItem 
-            v-for="team in $page.props.auth.user.all_teams" 
-            :key="team.id" 
-            @click="switchToTeam(team)"
-          >
-            <VIcon v-if="team.id == $page.props.auth.user.current_team_id" color="success">mdi-check</VIcon>
-            {{ team.name }}
-          </VListItem>
-        </VList>
-      </VMenu>
-
-      <!-- User Profile Menu -->
-      <VMenu>
-        <template #activator="{ props }">
-          <VBtn v-bind="props" icon>
-            <VAvatar size="32">
-              <VImg  
-                :src="$page.props.auth.user.profile_photo_url" 
-                :alt="$page.props.auth.user.name" 
-                cover
-              />
-            </VAvatar>
-          </VBtn>
-        </template>
-        <VList>
-          <VListItem :href="route('profile.show')">Profile</VListItem>
-          <VListItem v-if="$page.props.jetstream.hasApiFeatures" :href="route('api-tokens.index')">API Tokens</VListItem>
-          <VListItem @click="logout">Log Out</VListItem>
-        </VList>
-      </VMenu>
-    </VAppBar>
-
-    <!-- Sidebar Navigation -->
-    <VNavigationDrawer app v-model="showingNavigationDropdown">
-      <VList>
-        <VListItem :href="route('dashboard')">Dashboard</VListItem>
-        <VListItem :href="route('chirps.index')">Chirps</VListItem>
-      </VList>
-    </VNavigationDrawer>
-
-    <!-- Page Content (Fixes Overlap Issue) -->
+    <VExpandTransition appear mode="out-in">
+      <TopNavBar appear :drawer="drawer" @update:drawer="toggleDrawer" v-if="isLoggedIn"/>
+    </VExpandTransition>
+    <SideNavDrawer :appname="appName" :drawer="drawer" @update:drawer="toggleDrawer" v-if="isLoggedIn"/>
+    <ImageBackground v-if="showBackground"></ImageBackground>
     <VMain>
-      <slot />
+      <VExpandTransition appear >
+        <ServerDownView appear v-if="!serverReachable" key="down"/>
+        <MainView v-else key="main">
+          <slot appear />
+        </MainView>
+      </VExpandTransition>
     </VMain>
+    <IdleOverlay :idle-wait="300" :logout-wait="300"/>
+    <LoadingOverlay/>
+    <DialogStack :items="tabDialogs" @dialogstackpop="popTabDialog"/>
   </VApp>
 </template>

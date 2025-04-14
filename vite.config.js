@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+import vueDevTools from 'vite-plugin-vue-devtools'
 //import babel from '@qubit-ltd/vite-plugin-babel';
 
 export default defineConfig({
@@ -34,6 +35,7 @@ export default defineConfig({
       }
     }),
     //babel(),
+    vueDevTools(),
   ],
   server: {
     host: 'localhost',
@@ -41,5 +43,9 @@ export default defineConfig({
     hmr: {
         host: 'localhost',
     },
+  },
+  build: {
+    minify: false,
+    sourcemap: true, 
   },
 });

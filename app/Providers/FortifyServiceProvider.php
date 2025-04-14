@@ -12,8 +12,6 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Fortify;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -38,12 +36,16 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
-        // Fortify::loginView(fn () => Inertia::render('Auth/Login', [
-        //     'canResetPassword' => Route::has('password.request'),
-        //     'status' => session('status'),
-        // ]));
-
-        // Fortify::registerView(fn () => Inertia::render('Auth/Register'));
+        Fortify::loginView(fn () => Inertia::render('user/auth/pages/Login', [
+            'canResetPassword' => Route::has('password.request'),
+            'status' => session('status'),
+        ]));
+        Fortify::registerView(fn () => Inertia::render('user/auth/pages/Register'));
+        Fortify::requestPasswordResetLinkView(fn () => Inertia::render('user/auth/pages/ForgotPassword'));
+        Fortify::resetPasswordView(fn () => Inertia::render('user/auth/pages/ResetPassword'));
+        Fortify::verifyEmailView(fn () => Inertia::render('user/auth/pages/VerifyEmail'));
+        Fortify::confirmPasswordView(fn () => Inertia::render('user/auth/pages/ConfirmPassword'));
+        Fortify::twoFactorChallengeView(fn () => Inertia::render('user/auth/pages/TwoFactorChallenge'));
 
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());

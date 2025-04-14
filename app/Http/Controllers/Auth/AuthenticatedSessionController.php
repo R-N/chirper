@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -19,7 +20,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Auth/Login', [
+        return Inertia::render('user/auth/pages/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
         ]);
@@ -58,18 +59,14 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse|JsonResponse
     {
-        // 🔥 If using token-based auth, revoke tokens
-        if (config('sanctum.guard') === 'api') {
-            $request->user()->tokens()->delete();
+        $token = $request->user()->currentAccessToken();
+        if ($token && $token instanceof PersonalAccessToken){
+            $token->delete();
         }
 
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
-        foreach ($request->cookies as $cookieName => $cookieValue) {
-            Cookie::forget($cookieName);
-        }
 
         if (!$request->wantsJson()) {
             return redirect('/');
