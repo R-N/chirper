@@ -8,6 +8,7 @@ class CrudService {
     methods=['index', 'fetch', 'show', 'get', 'store', 'create', 'put', 'patch', 'update', 'destroy', 'delete'],
     fields=[],
     files=[],
+    updateMethod='patch',
     axios=null,
   ){
     this.axios = axios || _axios;
@@ -16,6 +17,11 @@ class CrudService {
     this.methods = methods;
     this.fields = fields;
     this.files = files;
+    this.updateMethod = updateMethod;
+  }
+
+  get allFields(){
+    return [...this.fields, ...this.files];
   }
 
   singleEndpoint(obj){
@@ -39,10 +45,12 @@ class CrudService {
     
     const formData = new FormData();
     this.fields.forEach((f) => {
-      formData.append(f, form[f]);
+      if (f in form){
+        formData.append(f, form[f]);
+      }
     });
     this.files.forEach((f) => {
-      if (form[f]){
+      if (f in form && form[f]){
         formData.append(f, form[f]);
         formData._has_files = true;
       }else if (files && f in files && files[f]){
@@ -83,16 +91,16 @@ class CrudService {
     obj = obj?.id ?? obj;
     let hasFiles = false;
     if (form){
-      console.log(form);
+      form = filterObject(form, this.allFields);
       form = this.checkFiles(form, files);
-      console.log(form);
       hasFiles = form._has_files;
-      form = filterObject(form, this.fields);
-      console.log(form);
     }
     let res = null;
     let target = this.singleEndpoint(obj);
     let data = form;
+    if ([this.updateMethod, 'update'].includes(method.toLowerCase())){
+      method = this.updateMethod.toUpperCase();
+    }
     if (['delete', 'destroy'].includes(method.toLowerCase())){
       data = {
         data: data
@@ -125,7 +133,7 @@ class CrudService {
     return await this.call(obj, form, files, 'patch');
   }
   async update(obj, form={}, files={}){
-    return await this.put(obj, form, files);
+    return await this.put(obj, form, files, this.updateMethod);
   }
   async destroy(obj, form={}, files={}){
     await this.call(obj, form, files, 'destroy');
