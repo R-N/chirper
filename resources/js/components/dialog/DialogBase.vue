@@ -13,7 +13,7 @@ let modelEvent = "update:modelValue"
     emits: [modelEvent]
 })
 class DialogBase extends FormBase {
-    // @Model({ name: 'dialog', type: [Boolean, String, Object, Array] }) myDialog;
+    // @Model({ type: [Boolean, String, Object, Array] }) myDialog;
     @Prop({ type: [Boolean, String, Object, Array] }) modelValue;
 
     get myDialog(){

@@ -60,12 +60,12 @@ class AppLayout extends GuestLayout {
 export default toNative(AppLayout);
 </script>
 <template>
-  <VApp>
+  <VApp class="d-flex">
     <Head :title="title" />
     <VExpandTransition appear mode="out-in">
-      <TopNavBar appear :drawer="drawer" @update:drawer="toggleDrawer" v-if="isLoggedIn"/>
+      <TopNavBar appear v-model="drawer" v-if="isLoggedIn"/>
     </VExpandTransition>
-    <SideNavDrawer :appname="appName" :drawer="drawer" @update:drawer="toggleDrawer" v-if="isLoggedIn"/>
+    <SideNavDrawer :appname="appName" v-model="drawer" v-if="isLoggedIn"/>
     <ImageBackground v-if="showBackground"></ImageBackground>
     <VMain>
       <VExpandTransition appear >

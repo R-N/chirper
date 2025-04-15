@@ -3,11 +3,13 @@ import { Component, Prop, Watch, toNative } from 'vue-facing-decorator';
 import { WorkingComponent } from '@/components/WorkingComponent.vue';
 
 import RefreshButton from '@/components/general/RefreshButton.vue';
+import CenterLayout from '@/components/layout/CenterLayout.vue';
 
 @Component({
   name: "LoadingOverlay",
   components: {
-    RefreshButton
+    RefreshButton,
+    CenterLayout
   }
 })
 class LoadingOverlay extends WorkingComponent {
@@ -54,21 +56,12 @@ export { LoadingOverlay };
 export default toNative(LoadingOverlay);
 </script>
 <template>
-  <VOverlay :value="busy">
-    <VContainer
-      class="fill-height"
-      fluid
-    >
-      <VRow
-        align="center"
-        justify="center"
-        class="flex-column"
-        >
-        <VProgressCircular indeterminate :size="circleSize">
-          <RefreshButton icon large v-if="mayRefresh"/>
-        </VProgressCircular>
-      </VRow>
-    </VContainer>
+  <VOverlay v-model="busy" class="full-screen">
+    <CenterLayout column="true">
+      <VProgressCircular indeterminate :size="circleSize">
+        <RefreshButton icon large v-if="mayRefresh"/>
+      </VProgressCircular>
+    </CenterLayout>
   </VOverlay>
 </template>
 <style scoped>

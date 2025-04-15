@@ -16,10 +16,11 @@ import {MyComponent} from "@/components/MyComponent.vue";
         VListGroup,
         VListItemAction,
         VListItemTitle,
-    }
+    },
+    emits: ["update:modelValue", "update:drawer", "change"],
 })
 class SideNavDrawer extends MyComponent {
-    @Model({ name: 'drawer', type: Boolean }) syncedDrawer;
+    @Model({ type: Boolean }) syncedDrawer;
     items = [
         { icon: 'mdi-home', text: 'Dashboard', href: route('dashboard') },
         {

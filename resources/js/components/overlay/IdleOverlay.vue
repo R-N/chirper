@@ -4,12 +4,14 @@ import { Vue, Component, Prop, Watch, toNative } from 'vue-facing-decorator';
 import SharedIdle from '@/components/general/SharedIdle.vue';
 import {MyComponent} from '@/components/MyComponent.vue';
 import authService from '@/modules/user/auth/services/auth';
-
+import CenterLayout from '@/components/layout/CenterLayout.vue';
+import { router } from '@inertiajs/vue3';
 
 @Component({
   name: "IdleOverlay",
   components: {
-    SharedIdle
+    SharedIdle,
+    CenterLayout
   }
 })
 class IdleOverlay extends MyComponent {
@@ -40,7 +42,7 @@ class IdleOverlay extends MyComponent {
   async logout(){
     this.stopCountdown();
     await authService.logout();
-    // authRouter.dialogIdleLogout();
+    router.visit("/");
   }
 
   stopCountdown(){
@@ -59,6 +61,7 @@ class IdleOverlay extends MyComponent {
       comp.logoutCountdown--;
     }, 1000);
   }
+
   @Watch('idle')
   onIdle(val, oldVal){
     if (val != oldVal){
@@ -90,15 +93,13 @@ export { IdleOverlay };
 export default toNative(IdleOverlay);
 </script>
 <template>
-  <div>
-      <VOverlay :value="logoutTimer">
-        <VRow align="center" justify="center" class="flex-column">
-          <h3>Anda akan otomatis logout dalam</h3>
-          <h2>{{ logoutCountdownMinutes }}:{{ logoutCountdownSeconds }}</h2>
-        </VRow>
-      </VOverlay>
-      <SharedIdle :idle-wait="idleWait" v-model="idle"/>
-  </div>
+  <VOverlay v-model="idle" class="full-screen">
+    <CenterLayout column="true" class="">
+        <h3>Anda akan otomatis logout dalam</h3>
+        <h2>{{ logoutCountdownMinutes }}:{{ logoutCountdownSeconds }}</h2>
+    </CenterLayout>
+  </VOverlay>
+  <SharedIdle :idle-wait="idleWait" v-model="idle"/>
 </template>
 <style scoped>
 </style>

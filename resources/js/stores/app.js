@@ -19,17 +19,17 @@ export const useAppStore = defineStore('app', {
     breadcrumbs: [], 
   }),
   getters: {
-    getIdleTime: (state) => {
-      return new Date().getTime() - state.lastUserPresentTime;
-    },
+    // getIdleTime: (state) => {
+    //   return new Date().getTime() - state.lastUserPresentTime;
+    // },
     idle: (state) => {
       return !state.userPresent;
     }
   },
   actions: {
-    // getIdleTime(){
-    //   return new Date().getTime() - this.lastUserPresentTime;
-    // },
+    getIdleTime(){
+      return new Date().getTime() - this.lastUserPresentTime;
+    },
     async showError(error, title=null, onDismiss=null) { 
       if (isObject(error) && (error.text || error.title)){
         this.tabDialogs.push(error);
@@ -59,7 +59,7 @@ export const useAppStore = defineStore('app', {
 
 export const pinger = async (...args) => {
   let appStore = useAppStore();
-  if (appStore.getIdleTime < 1000) return;
+  if (appStore.getIdleTime() < 1000) return;
   await appStore.ping();
 }
 document.body.addEventListener('mousemove', pinger);

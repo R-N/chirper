@@ -22,7 +22,7 @@ class BaseCrudView extends BaseView {
   @Prop({ default: 'Refresh' }) refreshText;
   @Prop({ type: Function }) create;
   @Prop({ type: Function }) fetch;
-  @Model({ name: 'search', type: [String, Object] }) mySearch;
+  @Model({ type: [String, Object] }) mySearch;
 
   @Emit(modelEvent)
   emitModel(value){
@@ -54,7 +54,7 @@ export default toNative(BaseCrudView);
     <template v-slot:toolbar-right>
       <slot name="toolbar-right" :busy="busy"></slot>
       <VTextField
-        v-if="!(typeof search === 'undefined' || search === null)"
+        v-if="!(typeof mySearch === 'undefined' || mySearch === null)"
         class="pt-0 mt-0"
         v-model="mySearch"
         append-icon="mdi-magnify"

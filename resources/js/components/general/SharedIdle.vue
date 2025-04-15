@@ -5,10 +5,11 @@ import {MyComponent} from '@/components/MyComponent.vue';
 
 @Component({
   name: "SharedIdle",
+  emits: ["update:modelValue", "update:idle", "change"],
 })
 class SharedIdle extends MyComponent {
   @Prop({ type: Number }) idleWait;
-  @Model({ name: 'idle', type: Boolean }) syncedIdle;
+  @Model({ type: Boolean }) syncedIdle;
   idleTimer = null;
 
   get idleWaitMillis(){
@@ -29,8 +30,8 @@ class SharedIdle extends MyComponent {
   mounted(){
     const comp = this;
     this.idleTimer = window.setInterval(() => {
-      if (comp.appStore.getIdleTime >= comp.idleWaitMillis && !comp.syncedIdle){
-        comp.syncedIdle = true;
+      if (comp.appStore.getIdleTime() >= comp.idleWaitMillis && !comp.syncedIdle){
+          comp.syncedIdle = true;
       }
     }, 1000);
   }

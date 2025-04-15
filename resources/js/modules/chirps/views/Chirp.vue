@@ -82,7 +82,7 @@ export default toNative(ChirpCrudView);
 <template>
     <BaseCrudView 
         title="Chirps"
-        :create="showForm()"
+        :create="showForm"
         :fetch="fetch"
         create-text="Chirp"
         v-model:search="search"

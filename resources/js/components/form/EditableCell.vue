@@ -22,7 +22,7 @@ class EditableCell extends FormBase {
   confirmDialog = false;
 
   editing = false;
-  @Model({name: "change", default: false}) edit;
+  @Model({ default: false }) edit;
 
   // get editing(){
   //  return this.edit;

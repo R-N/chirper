@@ -2,6 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+.full-screen .v-overlay__content {
+  width: 100%;
+  height: 100%;
+}
+.p-absolute {
+  position: absolute;
+}
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.bigger-input input, .bigger-input label{
+  font-size: 1rem !important;
+}
+
+.overlay-top{
+  z-index: 10;
+}
+thead.v-data-table-header tr th {
+  font-size: 1rem !important;
+}
+.v-data-table tbody tr td {
+  font-size: 1rem !important;
+}
+.v-data-footer {
+  font-size: 1rem !important;
+}
+
 [x-cloak] {
     display: none;
 }

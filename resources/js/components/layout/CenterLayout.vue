@@ -5,14 +5,18 @@ import { Vue, Component, Prop, toNative } from 'vue-facing-decorator';
     name: "CenterLayout",
 })
 class CenterLayout extends Vue {
+  @Prop({ default: '' }) class;
+  @Prop({ default: true }) fillHeight;
   @Prop({ default: false }) column;
-  baseClass = "fill-height d-flex justify-center align-center flex-grow-1";
+  baseClass = "d-flex justify-center align-center flex-grow-1";
 
   get myClass(){
+    let _class =  `${this.baseClass} ${this.class} flex-column`;
     if(this.column)
-      return this.baseClass + " flex-column"
-    else
-      return this.baseClass;
+      _class = `${_class} flex-column`;
+    if(this.fillHeight)
+      _class = `${_class} fill-height`;
+    return _class;
   }
 }
 export { CenterLayout }

@@ -20,11 +20,12 @@ import authService from '@/modules/user/auth/services/auth.js';
         VAvatar,
         VIcon,
         VImg,
-    }
+    },
+    emits: ["update:modelValue", "update:drawer", "change"],
 })
 class TopNavBar extends MyComponent {
     @Prop({ type: String }) appName;
-    @Model({ name: 'drawer', type: Boolean }) syncedDrawer;
+    @Model({ type: Boolean }) syncedDrawer;
     notifs = [
         { text: 'Notif 1' },
         { text: 'Notif 2' }
