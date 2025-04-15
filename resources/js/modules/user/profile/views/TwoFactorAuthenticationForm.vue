@@ -24,7 +24,7 @@ import profileService from '@/modules/user/profile/services/profile';
   }
 })
 class TwoFactorAuthenticationForm extends Vue {
-  @Prop(Boolean) requiresConfirmation;
+  @Prop({ type: Boolean }) requiresConfirmation;
   page = usePage();
   enabling = false;
   confirming = false;

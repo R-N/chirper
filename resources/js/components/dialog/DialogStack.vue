@@ -3,10 +3,11 @@ import { Vue, Component, Prop, toNative, Emit } from 'vue-facing-decorator';
 import { VDialog, VCard, VCardTitle, VCardText, VCardActions, VSpacer, VBtn } from 'vuetify/components';
 
 @Component({
-  name: "DialogStack"
+  name: "DialogStack",
+  emits: ['dialogstackpop']
 })
 class DialogStack extends Vue {
-  @Prop(Array) items
+  @Prop({ type: Array }) items
   @Prop({default: "Tutup"}) closeText;
 
   get item(){

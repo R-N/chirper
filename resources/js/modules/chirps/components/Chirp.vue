@@ -16,10 +16,11 @@ import chirpService from '../services/chirp';
     VList,
     VListItem,
     InputError,
-  }
+  },
+  emits: ['update', 'destroy']
 })
 class Chirp extends Vue {
-  @Prop(Object) chirp;
+  @Prop({ type: Object }) chirp;
   editing = false;
   form = useForm({
     message: '',
@@ -41,6 +42,7 @@ class Chirp extends Vue {
 
   async updateChirp(){
     let res = await chirpService.update(this.chirp, this.form);
+    Object.assign(this.chirp, res.chirp); 
     this.emitUpdate(res.chirp);
     this.resetForm();
     this.editing = false;

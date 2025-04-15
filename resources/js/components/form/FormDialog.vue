@@ -12,11 +12,6 @@ import { FormDialogBase } from '@/components/form/FormDialogBase.vue';
   }
 })
 class FormDialog extends FormDialogBase {
-  @Prop(Function) onCancel;
-  @Prop(Function) onSubmit;
-    @Prop(Function) onReset;
-    @Prop(Function) onValidate;
-  @Prop({ default: false }) disabled;
   @Prop({ default: "Batal" }) cancelText;
   @Prop({ default: "Ok" }) confirmText;
   @Prop({ default: 400 }) maxWidth;

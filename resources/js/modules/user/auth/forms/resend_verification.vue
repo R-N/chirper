@@ -1,7 +1,7 @@
 
 <script lang="ts">
 
-import { Component, Prop, toNative } from 'vue-facing-decorator';
+import { Component, Prop, Ref, toNative } from 'vue-facing-decorator';
 import { WorkingComponent } from '@/components/WorkingComponent.vue';
 
 import CardTitle from '@/components/card/CardTitle.vue';
@@ -15,9 +15,10 @@ import CardTitle from '@/components/card/CardTitle.vue';
 class ResendVerificationForm extends WorkingComponent {
   valid = true;
   username = ''
+  @Ref('myForm') myForm;
 
   async send(){
-    // this.$refs.myForm.validate();
+    // this.myForm.validate();
     // if(!this.valid) return;
     // const view = this;
     // view.globalBusy = true;

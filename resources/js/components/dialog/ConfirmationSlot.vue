@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Vue, Component, Prop, toNative } from 'vue-facing-decorator';
+import { Vue, Component, Prop, Emit, toNative } from 'vue-facing-decorator';
 
 import SimpleInputDialog from '@/components/dialog/SimpleInputDialog.vue';
 import { WorkingComponent } from '@/components/WorkingComponent.vue';
@@ -8,21 +8,31 @@ import { WorkingComponent } from '@/components/WorkingComponent.vue';
     name: "ConfirmationSlot",
     components: {
       SimpleInputDialog
-    }
+    },
+    emits: ['confirm', 'cancel']
 })
 class ConfirmationSlot extends WorkingComponent {
-  @Prop([String, Function]) confirmTextMaker; 
-  @Prop(Function) onConfirm;
-  @Prop(Function) onCancel; 
-  confirmText = '';
+  @Prop({ type: [String, Function] }) confirmTextMaker; 
+  @Prop({ type: Function }) onConfirm;
+  @Prop({ type: Function }) onCancel; 
+  confirmText : String | Function = '';
   confirmDialog = false;
+
+  @Emit('confirm')
+  emitConfirm() {
+    return true;
+  }
+  @Emit('cancel')
+  emitCancel() {
+    return true;
+  }
 
   confirm(){
     if(this.onConfirm){
       this.busy = true;
       this.onConfirm();
     }else{
-      this.$emit('confirm');
+      this.emitConfirm();
     }
     this.confirmDialog = false;
     this.busy = false;

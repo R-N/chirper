@@ -5,7 +5,7 @@ import { Vue, Component, Prop, toNative } from 'vue-facing-decorator';
   name: "ImageBackground"
 })
 class ImageBackground extends Vue {
-  @Prop(String) src;
+  @Prop({ type: String }) src;
 }
 export { ImageBackground };
 export default toNative(ImageBackground);

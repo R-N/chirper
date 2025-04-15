@@ -14,11 +14,11 @@ import IconButton from '@/components/button/IconButton.vue';
 class ConfirmationIconButton extends WorkingComponent {
     @Prop({default: 32}) size;
     @Prop({default: true}) small;
-    @Prop(String) icon;
-    @Prop(String) text;
-    @Prop([String, Function]) confirmTextMaker; 
-    @Prop(Function) ask; 
-    @Prop(Function) onConfirm; 
+    @Prop({ type: String }) icon;
+    @Prop({ type: String }) text;
+    @Prop({ type: [String, Function] }) confirmTextMaker; 
+    @Prop({ type: Function }) ask; 
+    @Prop({ type: Function }) onConfirm; 
     @Prop({ default: false }) disabled;
     @Prop({ default: null }) item;
 

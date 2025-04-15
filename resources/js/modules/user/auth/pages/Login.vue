@@ -18,8 +18,8 @@ import {BaseView} from '@/views/BaseView.vue';
   }
 })
 class LoginPage extends BaseView {
-  @Prop(Boolean) canResetPassword;
-  @Prop(String) status;
+  @Prop({ type: Boolean }) canResetPassword;
+  @Prop({ type: String }) status;
 
   form = useForm({
       email: '',

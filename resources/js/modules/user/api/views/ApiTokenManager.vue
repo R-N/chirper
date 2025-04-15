@@ -29,9 +29,9 @@ import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
   }
 })
 class ApiTokenManagerPage extends Vue {
-    @Prop(Array) tokens;
-    @Prop(Array) availablePermissions;
-    @Prop(Array) defaultPermissions;
+    @Prop({ type: Array }) tokens;
+    @Prop({ type: Array }) availablePermissions;
+    @Prop({ type: Array }) defaultPermissions;
 
     createApiTokenForm = useForm({
         name: '',

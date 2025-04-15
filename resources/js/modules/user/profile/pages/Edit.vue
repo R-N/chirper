@@ -26,8 +26,8 @@ import { router } from '@inertiajs/vue3';
   }
 })
 class ProfileEditPage extends Vue {
-  @Prop(Boolean) mustVerifyEmail;
-  @Prop(String) status;
+  @Prop({ type: Boolean }) mustVerifyEmail;
+  @Prop({ type: String }) status;
 }
 export default toNative(ProfileEditPage);
 </script>

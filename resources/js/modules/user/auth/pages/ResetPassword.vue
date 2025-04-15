@@ -23,8 +23,8 @@ import GuestLayout from '@/layouts/GuestLayout.vue';
   }
 })
 class ResetPasswordPage extends Vue {
-  @Prop(String) email;
-  @Prop(String) token;
+  @Prop({ type: String }) email;
+  @Prop({ type: String }) token;
 
   form = useForm({
     token: '',

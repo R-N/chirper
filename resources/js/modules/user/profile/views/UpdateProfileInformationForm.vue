@@ -25,8 +25,8 @@ import profileService from '@/modules/user/profile/services/profile.js';
   }
 })
 class UpdateProfileInformationForm extends Vue {
-//   @Prop(Boolean) mustVerifyEmail;
-//   @Prop(String) status;
+//   @Prop({ type: Boolean }) mustVerifyEmail;
+//   @Prop({ type: String }) status;
   @Prop(Object) user = null;
 
   form = useForm({

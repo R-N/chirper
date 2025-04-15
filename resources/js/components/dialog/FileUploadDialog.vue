@@ -1,11 +1,12 @@
 <script lang="ts">
 import vueDropzone from 'vue3-dropzone';
 
-import { emptyArray } from '@/lib/util.js';
+import { emptyArray } from '@/libs/util';
 
-import { Component, Prop, Watch, Model, toNative } from 'vue-facing-decorator';
+import { Component, Prop, Watch, Model, Ref, toNative } from 'vue-facing-decorator';
 import { DialogBase } from '@/components/dialog/DialogBase.vue';
 
+let defaultBackendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 @Component({
     name: "FileUploadDialog",
@@ -14,9 +15,9 @@ import { DialogBase } from '@/components/dialog/DialogBase.vue';
     }
 })
 class FileUploadDialog extends DialogBase {
-  @Prop(Function) preUpload;
-  @Prop(Function) onUpload;
-  @Prop(Function) postUpload;
+  @Prop({ type: Function }) preUpload;
+  @Prop({ type: Function }) onUpload;
+  @Prop({ type: Function }) postUpload;
 
   @Prop({ default: "Upload File" }) title;
   @Prop({ default: "Silahkan pilih file untuk diupload" }) text;
@@ -28,6 +29,8 @@ class FileUploadDialog extends DialogBase {
   fromDrop = false
   immediateUpload = false;
 
+  @Ref('myDialogDropzone') myDialogDropzone;
+
   get interactable(){
     return this.busy || !this.dialog;
   }
@@ -36,7 +39,7 @@ class FileUploadDialog extends DialogBase {
     this.file = null;
     emptyArray(this.files);
   }
-  close(){
+  async close(){
     if (typeof this.myDialog == "boolean" || this.myDialog instanceof Boolean){
       this.myDialog = false;
     }else if (typeof this.myDialog == "string" || this.myDialog instanceof String){
@@ -73,7 +76,7 @@ class FileUploadDialog extends DialogBase {
     this.fromDrop = true;
   }
   onDialogFileDropped(file){
-    this.$refs["myDialogDropzone"].removeFile(file);
+    this.myDialogDropzone.removeFile(file);
     this.immediateUpload = this.dropUpload;
     this.onFileDropped(file);
   }
@@ -88,7 +91,7 @@ class FileUploadDialog extends DialogBase {
           }else{
             this.file = this.files.shift();
           }
-          stores.app.showError(T_FILE_ERROR_STR[TFileErrorCode.FILE_INVALID]);
+          this.appStore.showError("File invalid");
         }else if (this.immediateUpload){
           await this.uploadFile();
           this.immediateUpload = false;
@@ -115,7 +118,7 @@ class FileUploadDialog extends DialogBase {
     } catch (error) {
       comp.files.unshift(comp.file);
       comp.file = null;
-      if (stores.helper.error.showFilteredError(error, [TFileError, TUploadError])) return;
+      // if (stores.helper.error.showFilteredError(error, [TFileError, TUploadError])) return;
       throw error;
     } finally {
       if (comp.postUpload) comp.postUpload();

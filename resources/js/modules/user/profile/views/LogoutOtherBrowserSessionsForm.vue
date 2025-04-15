@@ -20,7 +20,7 @@ import { router } from '@inertiajs/vue3';
   }
 })
 class LogoutOtherBrowserSessionsForm extends Vue {
-  @Prop(Array) sessions;
+  @Prop({ type: Array }) sessions;
   confirmingLogout = false;
   @Ref('passwordInput') passwordInput;
   form = useForm({

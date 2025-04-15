@@ -12,7 +12,8 @@ import { VContainer, VRow, VCol, VCard, VCardText, VCardActions } from 'vuetify/
     VCard,
     VCardText,
     VCardActions
-  }
+  },
+  emits: ['submitted']
 })
 class FormSection extends Vue {
   @Emit('submitted')

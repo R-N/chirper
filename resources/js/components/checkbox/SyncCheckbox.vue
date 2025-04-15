@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Vue, Component, Prop, toNative } from 'vue-facing-decorator';
+import { Vue, Component, Prop, toNative, Emit } from 'vue-facing-decorator';
 import ConfirmationSlot from '@/components/dialog/ConfirmationSlot.vue';
 import { WorkingComponent } from '@/components/WorkingComponent.vue';
 
@@ -7,18 +7,24 @@ import { WorkingComponent } from '@/components/WorkingComponent.vue';
     name: "SyncCheckbox",
     components: {
         ConfirmationSlot
-    }
+    },
+    emits: ['change']
 })
 class SyncCheckbox extends WorkingComponent {
-    @Prop(String) name;
-    @Prop(String) value;
+    @Prop({ type: String }) name;
+    @Prop({ type: String }) value;
     @Prop({ default: false }) inputValue;
-    @Prop([String, Function]) confirmTextMaker; 
+    @Prop({ type: [String, Function] }) confirmTextMaker; 
     @Prop({ default: false }) disabled;
-    @Prop(String) textEnable;
-    @Prop(String) textDisable;
-    @Prop(Function) onChange;
+    @Prop({ type: String }) textEnable;
+    @Prop({ type: String }) textDisable;
     @Prop({default: true}) ask;
+    @Prop({ type: Function }) onChange;
+
+    @Emit('change')
+    emitChange(value){
+        return value;
+    }
 
     async tryAsk(ask){
         if (!this.disabled){
@@ -38,6 +44,7 @@ class SyncCheckbox extends WorkingComponent {
             await this.onChange(!this.inputValue, this.releaseBusy);
             this.busy = false;
         } else{
+            // this.emitChange({ value: !this.inputValue, releaseBusy: this.releaseBusy });
             this.$emit('change', !this.inputValue, this.releaseBusy);
         }
     }
@@ -54,8 +61,9 @@ export default toNative(SyncCheckbox);
     >
         <template v-slot="{ ask }">
             <VTooltip bottom :disabled="disabled || !text">
-                <template v-slot:activator="{ on, attrs }">
+                <template #activator="{ props }">
                     <VCheckbox 
+                        v-bind="props"
                         :name="name"
                         :input-value="inputValue"
                         :value="value"
@@ -65,7 +73,7 @@ export default toNative(SyncCheckbox);
                         :disabled="disabled"
                     />
                 </template>
-                <span>aa{{ text }}</span>
+                <span>{{ text }}</span>
             </VTooltip>
         </template>
     </ConfirmationSlot>

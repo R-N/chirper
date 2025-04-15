@@ -16,13 +16,30 @@ class ChirpController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): Response
+    public function index(Request $request): Response|JsonResponse
     {
         //return response('Hello, World!');
         // Chirps has belongsTo relationship with User as user
         $chirps = Chirp::with('user:id,name')->latest()->get();
         if (!$request->wantsJson()) {
             return Inertia::render('chirps/pages/Index', [
+                'chirps' => $chirps,
+            ]);
+        }
+        return response()->json([
+            'chirps' => $chirps,
+        ]);
+    }
+    /**
+     * Display a listing of the resource.
+     */
+    public function index2(Request $request): Response|JsonResponse
+    {
+        //return response('Hello, World!');
+        // Chirps has belongsTo relationship with User as user
+        $chirps = Chirp::with('user:id,name')->latest()->get();
+        if (!$request->wantsJson()) {
+            return Inertia::render('chirps/pages/Index2', [
                 'chirps' => $chirps,
             ]);
         }

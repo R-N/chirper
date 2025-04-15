@@ -24,7 +24,7 @@ import GuestLayout from '@/layouts/GuestLayout.vue';
   }
 })
 class VerifyEmailPage extends Vue {
-  @Prop(String) status;
+  @Prop({ type: String }) status;
   form = useForm({
     //email: '',
   });

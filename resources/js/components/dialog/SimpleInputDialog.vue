@@ -10,10 +10,6 @@ import FormDialog from '@/components/form/FormDialog.vue';
   }
 })
 class SimpleInputDialog extends FormDialogBase {
-  @Prop(Function) onCancel;
-  @Prop(Function) onSubmit;
-
-  @Prop({ default: false }) disabled;
   @Prop({ default: "Batal" }) cancelText;
   @Prop({ default: "Ok" }) confirmText;
   @Prop({ default: 400 }) maxWidth;
@@ -24,8 +20,8 @@ class SimpleInputDialog extends FormDialogBase {
   @Prop({ default: "Input" }) label;
   @Prop({ default: false }) password;
   @Prop({ default: false }) noInput;
-  @Prop([Array, Function]) rules;
-  @Prop([Function, Number]) counter;
+  @Prop({ type: [Array, Function] }) rules;
+  @Prop({ type: [Function, Number] }) counter;
   input = ''
   inputConfirm = ''
   passwordVisible = false;

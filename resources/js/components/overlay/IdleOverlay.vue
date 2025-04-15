@@ -13,8 +13,8 @@ import authService from '@/modules/user/auth/services/auth';
   }
 })
 class IdleOverlay extends MyComponent {
-  @Prop(Number) logoutWait;
-  @Prop(Number) idleWait;
+  @Prop({ type: Number }) logoutWait;
+  @Prop({ type: Number }) idleWait;
 
   logoutCountdown = 0;
   logoutTimer = null;

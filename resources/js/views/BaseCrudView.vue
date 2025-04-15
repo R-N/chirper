@@ -1,33 +1,32 @@
 <script lang="ts">
 
-import { Component, Prop, Watch, Model, toNative } from 'vue-facing-decorator';
-import { BaseView } from '@/views/BaseView';
+import { Component, Prop, Watch, Model, Emit, toNative } from 'vue-facing-decorator';
+import { BaseView } from '@/views/BaseView.vue';
 
-import MainCard from '@/components/card/MainCard';
-import IconButton from '@/components/button/IconButton';
+import MainCard from '@/components/card/MainCard.vue';
+import IconButton from '@/components/button/IconButton.vue';
 
-let modelEvent = "change"
+let modelEvent = "update:modelValue"
 
 @Component({
     name: "BaseCrudView",
     components: {
-        MainCard,
-    IconButton
-    }
+      MainCard,
+      IconButton
+    },
+    emits: [modelEvent]
 })
 class BaseCrudView extends BaseView {
-    @Prop({default: 'Crud'}) title;
-    @Prop({default: 'Buat'}) createText;
-    @Prop({default: 'Refresh'}) refreshText;
-    @Prop(Function) create;
-    @Prop(Function) fetch;
-  @Model(modelEvent, { type: [String, Object] }) search;
-  
-  get mySearch(){
-    return this.search;
-  }
-  set mySearch(value){
-    this.$emit(modelEvent, value);
+  @Prop({ default: 'Crud' }) title;
+  @Prop({ default: 'Buat' }) createText;
+  @Prop({ default: 'Refresh' }) refreshText;
+  @Prop({ type: Function }) create;
+  @Prop({ type: Function }) fetch;
+  @Model({ name: 'search', type: [String, Object] }) mySearch;
+
+  @Emit(modelEvent)
+  emitModel(value){
+    return value;
   }
 }
 export { BaseCrudView };
@@ -50,12 +49,12 @@ export default toNative(BaseCrudView);
         :text="refreshText"
         :small="false"
       />
-            <slot name="toolbar-left" :busy="busy"></slot>
+      <slot name="toolbar-left" :busy="busy"></slot>
     </template>
     <template v-slot:toolbar-right>
-            <slot name="toolbar-right" :busy="busy"></slot>
+      <slot name="toolbar-right" :busy="busy"></slot>
       <VTextField
-                v-if="!(typeof search === 'undefined' || search === null)"
+        v-if="!(typeof search === 'undefined' || search === null)"
         class="pt-0 mt-0"
         v-model="mySearch"
         append-icon="mdi-magnify"

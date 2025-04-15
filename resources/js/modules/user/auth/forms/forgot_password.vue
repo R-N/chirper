@@ -1,6 +1,6 @@
 <script lang="ts">
 
-import { Component, Prop, toNative } from 'vue-facing-decorator';
+import { Component, Prop, Ref, toNative } from 'vue-facing-decorator';
 import { WorkingComponent } from '@/components/WorkingComponent.vue';
 
 import CardTitle from '@/components/card/CardTitle.vue';
@@ -14,9 +14,10 @@ import CardTitle from '@/components/card/CardTitle.vue';
 class ForgotPasswordForm extends WorkingComponent {
   valid = true;
   username = ''
+  @Ref('myForm') myForm;
 
   async reset(){
-    // this.$refs.myForm.validate();
+    // this.myForm.validate();
     // if(!this.valid) return;
     // const view = this;
     // view.globalBusy = true;

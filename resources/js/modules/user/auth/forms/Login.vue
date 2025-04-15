@@ -22,8 +22,8 @@ import { router } from '@inertiajs/vue3';
 class LoginForm extends WorkingComponent {
   valid = true;
   passwordVisible = false;
-  @Prop(Boolean) canResetPassword;
-  @Prop(String) status;
+  @Prop({ type: Boolean }) canResetPassword;
+  @Prop({ type: String }) status;
   @Ref('myForm') myForm;
 
   form = useForm({

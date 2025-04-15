@@ -7,15 +7,8 @@ import {MyComponent} from '@/components/MyComponent.vue';
   name: "SharedIdle",
 })
 class SharedIdle extends MyComponent {
-  @Prop(Number) idleWait;
+  @Prop({ type: Number }) idleWait;
   @Model({ name: 'idle', type: Boolean }) syncedIdle;
-  // @Prop({ type: Boolean }) idle;
-  // get syncedIdle(){
-  //     return this.idle;
-  // }
-  // set syncedIdle(value){
-  //     this.$emit('update:idle', value);
-  // }
   idleTimer = null;
 
   get idleWaitMillis(){

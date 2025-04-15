@@ -1,5 +1,5 @@
 import _axios from '@/plugins/axios'; 
-import { filterObject } from '@/libs/util';
+import { filterObject, isObject } from '@/libs/util';
 
 class CrudService {
   constructor(
@@ -8,6 +8,7 @@ class CrudService {
     methods=['index', 'fetch', 'show', 'get', 'store', 'create', 'put', 'patch', 'update', 'destroy', 'delete'],
     fields=[],
     files=[],
+    setters=true,
     updateMethod='patch',
     axios=null,
   ){
@@ -18,10 +19,36 @@ class CrudService {
     this.fields = fields;
     this.files = files;
     this.updateMethod = updateMethod;
+    const allowSetters = this.methods.filter(m => ['update', 'patch'].includes(m));
+    if (allowSetters && this.allFields.length > 0){
+      if (
+        (setters === true) 
+        // || (Array.isArray(setters) && setters.length == 0)
+      ){
+        setters = this.allFields;
+      }
+    }else{
+      setters = null;
+    }
+    if (Array.isArray(setters) && setters.length > 0){
+      this.createSetters(setters);
+    }
   }
 
   get allFields(){
     return [...this.fields, ...this.files];
+  }
+  
+  createSetters(setters){
+    this.setters = setters;
+    for (const field of this.setters) {
+        let f = (obj, new_value) => this.set_field(field, obj, new_value);
+        this[`set_${field}`] = f;
+    }
+  }
+
+  async set_field(field, obj, value){
+    return await this.patch(obj, { [field]: value });
   }
 
   singleEndpoint(obj){
@@ -61,12 +88,12 @@ class CrudService {
     return formData;
   }
 
-  async index(){
+  async index(query={}){
     let res = await axios.get(this.endpoint);
     return res.data;
   }
-  async fetch(){
-    return await this.index();
+  async fetch(query={}){
+    return await this.index(query);
   }
 
   async show(obj){
@@ -75,6 +102,12 @@ class CrudService {
   }
   async get(obj){
     return await this.show(obj);
+  }
+
+  getData(data){
+    if (!data)
+      return null;
+    return data?.data ?? data?.[this.name.toLowerCase()] ?? data?.[`${this.name.toLowerCase()}s`];
   }
 
   async store(form){
@@ -88,6 +121,7 @@ class CrudService {
 
   async call(obj, form={}, files={}, method='put'){
     // this.checkMethod(method);
+    let obj0 = obj;
     obj = obj?.id ?? obj;
     let hasFiles = false;
     if (form){
@@ -107,7 +141,6 @@ class CrudService {
       };
       method = 'DELETE';
     }
-    console.log(method);
     let f = this.axios[method.toLowerCase()];
     let options = {};
     if (hasFiles){
@@ -123,6 +156,12 @@ class CrudService {
       f = this.axios.post;
     }
     res = await f(target, data, options);
+    if (isObject(obj0)){
+      let data = this.getData(res);
+      if (data){
+        Object.assign(obj0, this.getData(res.data));
+      }
+    }
     return res.data;
   }
 
@@ -133,7 +172,7 @@ class CrudService {
     return await this.call(obj, form, files, 'patch');
   }
   async update(obj, form={}, files={}){
-    return await this.put(obj, form, files, this.updateMethod);
+    return await this.call(obj, form, files, this.updateMethod);
   }
   async destroy(obj, form={}, files={}){
     await this.call(obj, form, files, 'destroy');

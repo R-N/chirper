@@ -23,8 +23,8 @@ import { router } from '@inertiajs/vue3';
   }
 })
 class ProfileShowPage extends Vue {
-  @Prop(Boolean) confirmsTwoFactorAuthentication;
-  @Prop(Array) sessions;
+  @Prop({ type: Boolean }) confirmsTwoFactorAuthentication;
+  @Prop({ type: Array }) sessions;
 }
 export default toNative(ProfileShowPage);
 </script>

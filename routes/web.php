@@ -40,5 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::resource('chirps', ChirpController::class)
     ->only(['index', 'store', 'update', 'destroy'])
     ->middleware(['auth:sanctum', 'verified']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/chirps2', [ChirpController::class, 'index2'])->name('chirps.index2');
+});
 
 require __DIR__.'/auth.php';

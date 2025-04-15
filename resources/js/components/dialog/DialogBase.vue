@@ -1,23 +1,42 @@
 
 <script lang="ts">
 
-import { Component, Prop, Watch, Model, toNative } from 'vue-facing-decorator';
-import { BaseView } from '@/views/BaseView.vue';
+import { Component, Prop, Watch, Model, Emit, Ref, toNative } from 'vue-facing-decorator';
+import { FormBase } from '@/components/form/FormBase.vue';
+
+let modelEvent = "update:modelValue"
 
 @Component({
     name: "DialogBase",
     components: {
-    }
+    },
+    emits: [modelEvent]
 })
-class DialogBase extends BaseView {
-    @Model('change', { type: [Boolean, String, Object, Array] }) dialog;
-    valid = true;
+class DialogBase extends FormBase {
+    // @Model({ name: 'dialog', type: [Boolean, String, Object, Array] }) myDialog;
+    @Prop({ type: [Boolean, String, Object, Array] }) modelValue;
+
+    get myDialog(){
+        return this.modelValue;
+    }
+    set myDialog(value){
+        if(value == this.modelValue) return;
+        this.reset();
+        this.busy = false;
+        this.emitChange(value);
+        this.emitModel(value);
+    }
+    @Emit(modelEvent)
+    emitModel(value=null){
+        return value;
+    }
 
     async _close(){
         if(this.onCancel){
             this.busy = true;
             await this.onCancel(this.myDialog, this.releaseBusy);
         }else{
+            // this.emitCancel({ value: this.myDialog, releaseBusy: this.releaseBusy });
             this.$emit("cancel", this.myDialog, this.releaseBusy);
         }
         if (typeof this.myDialog == "boolean" || this.myDialog instanceof Boolean){
@@ -28,6 +47,7 @@ class DialogBase extends BaseView {
             this.myDialog = null;
         }else if (this.myDialog instanceof Array){
             this.myDialog.pop();
+            this.myDialog = this.myDialog;
         }else{
             console.log(this.myDialog);
         }
@@ -39,78 +59,8 @@ class DialogBase extends BaseView {
         return await this._close();
     }
 
-    getForm(){
-        return this.$refs.myForm;
-    }
-    _getValue(){
-        let val = this.getForm();
-        if (!val)
-            val = this.$event;
-        return val;
-    }
-    getValue(){
-        return this._getValue();
-    }
-    _validate(){
-        if(this.getForm()){
-            this.getForm().validate();
-        }
-        if(this.onValidate)
-            this.onValidate(this.getForm());
-        else
-            this.$emit('validate', this.getForm());
-        return true;
-    }
-    validate(){
-        return this._validate();
-    }
-    _resetValidation(){
-        if(this.getForm()){
-            this.getForm().resetValidation();
-        }
-        this.valid = true;
-    }
-    resetValidation(){
-        return this._resetValidation();
-    }
-    _reset(){
-        this.resetValidation();
-        if(this.onReset)
-            this.onReset(this.getForm());
-        else
-            this.$emit('reset', this.getForm());
-    }
-    reset(){
-        this._reset();
-    }
-
-    get myDialog(){
-        return this.dialog;
-    }
-    set myDialog(value){
-        if(value == this.dialog) return;
-        this.reset();
-        this.busy = false;
-        this.$emit('change', value);
-    }
-
     get interactable(){
         return !this.disabled && !this.busy;
-    }
-    
-    async _submit(){
-        this.validate();
-        if(!this.valid) return;
-        if(this.onSubmit){
-            this.busy = true;
-            await this.onSubmit(this.getValue());
-        }else{
-            this.$emit('submit', this.getValue());
-        }
-        this.close();
-    }
-    async submit(){
-        return await this._submit();
     }
 }
 export { DialogBase };

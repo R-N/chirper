@@ -25,13 +25,6 @@ import authService from '@/modules/user/auth/services/auth.js';
 class TopNavBar extends MyComponent {
     @Prop({ type: String }) appName;
     @Model({ name: 'drawer', type: Boolean }) syncedDrawer;
-    // @Prop(Boolean) drawer;
-    // get syncedDrawer(){
-    //     return this.drawer;
-    // }
-    // set syncedDrawer(value){
-    //     this.$emit('update:drawer', value);
-    // }
     notifs = [
         { text: 'Notif 1' },
         { text: 'Notif 2' }

@@ -25,7 +25,7 @@ import GuestLayout from '@/layouts/GuestLayout.vue';
   }
 })
 class ForgotPasswordPage extends Vue {
-  @Prop(String) status;
+  @Prop({ type: String }) status;
   form = useForm({
     email: '',
   });

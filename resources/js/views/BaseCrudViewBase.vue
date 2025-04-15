@@ -3,6 +3,7 @@
 
 import { Component, Prop, Watch, Model, toNative } from 'vue-facing-decorator';
 import { BaseView } from '@/views/BaseView.vue';
+import { deleteFromArray, findIndex } from '@/libs/util';
 
 @Component({
     name: "BaseCrudViewBase",
@@ -11,8 +12,8 @@ import { BaseView } from '@/views/BaseView.vue';
 })
 class BaseCrudViewBase extends BaseView {
     createDialog = false;
-    search = ''
-    items = []
+    search = '';
+    items = [];
 
     get nameField() { return "name"; }
     get itemName(){ return 'Item'; }
@@ -26,8 +27,13 @@ class BaseCrudViewBase extends BaseView {
         return `Apa Anda yakin ingin menghapus ${this.itemName.toLowerCase()} '${item[this.nameField]}'?`;
     }
 
-    addItem(item){
-        this.items.push(item);
+    storeItem(item){
+        let index = findIndex(this.items, item);
+        if (index < 0){
+            this.items.push(item);
+        }else{
+            this.items[index] = item;
+        }
     }
 
     async _askDelete(item, ask){
@@ -40,7 +46,7 @@ class BaseCrudViewBase extends BaseView {
         view.busy=true;
         try{
             await this.client.delete(item.id);
-            this.items.pop(item);
+            deleteFromArray(this.items, item);
         } catch (error) {
             view.showError(error);
         } finally {
@@ -59,8 +65,8 @@ class BaseCrudViewBase extends BaseView {
         view.busy = true;
         let query = this.query;
         try{
-            let items = await this.client.fetch(query);
-            this.items = items;
+            let res = await this.client.fetch(query);
+            this.items = this.client.getData(res);
         } catch(error){
             view.showError(error);
         } finally {
@@ -69,11 +75,11 @@ class BaseCrudViewBase extends BaseView {
         }
     }
     _setNameConfirmText(item, newValue){
-        return setFieldConfirmText("name", item, newValue);
+        return this.setFieldConfirmText(this.nameField, item, newValue);
     }
 
     async _setName(item, newValue){
-        return await this.setField("name", item, newValue);
+        return await this.setField(this.nameField, item, newValue);
     }
 
     _setFieldConfirmText(fieldName, item, newValue, alias=null){
@@ -119,8 +125,8 @@ class BaseCrudViewBase extends BaseView {
     }
 
     _showError(error){
-        if (stores.helper.error.showFilteredError(error, this.filteredErrors)) 
-            return;
+        // if (this.appStore.showError(error, this.filteredErrors)) 
+        //     return;
         throw error;
     }
 
@@ -144,8 +150,8 @@ class BaseCrudViewBase extends BaseView {
     async fetch(releaseBusy=true){
         return await this._fetch(releaseBusy=true);
     }
-    setNameConfirmText(item){
-        return this._setNameConfirmText(item);
+    setNameConfirmText(item, newValue){
+        return this._setNameConfirmText(item, newValue);
     }
 
     async setName(item, name){

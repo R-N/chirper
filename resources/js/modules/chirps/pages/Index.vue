@@ -6,6 +6,7 @@ import { useForm } from '@inertiajs/vue3';
 import { VContainer, VTextarea, VBtn, VCard } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import chirpService from '../services/chirp';
+import { findIndex, deleteFromArray } from '@/libs/util';
 
 @Component({
   components: {
@@ -18,7 +19,7 @@ import chirpService from '../services/chirp';
   }
 })
 class ChirpsPage extends Vue {
-  @Prop(Array) chirps = []; // Adjust the type as necessary for chirps
+  @Prop({ type: Array }) chirps = []; // Adjust the type as necessary for chirps
 
   // Form data
   form = useForm({
@@ -28,22 +29,20 @@ class ChirpsPage extends Vue {
   mounted(){
   }
 
-  async create(){
+  async storeChirp(){
     let res = await chirpService.store(this.form);
     this.chirps.unshift(res.chirp);
 
     this.form.reset();
   }
   updateChirp(chirp){
-    const index = this.chirps.findIndex(chirp => chirp.id === chirp.id);
+    const index = findIndex(this.chirps, chirp);
     if (index !== -1) {
       this.chirps[index] = chirp; // Replace with updated chirp
     }
   }
   destroyChirp(chirp){
-    chirp = chirp?.id ?? chirp;
-    const index = this.chirps.findIndex(c => c.id === chirp);
-    this.chirps.splice(index, 1);
+    deleteFromArray(this.chirps, chirp);
   }
 }
 export default toNative(ChirpsPage);
@@ -52,7 +51,7 @@ export default toNative(ChirpsPage);
 <template>
   <AppLayout title="Chirps">
     <VContainer class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
-      <form @submit.prevent="create">
+      <form @submit.prevent="storeChirp">
         <VTextarea
           v-model="form.message"
           label="What's on your mind?"

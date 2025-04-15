@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Component, Vue, Ref, toNative, Prop } from 'vue-facing-decorator';
+import { Component, Vue, Ref, toNative, Prop, Emit } from 'vue-facing-decorator';
 import { VDialog, VCard, VCardTitle, VCardText, VCardActions, VTextField, VBtn } from 'vuetify/components';
 import axios from '@/plugins/axios';
 import { useForm } from "@inertiajs/vue3";
@@ -13,7 +13,8 @@ import { useForm } from "@inertiajs/vue3";
     VCardActions,
     VTextField,
     VBtn,
-  }
+  },
+  emits: ['confirmed']
 })
 class ConfirmPassword extends Vue {
   @Prop({ type: String, default: 'Confirm Password' }) title;
@@ -31,11 +32,16 @@ class ConfirmPassword extends Vue {
   async startConfirmingPassword() {
     const response = await axios.get(route('password.confirmation'));
     if (response.data.confirmed) {
-      this.$emit('confirmed');
+      this.emitConfirmed();
     } else {
       this.confirmingPassword = true;
       setTimeout(() => this.passwordInput?.focus(), 250);
     }
+  }
+
+  @Emit('confirmed')
+  emitConfirmed(){ 
+    return true;
   }
 
   async confirmPassword() {
@@ -46,7 +52,7 @@ class ConfirmPassword extends Vue {
       });
       this.form.processing = false;
       this.closeModal();
-      this.$nextTick(() => this.$emit('confirmed'));
+      this.$nextTick(this.emitConfirmed);
     } catch (error) {
       this.form.processing = false;
       this.form.error = error.response.data.errors.password[0];

@@ -1,7 +1,7 @@
 <script lang=ts>
-import { Vue, Component, Prop, toNative } from 'vue-facing-decorator';
+import { Vue, Component, Prop, Emit, toNative } from 'vue-facing-decorator';
 import EditableCell from '@/components/form/EditableCell.vue';
-import {WorkingComponent} from '@/components/WorkingComponent.vue';
+import { EditableCellBase } from '../EditableCellBase.vue';
 
 const defaultValue = () => {
     return {"value": 0, "title": ""}
@@ -12,32 +12,10 @@ const defaultValue = () => {
         EditableCell
     }
 })
-class EditableCellSelect extends WorkingComponent {
-    @Prop(String) label;
-    @Prop(String) title;
-    @Prop(String) name;
-    @Prop([String, Object]) value;
-    @Prop([String, Function]) confirmTextMaker; 
-    @Prop({ default: false }) disabled;
-
-    @Prop({default: defaultValue}) value;
+class EditableCellSelect extends EditableCellBase {
     @Prop({default: []}) items;
     @Prop({default: "value"}) itemValue;
     @Prop({default: "title"}) itemTitle;
-    @Prop(Function) onFinish;
-
-    valueEdit = '';
-
-    finish(){
-        this.$emit('change', this.valueEdit);
-        if (this.onFinish){
-            this.busy = true;
-            this.onFinish(this.valueEdit, this.releaseBusy);
-            this.busy = false;
-        } else{
-            this.$emit('finish', this.valueEdit, this.releaseBusy);
-        }
-    }
 }
 export { EditableCellSelect };
 export default toNative(EditableCellSelect);

@@ -20,7 +20,7 @@ import ServerDownView from '@/modules/general/views/ServerDown.vue';
   }
 })
 class GuestLayout extends BaseView {
-  @Prop(String) title;
+  @Prop({ type: String }) title;
   get breadcrumbs(){
     return this.appStore.breadcrumbs;
   }

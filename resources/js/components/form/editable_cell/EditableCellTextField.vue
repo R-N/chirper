@@ -1,7 +1,7 @@
 <script lang="ts">
-import { Vue, Component, Prop, toNative } from 'vue-facing-decorator';
+import { Vue, Component, Prop, Emit, toNative } from 'vue-facing-decorator';
 import EditableCell from '@/components/form/EditableCell.vue';
-import {WorkingComponent} from '@/components/WorkingComponent.vue';
+import { EditableCellBase } from '../EditableCellBase.vue';
 
 @Component({
       name: "EditableCellTextField",
@@ -9,31 +9,12 @@ import {WorkingComponent} from '@/components/WorkingComponent.vue';
         EditableCell
       }
 })
-class EditableCellTextField extends WorkingComponent {
-    @Prop(String) title;
-    @Prop(String) label;
-    @Prop(String) name;
-    @Prop(String) type;
-    @Prop(String) value;
-    @Prop(Number) counter;
-    @Prop([String, Function]) confirmTextMaker; 
-    @Prop({ default: false }) disabled;
-    @Prop([Function, Array]) rules; 
+class EditableCellTextField extends EditableCellBase {
+    @Prop({ type: String }) type;
+    @Prop({ type: Number }) counter;
+    @Prop({ type: [Function, Array] }) rules; 
     @Prop({default: true}) required; 
-    @Prop(Function) onFinish;
 
-    valueEdit = '';
-
-    finish(){
-        this.$emit('change', this.valueEdit);
-        if (this.onFinish){
-            this.busy = true;
-            this.onFinish(this.valueEdit, this.releaseBusy);
-            this.busy = false;
-        } else{
-            this.$emit('finish', this.valueEdit, this.releaseBusy);
-        }
-    }
 }
 export { EditableCellTextField } 
 export default toNative(EditableCellTextField);

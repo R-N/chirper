@@ -20,13 +20,6 @@ import {MyComponent} from "@/components/MyComponent.vue";
 })
 class SideNavDrawer extends MyComponent {
     @Model({ name: 'drawer', type: Boolean }) syncedDrawer;
-    // @Prop(Boolean) drawer;
-    // get syncedDrawer(){
-    //     return this.drawer;
-    // }
-    // set syncedDrawer(value){
-    //     this.$emit('update:drawer', value);
-    // }
     items = [
         { icon: 'mdi-home', text: 'Dashboard', href: route('dashboard') },
         {
@@ -36,6 +29,7 @@ class SideNavDrawer extends MyComponent {
             model: false,
             children: [
                 { text: 'Chirps', href: route('chirps.index') },
+                { text: 'Chirps CRUD', href: route('chirps.index2') },
             ],
         },
     ];
@@ -76,7 +70,7 @@ export default toNative(SideNavDrawer);
                     v-model="item.model"
                     :prepend-icon="item.icon"
                 >
-                    <template v-slot:activator="{ props }">
+                    <template #activator="{ props }">
                         <VListItem
                             v-bind="props"
                         >
