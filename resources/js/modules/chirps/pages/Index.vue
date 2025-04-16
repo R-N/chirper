@@ -7,6 +7,7 @@ import { VContainer, VTextarea, VBtn, VCard } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import chirpService from '../services/chirp';
 import { findIndex, deleteFromArray } from '@/libs/util';
+import {BaseView} from '@/views/BaseView.vue';
 
 @Component({
   components: {
@@ -18,7 +19,7 @@ import { findIndex, deleteFromArray } from '@/libs/util';
     VCard
   }
 })
-class ChirpsPage extends Vue {
+class ChirpsPage extends BaseView {
   @Prop({ type: Array }) chirps = []; // Adjust the type as necessary for chirps
 
   // Form data
@@ -27,6 +28,9 @@ class ChirpsPage extends Vue {
   });
 
   mounted(){
+    this.appStore.breadcrumbs = [
+      { title: "Chirps" },
+    ];
   }
 
   async storeChirp(){

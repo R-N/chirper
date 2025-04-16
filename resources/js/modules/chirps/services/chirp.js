@@ -5,7 +5,7 @@ class ChirpService extends CrudService{
   constructor() {
     super(
       "Chirp", "/chirps", 
-      ["store", "update", "destroy"],
+      ["index", "store", "update", "destroy"],
       ["message"],
     );
   }

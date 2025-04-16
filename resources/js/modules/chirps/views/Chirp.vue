@@ -38,13 +38,6 @@ class ChirpCrudView extends BaseCrudViewBase {
     get nameField(){ return "created_at"; }
     get itemName(){ return 'Chirp'; }
     get client(){ return chirpService; }
-    get breadcrumbs(){
-        return [
-            { text: "Beranda", to: { name: 'beranda' }, exact: true },
-            { text: "Data" },
-            { text: "Departemen" },
-        ]
-    }
     get headers(){
         let headers = [
             { title: 'User', value: 'user' },
@@ -82,7 +75,7 @@ export default toNative(ChirpCrudView);
 <template>
     <BaseCrudView 
         title="Chirps"
-        :create="showForm"
+        :create="() => showForm()"
         :fetch="fetch"
         create-text="Chirp"
         v-model:search="search"
@@ -114,7 +107,7 @@ export default toNative(ChirpCrudView);
                 </template>
                 <template v-slot:item.actions="{ item }">
                     <IconButton
-                        @click.stop="showForm(item)" 
+                        @click.stop="() => showForm(item)" 
                         :disabled="busy"
                         icon="mdi-pencil"
                         text="Edit"

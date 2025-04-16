@@ -112,7 +112,7 @@ class CrudService {
 
   async store(form){
     form = filterObject(form, this.fields);
-    let res = await axios.post(`${this.endpoint}`, form);
+    let res = await axios.post(this.endpoint, form);
     return res.data;
   }
   async create(form){

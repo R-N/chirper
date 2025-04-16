@@ -3,7 +3,8 @@ import './bootstrap';
 
 import axios from '@/plugins/axios'; 
 
-import { createInertiaApp } from '@inertiajs/vue3';
+import { createInertiaApp, router } from '@inertiajs/vue3';
+import { useAppStore } from '@/stores/app';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h } from 'vue';
 import { createPinia } from 'pinia'; 
@@ -31,16 +32,19 @@ createInertiaApp({
         ),
     setup({ el, App: InertiaApp, props, plugin }) {
         axios.init();
-        const app = createApp({ render: () => h(App, { InertiaApp, props }) });
+        let app = createApp({ render: () => h(App, { InertiaApp, props }) });
         //app.config.devtools = true;
         const pinia = createPinia()
             .use(piniaPersist);
-        return app
-            .use(plugin)
+        app = app.use(plugin)
             .use(ZiggyVue)
             .use(pinia)
             .use(vuetify)
-            .mount(el);
+        router.on('before', () => {
+            let appStore = useAppStore();
+            appStore.breadcrumbs = [];
+        });
+        return app.mount(el);
     },
     progress: {
         color: '#4B5563',

@@ -6,7 +6,9 @@ import { WorkingComponent } from '@/components/WorkingComponent.vue';
   name: "BaseView"
 })
 class BaseView extends WorkingComponent {
-
+  created(){
+    this.appStore.breadcrumbs = [];
+  }
 }
 
 export { BaseView };

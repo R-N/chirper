@@ -15,7 +15,7 @@ import { VTextField } from 'vuetify/components';
     emits: ['submit']
 })
 class ChirpFormDialog extends FormDialogBase {
-    @Prop({ default: null }) data;
+    @Prop({ type: Object, default: null }) data;
     form = useForm({
         message: '',
     });

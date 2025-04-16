@@ -30,7 +30,6 @@ class MainView extends BaseView{
     get breadcrumbs(){
         return this.appStore.breadcrumbs;
     }
-
 }
 export { MainView }
 export default toNative(MainView);
@@ -46,22 +45,23 @@ export default toNative(MainView);
             key="main"
             v-else
         >
-            <transition appear name="fade" mode="out-in">
-                <VRow appear class="" align="start" justify="start"  v-if="serverReachable && isLoggedIn && breadcrumbs && breadcrumbs.length">
-                    <VCol align="start" justify="start">
-                        <VAlert
-                            color="grey"
-                            text
-                        >
-                            <VBreadcrumbs class="py-0" :items="breadcrumbs" large>
-                                <template v-slot:divider>
-                                    <VIcon>mdi-chevron-right</VIcon>
-                                </template>
-                            </VBreadcrumbs>
-                        </VAlert>
-                    </VCol>
-                </VRow>
-            </transition>
+            <VSlideYTransition 
+                appear
+                :duration="transitionDuration"
+            >
+                <VContainer v-if="serverReachable && breadcrumbs && breadcrumbs.length">
+                    <VAlert
+                        color="bg-secondary"
+                        text
+                    >
+                        <VBreadcrumbs class="py-0" :items="breadcrumbs" large>
+                            <template v-slot:divider>
+                                <VIcon>mdi-chevron-right</VIcon>
+                            </template>
+                        </VBreadcrumbs>
+                    </VAlert>
+                </VContainer>
+            </VSlideYTransition>
             <VSlideYTransition 
                 group
                 appear
