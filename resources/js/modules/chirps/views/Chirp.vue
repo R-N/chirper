@@ -1,8 +1,6 @@
 <script lang="ts">
 import { Component, toNative } from 'vue-facing-decorator';
 
-import MainCard from '@/components/card/MainCard.vue';
-import SyncCheckbox from '@/components/checkbox/SyncCheckbox.vue';
 import dayjs from 'dayjs';
 
 import ChirpFormDialog from '@/modules/chirps/views/FormDialog.vue';
@@ -18,8 +16,6 @@ import ConfirmationIconButton from '@/components/button/ConfirmationIconButton.v
 @Component({
     name: "ChirpCrudView",
     components: {
-        MainCard,
-        SyncCheckbox,
         ChirpFormDialog,
         BaseCrudView,
         EditableCellTextField,
@@ -29,12 +25,8 @@ import ConfirmationIconButton from '@/components/button/ConfirmationIconButton.v
     },
 })
 class ChirpCrudView extends BaseCrudViewBase {
-    editingChirp = null;
-    formDialog = false;
+    editing = null;
 
-    get isSuperAdmin(){
-        return true;
-    }
     get nameField(){ return "created_at"; }
     get itemName(){ return 'Chirp'; }
     get client(){ return chirpService; }
@@ -44,7 +36,7 @@ class ChirpCrudView extends BaseCrudViewBase {
             { title: 'Meessage', value: 'message' },
             { title: 'Created At', value: 'created_at' },
             { title: 'Actions', value: 'actions' }
-        ]
+        ];
         return headers;
     }
     duration(time){
@@ -65,7 +57,7 @@ class ChirpCrudView extends BaseCrudViewBase {
     }
 
     showForm(chirp=null){
-        this.editingChirp = chirp;
+        this.editing = chirp;
         this.formDialog = true;
     }
 }
@@ -123,7 +115,7 @@ export default toNative(ChirpCrudView);
                 </template>
             </VDataTable>
             <ChirpFormDialog
-                :data="editingChirp"
+                :data="editing"
                 v-model="formDialog"
                 @submit="storeItem"
                 :parent-busy="busy"

@@ -1,6 +1,4 @@
 <script lang="ts">
-import vueDropzone from 'vue3-dropzone';
-
 import { emptyArray } from '@/libs/util';
 
 import { Component, Prop, Watch, Model, Ref, toNative } from 'vue-facing-decorator';
@@ -8,31 +6,37 @@ import { DialogBase } from '@/components/dialog/DialogBase.vue';
 
 let defaultBackendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
+
 @Component({
     name: "FileUploadDialog",
     components: {
-      vueDropzone
     }
 })
 class FileUploadDialog extends DialogBase {
+
   @Prop({ type: Function }) preUpload;
   @Prop({ type: Function }) onUpload;
   @Prop({ type: Function }) postUpload;
 
   @Prop({ default: "Upload File" }) title;
-  @Prop({ default: "Silahkan pilih file untuk diupload" }) text;
+  @Prop({ default: "Choose backup file to upload" }) text;
+  @Prop({ default: "Drop here" }) dropText;
+  @Prop({ default: "Browse" }) browseText;
   @Prop({ default: "File" }) label;
   @Prop({ default: true }) dropUpload;
+
+  @Prop({ default: "" }) acceptedFiles;
+  @Prop({ default: [] }) mimeTypes;
 
   file = null
   files = []
   fromDrop = false
   immediateUpload = false;
 
-  @Ref('myDialogDropzone') myDialogDropzone;
-
+  @Ref('myFileUpload') myFileUpload;
+  
   get interactable(){
-    return this.busy || !this.dialog;
+    return this.busy || !this.myDialog;
   }
 
   reset(){
@@ -50,22 +54,27 @@ class FileUploadDialog extends DialogBase {
       this.myDialog.pop();
     }
   }
-
+  get accept(){
+    return `${this.acceptedFiles},${this.mimeTypes.join(',')}`;
+  }
   get dropzoneOptions() {
     return {
       url: defaultBackendUrl + "/upload/",
-      params: this.dropzoneParams,
+      // params: this.dropzoneParams,
       maxFilesize: 1,
       clickable: false,
       uploadMultiple: false,
       autoProcessQueue: false,
-      acceptedFiles: ".xlsx",
-      mimeTypes: ['application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+      acceptedFiles: this.acceptedFiles,
+      mimeTypes: this.mimeTypes
     }
   }
-  dropzoneParams(files, xhr, chunk=null){
-    return {
-      "upload_token": "asdasd"
+  
+  
+  @Watch("files")
+  async onFilesChanged(newFiles, oldFiles){
+    if (newFiles.length > 0 && this.immediateUpload) {
+      this.onFileDropped(newFiles.shift());
     }
   }
   onFileDropped(file){    
@@ -76,10 +85,11 @@ class FileUploadDialog extends DialogBase {
     this.fromDrop = true;
   }
   onDialogFileDropped(file){
-    this.myDialogDropzone.removeFile(file);
+    this.myFileUpload.removeFile(file);
     this.immediateUpload = this.dropUpload;
     this.onFileDropped(file);
   }
+
   @Watch("file")
   async onFileChanged(file, old){
     if(this.fromDrop){
@@ -118,7 +128,6 @@ class FileUploadDialog extends DialogBase {
     } catch (error) {
       comp.files.unshift(comp.file);
       comp.file = null;
-      // if (stores.helper.error.showFilteredError(error, [TFileError, TUploadError])) return;
       throw error;
     } finally {
       if (comp.postUpload) comp.postUpload();
@@ -135,13 +144,22 @@ export default toNative(FileUploadDialog);
     max-width="290"
     :persistent="busy"
   >
-    <VCard>
+    <VCard class="pt-3 pb-3 pl-3 pr-3">
       <VForm @submit.prevent.stop="uploadFile">
-        <VueDropzone ref="myDialogDropzone" id="dropzone" :options="dropzoneOptions" useCustomSlot @vdropzone-file-added="onDialogFileDropped" class="text-left">
           <VCardTitle class="headline">{{ title }}</VCardTitle>
           <VCardText>
             <p class="text-left">{{ text }}</p>
-              <v-file-input multiple ref="myFileInput" :label="label" v-model="files" @click.stop="" accept=".xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" show-size></v-file-input>
+            <VFileUpload
+              clearable density="compact" variant="compact"
+              ref="myFileUpload"
+              v-model="files"
+              :browse-text="browseText"
+              :title="dropText"
+              :accept="accept"
+              :multiple="true"
+              show-size
+              @change="onFilesChanged"
+            />
           </VCardText>
           <VCardActions>
             <VSpacer></VSpacer>
@@ -163,7 +181,6 @@ export default toNative(FileUploadDialog);
               Upload
             </VBtn>
           </VCardActions>
-        </VueDropzone>
       </VForm>
     </VCard>
   </VDialog>

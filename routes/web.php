@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ChirpController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\BackupController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -42,6 +43,16 @@ Route::resource('chirps', ChirpController::class)
     ->middleware(['auth:sanctum', 'verified']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chirps2', [ChirpController::class, 'index2'])->name('chirps.index2');
+});
+
+Route::middleware('auth:sanctum')->prefix('system/backup')->group(function () {
+    Route::get('/', [BackupController::class, 'index'])->name('system.backup.index');
+    Route::post('/', [BackupController::class, 'store'])->name('system.backup.store');
+    Route::put('/', [BackupController::class, 'upload'])->name('system.backup.upload');
+    Route::get('/{file}', [BackupController::class, 'download'])->name('system.backup.download');
+    Route::patch('/{file}', [BackupController::class, 'rename'])->name('system.backup.rename');
+    Route::delete('/{file}', [BackupController::class, 'destroy'])->name('system.backup.destroy');
+    Route::put('/{file}', [BackupController::class, 'restore'])->name('system.backup.restore');
 });
 
 require __DIR__.'/auth.php';

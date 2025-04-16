@@ -53,6 +53,8 @@ class CrudService {
 
   singleEndpoint(obj){
     obj = obj?.id ?? obj;
+    if(obj == null)
+      return this.endpoint;
     return `${this.endpoint}/${obj}`;
   }
 
@@ -67,7 +69,7 @@ class CrudService {
   }
 
   checkFiles(form, files={}){
-    if (this.files.length == 0 || this.files)
+    if (this.files.length == 0 || !this.files)
       return form;
     
     const formData = new FormData();
@@ -88,20 +90,20 @@ class CrudService {
     return formData;
   }
 
-  async index(query={}){
-    let res = await axios.get(this.endpoint);
+  async index(query={}, options={}){
+    let res = await axios.get(this.endpoint, options);
     return res.data;
   }
   async fetch(query={}){
     return await this.index(query);
   }
 
-  async show(obj){
-    let res = await axios.get(this.singleEndpoint(obj));
+  async get(obj, options={}){
+    let res = await axios.get(this.singleEndpoint(obj), options);
     return res.data;
   }
-  async get(obj){
-    return await this.show(obj);
+  async show(obj){
+    return await this.get(obj);
   }
 
   getData(data){
@@ -110,13 +112,16 @@ class CrudService {
     return data?.data ?? data?.[this.name.toLowerCase()] ?? data?.[`${this.name.toLowerCase()}s`];
   }
 
-  async store(form){
+  async post(form, options={}){
     form = filterObject(form, this.fields);
-    let res = await axios.post(this.endpoint, form);
+    let res = await axios.post(this.endpoint, form, options);
     return res.data;
   }
   async create(form){
-    return await this.store(form);
+    return await this.post(form);
+  }
+  async store(form){
+    return await this.post(form);
   }
 
   async call(obj, form={}, files={}, method='put'){
@@ -126,7 +131,9 @@ class CrudService {
     let hasFiles = false;
     if (form){
       form = filterObject(form, this.allFields);
+      console.log(form);
       form = this.checkFiles(form, files);
+      console.log(form);
       hasFiles = form._has_files;
     }
     let res = null;
@@ -174,11 +181,11 @@ class CrudService {
   async update(obj, form={}, files={}){
     return await this.call(obj, form, files, this.updateMethod);
   }
-  async destroy(obj, form={}, files={}){
+  async delete(obj, form={}, files={}){
     await this.call(obj, form, files, 'destroy');
   }
-  async delete(obj, form={}, files={}){
-    return await this.destroy(obj, form, files);
+  async destroy(obj, form={}, files={}){
+    return await this.delete(obj, form, files);
   }
 }
 

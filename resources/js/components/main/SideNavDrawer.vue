@@ -33,6 +33,15 @@ class SideNavDrawer extends MyComponent {
                 { text: 'Chirps CRUD', href: route('chirps.index2') },
             ],
         },
+        {
+            icon: 'mdi-wrench',
+            text: 'System',
+            model: false,
+            children: [
+                { text: 'Users', href: "#" },
+                { text: 'Backup', href: route('system.backup.index') },
+            ],
+        },
     ];
 }
 export { SideNavDrawer }

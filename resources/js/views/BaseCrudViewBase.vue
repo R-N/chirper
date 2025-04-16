@@ -11,7 +11,8 @@ import { deleteFromArray, findIndex } from '@/libs/util';
     }
 })
 class BaseCrudViewBase extends BaseView {
-    createDialog = false;
+    formDialog = false;
+    editing = null;
     search = '';
     items = [];
 
