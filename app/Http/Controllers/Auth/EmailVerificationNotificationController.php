@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class EmailVerificationNotificationController extends Controller
 {
@@ -14,18 +15,34 @@ class EmailVerificationNotificationController extends Controller
      */
     public function store(Request $request): RedirectResponse|JsonResponse
     {
-        if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->intended(route('dashboard', absolute: false));
+        $user = $request->user();
+
+        if (!$user) {
+            $request->validate([
+                'email' => 'required|email|exists:users,email',
+            ]);
+        
+            $user = User::where('email', $request->email)->first();
         }
 
-        $notification = $request->user()->sendEmailVerificationNotification();
+        if ($user->hasVerifiedEmail()) {
+            $redirect = route('dashboard', absolute: false);
+            if (!$request->wantsJson()) {
+                return redirect()->intended($redirect);
+            }
+            return response()->json([
+                'message' => 'Email already verified',
+                'redirect' => $redirect,
+            ], 301);
+        }
+
+        $request->user()->sendEmailVerificationNotification();
 
         if (!$request->wantsJson()) {
             return back()->with('status', 'verification-link-sent');
         }
         return response()->json([
             'message' => 'Email verification notification sent',
-            'notification' => $notification->toArray(null),
         ], 200);
     }
 }

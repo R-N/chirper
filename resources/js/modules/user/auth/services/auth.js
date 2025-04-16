@@ -58,13 +58,17 @@ class AuthService{
   }
   async resetPassword(form) {
     //let target = route('password.store');
-    let target = route('password.update');
+    let target = route('password.store');
     let res = await this.axios.post(target, form);
     return res.data;
   }
   async confirmPassword(form) {
     //await form.post(route('password.confirm'));
     let res = await this.axios.post(route('password.confirm'), form);
+    return res.data;
+  }
+  async verifyEmail(form) {
+    let res = await this.axios.post(route('verification.send'), form);
     return res.data;
   }
 }

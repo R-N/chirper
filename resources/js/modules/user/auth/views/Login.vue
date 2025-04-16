@@ -7,8 +7,8 @@ import { BaseView } from '@/views/BaseView.vue';
 import { VSlideXTransition, VSlideXReverseTransition } from 'vuetify/components';
 
 import LoginForm from '@/modules/user/auth/forms/Login.vue'
-import ForgotPasswordForm from '@/modules/user/auth/forms/forgot_password.vue'
-import ResendVerificationForm from '@/modules/user/auth/forms/resend_verification.vue'
+import ForgotPasswordForm from '@/modules/user/auth/forms/ForgotPassword.vue'
+import ResendVerificationForm from '@/modules/user/auth/forms/VerifyEmail.vue'
 import { AuthLayout } from '../layouts/Auth.vue';
 
 @Component({
@@ -45,12 +45,12 @@ export default toNative(LoginView);
       <div v-if="slide==0" :key="0">
         <VCard class="d-flex flex-column pa-6">
           <LoginForm/>
-          <VCardText class="pt-0" v-if="false">
+          <VCardText class="pt-0" >
             <div class="d-flex justify-end px-2 pb-2">
-              <a href="#" @click.stop.prevent="slide = 1">Lupa password</a>
+              <a href="#" @click.stop.prevent="slide = 1">Forgot password?</a>
             </div>
             <div class="d-flex justify-end px-2 pb-2">
-              <a href="#" @click.stop.prevent="slide = 2">Verifikasi email</a>
+              <a href="#" @click.stop.prevent="slide = 2">Verify email</a>
             </div>
           </VCardText>
         </VCard>
@@ -61,10 +61,10 @@ export default toNative(LoginView);
     >
       <div v-if="slide==1" :key="1">
         <VCard>
-          <forgot-password-form />
+          <ForgotPasswordForm />
           <VCardText class="pt-0">
             <div class="d-flex justify-start px-2 pb-2">
-              <a href="#" @click.stop.prevent="slide = 0">Kembali</a>
+              <a href="#" @click.stop.prevent="slide = 0">Return</a>
             </div>
           </VCardText>
         </VCard>
@@ -75,10 +75,10 @@ export default toNative(LoginView);
     >
       <div v-if="slide==2" :key="2">
         <VCard>
-          <resend-verification-form />
+          <ResendVerificationForm />
           <VCardText class="pt-0">
             <div class="d-flex justify-start px-2 pb-2">
-              <a href="#" @click.stop.prevent="slide = 0">Kembali</a>
+              <a href="#" @click.stop.prevent="slide = 0">Return</a>
             </div>
           </VCardText>
         </VCard>

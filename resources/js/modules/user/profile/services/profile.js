@@ -54,11 +54,6 @@ class ProfileService{
     let res = await this.axios.delete(route('current-user-photo.destroy'));
     return res.data;
   };
-  
-  async verifyEmail(form) {
-    let res = await this.axios.post(route('verification.send'), form);
-    return res.data;
-  }
 }
 
 const profileService = new ProfileService();

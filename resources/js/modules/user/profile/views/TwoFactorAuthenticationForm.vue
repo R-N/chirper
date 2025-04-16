@@ -62,8 +62,8 @@ class TwoFactorAuthenticationForm extends Vue {
 
 
   async showRecoveryCodes(){
-    let res = await profileService.showRecoveryCodes();
-    this.recoveryCodes = res.data;
+    let res = await twoFactorAuthService.showRecoveryCodes();
+    this.recoveryCodes = res;
   };
 
   async confirmTwoFactorAuthentication(){

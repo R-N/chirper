@@ -8,6 +8,7 @@ import authService from '@/modules/user/auth/services/auth.js';
 import { router } from '@inertiajs/vue3';
 import AuthLayout from '../layouts/Auth.vue';
 import GuestLayout from '@/layouts/GuestLayout.vue';
+import {BaseView} from '@/views/BaseView.vue';
 
 @Component({
   components: {
@@ -22,7 +23,7 @@ import GuestLayout from '@/layouts/GuestLayout.vue';
     VBtn,
   }
 })
-class ResetPasswordPage extends Vue {
+class ResetPasswordPage extends BaseView {
   @Prop({ type: String }) email;
   @Prop({ type: String }) token;
 
