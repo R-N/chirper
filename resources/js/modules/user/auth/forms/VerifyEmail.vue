@@ -68,6 +68,7 @@ export default toNative(VerifyEmailForm);
           If you didn't receive the email, we will gladly send you another.
       </p>
       <VTextField
+        v-if="!isLoggedIn"
         v-model="form.email" 
         class="bigger-input" 
         label="Email" 

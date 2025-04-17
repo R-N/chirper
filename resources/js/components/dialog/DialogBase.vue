@@ -10,11 +10,28 @@ let modelEvent = "update:modelValue"
     name: "DialogBase",
     components: {
     },
-    emits: [modelEvent]
+    emits: [modelEvent, "show"]
 })
 class DialogBase extends FormBase {
     // @Model({ type: [Boolean, String, Object, Array] }) myDialog;
     @Prop({ type: [Boolean, String, Object, Array] }) modelValue;
+    @Prop({ type: Function }) onShow;
+
+    @Watch("modelValue")
+    modelWatcher(newValue, oldValue){
+      if (newValue){
+        if (this.onShow){
+            this.onShow();
+        }else{
+            this.emitShow();
+        }
+      }
+    }
+
+    @Emit("show")
+    emitShow(){
+        return true;
+    }
 
     get myDialog(){
         return this.modelValue;

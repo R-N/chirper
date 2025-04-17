@@ -1,6 +1,7 @@
 <script lang="ts">
-import { Vue, Component, Prop, Model, Emit, Ref, toNative } from 'vue-facing-decorator';
+import { Vue, Component, Prop, Model, Emit, Ref, Watch, toNative } from 'vue-facing-decorator';
 import {WorkingComponent} from '@/components/WorkingComponent.vue';
+import { useForm } from '@inertiajs/vue3';
 
 @Component({
     name: "FormBase",
@@ -10,8 +11,20 @@ import {WorkingComponent} from '@/components/WorkingComponent.vue';
 })
 class FormBase extends WorkingComponent {
   @Ref("myForm") myForm;
+  form = useForm({});
   valid = true;
   @Prop({ type: Boolean, default: false }) disabled;
+
+  @Prop({ type: Object, default: null }) data;
+  @Watch("data")
+  dataWatcher(newValue, oldValue){
+    if (newValue){
+      this.prepopulate();
+    }
+  }
+  prepopulate(){
+    Object.assign(this.form, this.data);
+  }
 
   @Prop({ type: Function }) onCancel;
   @Prop({ type: Function }) onChange;
@@ -43,8 +56,9 @@ class FormBase extends WorkingComponent {
   getForm(){
     return this.myForm;
   }
+
   _getValue(){
-      let val = this.getForm();
+      let val = this.form || this.getForm();
       if (!val)
           val = this.$event;
       return val;

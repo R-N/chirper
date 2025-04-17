@@ -35,11 +35,15 @@ class GuestLayout extends BaseView {
   }
   errorCaptured(error, vm, info) {
     if (error.show){
-      this.appStore.showError(error);
-      console.warn(error);
-      return false;
+      try{
+        this.appStore.showError(error);
+        console.warn(error);
+        return false;
+      }catch(e){
+        console.error(e);
+      }
     }else{
-      throw error;
+      console.error(error);
     }
   }
 }

@@ -195,7 +195,7 @@ export default toNative(BackupView);
               text="Delete"
               :confirmTextMaker="deleteConfirmText(item)"
               :on-confirm="() => deleteItem(item)"
-              :ask="(ask) => askDelete(item, ask)" 
+              :ask="(ask) => justAsk(item, ask)" 
               :disabled="busy"
           />
         </template>

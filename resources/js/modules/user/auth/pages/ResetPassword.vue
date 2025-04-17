@@ -53,6 +53,9 @@ export default toNative(ResetPasswordPage);
     <AuthLayout>
       <VCard class="mx-auto my-10" max-width="400" elevation="10">
         <VCardText>
+          <p class="text-body-2 mb-4">
+              This also verifies your email, if you haven't.
+          </p>
           <VTextField id="email" v-model="form.email" label="Email" type="email" required autofocus autocomplete="username" />
           <InputError :message="form.errors.email" class="mt-2" />
 

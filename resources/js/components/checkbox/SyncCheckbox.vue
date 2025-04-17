@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Vue, Component, Prop, toNative, Emit } from 'vue-facing-decorator';
+import { Vue, Component, Prop, toNative, Emit, Model } from 'vue-facing-decorator';
 import ConfirmationSlot from '@/components/dialog/ConfirmationSlot.vue';
 import { WorkingComponent } from '@/components/WorkingComponent.vue';
 
@@ -13,18 +13,13 @@ import { WorkingComponent } from '@/components/WorkingComponent.vue';
 class SyncCheckbox extends WorkingComponent {
     @Prop({ type: String }) name;
     @Prop({ type: String }) value;
-    @Prop({ default: false }) inputValue;
     @Prop({ type: [String, Function] }) confirmTextMaker; 
     @Prop({ default: false }) disabled;
     @Prop({ type: String }) textEnable;
     @Prop({ type: String }) textDisable;
     @Prop({default: true}) ask;
     @Prop({ type: Function }) onChange;
-
-    @Emit('change')
-    emitChange(value){
-        return value;
-    }
+    @Model({ type: Boolean, default: false }) inputValue;
 
     async tryAsk(ask){
         if (!this.disabled){
@@ -45,6 +40,7 @@ class SyncCheckbox extends WorkingComponent {
             this.busy = false;
         } else{
             // this.emitChange({ value: !this.inputValue, releaseBusy: this.releaseBusy });
+            this.$emit('update:modelValue', !this.inputValue, this.releaseBusy);
             this.$emit('change', !this.inputValue, this.releaseBusy);
         }
     }
@@ -65,7 +61,7 @@ export default toNative(SyncCheckbox);
                     <VCheckbox 
                         v-bind="props"
                         :name="name"
-                        :input-value="inputValue"
+                        v-model="inputValue"
                         :value="value"
                         @click.prevent.capture="() => tryAsk(ask)"
                         readonly

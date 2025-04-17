@@ -11,16 +11,24 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Spatie\Permission\Traits\HasRoles;
+use Spatie\Permission\Traits\HasPermissions;
+use App\Models\Traits\HasRelationshipEntities;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens;
+    use HasRoles;
+    use HasPermissions;
+    use HasRelationshipEntities;
 
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
     use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;
+
+    protected static array $relationshipEntities = ["roles", "permissions"];
 
     /**
      * The attributes that are mass assignable.
@@ -31,6 +39,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'enabled',
+    ];
+    
+    protected $attributes = [
+        'enabled' => true,
     ];
 
     /**
@@ -52,6 +65,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $appends = [
         'profile_photo_url',
+        'verified',
     ];
 
     /**
@@ -66,9 +80,52 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+
+    public function getVerifiedAttribute()
+    {
+        return !is_null($this->email_verified_at);
+    }
     
     public function chirps(): HasMany
     {
         return $this->hasMany(Chirp::class);
+    }
+    
+    public static function createWithRoles(array $attributes, array $options = [])
+    {
+        $user = self::create($attributes, $options);
+
+        if (isset($attributes['roles'])) {
+            $user->syncRoles($attributes['roles']);
+        }
+
+        if (isset($attributes['permissions'])) {
+            $user->syncPermissions($attributes['permissions']);
+        }
+
+        return $user;
+    }
+
+    public function update(array $attributes = [], array $options = [])
+    {
+        $emailChange = false;
+        if (isset($attributes['email']))
+            $emailChange = $attributes['email'] !== $this->email;
+        // Perform the regular update
+        $updated = parent::update($attributes, $options);
+
+        if (isset($attributes['roles'])) {
+            $this->syncRoles($attributes['roles']);
+        }
+
+        if (isset($attributes['permissions'])) {
+            $this->syncPermissions($attributes['permissions']);
+        }
+
+        if ($emailChange) {
+            $this->sendEmailVerificationNotification();
+        }
+
+        return $updated;
     }
 }
