@@ -4,8 +4,8 @@
 import FileSaver from 'file-saver';
 
 import { Component, toNative } from 'vue-facing-decorator';
-import { BaseCrudViewBase } from '@/views/BaseCrudViewBase.vue';
-import BaseCrudView from '@/views/BaseCrudView.vue';
+import { CrudViewBase } from '@/views/CrudViewBase.vue';
+import CrudView from '@/views/CrudView.vue';
 
 import FileUploadDialog from '@/components/dialog/FileUploadDialog.vue';
 import SimpleInputDialog from '@/components/dialog/SimpleInputDialog.vue';
@@ -23,14 +23,14 @@ import ConfirmationIconButton from '@/components/button/ConfirmationIconButton.v
     components: {
       FileUploadDialog,
       SimpleInputDialog,
-      BaseCrudView,
+      CrudView,
       EditableCellTextField,
       VDataTable,
       IconButton,
       ConfirmationIconButton
     },
 })
-class BackupView extends BaseCrudViewBase {
+class BackupView extends CrudViewBase {
   uploadDialog = false;
   formDialog = false;
 
@@ -137,7 +137,7 @@ export { BackupView };
 export default toNative(BackupView);
 </script>
 <template>
-  <BaseCrudView 
+  <CrudView 
       title="Backup"
       :create="() => showForm()"
       :fetch="fetch"
@@ -219,7 +219,7 @@ export default toNative(BackupView);
         noInput="true"
       />
     </template>
-  </BaseCrudView>
+  </CrudView>
 </template>
 <style scoped>
 .backup-table{

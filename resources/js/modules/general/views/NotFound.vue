@@ -1,6 +1,6 @@
 <script lang="ts">
 import { Component, Prop, toNative } from 'vue-facing-decorator';
-import { BaseView } from '@/views/BaseView.vue';
+import { ViewBase } from '@/views/ViewBase.vue';
 import { Inertia } from '@inertiajs/inertia';
 import CenterLayout from '@/components/layout/CenterLayout.vue';
 
@@ -10,7 +10,7 @@ import CenterLayout from '@/components/layout/CenterLayout.vue';
       CenterLayout
     },
 })
-class NotFoundView extends BaseView {
+class NotFoundView extends ViewBase {
 
 }
 export { NotFoundView } ;

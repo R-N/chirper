@@ -1,6 +1,6 @@
 <script lang="ts">
 import { Component, Prop, toNative } from 'vue-facing-decorator';
-import { BaseView } from '@/views/BaseView.vue';
+import { ViewBase } from '@/views/ViewBase.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import Welcome from '@/modules/general/views/Welcome.vue';
 
@@ -11,7 +11,7 @@ import Welcome from '@/modules/general/views/Welcome.vue';
       Welcome,
     },
 })
-class DashboardPage extends BaseView {
+class DashboardPage extends ViewBase {
     mounted(){
     }
 }

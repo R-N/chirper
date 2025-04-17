@@ -9,7 +9,7 @@ import authService from '@/modules/user/auth/services/auth.js';
 import { router } from '@inertiajs/vue3';
 import LoginView from '@/modules/user/auth/views/login.vue';
 import GuestLayout from '@/layouts/GuestLayout.vue';
-import {BaseView} from '@/views/BaseView.vue';
+import {ViewBase} from '@/views/ViewBase.vue';
 
 @Component({
   components: {
@@ -17,7 +17,7 @@ import {BaseView} from '@/views/BaseView.vue';
     GuestLayout
   }
 })
-class LoginPage extends BaseView {
+class LoginPage extends ViewBase {
   @Prop({ type: Boolean }) canResetPassword;
   @Prop({ type: String }) status;
 

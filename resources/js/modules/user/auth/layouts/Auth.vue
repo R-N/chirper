@@ -2,7 +2,7 @@
 <script lang="ts">
 import AuthenticationCardLogo from '@/components/auth/AuthenticationCardLogo.vue';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
-import { BaseView } from '@/views/BaseView.vue';
+import { ViewBase } from '@/views/ViewBase.vue';
 
 import CenterLayout from '@/components/layout/CenterLayout.vue';
 
@@ -13,7 +13,7 @@ import CenterLayout from '@/components/layout/CenterLayout.vue';
     CenterLayout,
   }
 })
-class AuthLayout extends BaseView {
+class AuthLayout extends ViewBase {
 }
 export { AuthLayout };
 export default toNative(AuthLayout);

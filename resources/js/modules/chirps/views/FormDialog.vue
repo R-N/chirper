@@ -1,7 +1,7 @@
 <script lang="ts">
 import { Component, Prop, Emit, toNative } from 'vue-facing-decorator';
 import FormDialog from '@/components/form/FormDialog.vue';
-import { FormDialogBase } from '@/components/form/FormDialogBase.vue';
+import { CrudFormDialogBase } from '@/components/form/CrudFormDialogBase.vue';
 import { useForm } from '@inertiajs/vue3';
 import chirpService from '../services/chirp';
 import { VTextField } from 'vuetify/components';
@@ -14,36 +14,13 @@ import { VTextField } from 'vuetify/components';
     },
     emits: ['submit']
 })
-class ChirpFormDialog extends FormDialogBase {
+class ChirpFormDialog extends CrudFormDialogBase {
     form = useForm({
         message: '',
     });
 
-    reset(){
-        this.form.reset();
-    }
-
-    async submit(){
-        if(!this.valid) return;
-        const view = this;
-        view.busy = true;
-        try{
-            let res = null;
-            if (this.data){
-                res = await chirpService.update(this.data, this.form);
-            }else{
-                res = await chirpService.store(this.form);
-            }
-            view.emitSubmit(res.chirp);
-            view.close();
-        } finally {
-            view.busy = false;
-        }
-    }
-
-    @Emit("submit")
-    emitSubmit(chirp){
-        return chirp;
+    get client(){
+        return chirpService;
     }
 }
 export { ChirpFormDialog }

@@ -4,8 +4,8 @@ import { Component, toNative } from 'vue-facing-decorator';
 import dayjs from 'dayjs';
 
 import ChirpFormDialog from '@/modules/chirps/views/FormDialog.vue';
-import BaseCrudView from '@/views/BaseCrudView.vue';
-import { BaseCrudViewBase } from '@/views/BaseCrudViewBase.vue';
+import CrudView from '@/views/CrudView.vue';
+import { CrudViewBase } from '@/views/CrudViewBase.vue';
 import EditableCellTextField from '@/components/form/editable_cell/EditableCellTextField.vue';
 
 import chirpService from '../services/chirp';
@@ -17,14 +17,14 @@ import ConfirmationIconButton from '@/components/button/ConfirmationIconButton.v
     name: "ChirpCrudView",
     components: {
         ChirpFormDialog,
-        BaseCrudView,
+        CrudView,
         EditableCellTextField,
         VDataTable,
         IconButton,
         ConfirmationIconButton
     },
 })
-class ChirpCrudView extends BaseCrudViewBase {
+class ChirpCrudView extends CrudViewBase {
     editing = null;
 
     get nameField(){ return "created_at"; }
@@ -65,7 +65,7 @@ export { ChirpCrudView };
 export default toNative(ChirpCrudView);
 </script>
 <template>
-    <BaseCrudView 
+    <CrudView 
         title="Chirps"
         :create="() => showForm()"
         :fetch="fetch"
@@ -121,7 +121,7 @@ export default toNative(ChirpCrudView);
                 :parent-busy="busy"
             />
         </template>
-    </BaseCrudView>
+    </CrudView>
 </template>
 <style scoped>
 </style>

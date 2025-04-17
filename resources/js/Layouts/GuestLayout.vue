@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import { VApp, VMain, VContainer, VCard, VBtn } from 'vuetify/components';
 import { VFadeTransition, VSlideYTransition, VSlideXTransition, VExpandTransition } from 'vuetify/components';
-import {BaseView} from '@/views/BaseView.vue';
+import {ViewBase} from '@/views/ViewBase.vue';
 import ImageBackground from '@/components/general/ImageBackground.vue'
 import LoadingOverlay from '@/components/overlay/LoadingOverlay.vue';
 import DialogStack from '@/components/dialog/DialogStack.vue';
@@ -19,7 +19,7 @@ import ServerDownView from '@/modules/general/views/ServerDown.vue';
     ServerDownView,
   }
 })
-class GuestLayout extends BaseView {
+class GuestLayout extends ViewBase {
   @Prop({ type: String }) title;
   get breadcrumbs(){
     return this.appStore.breadcrumbs;

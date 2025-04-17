@@ -1,6 +1,6 @@
 <script lang="ts">
 import { Component, Prop, toNative } from 'vue-facing-decorator';
-import { BaseView } from '@/views/BaseView.vue';
+import { ViewBase } from '@/views/ViewBase.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import NotFoundView from '../views/NotFound.vue';
 
@@ -11,7 +11,7 @@ import NotFoundView from '../views/NotFound.vue';
       NotFoundView
     },
 })
-class NotFoundPage extends BaseView {
+class NotFoundPage extends ViewBase {
 
 }
 export { NotFoundPage } ;

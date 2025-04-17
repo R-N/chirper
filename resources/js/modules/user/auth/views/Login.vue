@@ -2,7 +2,7 @@
 <script lang="ts">
 import AuthenticationCardLogo from '@/components/auth/AuthenticationCardLogo.vue';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
-import { BaseView } from '@/views/BaseView.vue';
+import { ViewBase } from '@/views/ViewBase.vue';
 
 import { VSlideXTransition, VSlideXReverseTransition } from 'vuetify/components';
 
@@ -22,7 +22,7 @@ import { AuthLayout } from '../layouts/Auth.vue';
     AuthLayout,
   }
 })
-class LoginView extends BaseView {
+class LoginView extends ViewBase {
   slide = 0;
 
   transitionDuration = {

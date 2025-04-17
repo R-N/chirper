@@ -1,7 +1,7 @@
 <script lang="ts">
 
 import { Component, Prop, Watch, Model, Emit, toNative } from 'vue-facing-decorator';
-import { BaseView } from '@/views/BaseView.vue';
+import { ViewBase } from '@/views/ViewBase.vue';
 
 import MainCard from '@/components/card/MainCard.vue';
 import IconButton from '@/components/button/IconButton.vue';
@@ -9,14 +9,14 @@ import IconButton from '@/components/button/IconButton.vue';
 let modelEvent = "update:modelValue"
 
 @Component({
-    name: "BaseCrudView",
+    name: "CrudView",
     components: {
       MainCard,
       IconButton
     },
     emits: [modelEvent]
 })
-class BaseCrudView extends BaseView {
+class CrudView extends ViewBase {
   @Prop({ default: 'Crud' }) title;
   @Prop({ default: 'Buat' }) createText;
   @Prop({ default: 'Refresh' }) refreshText;
@@ -29,8 +29,8 @@ class BaseCrudView extends BaseView {
     return value;
   }
 }
-export { BaseCrudView };
-export default toNative(BaseCrudView);
+export { CrudView };
+export default toNative(CrudView);
 </script>
 <template>
   <MainCard :title="title">

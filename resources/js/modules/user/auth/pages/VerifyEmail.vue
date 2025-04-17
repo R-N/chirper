@@ -2,7 +2,7 @@
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import AuthLayout from '../layouts/Auth.vue';
 import GuestLayout from '@/layouts/GuestLayout.vue';
-import {BaseView} from '@/views/BaseView.vue';
+import {ViewBase} from '@/views/ViewBase.vue';
 import VerifyEmailForm from '../forms/VerifyEmail.vue';
 
 @Component({
@@ -12,7 +12,7 @@ import VerifyEmailForm from '../forms/VerifyEmail.vue';
     VerifyEmailForm
   }
 })
-class VerifyEmailPage extends BaseView {
+class VerifyEmailPage extends ViewBase {
   @Prop({ type: String }) status;
 }
 export default toNative(VerifyEmailPage);

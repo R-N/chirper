@@ -2,7 +2,7 @@
 
 import { Component, Prop, Watch, Model, toNative } from 'vue-facing-decorator';
 import { WorkingComponent } from '@/components/WorkingComponent.vue';
-import { BaseView } from '@/views/BaseView.vue';
+import { ViewBase } from '@/views/ViewBase.vue';
 import { DialogBase } from '@/components/dialog/DialogBase.vue';
 import { FormDialogBase } from '@/components/form/FormDialogBase.vue';
 

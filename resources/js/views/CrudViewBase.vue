@@ -2,15 +2,15 @@
 <script lang="ts">
 
 import { Component, Prop, Watch, Model, toNative } from 'vue-facing-decorator';
-import { BaseView } from '@/views/BaseView.vue';
+import { ViewBase } from '@/views/ViewBase.vue';
 import { deleteFromArray, findIndex } from '@/libs/util';
 
 @Component({
-    name: "BaseCrudViewBase",
+    name: "CrudViewBase",
     components: {
     }
 })
-class BaseCrudViewBase extends BaseView {
+class CrudViewBase extends ViewBase {
     formDialog = false;
     editing = null;
     search = '';
@@ -211,6 +211,6 @@ class BaseCrudViewBase extends BaseView {
         return this._showError(error);
     }
 }
-export { BaseCrudViewBase };
-export default toNative(BaseCrudViewBase);
+export { CrudViewBase };
+export default toNative(CrudViewBase);
 </script>

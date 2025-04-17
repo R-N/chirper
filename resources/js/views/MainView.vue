@@ -1,7 +1,7 @@
 <script lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Component, toNative } from 'vue-facing-decorator'
-import { BaseView } from '@/views/BaseView.vue';
+import { ViewBase } from '@/views/ViewBase.vue';
 
 import { VFadeTransition, VSlideYTransition, VSlideXTransition, VExpandTransition } from 'vuetify/components';
 import LoginView from '@/modules/user/auth/views/login.vue';
@@ -15,7 +15,7 @@ import LoginView from '@/modules/user/auth/views/login.vue';
         VExpandTransition,
     }
 })
-class MainView extends BaseView{
+class MainView extends ViewBase{
     transitionDuration = {
         enter: 300,
         leave: 300

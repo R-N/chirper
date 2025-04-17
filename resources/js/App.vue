@@ -3,7 +3,7 @@
 import { VApp } from 'vuetify/components'; 
 
 import { Component, Prop, toNative } from 'vue-facing-decorator';
-import { BaseView } from '@/views/BaseView.vue';
+import { ViewBase } from '@/views/ViewBase.vue';
 
 @Component({
     name: "App",
@@ -11,7 +11,7 @@ import { BaseView } from '@/views/BaseView.vue';
         //'LoginView': () => import('./views/LoginView.vue'),
     }
 })
-class App extends BaseView{
+class App extends ViewBase{
     @Prop(Object) InertiaApp;
     @Prop(Object) props;
 }

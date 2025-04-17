@@ -3,7 +3,7 @@ import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import AuthLayout from '../layouts/Auth.vue';
 import GuestLayout from '@/layouts/GuestLayout.vue';
 import ForgotPasswordForm from '../forms/ForgotPassword.vue';
-import {BaseView} from '@/views/BaseView.vue';
+import {ViewBase} from '@/views/ViewBase.vue';
 
 @Component({
   components: {
@@ -12,7 +12,7 @@ import {BaseView} from '@/views/BaseView.vue';
     ForgotPasswordForm
   }
 })
-class ForgotPasswordPage extends BaseView {
+class ForgotPasswordPage extends ViewBase {
   @Prop({ type: String }) status;
 }
 export default toNative(ForgotPasswordPage);

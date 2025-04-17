@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import { ChirpCrudView } from '../views/Chirp.vue';
-import {BaseView} from '@/views/BaseView.vue';
+import {ViewBase} from '@/views/ViewBase.vue';
 
 @Component({
   components: {
@@ -11,7 +11,7 @@ import {BaseView} from '@/views/BaseView.vue';
     ChirpCrudView
   }
 })
-class ChirpsPage extends BaseView {
+class ChirpsPage extends ViewBase {
   mounted(){
     this.appStore.breadcrumbs = [
       { title: "Chirps" },

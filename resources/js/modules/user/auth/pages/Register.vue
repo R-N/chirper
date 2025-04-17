@@ -8,7 +8,7 @@ import authService from '@/modules/user/auth/services/auth.js';
 import { router } from '@inertiajs/vue3';
 import AuthLayout from '../layouts/Auth.vue';
 import GuestLayout from '@/layouts/GuestLayout.vue';
-import {BaseView} from '@/views/BaseView.vue';
+import {ViewBase} from '@/views/ViewBase.vue';
 
 @Component({
   components: {
@@ -29,7 +29,7 @@ import {BaseView} from '@/views/BaseView.vue';
     InputError
   }
 })
-class RegisterPage extends BaseView {
+class RegisterPage extends ViewBase {
   form = useForm({
     name: '',
     email: '',

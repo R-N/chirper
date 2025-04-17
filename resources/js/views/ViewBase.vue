@@ -3,14 +3,14 @@ import { Component, toNative } from 'vue-facing-decorator';
 import { WorkingComponent } from '@/components/WorkingComponent.vue';
 
 @Component({
-  name: "BaseView"
+  name: "ViewBase"
 })
-class BaseView extends WorkingComponent {
+class ViewBase extends WorkingComponent {
   created(){
     this.appStore.breadcrumbs = [];
   }
 }
 
-export { BaseView };
-export default toNative(BaseView);
+export { ViewBase };
+export default toNative(ViewBase);
 </script>

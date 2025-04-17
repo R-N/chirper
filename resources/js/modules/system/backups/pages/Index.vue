@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import BackupView from '../views/Backup.vue';
-import { BaseView } from '@/views/BaseView.vue';
+import { ViewBase } from '@/views/ViewBase.vue';
 
 @Component({
   components: {
@@ -11,7 +11,7 @@ import { BaseView } from '@/views/BaseView.vue';
     BackupView
   }
 })
-class BackupsPage extends BaseView {
+class BackupsPage extends ViewBase {
   async mounted(){
     this.appStore.breadcrumbs = [
       { title: "System" },

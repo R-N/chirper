@@ -1,6 +1,6 @@
 <script lang="ts">
 import { Component, Prop, toNative } from 'vue-facing-decorator';
-import { BaseView } from '@/views/BaseView.vue';
+import { ViewBase } from '@/views/ViewBase.vue';
 
 import CenterLayout from '@/components/layout/CenterLayout.vue';
 import RefreshButton from '@/components/general/RefreshButton.vue';
@@ -12,7 +12,7 @@ import RefreshButton from '@/components/general/RefreshButton.vue';
       CenterLayout
     }
 })
-class ServerDownView extends BaseView {
+class ServerDownView extends ViewBase {
 }
 export { ServerDownView } ;
 export default toNative(ServerDownView);

@@ -2,14 +2,14 @@
 import ApplicationLogo from '@/components/general/ApplicationLogo.vue';
 import { VContainer, VRow, VCol, VCard, VCardText, VCardTitle, VBtn, VIcon, VCardActions } from 'vuetify/components';
 import { Component, toNative } from 'vue-facing-decorator';
-import {BaseView} from '@/views/BaseView.vue';
+import {ViewBase} from '@/views/ViewBase.vue';
 
 @Component({
   components: {
     ApplicationLogo
   }
 })
-class WelcomeView extends BaseView {
+class WelcomeView extends ViewBase {
   tryError(){
     let err = new Error('Unknown error!!!');
     err.show = true;

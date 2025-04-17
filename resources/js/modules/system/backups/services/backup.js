@@ -4,7 +4,7 @@ import CrudService from '@/services/crud';
 class BackupService extends CrudService{
   constructor() {
     super(
-      "Backup", "/system/backup", 
+      "Backup", "/system/backups", 
       ["index", "create", "get", "put", "patch", "delete"],
       ["id"],
       ["file"],

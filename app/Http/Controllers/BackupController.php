@@ -46,7 +46,7 @@ class BackupController extends Controller
         $files = Storage::disk($this->disk)->files($this->appName);
         $backups = collect($files)->map(fn($file) => $this->getBackupInfo($file));
         if (!$request->wantsJson()) {
-            return Inertia::render('system/backup/pages/Index', [
+            return Inertia::render('system/backups/pages/Index', [
                 'backups' => $backups,
             ]);
         }
@@ -66,7 +66,7 @@ class BackupController extends Controller
         if (strpos($output, 'Error') !== false || strpos($output, 'failed') !== false) {
             Log::error('Backup failed: ' . $output);
             if (!$request->wantsJson()) {
-                return redirect(route('system.backup.index'))->with([
+                return redirect(route('system.backups.index'))->with([
                     "error" => $error
                 ]);
             }
@@ -76,7 +76,7 @@ class BackupController extends Controller
         } 
         Log::info('Backup succeeded: ' . $output);
         if (!$request->wantsJson()) {
-            return redirect(route('system.backup.index'));
+            return redirect(route('system.backups.index'));
         }
         return response()->json([
             'message' => 'Backup created!',
@@ -99,7 +99,7 @@ class BackupController extends Controller
         $filePath = $this->path1($file);
         Storage::disk($this->disk)->delete($filePath);
         if (!$request->wantsJson()) {
-            return redirect(route('system.backup.index'));
+            return redirect(route('system.backups.index'));
         }
         return response()->json([
             'message' => "Backup {$file} deleted!",
@@ -116,7 +116,7 @@ class BackupController extends Controller
         $backup = $this->getBackupInfo($newPath);
 
         if (!$request->wantsJson()) {
-            return redirect(route('system.backup.index'));
+            return redirect(route('system.backups.index'));
         }
         return response()->json([
             'message' => "Backup {$file} renamed to {$newName}!",
@@ -131,7 +131,7 @@ class BackupController extends Controller
         $filePath = $request->file('file')->storeAs($this->appName, $file, $this->disk);
         $backup = $this->getBackupInfo($this->path1($file));
         if (!$request->wantsJson()) {
-            return redirect(route('system.backup.index'));
+            return redirect(route('system.backups.index'));
         }
         return response()->json([
             'message' => "Backup {$file} uploaded!",
@@ -205,7 +205,7 @@ class BackupController extends Controller
                             // Return success response
                             Log::info('Backup succeeded: ' . $output);
                             if (!$request->wantsJson()) {
-                                return redirect(route('system.backup.index'));
+                                return redirect(route('system.backups.index'));
                             }
                             return response()->json([
                                 'message' => "Backup $file restored successfully!",
@@ -219,7 +219,7 @@ class BackupController extends Controller
         }
 
         if (!$request->wantsJson()) {
-            return redirect(route('system.backup.index'))->with([
+            return redirect(route('system.backups.index'))->with([
                 "error" => $error
             ]);
         }

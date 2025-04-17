@@ -4,8 +4,8 @@ import { Component, toNative } from 'vue-facing-decorator';
 import dayjs from 'dayjs';
 
 import UserFormDialog from '../views/FormDialog.vue';
-import BaseCrudView from '@/views/BaseCrudView.vue';
-import { BaseCrudViewBase } from '@/views/BaseCrudViewBase.vue';
+import CrudView from '@/views/CrudView.vue';
+import { CrudViewBase } from '@/views/CrudViewBase.vue';
 import EditableCellTextField from '@/components/form/editable_cell/EditableCellTextField.vue';
 
 import userService from '../services/user';
@@ -18,7 +18,7 @@ import SyncCheckbox from '@/components/checkbox/SyncCheckbox.vue';
     name: "UserCrudView",
     components: {
         UserFormDialog,
-        BaseCrudView,
+        CrudView,
         EditableCellTextField,
         VDataTable,
         IconButton,
@@ -26,7 +26,7 @@ import SyncCheckbox from '@/components/checkbox/SyncCheckbox.vue';
         SyncCheckbox
     },
 })
-class UserCrudView extends BaseCrudViewBase {
+class UserCrudView extends CrudViewBase {
     editing = null;
 
     get nameField(){ return "name"; }
@@ -52,7 +52,7 @@ export { UserCrudView };
 export default toNative(UserCrudView);
 </script>
 <template>
-    <BaseCrudView 
+    <CrudView 
         title="Users"
         :create="() => showForm()"
         :fetch="fetch"
@@ -140,7 +140,7 @@ export default toNative(UserCrudView);
                 :parent-busy="busy"
             />
         </template>
-    </BaseCrudView>
+    </CrudView>
 </template>
 <style scoped>
 </style>

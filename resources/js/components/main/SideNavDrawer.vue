@@ -39,7 +39,7 @@ class SideNavDrawer extends MyComponent {
             model: false,
             children: [
                 { text: 'Users', href: route('system.users.index') },
-                { text: 'Backup', href: route('system.backup.index') },
+                { text: 'Backup', href: route('system.backups.index') },
             ],
         },
     ];
