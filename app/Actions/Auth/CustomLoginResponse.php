@@ -15,7 +15,7 @@ class CustomLoginResponse implements LoginResponse
           return redirect()->intended(route('dashboard', absolute: false));
       }
 
-      $user = Auth::user();
+      $user = Auth::user()->loadEntities();
 
       $token = $user->createToken('auth_token', ['*'])->plainTextToken;
 

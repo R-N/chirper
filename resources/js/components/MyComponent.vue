@@ -20,8 +20,14 @@ class MyComponent extends Vue {
   get isLoggedIn(){
     return this.authStore.isLoggedIn;
   }
-  get userRole(){
-    return this.authStore.role;
+  get userRoles(){
+      if (this.isLoggedIn && this.authStore.user){
+        return this.authStore.user.roles;
+      }
+      return [];
+  }
+  get userRolesText(){
+      return this.userRoles.map((r) => r.name).join(', ');
   }
   get userName(){
       if (this.isLoggedIn && this.authStore.user) 

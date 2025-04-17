@@ -15,7 +15,6 @@ class AuthService{
     }));
 
     let res = await this.axios.post("/login", form);
-    console.log(res);
     authStore.updateUser(res.data.user);
     authStore.auth_token = res.data.auth_token;
     return res;

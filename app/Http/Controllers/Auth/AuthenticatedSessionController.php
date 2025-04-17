@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Sanctum\PersonalAccessToken;
+use Illuminate\Support\Facades\Log;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -39,7 +40,7 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('dashboard', absolute: false));
         }
 
-        $user = Auth::user();
+        $user = Auth::user()->loadEntities();
         // 🔥 If using token-based auth, create a token
         $token = null;
         if (config('sanctum.guard') === 'api') {
