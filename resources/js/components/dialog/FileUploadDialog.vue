@@ -101,7 +101,7 @@ class FileUploadDialog extends DialogBase {
           }else{
             this.file = this.files.shift();
           }
-          this.appStore.showError("File invalid");
+          this.tabStore.showError("File invalid");
         }else if (this.immediateUpload){
           await this.uploadFile();
           this.immediateUpload = false;

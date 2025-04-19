@@ -1,6 +1,7 @@
 <script lang="ts">
 import { useAuthStore } from '@/stores/auth';
 import { useAppStore } from '@/stores/app';
+import { useTabStore } from '@/stores/tab';
 
 import { Vue, Component, toNative } from 'vue-facing-decorator'
 
@@ -11,6 +12,7 @@ import { Vue, Component, toNative } from 'vue-facing-decorator'
 class MyComponent extends Vue {
   authStore = useAuthStore();
   appStore = useAppStore();
+  tabStore = useTabStore();
   log(x){
     console.log(x);
   }

@@ -13,7 +13,7 @@ import {ViewBase} from '@/views/ViewBase.vue';
 })
 class UsersPage extends ViewBase {
   mounted(){
-    this.appStore.breadcrumbs = [
+    this.tabStore.breadcrumbs = [
       { title: "System" },
       { title: "Users" },
     ];

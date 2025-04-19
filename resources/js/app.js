@@ -42,7 +42,7 @@ createInertiaApp({
             .use(vuetify)
         router.on('before', () => {
             let appStore = useAppStore();
-            appStore.breadcrumbs = [];
+            tabStore.breadcrumbs = [];
         });
         return app.mount(el);
     },

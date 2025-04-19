@@ -22,20 +22,20 @@ import ServerDownView from '@/modules/general/views/ServerDown.vue';
 class GuestLayout extends ViewBase {
   @Prop({ type: String }) title;
   get breadcrumbs(){
-    return this.appStore.breadcrumbs;
+    return this.tabStore.breadcrumbs;
   }
   get showBackground(){
     return this.serverReachable;
   }
   get tabDialogs(){
-    return this.appStore.tabDialogs;
+    return this.tabStore.tabDialogs;
   }
   async popTabDialog(){
-    await this.appStore.tabDialogs.pop();
+    await this.tabStore.tabDialogs.pop();
   }
   errorCaptured(error, vm, info) {
     if (error?.show || error?.response?.data?.show) {
-      this.appStore.showError(error?.response?.data ?? error);
+      this.tabStore.showError(error?.response?.data ?? error);
       console.warn(error);
       return true;
     } 

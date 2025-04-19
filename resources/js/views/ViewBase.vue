@@ -7,7 +7,7 @@ import { WorkingComponent } from '@/components/WorkingComponent.vue';
 })
 class ViewBase extends WorkingComponent {
   created(){
-    this.appStore.breadcrumbs = [];
+    this.tabStore.breadcrumbs = [];
   }
 }
 

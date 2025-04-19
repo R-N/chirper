@@ -31,7 +31,7 @@ class ForgotPasswordForm extends WorkingComponent {
     view.globalBusy = true;
     try{
       let res = await authService.forgotPassword(this.form);
-      this.appStore.tabDialogs.push({
+      this.tabStore.tabDialogs.push({
         title: "Periksa Email Anda",
         text: "Link reset password telah dikirimkan ke alamat email akun Anda, jika username/email yang Anda masukkan benar."
       });

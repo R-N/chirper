@@ -8,15 +8,10 @@ export const useAppStore = defineStore('app', {
     globalRefresh: false, 
     globalBusy: false, 
     authBusy: false, 
-    tabBusy: false, 
-    routerBusy: false, 
 
     userPresent: true,  
     serverReachable: true,  
-    routeValid: true,  
     lastUserPresentTime: new Date().getTime(),
-    tabDialogs: [], 
-    breadcrumbs: [], 
   }),
   getters: {
     // getIdleTime: (state) => {
@@ -29,19 +24,6 @@ export const useAppStore = defineStore('app', {
   actions: {
     getIdleTime(){
       return new Date().getTime() - this.lastUserPresentTime;
-    },
-    async showError(error, title=null, onDismiss=null) { 
-      if (isObject(error) && (error.text || error.title)){
-        this.tabDialogs.push(error);
-      }else{
-        title = title || "Error";
-        if (error.redirect && !onDismiss)
-          onDismiss = () => router.visit(error.redirect);
-        error = error.message || error;
-        this.tabDialogs.push({
-          title, text: error, onDismiss,
-        });
-      }
     },
     ping(){
       var now = new Date().getTime();

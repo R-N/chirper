@@ -13,7 +13,7 @@ import {ViewBase} from '@/views/ViewBase.vue';
 })
 class ChirpsPage extends ViewBase {
   mounted(){
-    this.appStore.breadcrumbs = [
+    this.tabStore.breadcrumbs = [
       { title: "Chirps" },
     ];
   }

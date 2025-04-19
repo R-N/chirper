@@ -12,7 +12,7 @@ class WorkingComponent extends MyComponent {
     selfBusy = false;
 
     get busy(){
-        return this.selfBusy || this.parentBusy || this.appStore.routerBusy || this.appStore.tabBusy || this.appStore.authBusy || this.appStore.globalBusy
+        return this.selfBusy || this.parentBusy || this.tabStore.routerBusy || this.tabStore.tabBusy || this.appStore.authBusy || this.appStore.globalBusy
     }
 
     set busy(busy){
@@ -40,11 +40,11 @@ class WorkingComponent extends MyComponent {
     }
 
     get tabBusy(){
-        return this.appStore.tabBusy;
+        return this.tabStore.tabBusy;
     }
 
     set tabBusy(busy){
-        this.appStore.tabBusy = busy;
+        this.tabStore.tabBusy = busy;
     }
 }
 export { WorkingComponent };

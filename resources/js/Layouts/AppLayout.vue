@@ -43,7 +43,7 @@ class AppLayout extends GuestLayout {
   @Watch('globalRefresh')
   onGlobalRefreshFlagSet(val, oldVal){
     if(val){
-      this.appStore.routerBusy = true;
+      this.tabStore.routerBusy = true;
       this.appStore.globalRefresh = false;
       window.location.reload();
     }

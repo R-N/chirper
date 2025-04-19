@@ -13,7 +13,7 @@ import { ViewBase } from '@/views/ViewBase.vue';
 })
 class BackupsPage extends ViewBase {
   async mounted(){
-    this.appStore.breadcrumbs = [
+    this.tabStore.breadcrumbs = [
       { title: "System" },
       { title: "Backup" },
     ];

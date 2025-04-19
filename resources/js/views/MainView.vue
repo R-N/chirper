@@ -28,7 +28,7 @@ class MainView extends ViewBase{
     mounted(){
     }
     get breadcrumbs(){
-        return this.appStore.breadcrumbs;
+        return this.tabStore.breadcrumbs;
     }
 }
 export { MainView }

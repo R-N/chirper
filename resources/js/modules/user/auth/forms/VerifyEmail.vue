@@ -42,7 +42,7 @@ class VerifyEmailForm extends WorkingComponent {
     view.globalBusy = true;
     try{
       let res = await authService.verifyEmail(this.form);
-      this.appStore.tabDialogs.push({
+      this.tabStore.tabDialogs.push({
         title: "Periksa Email Anda",
         text: "Link verifikasi email telah dikirimkan ke email akun Anda, jika username/email yang Anda masukkan benar."
       });

@@ -52,7 +52,7 @@ class CrudViewBase extends ViewBase {
     }
 
     async _created(){
-        // await this.appStore.breadcrumbs = this.breadcrumbs;
+        // await this.tabStore.breadcrumbs = this.breadcrumbs;
         await this.fetch();
     }
 
@@ -151,7 +151,7 @@ class CrudViewBase extends ViewBase {
     }
 
     _showError(error){
-        // if (this.appStore.showError(error, this.filteredErrors)) 
+        // if (this.tabStore.showError(error, this.filteredErrors)) 
         //     return;
         throw error;
     }
