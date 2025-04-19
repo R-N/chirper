@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Utils\ResponseUtil;
 
 class ProfileController extends Controller
 {
@@ -19,23 +20,27 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
-        return Inertia::render('user/profile/pages/Edit', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+        $user = $request->user()->loadEntities();
+        return ResponseUtil::jsonInertiaResponse([
+            'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
-        ]);
+            'user' => $user,
+            'sessions' => session()->all(),
+        ], 'user/profile/pages/Edit');
     }
 
     /**
      * Display the user's profile form.
      */
-    public function show(Request $request): Response
+    public function show(Request $request): Response|JsonResponse
     {
-        return Inertia::render('user/profile/pages/Show', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+        $user = $request->user()->loadEntities();
+        return ResponseUtil::jsonInertiaResponse([
+            'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
-            'user' => $request->user(),
+            'user' => $user,
             'sessions' => session()->all(),
-        ]);
+        ], 'user/profile/pages/Show');
     }
 
     /**
@@ -46,21 +51,13 @@ class ProfileController extends Controller
         $user = $request->user();
         $user->fill($request->validated());
 
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-
         $user->save();
+        $user->loadEntities();
 
-        if (!$request->wantsJson()) {
-            return Redirect::route('profile.edit');
-        }
-
-        return response()->json([
+        return ResponseUtil::jsonRedirectResponse([
             'user' => $user,
-            'message' => 'Profile updated successfully!',
-            'redirect' => '/',
-        ]);
+            "message" => "Profile updated.",
+        ], route('profile.edit'));
     }
 
     /**
@@ -74,8 +71,9 @@ class ProfileController extends Controller
 
         $user = $request->user();
         // 🔥 If using token-based auth, revoke tokens
-        if (config('sanctum.guard') === 'api') {
-            $user->tokens()->delete();
+        $tokens = $user->tokens();
+        if ($tokens){
+            $tokens->delete();
         }
 
         Auth::guard('web')->logout();
@@ -85,13 +83,8 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        if (!$request->wantsJson()) {
-            return Redirect::to('/');
-        }
-
-        return response()->json([
-            'message' => 'Profile deleted successfully!',
-            'redirect' => '/',
-        ]);
+        return ResponseUtil::jsonRedirectResponse([
+            "message" => "Logged out.",
+        ], route('login'));
     }
 }

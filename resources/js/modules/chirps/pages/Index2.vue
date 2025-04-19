@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import { ChirpCrudView } from '../views/Chirp.vue';
+import { ChirpCrudView } from '../views/Chirps.vue';
 import {ViewBase} from '@/views/ViewBase.vue';
 
 @Component({

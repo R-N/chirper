@@ -54,83 +54,40 @@ class BackupView extends CrudViewBase {
   showUpload(){
     this.uploadDialog = true;
   }
-
   async createBackup(file_name){
-    console.log("Create backup " + file_name);
-    const view = this;
-    view.busy=true;
-    try{
-      let res = await backupService.create({ id: file_name });
-      this.fetch();
-    } catch(error){
-      view.showError(error);
-    } finally {
-      view.busy = false;
-    }
-  }
-
-  async deleteBackup(item){
-    const view = this;
-    view.busy=true;
-    try{
-      let res = await backupService.destroy(item);
-      deleteFromArray(view.items, item);
-    } catch(error){
-      view.showError(error);
-    } finally {
-      view.busy = false;
-    }
+    await this.waitBusy(
+      async () => {
+        let res = await backupService.create({ id: file_name });
+        this.fetch();
+      }
+    );
   }
 
   restoreText(item){
     return `Apa Anda yakin ingin me-restore backup '${item.id}'?`;
   }
   async restoreBackup(item){
-    const view = this;
-    view.busy=true;
-    try{
-      let res = await backupService.put(item);
-    } catch(error){
-      view.showError(error);
-    } finally {
-      view.busy = false;
-    }
+    await this.waitBusy(
+      async () => {
+        let res = await backupService.put(item);
+      }
+    );
   }
   async downloadBackup(item){
-    const view = this;
-    view.busy=true;
-    try{
-      let res = await backupService.get(item, { responseType: 'blob' });
-      FileSaver.saveAs(res, item.id);
-    } catch(error){
-      view.showError(error);
-    } finally {
-      view.busy = false;
-    }
+    await this.waitBusy(
+      async () => {
+        let res = await backupService.get(item, { responseType: 'blob' });
+        FileSaver.saveAs(res, item.id);
+      }
+    );
   }
   async uploadBackup(file){
-    const view = this;
-    view.busy = true;
-    try{
-      let res = await backupService.put(null, { file: file });
-      this.items.push(res.backup);
-    } catch(error){
-      view.showError(error);
-    } finally {
-      view.busy = false;
-    }
-  }
-  async setId(backup, id){
-      const view = this;
-      view.busy=true;
-      try{
-          let res = await backupService.set_id(backup, id);
-          Object.assign(backup, res.backup); 
-      } catch (error) {
-          view.showError(error);
-      } finally {
-          view.busy = false;
+    await this.waitBusy(
+      async () => {
+        let res = await backupService.put(null, { file: file });
+        this.items.push(res.backup);
       }
+    );
   }
 }
 export { BackupView };
@@ -166,7 +123,7 @@ export default toNative(BackupView);
             name="id"
             :confirm-text-maker="(value) => setFieldConfirmText('id', item, value)"
             :value="item.id"
-            :on-finish="(value) => setId(item, value)"
+            :on-finish="(value) => setField('id', item, value)"
             :disabled="busy"
           />
         </template>

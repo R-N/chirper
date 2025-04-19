@@ -14,6 +14,7 @@ use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Utils\ResponseUtil;
 
 class NewPasswordController extends Controller
 {
@@ -59,33 +60,19 @@ class NewPasswordController extends Controller
         // If the password was successfully reset, we will redirect the user back to
         // the application's home authenticated view. If there is an error we can
         // redirect them back to where they came from with their error message.
-        if ($status == Password::PASSWORD_RESET) {
-            if (!$request->wantsJson()) {
-                return redirect()->route('login')->with('status', __($status));
-            }
-            if ($status == Password::RESET_LINK_SENT) {
-                return response()->json([
-                    'message' => 'Password reset successful',
-                    'redirect' => '/login',
-                    'status' => __($status),
-                ]);
-            }
+        $email = trans($status);
+        if ($status == Password::RESET_LINK_SENT) {
+            return ResponseUtil::jsonRedirectResponse([
+                'message' => "Password reset link sent.",
+                'status' => $status,
+                'email' => $email,
+            ], route('password.request'));
         }
 
-        $exc = ValidationException::withMessages([
-            'email' => [trans($status)],
-            'message' => 'Invalid token'
-        ]);
-        if (!$request->wantsJson()) {
-            throw $exc;
-        }
-        return response()->json([
-            'error'   => true,
-            'message' => $exc->getMessage(),
-            'code'    => $exc->getCode(),
-            // 'file'    => $exc->getFile(),
-            // 'line'    => $exc->getLine(),
-            // 'trace'   => $exc->getTrace()
-        ], 400);
+        return ResponseUtil::jsonRedirectResponse([
+            'message' => "Password reset link sent.",
+            'status' => $status,
+            'email' => $email,
+        ], route('password.request'), 403);
     }
 }

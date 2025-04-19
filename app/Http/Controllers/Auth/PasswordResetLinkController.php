@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Utils\ResponseUtil;
 
 class PasswordResetLinkController extends Controller
 {
@@ -41,29 +42,19 @@ class PasswordResetLinkController extends Controller
             $request->only('email')
         );
 
+        $email = trans($status);
+        $status = __($status);
         if ($status == Password::RESET_LINK_SENT) {
-            if (!$request->wantsJson()) {
-                return back()->with('status', __($status));
-            }
-            if ($status == Password::RESET_LINK_SENT) {
-                return response()->json([
-                    'message' => 'Reset link sent'
-                ]);
-            }
+            return ResponseUtil::jsonRedirectResponse([
+                'message' => "Password reset link sent.",
+                'status' => $status,
+                'email' => $email,
+            ], url()->previous());
         }
-        $exc = ValidationException::withMessages([
-            'email' => [trans($status)],
-        ]);
-        if (!$request->wantsJson()) {
-            throw $exc;
-        }
-        return response()->json([
-            'error'   => true,
-            'message' => $exc->getMessage(),
-            'code'    => $exc->getCode(),
-            // 'file'    => $exc->getFile(),
-            // 'line'    => $exc->getLine(),
-            // 'trace'   => $exc->getTrace()
-        ], 500);
+        return ResponseUtil::jsonRedirectResponse([
+            'message' => "Failed to send password reset email.",
+            'status' => $status,
+            'email' => $email,
+        ], route('password.request'), 500);
     }
 }

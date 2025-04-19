@@ -34,17 +34,12 @@ class GuestLayout extends ViewBase {
     await this.appStore.tabDialogs.pop();
   }
   errorCaptured(error, vm, info) {
-    if (error.show){
-      try{
-        this.appStore.showError(error);
-        console.warn(error);
-        return false;
-      }catch(e){
-        console.error(e);
-      }
-    }else{
-      console.error(error);
-    }
+    if (error?.show || error?.response?.data?.show) {
+      this.appStore.showError(error?.response?.data ?? error);
+      console.warn(error);
+      return true;
+    } 
+    return false;
   }
 }
 export { GuestLayout };

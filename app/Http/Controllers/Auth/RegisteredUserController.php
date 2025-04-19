@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Utils\ResponseUtil;
 
 class RegisteredUserController extends Controller
 {
@@ -47,19 +48,12 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        $token = null;
-        if (config('sanctum.guard') === 'api') {
-            $token = $user->createToken('auth_token', ['*'])->plainTextToken;
-        }
+        $token = $user->createToken('auth_token', ['*'])->plainTextToken;
 
-        if (!$request->wantsJson()) {
-            return redirect(route('dashboard', absolute: false));
-        }
-        return response()->json([
+        return ResponseUtil::jsonRedirectResponse([
             'auth_token' => $token,
             'user' => $user,
             'message' => 'User registered',
-            'redirect' => '/dashboard',
-        ], 201);
+        ], route('dashboard'), 201);
     }
 }

@@ -7,6 +7,8 @@ use Illuminate\Auth\Events\Verified;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
+use App\Utils\ResponseUtil;
+use App\Models\User;
 
 class VerifyEmailController extends Controller
 {
@@ -16,20 +18,26 @@ class VerifyEmailController extends Controller
     public function __invoke(EmailVerificationRequest $request): RedirectResponse|JsonResponse
     {
         $redirect = route('dashboard', absolute: false).'?verified=1';
-        if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->intended($redirect);
+        $user = $request->user() ?? User::firstOrFail($request->input('email'));
+
+        if (!$user){
+            return ResponseUtil::jsonRedirectResponse([
+                'message' => 'User not found.',
+            ], $redirect, 404);
         }
 
-        if ($request->user()->markEmailAsVerified()) {
-            event(new Verified($request->user()));
+        if ($user->hasVerifiedEmail()) {
+            return ResponseUtil::jsonRedirectResponse([
+                'message' => 'Email verified.',
+            ], $redirect, 302);
         }
 
-        if (!$request->wantsJson()) {
-            return redirect()->intended($redirect);
+        if ($user->markEmailAsVerified()) {
+            event(new Verified($user));
         }
-        return response()->json([
-            'message' => 'Email verified successfully',
-            'redirect' => $redirect,
-        ], 200);
+
+        return ResponseUtil::jsonRedirectResponse([
+            'message' => 'Email verified.',
+        ], $redirect);
     }
 }

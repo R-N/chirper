@@ -6,6 +6,7 @@ use Laravel\Fortify\Contracts\LoginResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use App\Utils\ResponseUtil;
 
 class CustomLoginResponse implements LoginResponse
 {
@@ -24,6 +25,6 @@ class CustomLoginResponse implements LoginResponse
           'user' => $user,
           'message' => 'Login successful',
           'redirect' => route('dashboard', absolute: false)
-      ], 200);
+      ]);
     }
 }

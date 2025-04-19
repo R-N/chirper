@@ -10,6 +10,7 @@ use Inertia\Inertia;
 use Inertia\Response; 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
+use App\Utils\ResponseUtil;
 
 class ChirpController extends Controller
 {
@@ -20,32 +21,20 @@ class ChirpController extends Controller
     {
         //return response('Hello, World!');
         // Chirps has belongsTo relationship with User as user
-        $chirps = Chirp::with('user:id,name')->latest()->get();
-        if (!$request->wantsJson()) {
-            return Inertia::render('chirps/pages/Index', [
-                'chirps' => $chirps,
-            ]);
-        }
-        return response()->json([
+        $chirps = Chirp::withEntities()->latest()->get();
+        return ResponseUtil::jsonInertiaResponse([
             'chirps' => $chirps,
-        ]);
+        ], 'chirps/pages/Index');
     }
     /**
      * Display a listing of the resource.
      */
     public function index2(Request $request): Response|JsonResponse
     {
-        //return response('Hello, World!');
-        // Chirps has belongsTo relationship with User as user
-        $chirps = Chirp::with('user:id,name')->latest()->get();
-        if (!$request->wantsJson()) {
-            return Inertia::render('chirps/pages/Index2', [
-                'chirps' => $chirps,
-            ]);
-        }
-        return response()->json([
+        $chirps = Chirp::withEntities()->latest()->get();
+        return ResponseUtil::jsonInertiaResponse([
             'chirps' => $chirps,
-        ]);
+        ], 'chirps/pages/Index2');
     }
 
     /**
@@ -68,32 +57,23 @@ class ChirpController extends Controller
  
         //user() gets the User object (model)
         //the User model has hasMany relationship to Chirps as chirps function
-        $chirp = $request->user()->chirps()->create($validated)->load('user:id,name');
+        $chirp = $request->user()->chirps()->create($validated)->loadEntities();
  
-        if (!$request->wantsJson()) {
-            return redirect(route('chirps.index'));
-        }
-
-        return response()->json([
-            'message' => 'Chirp created successfully!',
+        return ResponseUtil::jsonRedirectResponse([
+            'message' => 'Chirp created.',
             'chirp' => $chirp,
-        ], 201);
+        ], route('chirps.index'), 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Chirp $chirp): Response|JsonResponse
+    public function show(Request $request, Chirp $chirp): Response|JsonResponse
     {
-        $chirp = $chirp->load('user:id,name');
-        if (!$request->wantsJson()) {
-            return Inertia::render('chirps/pages/Chirp', [
-                'chirp' => $chirp,
-            ]);
-        }
-        return response()->json([
+        $chirp = $chirp->loadEntities();
+        return ResponseUtil::jsonInertiaResponse([
             'chirp' => $chirp,
-        ]);
+        ], 'chirps/pages/Chirp');
     }
 
     /**
@@ -116,16 +96,12 @@ class ChirpController extends Controller
         ]);
  
         $chirp->update($validated);
-        $chirp->load('user:id,name');
+        $chirp->loadEntities();
  
-        if (!$request->wantsJson()) {
-            return redirect(route('chirps.index'));
-        }
-
-        return response()->json([
-            'message' => 'Chirp updated successfully!',
+        return ResponseUtil::jsonRedirectResponse([
+            'message' => 'Chirp updated.',
             'chirp' => $chirp,
-        ]);
+        ], route('chirps.index'));
     }
 
     /**
@@ -137,12 +113,8 @@ class ChirpController extends Controller
  
         $chirp->delete();
  
-        if (!$request->wantsJson()) {
-            return redirect(route('chirps.index'));
-        }
-
-        return response()->json([
-            'message' => 'Chirp deleted successfully!',
-        ]);
+        return ResponseUtil::jsonRedirectResponse([
+            'message' => 'Chirp deleted.',
+        ], route('chirps.index'));
     }
 }

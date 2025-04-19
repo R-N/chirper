@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import BackupView from '../views/Backup.vue';
+import BackupView from '../views/Backups.vue';
 import { ViewBase } from '@/views/ViewBase.vue';
 
 @Component({

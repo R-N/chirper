@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Laravel\Jetstream\Jetstream;
 use Inertia\Response;
+use App\Utils\ResponseUtil;
 
 class ApiTokenController extends Controller
 {
@@ -19,11 +20,11 @@ class ApiTokenController extends Controller
         $user = $request->user();
         $tokens = $user->tokens;
 
-        return Inertia::render('user/api/pages/Index', [
+        return ResponseUtil::jsonInertiaResponse([
             'user' => $user,
             'tokens' => $tokens,
             'availablePermissions' => Jetstream::$permissions,
             // 'defaultPermissions' => Jetstream::$defaultPermissions,
-        ]);
+        ], 'user/api/pages/Index');
     }
 }

@@ -122,7 +122,8 @@ class User extends Authenticatable implements MustVerifyEmail
             $this->syncPermissions($attributes['permissions']);
         }
 
-        if ($emailChange) {
+        if ($emailChange || $this->isDirty('email')) {
+            $this->email_verified_at = null;
             $this->sendEmailVerificationNotification();
         }
 

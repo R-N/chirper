@@ -184,7 +184,8 @@ class UserController extends Controller
     public function destroy(Request $request, User $user) {
         if ($user->enabled || $user->email_verified_at !== null) {
             return ResponseUtil::jsonRedirectResponse([
-                "error" => "User must be unverified and disabled first.",
+                "message" => "User must be unverified and disabled first.",
+                "display" => true,
             ], route('system.users.index'), 400);
         }
         $user->delete();

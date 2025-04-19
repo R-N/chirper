@@ -65,6 +65,19 @@ class CrudViewBase extends ViewBase {
             }, releaseBusy
         );
     }
+
+    async _create(form, releaseBusy=true){
+        return await this._waitbusy(
+            async () => {
+                let res = await this.client['create'](form);
+                let obj = this.client.getData(res);
+                if (obj){
+                    this.items.push(obj);
+                }
+            }, releaseBusy
+        );
+    }
+
     _setNameConfirmText(item, newValue){
         return this.setFieldConfirmText(this.nameField, item, newValue);
     }
@@ -87,7 +100,7 @@ class CrudViewBase extends ViewBase {
         const view = this;
         view.busy=true;
         try{
-            await f();
+            return await f();
         } catch (error) {
             view.showError(error);
         } finally {
@@ -177,6 +190,10 @@ class CrudViewBase extends ViewBase {
 
     async waitBusy(f, releaseBusy=true){
         return await this._waitbusy(f, releaseBusy);
+    }
+
+    async create(form, releaseBusy=true){
+        return await this._create(form, releaseBusy);
     }
 
     async setField(fieldName, item, value=null, releaseBusy=true){

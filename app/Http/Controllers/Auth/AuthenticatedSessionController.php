@@ -13,6 +13,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Facades\Log;
+use App\Utils\ResponseUtil;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -36,23 +37,15 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        if (!$request->wantsJson()) {
-            return redirect()->intended(route('dashboard', absolute: false));
-        }
-
         $user = Auth::user()->loadEntities();
-        // 🔥 If using token-based auth, create a token
-        $token = null;
-        if (config('sanctum.guard') === 'api') {
-            $token = $user->createToken('auth_token', ['*'])->plainTextToken;
-        }
 
-        return response()->json([
+        $token = $user->createToken('auth_token', ['*'])->plainTextToken;
+
+        return ResponseUtil::jsonRedirectResponse([
             'auth_token' => $token,
+            'message' => 'Login successful.',
             'user' => $user,
-            'message' => 'Login successful',
-            'redirect' => route('dashboard', absolute: false)
-        ], 200);
+        ], route('dashboard'));
     }
 
     /**
@@ -69,13 +62,8 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        if (!$request->wantsJson()) {
-            return redirect('/');
-        }
-
-        return response()->json([
-            'message' => 'Logged out',
-            'redirect' => '/',
-        ], 200);
+        return ResponseUtil::jsonRedirectResponse([
+            "message" => "Logged out.",
+        ], route('login'));
     }
 }

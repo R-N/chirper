@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use App\Utils\ResponseUtil;
 
 class PasswordController extends Controller
 {
@@ -26,11 +27,8 @@ class PasswordController extends Controller
             'email_verified_at' => now()
         ]);
 
-        if (!$request->wantsJson()) {
-            return back();
-        }
-        return response()->json([
-            'message' => 'Password updated successfully',
-        ], 200);
+        return ResponseUtil::jsonRedirectResponse([
+            'message' => 'Password updated.',
+        ], url()->previous());
     }
 }

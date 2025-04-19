@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Utils\ResponseUtil;
 
 class ConfirmablePasswordController extends Controller
 {
@@ -30,19 +31,15 @@ class ConfirmablePasswordController extends Controller
             'email' => $request->user()->email,
             'password' => $request->password,
         ])) {
-            throw ValidationException::withMessages([
-                'password' => __('auth.password'),
-            ]);
+            return ResponseUtil::jsonRedirectResponse([
+                'message' => 'Bad request.',
+            ], route('password.confirm'), 400);
         }
 
         $request->session()->put('auth.password_confirmed_at', time());
 
-        if (!$request->wantsJson()) {
-            return redirect()->intended(route('dashboard', absolute: false));
-        }
-        return response()->json([
-            'message' => 'Password confirmed successfully',
-            'redirect' => '/dashboard'
-        ], 200);
+        return ResponseUtil::jsonRedirectResponse([
+            'message' => 'Password confirmed.',
+        ], route('dsahboard'));
     }
 }

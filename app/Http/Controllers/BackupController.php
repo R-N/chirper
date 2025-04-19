@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use ZipArchive;
 use \Illuminate\Support\Facades\Log;
+use App\Utils\ResponseUtil;
 
 class BackupController extends Controller
 {
@@ -45,14 +46,9 @@ class BackupController extends Controller
     {
         $files = Storage::disk($this->disk)->files($this->appName);
         $backups = collect($files)->map(fn($file) => $this->getBackupInfo($file));
-        if (!$request->wantsJson()) {
-            return Inertia::render('system/backups/pages/Index', [
-                'backups' => $backups,
-            ]);
-        }
-        return response()->json([
+        return ResponseUtil::jsonInertiaResponse([
             'backups' => $backups,
-        ]);
+        ], 'system/backups/pages/Index');
     }
 
     public function store(Request $request) : RedirectResponse|JsonResponse
@@ -62,25 +58,16 @@ class BackupController extends Controller
             '--only-db' => true,
         ]);
         $output = Artisan::output();
-        $error = null;
         if (strpos($output, 'Error') !== false || strpos($output, 'failed') !== false) {
             Log::error('Backup failed: ' . $output);
-            if (!$request->wantsJson()) {
-                return redirect(route('system.backups.index'))->with([
-                    "error" => $error
-                ]);
-            }
-            return response()->json([
-                "error" => $error
-            ], 500);
+            return ResponseUtil::jsonRedirectResponse([
+                'message' => "Backup failed: $output",
+            ], route('system.backups.index'), 500);
         } 
         Log::info('Backup succeeded: ' . $output);
-        if (!$request->wantsJson()) {
-            return redirect(route('system.backups.index'));
-        }
-        return response()->json([
-            'message' => 'Backup created!',
-        ], 201);
+        return ResponseUtil::jsonRedirectResponse([
+            'message' => 'Backup created.',
+        ], route('system.backups.index'), 201);
     }
 
     public function show($file) : BinaryFileResponse
@@ -98,12 +85,9 @@ class BackupController extends Controller
     {
         $filePath = $this->path1($file);
         Storage::disk($this->disk)->delete($filePath);
-        if (!$request->wantsJson()) {
-            return redirect(route('system.backups.index'));
-        }
-        return response()->json([
-            'message' => "Backup {$file} deleted!",
-        ], 201);
+        return ResponseUtil::jsonRedirectResponse([
+            'message' => "Backup {$file} deleted.",
+        ], route('system.backups.index'));
     }
 
     public function rename(Request $request, $file)
@@ -115,13 +99,10 @@ class BackupController extends Controller
         
         $backup = $this->getBackupInfo($newPath);
 
-        if (!$request->wantsJson()) {
-            return redirect(route('system.backups.index'));
-        }
-        return response()->json([
-            'message' => "Backup {$file} renamed to {$newName}!",
+        return ResponseUtil::jsonRedirectResponse([
+            'message' => "Backup {$file} renamed to {$newName}.",
             'backup' => $backup,
-        ]);
+        ], route('system.backups.index'));
     }
 
     public function upload(Request $request)
@@ -130,102 +111,85 @@ class BackupController extends Controller
         $file = $request->file('file')->getClientOriginalName();
         $filePath = $request->file('file')->storeAs($this->appName, $file, $this->disk);
         $backup = $this->getBackupInfo($this->path1($file));
-        if (!$request->wantsJson()) {
-            return redirect(route('system.backups.index'));
-        }
-        return response()->json([
-            'message' => "Backup {$file} uploaded!",
+        return ResponseUtil::jsonRedirectResponse([
+            'message' => "Backup {$file} uploaded.",
             'backup' => $backup,
-        ], 201);
+        ], route('system.backups.index'), 201);
     }
 
     public function restore(Request $request, $file)
     {
         $filePath = $this->path1($file);
-        $error = null;
-        $statusCode = null;
 
         try{
             // Check if the backup file exists
             if (!Storage::disk($this->disk)->exists($filePath)) {
-                $error = 'Backup file not found!';
-                $statusCode = 404;
-            }else{
-                // Create the temp directory if it doesn't exist
-                $tempDir = $this->path2($this->tempDir);
-                if (!is_dir($tempDir)) {
-                    mkdir($tempDir, 0777, true);
-                }
+                return ResponseUtil::jsonRedirectResponse([
+                    'message' => "Backup $file not found.",
+                ], route('system.backups.index'), 404);
+            }
+            // Create the temp directory if it doesn't exist
+            $tempDir = $this->path2($this->tempDir);
+            if (!is_dir($tempDir)) {
+                mkdir($tempDir, 0777, true);
+            }
 
-                // Define the full path to the backup zip file
-                $fullPath = Storage::disk($this->disk)->path($filePath);
+            // Define the full path to the backup zip file
+            $fullPath = Storage::disk($this->disk)->path($filePath);
 
-                // Open the zip file
-                $zip = new ZipArchive();
-                if ($zip->open($fullPath) !== TRUE) {
-                    // If unable to open the zip file
-                    $error = "Failed to open ZIP archive: $file";
-                    $statusCode = 500;
-                }else{
-                    // Extract the zip file contents to the temp directory
-                    $zip->extractTo($tempDir);
-                    $zip->close();
+            // Open the zip file
+            $zip = new ZipArchive();
+            if ($zip->open($fullPath) !== TRUE) {
+                // If unable to open the zip file
+                return ResponseUtil::jsonRedirectResponse([
+                    'message' => "Failed to open ZIP archive: $file.",
+                ], route('system.backups.index'), 500);
+            }
+            // Extract the zip file contents to the temp directory
+            $zip->extractTo($tempDir);
+            $zip->close();
 
-                    // Find the extracted SQL file (assuming there is only one SQL file in the zip)
-                    $sqlDir = $tempDir . DIRECTORY_SEPARATOR . 'db-dumps';
-                    $extractedFiles = scandir($sqlDir);
-                    $sqlFile = null;
-                    foreach ($extractedFiles as $f) {
-                        if (pathinfo($f, PATHINFO_EXTENSION) === 'sql') {
-                            $sqlFile = $f;
-                            break;
-                        }
-                    }
-
-                    if ($sqlFile === null) {
-                        $error = 'No SQL file found in the backup zip!';
-                        $statusCode = 400;
-                    }else{
-                        // Define the path to the extracted SQL file
-                        $sqlFilePath = $sqlDir . DIRECTORY_SEPARATOR . $sqlFile;
-        
-                        // Run the restore command using the extracted SQL file
-                        $command = "psql -U " . env('DB_USERNAME') . " -d " . env('DB_DATABASE') . " -f $sqlFilePath 2>&1";
-
-                        exec($command, $output, $status);
-
-                        $output = implode("\n", $output);
-        
-                        // Check if the restore was successful
-                        if ($status !== 0) {
-                            $error = 'Error restoring backup: ' . $output;
-                            $statusCode = 500;
-                            Log::error('Backup failed: ' . $output);
-                        }else{
-                            // Return success response
-                            Log::info('Backup succeeded: ' . $output);
-                            if (!$request->wantsJson()) {
-                                return redirect(route('system.backups.index'));
-                            }
-                            return response()->json([
-                                'message' => "Backup $file restored successfully!",
-                            ]);
-                        }
-                    }
+            // Find the extracted SQL file (assuming there is only one SQL file in the zip)
+            $sqlDir = $tempDir . DIRECTORY_SEPARATOR . 'db-dumps';
+            $extractedFiles = scandir($sqlDir);
+            $sqlFile = null;
+            foreach ($extractedFiles as $f) {
+                if (pathinfo($f, PATHINFO_EXTENSION) === 'sql') {
+                    $sqlFile = $f;
+                    break;
                 }
             }
-        }finally{
-            //$this->cleanupTemp(); // Cleanup before returning
-        }
 
-        if (!$request->wantsJson()) {
-            return redirect(route('system.backups.index'))->with([
-                "error" => $error
-            ]);
+            if ($sqlFile === null) {
+                return ResponseUtil::jsonRedirectResponse([
+                    'message' => "No SQL file found in $file backup zip.",
+                ], route('system.backups.index'), 404);
+            }
+            // Define the path to the extracted SQL file
+            $sqlFilePath = $sqlDir . DIRECTORY_SEPARATOR . $sqlFile;
+
+            // Run the restore command using the extracted SQL file
+            $command = "psql -U " . env('DB_USERNAME') . " -d " . env('DB_DATABASE') . " -f $sqlFilePath 2>&1";
+
+            exec($command, $output, $status);
+
+            $output = implode("\n", $output);
+
+            // Check if the restore was successful
+            if ($status !== 0) {
+                Log::error('Restore failed: ' . $output);
+                return ResponseUtil::jsonRedirectResponse([
+                    'message' => "Error restoring backup $file: $output",
+                ], route('system.backups.index'), 500);
+            }
+            // Return success response
+            Log::info('Restore succeeded: ' . $output);
+            return ResponseUtil::jsonRedirectResponse([
+                'message' => "Backup $file restored.",
+            ], route('system.backups.index'));
+        }finally{
+            $this->cleanupTemp();
         }
-        return response()->json([
-            "error" => $error
-        ], $statusCode);
     }
 
     private function cleanupTemp()
