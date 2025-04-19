@@ -30,8 +30,8 @@ createInertiaApp({
             `./modules/${name}.vue`,
             import.meta.glob('./modules/\*\*/pages/\*.vue'),
         ),
-    setup({ el, App: InertiaApp, props, plugin }) {
-        axios.init();
+    async setup({ el, App: InertiaApp, props, plugin }) {
+        await axios.init();
         let app = createApp({ render: () => h(App, { InertiaApp, props }) });
         //app.config.devtools = true;
         const pinia = createPinia()

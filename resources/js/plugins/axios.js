@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie'
+import { useAuthStore } from '@/stores/auth';
 
 axios.defaults.withCredentials = true;
 axios.defaults.withXSRFToken = true;
@@ -19,7 +20,36 @@ function readCookie(cookieName) {
   return value;
 }
 
-const createApi = () => {
+
+const initXsrf = async(api) =>{
+  let xsrfToken = null;
+  xsrfToken = Cookies.get("XSRF-TOKEN");
+  if (xsrfToken){
+    return;
+  }
+  console.log("CSRF Cookie not found. Obtaining.");
+  await api.get('/sanctum/csrf-cookie');
+  xsrfToken = Cookies.get("XSRF-TOKEN");
+  if (xsrfToken){
+    //axios.defaults.headers['X-XSRF-TOKEN'] = xsrfToken;
+    //console.log(`CSRF cookie set to ${xsrfToken}`);
+  }else{
+    console.log("Unable to obtain CSRF Cookie");
+  }
+}
+
+const injectAuth = (config) => {
+  if (config.headers.Authorization)
+    return config;
+  const authStore = useAuthStore();
+  let authToken = authStore.auth_token || localStorage.getItem("auth_token");
+  if (authToken) {
+    config.headers.Authorization = `Bearer ${authToken}`;
+  }
+  return config;
+};
+
+const createApi = async () => {
   const api = axios.create({
     baseURL: axios.defaults.baseURL,
     withCredentials: true,
@@ -29,42 +59,17 @@ const createApi = () => {
       "Accept": "application/json",
     },
   });
-  const init = async() =>{
-    let xsrfToken = null;
-    xsrfToken = Cookies.get("XSRF-TOKEN");
-    if (xsrfToken){
-      return;
-    }
-    console.log("CSRF Cookie not found. Obtaining.");
-    await api.get('/sanctum/csrf-cookie');
-    xsrfToken = Cookies.get("XSRF-TOKEN");
-    if (xsrfToken){
-      //axios.defaults.headers['X-XSRF-TOKEN'] = xsrfToken;
-      //console.log(`CSRF cookie set to ${xsrfToken}`);
-    }else{
-      console.log("Unable to obtain CSRF Cookie");
-    }
-  }
-  api.init = init;
+  api.init = () => initXsrf(api);
   let xsrfToken = Cookies.get("XSRF-TOKEN");
   if (!xsrfToken){
-    api.init();
+    await api.init();
   }
-  api.interceptors.request.use((config) => {
-    let authToken = localStorage.getItem("auth_token");// ||| Cookies.get("chirper_session");
-    if (authToken) {
-      config.headers.Authorization = `Bearer ${authToken}`;
-    }
-    // let xsrfToken1 = Cookies.get("XSRF-TOKEN");
-    // if (xsrfToken1) {
-    //   config.headers['X-XSRF-TOKEN'] = xsrfToken1;
-    // }
-    return config;
-  });
+  api.interceptors.request.use(injectAuth);
   return api;
 }
 
-const api = createApi();
+axios.interceptors.request.use(injectAuth);
+const api = await createApi();
 
 export {
   api,
