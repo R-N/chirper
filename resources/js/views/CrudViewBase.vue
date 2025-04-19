@@ -61,7 +61,15 @@ class CrudViewBase extends ViewBase {
             async () => {
                 let query = this.query;
                 let res = await this.client.fetch(query);
-                this.items = this.client.getData(res);
+                let items = this.client.getData(res);
+                if (Array.isArray(items))
+                    this.items = items;
+                else if (items.data && Array.isArray(items.data))
+                    this.items = items.data;
+                else {
+                    console.log(items);
+                    this.showError({ message: "Unkown fetch result" });
+                }
             }, releaseBusy
         );
     }

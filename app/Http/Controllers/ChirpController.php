@@ -11,17 +11,38 @@ use Inertia\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use App\Utils\ResponseUtil;
-
+use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedFilter;
+use App\Filters\GlobalSearch;
+use App\Sorts\RelationshipField;
 class ChirpController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+
+    function fetch(Request $request){
+        $perPage = $request->query('per_page', 10);
+        // Chirps has belongsTo relationship with User as user
+        $chirps = QueryBuilder::for(Chirp::class)
+            ->withEntities()
+            ->allowedFilters([
+                AllowedFilter::custom('search', new GlobalSearch(['message', 'user.name', 'created_at'])),
+                AllowedFilter::partial('user.name'),
+                AllowedFilter::partial('message'),
+                AllowedFilter::partial('created_at'),
+            ])
+            ->allowedSorts([
+                'user.name', 'created_at'
+            ])
+            ->paginate($perPage)
+            ->withQueryString();
+        return $chirps;
+    }
+
     public function index(Request $request): Response|JsonResponse
     {
-        //return response('Hello, World!');
-        // Chirps has belongsTo relationship with User as user
-        $chirps = Chirp::withEntities()->latest()->get();
+        $chirps = $this->fetch($request);
         return ResponseUtil::jsonInertiaResponse([
             'chirps' => $chirps,
         ], 'chirps/pages/Index');
@@ -31,7 +52,7 @@ class ChirpController extends Controller
      */
     public function index2(Request $request): Response|JsonResponse
     {
-        $chirps = Chirp::withEntities()->latest()->get();
+        $chirps = $this->fetch($request);
         return ResponseUtil::jsonInertiaResponse([
             'chirps' => $chirps,
         ], 'chirps/pages/Index2');
