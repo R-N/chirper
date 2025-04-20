@@ -21,13 +21,13 @@ export default toNative(MainCard);
 <template>
   <VCard class="fill-width py-2 px-4">
     <CardTitle :title="title" />
-    <CardToolbar v-if="!noToolbar">
+    <CardToolbar v-if="!noToolbar" class="d-flex">
       <template v-slot:left>
         <slot name="toolbar-left"></slot>
-        </template>
-        <template v-slot:right>
+      </template>
+      <template v-slot:right>
         <slot name="toolbar-right"></slot>
-        </template>
+      </template>
     </CardToolbar>
     <VCardText>
       <slot name="content"></slot>

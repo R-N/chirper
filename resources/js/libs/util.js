@@ -118,3 +118,21 @@ export const getArrayText = (val, f=(v) => v.title, array=true, separator=', ') 
         return f(val);
     }
 }
+export const getField = (obj, field, array=true, fieldSeparator='.', joinSeparator=', ') => {
+  if (!field)
+    return obj;
+  if(Array.isArray(obj)){
+    let ret = val.map((v) => getField(obj, field, array, fieldSeparator, joinSeparator));
+    if(Array.isArray(ret) && !array){
+        return ret.join(joinSeparator);
+    }else{
+        return ret;
+    }
+  }else{
+    const [first, rest] = field.split(/\.(.+)/); 
+    return getField(obj[first], rest, array, fieldSeparator, joinSeparator);
+  }
+}
+export const timestamp = () => {
+  return new Date().toISOString().replace(/[:.]/g, '-');
+}

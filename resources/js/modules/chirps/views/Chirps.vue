@@ -32,7 +32,7 @@ class ChirpCrudView extends CrudViewBase {
     get client(){ return chirpService; }
     get headers(){
         let headers = [
-            { title: 'User', value: 'user' },
+            { title: 'User', value: 'user.name' },
             { title: 'Meessage', value: 'message' },
             { title: 'Created At', value: 'created_at' },
             { title: 'Actions', value: 'actions' }
@@ -71,6 +71,9 @@ export default toNative(ChirpCrudView);
         :fetch="fetch"
         create-text="Chirp"
         v-model:search="search"
+        :export-csv="exportCsv"
+        :export-xlsx="exportXlsx"
+        :export-pdf="exportPdf"
     >
         <template v-slot:default>
             <component
@@ -99,7 +102,7 @@ export default toNative(ChirpCrudView);
                     <small class="ml-2 text-sm text-gray-600">{{ duration(item.created_at) }}</small>
                     <small v-if="item.created_at !== item.updated_at" class="text-sm text-gray-600"> &middot; edited</small>
                 </template>
-                <template v-slot:item.user="{ item }">
+                <template v-slot:item.user.name="{ item }">
                     <span class="text-gray-800">{{ item.user.name }}</span>
                 </template>
                 <template v-slot:item.actions="{ item }">

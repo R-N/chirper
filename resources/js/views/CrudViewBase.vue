@@ -3,9 +3,13 @@
 
 import { Component, Prop, Watch, Model, toNative } from 'vue-facing-decorator';
 import { ViewBase } from '@/views/ViewBase.vue';
-import { deleteFromArray, findIndex } from '@/libs/util';
+import { deleteFromArray, findIndex, getField, timestamp } from '@/libs/util';
 import debounce from 'lodash/debounce';
 import { VDataTable, VDataTableServer } from 'vuetify/components';
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 @Component({
     name: "CrudViewBase",
@@ -32,6 +36,48 @@ class CrudViewBase extends ViewBase {
     get headers(){ return []; }
     get filteredErrors() { return []; }
 
+    get exportItems() { 
+        let fields = this.headers.map((h) => h.value); 
+        let items = this.items.map((i) => {
+            return Object.fromEntries(
+                fields.map((f) => {
+                    return [f, getField(i, f)];
+                })
+            );
+        });
+        return items; 
+    }
+    get exportHeaders() { 
+        return this.headers.map((h) => h.title || h.text || h.label || h.value); 
+    }
+    
+    exportXlsx() {
+        const worksheet = XLSX.utils.json_to_sheet(this.exportItems);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
+        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+        saveAs(blob, `${this.itemName}_${timestamp()}.xlsx`);
+    }
+
+    exportCsv() {
+        const worksheet = XLSX.utils.json_to_sheet(this.exportItems);
+        const csv = XLSX.utils.sheet_to_csv(worksheet);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        saveAs(blob, `${this.itemName}_${timestamp()}.csv`);
+    }
+
+    exportPdf() {
+        const doc = new jsPDF();
+        const rows = this.exportItems.map((item: any) =>
+            this.headers.map((h) => item[h.value])
+        );
+        autoTable(doc, {
+            head: [this.exportHeaders],
+            body: rows,
+        });
+        doc.save(`${this.itemName}_${timestamp()}.pdf`);
+    }
     
     get dataTableComponent(){
         return this.serverside ? VDataTableServer : VDataTable;

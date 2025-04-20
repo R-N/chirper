@@ -31,10 +31,13 @@
         "dayjs": "^1.11.13",
         "file-saver": "^2.0.5",
         "js-cookie": "^3.0.5",
+        "jspdf": "^3.0.1",
+        "jspdf-autotable": "^5.0.2",
         "pinia": "^3.0.1",
         "pinia-plugin-persistedstate": "^4.2.0",
         "vite-plugin-vuetify": "^2.1.0",
         "vue3-dropzone": "^2.2.1",
-        "vuetify": "^3.7.18"
+        "vuetify": "^3.7.18",
+        "xlsx": "^0.18.5"
     }
 }

@@ -23,6 +23,10 @@ class CrudView extends ViewBase {
   @Prop({ type: Function }) create;
   @Prop({ type: Function }) fetch;
   @Model({ name: "search", type: [String, Object] }) mySearch;
+  @Prop({ default: null}) exportCsv;
+  @Prop({ default: null}) exportXlsx;
+  @Prop({ default: null}) exportPdf;
+  _null=null;
 
   @Emit(modelEvent)
   emitModel(value){
@@ -50,6 +54,26 @@ export default toNative(CrudView);
         :small="false"
       />
       <slot name="toolbar-left" :busy="busy"></slot>
+      <VBtnToggle v-model="_null" prepend-icon="mdi-export" class="fill-height" title="Export">
+        <VBtn
+          class="fill-height"
+          @click="exportCsv"
+          :disabled="busy"
+          v-if="!!exportCsv"
+        >csv</VBtn>
+        <VBtn
+          class="fill-height"
+          @click="exportXlsx"
+          :disabled="busy"
+          v-if="!!exportXlsx"
+        >xlsx</VBtn>
+        <VBtn
+          class="fill-height"
+          @click="exportPdf"
+          :disabled="busy"
+          v-if="!!exportPdf"
+        >pdf</VBtn>
+      </VBtnToggle>
     </template>
     <template v-slot:toolbar-right>
       <slot name="toolbar-right" :busy="busy"></slot>
@@ -65,10 +89,10 @@ export default toNative(CrudView);
       ></VTextField>
     </template>
     <template v-slot:content>
-            <slot name="content" :busy="busy"></slot>
+      <slot name="content" :busy="busy"></slot>
     </template>
     <template v-slot:default>
-            <slot name="default" :busy="busy"></slot>
+      <slot name="default" :busy="busy"></slot>
     </template>
   </MainCard>
 </template>
