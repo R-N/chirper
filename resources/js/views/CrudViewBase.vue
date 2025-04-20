@@ -22,6 +22,9 @@ class CrudViewBase extends ViewBase {
     debouncedFetch = null;
     itemCount = 0;
 
+    get serverside() {
+        return !!this.itemsPerPage;
+    }
     get query() { return {}; }
     get nameField() { return "name"; }
     get itemName(){ return 'Item'; }
@@ -31,7 +34,7 @@ class CrudViewBase extends ViewBase {
 
     
     get dataTableComponent(){
-        return this.itemsPerPage === null ? VDataTable : VDataTableServer
+        return this.serverside ? VDataTableServer : VDataTable;
     }
     _deleteConfirmText(item){
         return `Apa Anda yakin ingin menghapus ${this.itemName.toLowerCase()} '${item[this.nameField]}'?`;
@@ -74,7 +77,7 @@ class CrudViewBase extends ViewBase {
                     options = {
                         params: {
                             page: this.page,
-                            ...(this.itemsPerPage ? { 
+                            ...(this.serverside ? { 
                                 ["filter[search]"]: this.search,
                                 per_page: this.itemsPerPage 
                             } : {}),
