@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiTokenController;
+use App\Models\Backup;
 
 Route::get('/', function () {
     return Inertia::render('guest/pages/Welcome', [
@@ -47,14 +48,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chirps2', [ChirpController::class, 'index2'])->name('chirps.index2');
 });
 
+Route::bind('backup', function ($value) {
+    return new Backup($value);
+});
 Route::middleware('auth:sanctum')->prefix('system/backups')->group(function () {
     Route::get('/', [BackupController::class, 'index'])->name('system.backups.index');
     Route::post('/', [BackupController::class, 'store'])->name('system.backups.store');
     Route::put('/', [BackupController::class, 'upload'])->name('system.backups.upload');
-    Route::get('/{file}', [BackupController::class, 'download'])->name('system.backups.download');
-    Route::patch('/{file}', [BackupController::class, 'rename'])->name('system.backups.rename');
-    Route::delete('/{file}', [BackupController::class, 'destroy'])->name('system.backups.destroy');
-    Route::put('/{file}', [BackupController::class, 'restore'])->name('system.backups.restore');
+    Route::get('/{backup}', [BackupController::class, 'download'])->name('system.backups.download');
+    Route::patch('/{backup}', [BackupController::class, 'rename'])->name('system.backups.rename');
+    Route::delete('/{backup}', [BackupController::class, 'destroy'])->name('system.backups.destroy');
+    Route::put('/{backup}', [BackupController::class, 'restore'])->name('system.backups.restore');
 });
 
 Route::prefix('system/users')->as('system.users.')->middleware(['auth'])->group(function () {
