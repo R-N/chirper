@@ -44,6 +44,8 @@ class UserController extends Controller
     
         // Generate a password reset token
         $token = Password::getRepository()->create($user);
+        
+        event(new Registered($user));
 
         // Send the password reset notification with the token
         $user->sendPasswordResetNotification($token);

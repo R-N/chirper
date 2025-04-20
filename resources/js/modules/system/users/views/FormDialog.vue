@@ -15,19 +15,14 @@ import { VTextField } from 'vuetify/components';
   emits: ['submit']
 })
 class UserFormDialog extends CrudFormDialogBase {
+  @Prop({ default: [] }) availableRoles;
+  @Prop({ default: [] }) availablePermissions;
   form = useForm({
     email: '',
     name: '',
     roles: [],
     permissions: [],
   });
-  availableRoles = [];
-  availablePermissions = [];
-
-  async created(){
-    this.availableRoles = (await userService.get_roles()).roles;
-    this.availablePermissions = (await userService.get_permissions()).permissions;
-  }
 
   get hasAvailableRoles(){
     return this.availableRoles && this.availableRoles.length > 0;
@@ -76,10 +71,9 @@ export default toNative(UserFormDialog);
         class="bigger-input" 
         name="roles"
         :items="availableRoles"
-        item-value="id"
+        item-value="name"
         item-title="name"
         v-model="form.roles"
-        :return-object="true"
         multiple
         v-if="hasAvailableRoles"
       />
@@ -87,10 +81,9 @@ export default toNative(UserFormDialog);
         class="bigger-input" 
         name="permissions"
         :items="availablePermissions"
-        item-value="id"
+        item-value="name"
         item-title="name"
         v-model="form.permissions"
-        :return-object="true"
         multiple
         v-if="hasAvailablePermissions"
       />

@@ -90,3 +90,31 @@ export const deleteFromArray = (array, obj, key = (x) => x?.id) => {
   array.splice(index, 1);
   return true;
 }
+export const arraysEqual = (a, b) => {
+  return (
+    Array.isArray(a) &&
+    Array.isArray(b) &&
+    a.length === b.length &&
+    a.every((val, index) => val === b[index])
+  );
+}
+export const arraysEqualUnordered = (a, b) => {
+  return (
+    Array.isArray(a) &&
+    Array.isArray(b) &&
+    a.length === b.length &&
+    [...a].sort().every((val, index) => val === [...b].sort()[index])
+  );
+}
+export const getArrayText = (val, f=(v) => v.title, array=true, separator=', ') => {
+    if(Array.isArray(val)){
+        let ret = val.map((v) => getArrayText(v, f, array, separator));
+        if(Array.isArray(ret) && !array){
+            return ret.join(separator);
+        }else{
+            return ret;
+        }
+    }else{
+        return f(val);
+    }
+}

@@ -13,6 +13,8 @@ import { VDataTable } from 'vuetify/components';
 import IconButton from '@/components/button/IconButton.vue';
 import ConfirmationIconButton from '@/components/button/ConfirmationIconButton.vue';
 import SyncCheckbox from '@/components/checkbox/SyncCheckbox.vue';
+import EditableCellSelect from '@/components/form/editable_cell/EditableCellSelect.vue';
+import { getArrayText } from '@/libs/util.js';
 
 @Component({
     name: "UserCrudView",
@@ -23,11 +25,14 @@ import SyncCheckbox from '@/components/checkbox/SyncCheckbox.vue';
         VDataTable,
         IconButton,
         ConfirmationIconButton,
-        SyncCheckbox
+        SyncCheckbox,
+        EditableCellSelect
     },
 })
 class UserCrudView extends CrudViewBase {
     editing = null;
+    availableRoles = [];
+    availablePermissions = [];
 
     get nameField(){ return "name"; }
     get itemName(){ return 'User'; }
@@ -35,6 +40,7 @@ class UserCrudView extends CrudViewBase {
     get headers(){
         let headers = [
             { title: 'Name', value: 'name' },
+            { title: 'Roles', value: 'roles' },
             { title: 'Email', value: 'email' },
             { title: 'Verified', value: 'verified' },
             { title: 'Enabled', value: 'enabled' },
@@ -46,6 +52,27 @@ class UserCrudView extends CrudViewBase {
     showForm(user=null){
         this.editing = user;
         this.formDialog = true;
+    }
+
+    async _created(){
+        this.availableRoles = (await userService.get_roles()).roles;
+        this.availablePermissions = (await userService.get_permissions()).permissions;
+        super._created();
+    }
+
+    get hasAvailableRoles(){
+        return this.availableRoles && this.availableRoles.length > 0;
+    }
+
+    get hasAvailablePermissions(){
+        return this.availablePermissions && this.availablePermissions.length > 0;
+    }
+
+    setRolesConfirmText(item, value){
+        return this.setFieldConfirmText('roles', item, value)
+    }
+    getRolesText(val){
+        return getArrayText(val, (v) => v.name, false);
     }
 }
 export { UserCrudView };
@@ -76,6 +103,26 @@ export default toNative(UserCrudView);
                         :value="item.email" 
                         :on-finish="(value) => setField('email', item, value)"
                         :disabled="busy"
+                    />
+                </template>
+                <template v-slot:item.roles="{ item }">
+                    <EditableCellSelect
+                        name="roles" 
+                        type="roles"
+                        :confirm-text-maker="(value) => setFieldConfirmText(
+                            'roles', item, value,
+                            (v) => getRolesText(v)
+                        )"
+                        :items="availableRoles"
+                        :value="item.roles" 
+                        item-value="name"
+                        item-title="name"
+                        :on-finish="(value) => setField(
+                            'roles', item, value, true, (v) => v.name
+                        )"
+                        :disabled="busy  || !hasAvailableRoles"
+                        :multiple="true"
+                        :return-object="true"
                     />
                 </template>
                 <template v-slot:item.name="{ item }">
@@ -138,6 +185,8 @@ export default toNative(UserCrudView);
                 v-model="formDialog"
                 @submit="storeItem"
                 :parent-busy="busy"
+                :availableRoles="availableRoles"
+                :availablePermissions="availablePermissions"
             />
         </template>
     </CrudView>

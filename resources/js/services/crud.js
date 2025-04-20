@@ -237,7 +237,7 @@ class CrudService {
     res = await f(target, form, options);
 
     // auto update object
-    if (isObject(obj0)){
+    if (isObject(obj0) || Array.isArray(obj0)){
       if (res?.data){
         Object.assign(obj0, this.getData(res.data));
       }

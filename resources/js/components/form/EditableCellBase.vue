@@ -13,12 +13,12 @@ class EditableCellBase extends WorkingComponent {
     @Prop({ type: String }) title;
     @Prop({ type: String }) label;
     @Prop({ type: String }) name;
-    @Prop({ type: [String, Object] }) value;
+    @Prop({ type: [String, Object, Array] }) value;
     @Prop({ type: [String, Function] }) confirmTextMaker; 
     @Prop({ default: false }) disabled;
     @Prop({ type: Function }) onFinish;
 
-    valueEdit = '';
+    valueEdit: any = '';
 
     finish(){
         this.emitChange(this.valueEdit);

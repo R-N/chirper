@@ -94,12 +94,12 @@ class CrudViewBase extends ViewBase {
         return await this.setField(this.nameField, item, newValue, releaseBusy);
     }
 
-    _setFieldConfirmText(fieldName, item, newValue=null, alias=null){
+    _setFieldConfirmText(fieldName, item, newValue=null, getText=null){
         let oldValue = item[fieldName];
         // let newValue = item[newField];
-        if (alias){
-            oldValue = alias[oldValue];
-            newValue = alias[newValue];
+        if (getText){
+            oldValue = getText(oldValue);
+            newValue = getText(newValue);
         }
         return `Apa Anda yakin ingin mengubah ${fieldName} ${this.itemName.toLowerCase()} '${item[this.nameField]}' dari '${oldValue}' menjadi '${newValue}'?`
     }
@@ -117,10 +117,13 @@ class CrudViewBase extends ViewBase {
         }
     }
 
-    async _setField(fieldName, item, value=null, releaseBusy=true){
+    async _setField(fieldName, item, value=null, releaseBusy=true, getValue=null){
         await this._waitbusy(
             async () => {
-                await this.client[`set_${fieldName}`](item, value);
+                await this.client[`set_${fieldName}`](
+                    item, 
+                    getValue ? getValue(value) : value
+                );
                 item[fieldName] = value;
             }, releaseBusy
         );
@@ -192,8 +195,8 @@ class CrudViewBase extends ViewBase {
         return await this._setName(item, name, releaseBusy);
     }
 
-    setFieldConfirmText(fieldName, item, newValue=null, alias=null){
-        return this._setFieldConfirmText(fieldName, item, newValue, alias);
+    setFieldConfirmText(fieldName, item, newValue=null, getText=null){
+        return this._setFieldConfirmText(fieldName, item, newValue, getText);
     }
 
     async waitBusy(f, releaseBusy=true){
@@ -204,8 +207,8 @@ class CrudViewBase extends ViewBase {
         return await this._create(form, releaseBusy);
     }
 
-    async setField(fieldName, item, value=null, releaseBusy=true){
-        return await this._setField(fieldName, item, value, releaseBusy);
+    async setField(fieldName, item, value=null, releaseBusy=true, getValue=null){
+        return await this._setField(fieldName, item, value, releaseBusy, getValue);
     }
 
     setEnabledConfirmText(item){
