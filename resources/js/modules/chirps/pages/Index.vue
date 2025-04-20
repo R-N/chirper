@@ -20,7 +20,7 @@ import {ViewBase} from '@/views/ViewBase.vue';
   }
 })
 class ChirpsPage extends ViewBase {
-  @Prop({ type: Array }) chirps = []; // Adjust the type as necessary for chirps
+  @Prop({ type: Array }) items = []; // Adjust the type as necessary for chirps
 
   // Form data
   form = useForm({
@@ -35,18 +35,18 @@ class ChirpsPage extends ViewBase {
 
   async storeChirp(){
     let res = await chirpService.store(this.form);
-    this.chirps.unshift(res.chirp);
+    this.items.unshift(res.chirp);
 
     this.form.reset();
   }
   updateChirp(chirp){
-    const index = findIndex(this.chirps, chirp);
+    const index = findIndex(this.items, chirp);
     if (index !== -1) {
-      this.chirps[index] = chirp; // Replace with updated chirp
+      this.items[index] = chirp; // Replace with updated chirp
     }
   }
   destroyChirp(chirp){
-    deleteFromArray(this.chirps, chirp);
+    deleteFromArray(this.items, chirp);
   }
 }
 export default toNative(ChirpsPage);
@@ -65,7 +65,7 @@ export default toNative(ChirpsPage);
       </form>
       <VCard class="mt-6">
         <Chirp
-          v-for="chirp in chirps"
+          v-for="chirp in items"
           :key="chirp.id"
           :chirp="chirp"
           @destroy="destroyChirp" 

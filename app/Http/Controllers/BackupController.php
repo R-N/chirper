@@ -18,7 +18,7 @@ class BackupController extends Controller
     {
         $backups = Backup::all();
         return ResponseUtil::jsonInertiaResponse([
-            'backups' => $backups,
+            'items' => $backups,
         ], 'system/backups/pages/Index');
     }
 

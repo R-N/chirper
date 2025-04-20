@@ -22,7 +22,7 @@ class CrudView extends ViewBase {
   @Prop({ default: 'Refresh' }) refreshText;
   @Prop({ type: Function }) create;
   @Prop({ type: Function }) fetch;
-  @Model({ type: [String, Object] }) mySearch;
+  @Model({ name: "search", type: [String, Object] }) mySearch;
 
   @Emit(modelEvent)
   emitModel(value){

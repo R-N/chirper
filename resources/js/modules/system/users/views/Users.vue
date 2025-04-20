@@ -87,13 +87,18 @@ export default toNative(UserCrudView);
         v-model:search="search"
     >
         <template v-slot:default>
-            <VDataTable
+            <component
+                :is="dataTableComponent"
                 class="backup-table"
                 :headers="headers"
                 :items="items"
                 item-key="id"
                 :search="search"
                 :loading="busy"
+                :items-length="itemCount"
+                v-model:items-per-page="itemsPerPage"
+                v-model:page="page"
+                @update:options="debouncedFetch"
             >
                 <template v-slot:item.email="{ item }">
                     <EditableCellTextField
@@ -179,7 +184,7 @@ export default toNative(UserCrudView);
                         :disabled="busy"
                     />
                 </template>
-            </VDataTable>
+            </component>
             <UserFormDialog
                 :data="editing"
                 v-model="formDialog"

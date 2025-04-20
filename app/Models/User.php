@@ -17,9 +17,11 @@ use App\Models\Traits\HasRelationshipEntities;
 use Illuminate\Support\Facades\Password;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedSort;
 use App\Filters\GlobalSearch;
 use App\Filters\NotNullFilter;
 use App\Sorts\RelationshipField;
+use App\Utils\QueryUtil;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -156,11 +158,12 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     public static function query2(){
-        $perPage = request()->query('per_page', 10);
         $users = QueryBuilder::for(User::class)
             ->withEntities()
             ->allowedFilters([
-                AllowedFilter::custom('search', new GlobalSearch(['message', 'user.name', 'created_at'])),
+                AllowedFilter::custom('search', new GlobalSearch([
+                    'email', 'name', 'roles->name', 'permissions->name'
+                ])),
                 AllowedFilter::exact('id'),
                 AllowedFilter::partial('email'),
                 AllowedFilter::partial('name'),
@@ -170,11 +173,12 @@ class User extends Authenticatable implements MustVerifyEmail
                 AllowedFilter::custom('verified', new NotNullFilter('email_verified_at')),
             ])
             ->allowedSorts([
-                'id', 'email', 'name', 'roles.name', 'permissions.name', 'enabled', 'email_verified_at'
+                'id', 'email', 'name', 'enabled', 'email_verified_at',
+                AllowedSort::custom('roles.name', new RelationshipField(['roles->name'])),
+                AllowedSort::custom('permissions.name', new RelationshipField(['permissions->name'])),
             ])
-            ->defaultSort('name')
-            ->paginate($perPage)
-            ->withQueryString();
+            ->defaultSort('name');
+        $users = QueryUtil::paginateQuery(($users));
         return $users;
     }
 }

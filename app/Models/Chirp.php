@@ -10,10 +10,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Traits\HasRelationshipEntities;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedSort;
 use App\Filters\GlobalSearch;
 use App\Filters\NotNullFilter;
 use App\Sorts\RelationshipField;
-
+use App\Utils\QueryUtil;
+use Illuminate\Support\Facades\Log;
 
 class Chirp extends Model
 {
@@ -35,23 +37,26 @@ class Chirp extends Model
     }
 
     public static function query2(){
-        
-        $perPage = request()->query('per_page', 10);
         // Chirps has belongsTo relationship with User as user
         $chirps = QueryBuilder::for(Chirp::class)
             ->withEntities()
             ->allowedFilters([
-                AllowedFilter::custom('search', new GlobalSearch(['message', 'user.name', 'created_at'])),
+                AllowedFilter::custom('search', new GlobalSearch([
+                    'message', 'user->name', 'chirps.created_at'
+                ])),
                 AllowedFilter::partial('user.name'),
                 AllowedFilter::partial('message'),
-                AllowedFilter::partial('created_at'),
+                AllowedFilter::partial('chirps.created_at'),
             ])
             ->allowedSorts([
-                'user.name', 'created_at'
+                'chirps.created_at',
+                AllowedSort::custom('user.name', new RelationshipField(['user->name'])),
             ])
-            ->defaultSort('-created_at,name')
-            ->paginate($perPage)
-            ->withQueryString();
+            ->defaultSort([
+                '-chirps.created_at', 
+                AllowedSort::custom('user.name', new RelationshipField(['user->name']))
+            ]);
+        $chirps = QueryUtil::paginateQuery(($chirps));
         return $chirps;
     }
 }

@@ -10,7 +10,7 @@ class RelationshipField implements Sort
     public function __invoke(Builder $query, bool $descending, string $property): Builder
     {
         // Split the property by '.' to handle nested relations
-        $parts = explode('.', $property);
+        $parts = explode('->', $property);
 
         // Initialize direction
         $direction = $descending ? 'desc' : 'asc';

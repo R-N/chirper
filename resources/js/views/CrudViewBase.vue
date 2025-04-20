@@ -4,6 +4,8 @@
 import { Component, Prop, Watch, Model, toNative } from 'vue-facing-decorator';
 import { ViewBase } from '@/views/ViewBase.vue';
 import { deleteFromArray, findIndex } from '@/libs/util';
+import debounce from 'lodash/debounce';
+import { VDataTable, VDataTableServer } from 'vuetify/components';
 
 @Component({
     name: "CrudViewBase",
@@ -15,15 +17,22 @@ class CrudViewBase extends ViewBase {
     editing = null;
     search = '';
     items = [];
+    page = 1;
+    itemsPerPage = null;
+    debouncedFetch = null;
+    itemCount = 0;
 
+    get query() { return {}; }
     get nameField() { return "name"; }
     get itemName(){ return 'Item'; }
     get client(){ return null; }
     get headers(){ return []; }
-    get breadcrumbs() { return []; }
-    get query(){ return {}; }
     get filteredErrors() { return []; }
 
+    
+    get dataTableComponent(){
+        return this.itemsPerPage === null ? VDataTable : VDataTableServer
+    }
     _deleteConfirmText(item){
         return `Apa Anda yakin ingin menghapus ${this.itemName.toLowerCase()} '${item[this.nameField]}'?`;
     }
@@ -52,7 +61,7 @@ class CrudViewBase extends ViewBase {
     }
 
     async _created(){
-        // await this.tabStore.breadcrumbs = this.breadcrumbs;
+        this.debouncedFetch = debounce(this.fetch, 300);
         await this.fetch();
     }
 
@@ -60,13 +69,28 @@ class CrudViewBase extends ViewBase {
         await this._waitbusy(
             async () => {
                 let query = this.query;
-                let res = await this.client.fetch(query);
+                let options = {};
+                if (this.itemsPerPage || this.query){
+                    options = {
+                        params: {
+                            page: this.page,
+                            ...(this.itemsPerPage ? { 
+                                ["filter[search]"]: this.search,
+                                per_page: this.itemsPerPage 
+                            } : {}),
+                            ...this.query
+                        }
+                    }
+                }
+                let res = await this.client.fetch(options);
                 let items = this.client.getData(res);
-                if (Array.isArray(items))
+                if (Array.isArray(items)){
                     this.items = items;
-                else if (items.data && Array.isArray(items.data))
+                    this.itemCount = items.length;
+                }else if (items.data && Array.isArray(items.data)){
                     this.items = items.data;
-                else {
+                    this.itemCount = items.total;
+                }else {
                     console.log(items);
                     this.showError({ message: "Unkown fetch result" });
                 }
@@ -187,6 +211,13 @@ class CrudViewBase extends ViewBase {
     async fetch(releaseBusy=true){
         return await this._fetch(releaseBusy);
     }
+
+    async debouncedFetch2(releaseBusy=true){
+        if (this.busy)
+            return;
+        return await this.fetch(releaseBusy);
+    }
+
     setNameConfirmText(item, newValue){
         return this._setNameConfirmText(item, newValue);
     }

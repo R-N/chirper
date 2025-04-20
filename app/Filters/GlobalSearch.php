@@ -4,6 +4,7 @@ namespace App\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\QueryBuilder\Filters\Filter;
+use Illuminate\Support\Facades\Log;
 
 class GlobalSearch implements Filter
 {
@@ -25,7 +26,7 @@ class GlobalSearch implements Filter
 
         return $query->where(function ($query) use ($value) {
             foreach ($this->searchableFields as $fieldPath) {
-                $parts = explode('.', $fieldPath);
+                $parts = explode('->', $fieldPath);
 
                 if (count($parts) === 1) {
                     // Simple column on current model

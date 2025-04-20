@@ -30,7 +30,7 @@ class ChirpController extends Controller
     {
         $chirps = $this->fetch($request);
         return ResponseUtil::jsonInertiaResponse([
-            'chirps' => $chirps,
+            'items' => $chirps,
         ], 'chirps/pages/Index');
     }
     /**

@@ -20,7 +20,7 @@ class UserController extends Controller
     public function index(Request $request) {
         $users = User::query2();
         return ResponseUtil::jsonInertiaResponse([
-            "users" => $users
+            "items" => $users
         ], "system/users/pages/Index");
     }
 

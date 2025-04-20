@@ -147,12 +147,12 @@ class CrudService {
     return formData;
   }
 
-  async index(query={}, options={}){
+  async index(options={}){
     let res = await axios.get(this.endpoint(), options);
     return res.data;
   }
-  async fetch(query={}){
-    return await this.index(query);
+  async fetch(options={}){
+    return await this.index(options);
   }
 
   async get(obj, options={}){
@@ -166,7 +166,7 @@ class CrudService {
   getData(data){
     if (!data)
       return null;
-    return data?.data ?? data?.[this.name.toLowerCase()] ?? data?.[`${this.name.toLowerCase()}s`];
+    return data?.data ?? data?.item ?? data?.items ?? data?.[this.name.toLowerCase()] ?? data?.[`${this.name.toLowerCase()}s`];
   }
 
   async post(form, options={}){
