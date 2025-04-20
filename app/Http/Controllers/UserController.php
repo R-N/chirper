@@ -11,8 +11,6 @@ use App\Utils\ResponseUtil;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Password;
-use Spatie\QueryBuilder\QueryBuilder;
-use Spatie\QueryBuilder\AllowedFilter;
 use App\Filters\GlobalSearch;
 use App\Filters\NotNullFilter;
 use App\Sorts\RelationshipField;
@@ -20,24 +18,7 @@ use App\Sorts\RelationshipField;
 class UserController extends Controller
 {
     public function index(Request $request) {
-        $perPage = $request->query('per_page', 10);
-        $users = QueryBuilder::for(User::class)
-            ->withEntities()
-            ->allowedFilters([
-                AllowedFilter::custom('search', new GlobalSearch(['message', 'user.name', 'created_at'])),
-                AllowedFilter::exact('id'),
-                AllowedFilter::partial('email'),
-                AllowedFilter::partial('name'),
-                AllowedFilter::partial('roles.name'),
-                AllowedFilter::partial('permissions.name'),
-                AllowedFilter::exact('enabled'),
-                AllowedFilter::custom('verified', new NotNullFilter('email_verified_at')),
-            ])
-            ->allowedSorts([
-                'id', 'email', 'name', 'roles.name', 'permissions.name', 'enabled', 'email_verified_at'
-            ])
-            ->paginate($perPage)
-            ->withQueryString();
+        $users = User::query2();
         return ResponseUtil::jsonInertiaResponse([
             "users" => $users
         ], "system/users/pages/Index");
@@ -60,11 +41,6 @@ class UserController extends Controller
             'name' => $data['name'],
         ]);
         $user->update($data);
-    
-        // Assign roles if provided
-        if (!empty($data['roles'])) {
-            $user->syncRoles($data['roles']);
-        }
     
         // Generate a password reset token
         $token = Password::getRepository()->create($user);
@@ -141,13 +117,8 @@ class UserController extends Controller
         $data = $request->validate([
             'verified' => ['required', 'boolean'],
         ]);
-        $verified = $data["verified"];
 
-        if ($verified){
-            $user->email_verified_at = now();
-        }else{
-            $user->email_verified_at = null;
-        }
+        $user->setVerified($data["verified"]);
 
         $user->save();
     

@@ -14,6 +14,12 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Spatie\Permission\Traits\HasRoles;
 use Spatie\Permission\Traits\HasPermissions;
 use App\Models\Traits\HasRelationshipEntities;
+use Illuminate\Support\Facades\Password;
+use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\QueryBuilder\AllowedFilter;
+use App\Filters\GlobalSearch;
+use App\Filters\NotNullFilter;
+use App\Sorts\RelationshipField;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -111,6 +117,10 @@ class User extends Authenticatable implements MustVerifyEmail
         $emailChange = false;
         if (isset($attributes['email']))
             $emailChange = $attributes['email'] !== $this->email;
+
+        if (isset($attributes['verified'])){
+            $this->setVerified($attributes['verified']);
+        }
         // Perform the regular update
         $updated = parent::update($attributes, $options);
 
@@ -128,5 +138,43 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return $updated;
+    }
+
+    public function setVerified($verified){
+        if ($verified){
+            $this->email_verified_at = now();
+        }else{
+            $this->email_verified_at = null;
+        }
+    }
+
+    public function resetPassword(){
+        // Generate a password reset token
+        $token = Password::getRepository()->create($this);
+        // Send the password reset notification with the token
+        $this->sendPasswordResetNotification($token);
+    }
+
+    public static function query2(){
+        $perPage = request()->query('per_page', 10);
+        $users = QueryBuilder::for(User::class)
+            ->withEntities()
+            ->allowedFilters([
+                AllowedFilter::custom('search', new GlobalSearch(['message', 'user.name', 'created_at'])),
+                AllowedFilter::exact('id'),
+                AllowedFilter::partial('email'),
+                AllowedFilter::partial('name'),
+                AllowedFilter::partial('roles.name'),
+                AllowedFilter::partial('permissions.name'),
+                AllowedFilter::exact('enabled'),
+                AllowedFilter::custom('verified', new NotNullFilter('email_verified_at')),
+            ])
+            ->allowedSorts([
+                'id', 'email', 'name', 'roles.name', 'permissions.name', 'enabled', 'email_verified_at'
+            ])
+            ->defaultSort('name')
+            ->paginate($perPage)
+            ->withQueryString();
+        return $users;
     }
 }

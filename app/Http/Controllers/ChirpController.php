@@ -22,21 +22,7 @@ class ChirpController extends Controller
      */
 
     function fetch(Request $request){
-        $perPage = $request->query('per_page', 10);
-        // Chirps has belongsTo relationship with User as user
-        $chirps = QueryBuilder::for(Chirp::class)
-            ->withEntities()
-            ->allowedFilters([
-                AllowedFilter::custom('search', new GlobalSearch(['message', 'user.name', 'created_at'])),
-                AllowedFilter::partial('user.name'),
-                AllowedFilter::partial('message'),
-                AllowedFilter::partial('created_at'),
-            ])
-            ->allowedSorts([
-                'user.name', 'created_at'
-            ])
-            ->paginate($perPage)
-            ->withQueryString();
+        $chirps = Chirp::query2();
         return $chirps;
     }
 
