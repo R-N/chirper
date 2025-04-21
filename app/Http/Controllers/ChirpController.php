@@ -4,43 +4,39 @@ namespace App\Http\Controllers;
 
 use App\Models\Chirp;
 use Illuminate\Http\Request;
-//use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
-use Inertia\Inertia;
-use Inertia\Response; 
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\JsonResponse;
 use App\Utils\ResponseUtil;
-use Spatie\QueryBuilder\QueryBuilder;
-use Spatie\QueryBuilder\AllowedFilter;
-use App\Filters\GlobalSearch;
-use App\Sorts\RelationshipField;
+use App\Utils\ExportUtil;
 class ChirpController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
 
-    function fetch(Request $request){
+    function fetch(Request $request=null){
         $chirps = Chirp::query2();
         return $chirps;
     }
 
-    public function index(Request $request): Response|JsonResponse
+    public function index(Request $request)
     {
+        if ($request->query("export_type"))
+            return $this->export();
         $chirps = $this->fetch($request);
         return ResponseUtil::jsonInertiaResponse([
-            'items' => $chirps,
+            'items' => $chirps['data'],
         ], 'chirps/pages/Index');
     }
     /**
      * Display a listing of the resource.
      */
-    public function index2(Request $request): Response|JsonResponse
+    public function index2(Request $request)
     {
+        if ($request->query("export_type"))
+            return $this->export();
         $chirps = $this->fetch($request);
         return ResponseUtil::jsonInertiaResponse([
-            'chirps' => $chirps,
+            'items' => $chirps,
         ], 'chirps/pages/Index2');
     }
 
@@ -55,7 +51,7 @@ class ChirpController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse|JsonResponse
+    public function store(Request $request)
     {
         //
         $validated = $request->validate([
@@ -75,7 +71,7 @@ class ChirpController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Chirp $chirp): Response|JsonResponse
+    public function show(Request $request, Chirp $chirp)
     {
         $chirp = $chirp->loadEntities();
         return ResponseUtil::jsonInertiaResponse([
@@ -94,7 +90,7 @@ class ChirpController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Chirp $chirp) : RedirectResponse|JsonResponse
+    public function update(Request $request, Chirp $chirp)
     {
         Gate::authorize('update', $chirp);
  
@@ -114,7 +110,7 @@ class ChirpController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, Chirp $chirp): RedirectResponse|JsonResponse
+    public function destroy(Request $request, Chirp $chirp)
     {
         Gate::authorize('delete', $chirp);
  
@@ -123,5 +119,10 @@ class ChirpController extends Controller
         return ResponseUtil::jsonRedirectResponse([
             'message' => 'Chirp deleted.',
         ], route('chirps.index'));
+    }
+
+    public function export($type='xlsx')
+    {
+        return ExportUtil::export(Chirp::class, $type);
     }
 }

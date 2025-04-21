@@ -6,7 +6,7 @@ import { ViewBase } from '@/views/ViewBase.vue';
 import { deleteFromArray, findIndex, getField, timestamp } from '@/libs/util';
 import debounce from 'lodash/debounce';
 import { VDataTable, VDataTableServer } from 'vuetify/components';
-import { saveAs } from 'file-saver';
+import FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -51,23 +51,29 @@ class CrudViewBase extends ViewBase {
         return this.headers.map((h) => h.title || h.text || h.label || h.value); 
     }
     
-    exportXlsx() {
+    async exportXlsx() {
+        if (this.serverside)
+            return await this.downloadExport("xlsx");
         const worksheet = XLSX.utils.json_to_sheet(this.exportItems);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
         const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
         const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-        saveAs(blob, `${this.itemName}_${timestamp()}.xlsx`);
+        FileSaver.saveAs(blob, `${this.itemName}_${timestamp()}.xlsx`);
     }
 
-    exportCsv() {
+    async exportCsv() {
+        if (this.serverside)
+            return await this.downloadExport("csv");
         const worksheet = XLSX.utils.json_to_sheet(this.exportItems);
         const csv = XLSX.utils.sheet_to_csv(worksheet);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        saveAs(blob, `${this.itemName}_${timestamp()}.csv`);
+        FileSaver.saveAs(blob, `${this.itemName}_${timestamp()}.csv`);
     }
 
-    exportPdf() {
+    async exportPdf() {
+        if (this.serverside)
+            return await this.downloadExport("pdf", true);
         const doc = new jsPDF();
         const rows = this.exportItems.map((item: any) =>
             this.headers.map((h) => item[h.value])
@@ -77,6 +83,22 @@ class CrudViewBase extends ViewBase {
             body: rows,
         });
         doc.save(`${this.itemName}_${timestamp()}.pdf`);
+    }
+
+    async downloadExport(type="xlsx", query=false, endpoint=null){
+        await this.waitBusy(
+            async () => {
+                let res = await this.client.export(null, type, { 
+                    params: {
+                        ...(this.serverside && query ? { 
+                            ["filter[search]"]: this.search,
+                            ...this.query
+                        } : {}),
+                    }
+                }, endpoint);
+                FileSaver.saveAs(res.data, res.filename);
+            }
+        );
     }
     
     get dataTableComponent(){

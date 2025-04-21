@@ -76,8 +76,8 @@ class BackupView extends CrudViewBase {
   async downloadBackup(item){
     await this.waitBusy(
       async () => {
-        let res = await backupService.get(item, { responseType: 'blob' });
-        FileSaver.saveAs(res, item.id);
+        let res = await backupService.download(item);
+        FileSaver.saveAs(res.data, item.id);
       }
     );
   }
@@ -95,11 +95,14 @@ export default toNative(BackupView);
 </script>
 <template>
   <CrudView 
-      title="Backup"
-      :create="() => showForm()"
-      :fetch="fetch"
-      create-text="Backup"
-      v-model:search="search"
+    title="Backup"
+    :create="() => showForm()"
+    :fetch="fetch"
+    create-text="Backup"
+    v-model:search="search"
+    :export-csv="exportCsv"
+    :export-xlsx="exportXlsx"
+    :export-pdf="exportPdf"
   >
     <template v-slot:toolbar-left>
       <IconButton

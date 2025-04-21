@@ -22,6 +22,7 @@ use App\Filters\GlobalSearch;
 use App\Filters\NotNullFilter;
 use App\Sorts\RelationshipField;
 use App\Utils\QueryUtil;
+use App\Utils\ExportUtil;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -157,8 +158,8 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->sendPasswordResetNotification($token);
     }
 
-    public static function query2(){
-        $users = QueryBuilder::for(User::class)
+    public static function query2($raw=false){
+        $items = QueryBuilder::for(User::class)
             ->withEntities()
             ->allowedFilters([
                 AllowedFilter::custom('search', new GlobalSearch([
@@ -178,7 +179,24 @@ class User extends Authenticatable implements MustVerifyEmail
                 AllowedSort::custom('permissions.name', new RelationshipField(['permissions->name'])),
             ])
             ->defaultSort('name');
-        $users = QueryUtil::paginateQuery(($users));
-        return $users;
+        if ($raw)
+            return $items;
+        $items = QueryUtil::paginateQuery($items);
+        return $items;
+    }
+    public static function collection($filter=null){
+        $items = self::query2(true)
+            ->get()
+            ->map(fn($item) => [
+                'ID' => $item->id,
+                'Name' => $item->name,
+                'Email' => $item->email,
+                'Enabled' => $item->enabled,
+                'Verified' => $item->verified,
+                'Roles' => implode(', ', $item->roles?->map(fn($r) => $r->name)->all()),
+                'Permissions' => implode(', ', $item->permissions?->map(fn($p) => $p->name)->all()),
+            ]);
+        $items = ExportUtil::filter($items, $filter);
+        return $items;
     }
 }

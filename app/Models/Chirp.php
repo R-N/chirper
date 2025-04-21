@@ -16,6 +16,7 @@ use App\Filters\NotNullFilter;
 use App\Sorts\RelationshipField;
 use App\Utils\QueryUtil;
 use Illuminate\Support\Facades\Log;
+use App\Utils\ExportUtil;
 
 class Chirp extends Model
 {
@@ -36,9 +37,9 @@ class Chirp extends Model
         return $this->belongsTo(User::class);
     }
 
-    public static function query2(){
+    public static function query2($raw=false){
         // Chirps has belongsTo relationship with User as user
-        $chirps = QueryBuilder::for(Chirp::class)
+        $items = QueryBuilder::for(Chirp::class)
             ->withEntities()
             ->allowedFilters([
                 AllowedFilter::custom('search', new GlobalSearch([
@@ -56,7 +57,24 @@ class Chirp extends Model
                 '-chirps.created_at', 
                 AllowedSort::custom('user.name', new RelationshipField(['user->name']))
             ]);
-        $chirps = QueryUtil::paginateQuery(($chirps));
-        return $chirps;
+        if ($raw)
+            return $items;
+        $items = QueryUtil::paginateQuery($items);
+        return $items;
+    }
+
+    public static function collection($filter=null){
+        $items = self::query2(true)
+            ->get()
+            ->map(fn($item) => [
+                'ID' => $item->id,
+                'Message' => $item->message,
+                'Created At' => $item->created_at->toDateTimeString(),
+                'Modified At' => $item->modified_at?->toDateTimeString(),
+                'User ID' => $item->user?->id,
+                'User Name' => $item->user?->name,
+            ]);
+        $items = ExportUtil::filter($items, $filter);
+        return $items;
     }
 }

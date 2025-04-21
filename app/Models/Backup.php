@@ -8,6 +8,7 @@ use ZipArchive;
 use \Illuminate\Support\Facades\Log;
 use App\Exceptions\BackupException;
 use Illuminate\Contracts\Support\Arrayable;
+use App\Utils\ExportUtil;
 
 class Backup implements Arrayable
 {
@@ -162,6 +163,16 @@ class Backup implements Arrayable
         self::$DISK->deleteDirectory(self::path1(self::TEMP_DIR));
     }
     
+    public static function collection($filter=null){
+        $items = self::all()
+            ->map(fn($item) => [
+                'Backup' => $item->id,
+                'Size' => $item->size,
+                'Modified' => $item->modified,
+            ]);
+        $items = ExportUtil::filter($items, $filter);
+        return $items;
+    }
 }
 
 Backup::init();

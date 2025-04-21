@@ -4,25 +4,24 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use Inertia\Response; 
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\JsonResponse;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use App\Utils\ResponseUtil;
 use App\Models\Backup;
 use App\Exceptions\BackupException;
+use App\Utils\ExportUtil;
 
 class BackupController extends Controller
 {
-    public function index(Request $request) : Response|JsonResponse
+    public function index(Request $request)
     {
+        if ($request->query("export_type"))
+            return $this->export();
         $backups = Backup::all();
         return ResponseUtil::jsonInertiaResponse([
             'items' => $backups,
         ], 'system/backups/pages/Index');
     }
 
-    public function store(Request $request) : RedirectResponse|JsonResponse
+    public function store(Request $request)
     {
         try{
             Backup::create();
@@ -41,12 +40,12 @@ class BackupController extends Controller
         ], route('system.backups.index'), 201);
     }
 
-    public function show(Backup $backup) : BinaryFileResponse
+    public function show(Backup $backup)
     {
         return $this->download($backup);
     }
 
-    public function download(Backup $backup) : BinaryFileResponse
+    public function download(Backup $backup)
     {
         $filePath = Backup::path2($backup->id);
         return response()->download($filePath);
@@ -109,4 +108,8 @@ class BackupController extends Controller
         }
     }
 
+    public function export($type='xlsx')
+    {
+        return ExportUtil::export(Backup::class, $type);
+    }
 }

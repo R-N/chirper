@@ -136,3 +136,15 @@ export const getField = (obj, field, array=true, fieldSeparator='.', joinSeparat
 export const timestamp = () => {
   return new Date().toISOString().replace(/[:.]/g, '-');
 }
+export const getFileName = (response) => {
+  const disposition = response.headers['content-disposition'];
+  let filename = 'downloaded_file';
+
+  if (disposition && disposition.includes('filename=')) {
+    const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+    if (match && match[1]) {
+      filename = match[1].replace(/['"]/g, ''); // Remove quotes if present
+    }
+  }
+  return filename;
+}

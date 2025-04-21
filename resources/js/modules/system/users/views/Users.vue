@@ -85,6 +85,9 @@ export default toNative(UserCrudView);
         :fetch="fetch"
         create-text="User"
         v-model:search="search"
+        :export-csv="exportCsv"
+        :export-xlsx="exportXlsx"
+        :export-pdf="exportPdf"
     >
         <template v-slot:default>
             <component

@@ -1,5 +1,5 @@
 import _axios from '@/plugins/axios'; 
-import { filterObject, isObject } from '@/libs/util';
+import { filterObject, isObject, getFileName } from '@/libs/util';
 
 class CrudService {
   constructor(
@@ -155,12 +155,44 @@ class CrudService {
     return await this.index(options);
   }
 
-  async get(obj, options={}){
-    let res = await axios.get(this.endpoint(obj), options);
+  async get(obj, options={}, endpoint=null){
+    let res = await axios.get(this.endpoint(obj, endpoint), options);
     return res.data;
   }
-  async show(obj){
-    return await this.get(obj);
+
+  async show(obj, options={}, endpoint=null){
+    return await this.get(obj, options, endpoint);
+  }
+
+  async download(obj, options={}, endpoint=null){
+    let res = await axios.get(this.endpoint(obj, endpoint), {
+      ...options,
+      responseType: 'blob',
+    });
+    res.filename = getFileName(res);
+    return res;
+  }
+
+  static ACCEPT_MAP = {
+    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    csv: 'text/csv',
+    pdf: 'application/pdf',
+    zip: 'application/zip'
+  }
+
+  async export(obj, type='xlsx', options={}, endpoint=null){
+    options = { 
+      ...options,
+      params: {
+        ...(options?.params ?? {}),
+        export_type: type
+      },
+      headers: {
+        ...(options?.headers ?? {}),
+        Accept: this.constructor.ACCEPT_MAP[type.toLowerCase()]
+      }
+    };
+    return await this.download(obj, options, endpoint);
   }
 
   getData(data){

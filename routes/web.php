@@ -40,12 +40,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/api-tokens', [ApiTokenController::class, 'index'])->name('api-tokens.index');
 });
 
-Route::resource('chirps', ChirpController::class)
-    ->only(['index', 'store', 'update', 'destroy'])
-    ->parameters(['' => 'chirp'])
-    ->middleware(['auth:sanctum', 'verified']);
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum', 'verified')->group(function () {
+    Route::resource('chirps', ChirpController::class)
+        ->only(['index', 'store', 'update', 'destroy'])
+        ->parameters(['' => 'chirp']);
     Route::get('/chirps2', [ChirpController::class, 'index2'])->name('chirps.index2');
+    Route::get('/chirps/export', [ChirpController::class, 'export'])->name('chirps.export');
 });
 
 Route::bind('backup', function ($value) {
@@ -59,6 +59,7 @@ Route::middleware('auth:sanctum')->prefix('system/backups')->group(function () {
     Route::patch('/{backup}', [BackupController::class, 'rename'])->name('system.backups.rename');
     Route::delete('/{backup}', [BackupController::class, 'destroy'])->name('system.backups.destroy');
     Route::put('/{backup}', [BackupController::class, 'restore'])->name('system.backups.restore');
+    Route::get('/export', [BackupController::class, 'export'])->name('system.backups.export');
 });
 
 Route::prefix('system/users')->as('system.users.')->middleware(['auth'])->group(function () {
@@ -72,6 +73,7 @@ Route::prefix('system/users')->as('system.users.')->middleware(['auth'])->group(
     Route::put('/{user}/permissions', [UserController::class, 'setPermissions'])->name('set-permissions');
     Route::get('/roles', [UserController::class, 'getAvailableRoles'])->name('get-available-roles');
     Route::get('/permissions', [UserController::class, 'getAvailablePermissions'])->name('get-available-permissions');
+    Route::get('/export', [UserController::class, 'export'])->name('export');
 });
 
 require __DIR__.'/auth.php';

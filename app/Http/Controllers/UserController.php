@@ -11,13 +11,13 @@ use App\Utils\ResponseUtil;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Password;
-use App\Filters\GlobalSearch;
-use App\Filters\NotNullFilter;
-use App\Sorts\RelationshipField;
+use App\Utils\ExportUtil;
 
 class UserController extends Controller
 {
     public function index(Request $request) {
+        if ($request->query("export_type"))
+            return $this->export();
         $users = User::query2();
         return ResponseUtil::jsonInertiaResponse([
             "items" => $users
@@ -200,5 +200,10 @@ class UserController extends Controller
         return response()->json([
             'permissions' => $permissions,
         ]);
+    }
+
+    public function export($type='xlsx')
+    {
+        return ExportUtil::export(User::class, $type);
     }
 }
