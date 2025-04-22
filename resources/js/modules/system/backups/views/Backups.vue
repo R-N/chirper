@@ -2,6 +2,7 @@
 
 <script lang="ts">
 import FileSaver from 'file-saver';
+import { filesize } from 'filesize';
 
 import { Component, toNative } from 'vue-facing-decorator';
 import { CrudViewBase } from '@/views/CrudViewBase.vue';
@@ -11,7 +12,7 @@ import FileUploadDialog from '@/components/dialog/FileUploadDialog.vue';
 import SimpleInputDialog from '@/components/dialog/SimpleInputDialog.vue';
 
 import backupService from '../services/backup.js';
-import { deleteFromArray, findIndex } from '@/libs/util.js';
+import { formatDate } from '@/libs/util.js';
 
 import EditableCellTextField from '@/components/form/editable_cell/EditableCellTextField.vue';
 import { VDataTable } from 'vuetify/components';
@@ -89,6 +90,12 @@ class BackupView extends CrudViewBase {
       }
     );
   }
+  formatSize(size){
+    return filesize(size);
+  }
+  formatDate(date){
+    return formatDate(date);
+  }
 }
 export { BackupView };
 export default toNative(BackupView);
@@ -131,10 +138,10 @@ export default toNative(BackupView);
           />
         </template>
         <template v-slot:item.size="{ item }">
-          <small class="ml-2 text-sm text-gray-600">{{ item.size }}</small>
+          <small class="ml-2 text-sm text-gray-600">{{ formatSize(item.size) }}</small>
         </template>
         <template v-slot:item.modified="{ item }">
-          <small class="ml-2 text-sm text-gray-600">{{ item.modified }}</small>
+          <small class="ml-2 text-sm text-gray-600">{{ formatDate(item.modified) }}</small>
         </template>
         <template v-slot:item.actions="{ item }">
           <IconButton

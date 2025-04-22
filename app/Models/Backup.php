@@ -9,6 +9,7 @@ use \Illuminate\Support\Facades\Log;
 use App\Exceptions\BackupException;
 use Illuminate\Contracts\Support\Arrayable;
 use App\Utils\ExportUtil;
+use Carbon\Carbon;
 
 class Backup implements Arrayable
 {
@@ -35,7 +36,9 @@ class Backup implements Arrayable
             throw new BackupException("Backup $this->id not found.", BackupException::BACKUP_NOT_FOUND);
         }
         $this->size = self::$DISK->size($filePath);
-        $this->modified = self::$DISK->lastModified($filePath);
+        $this->modified = Carbon::createFromTimestamp(
+            self::$DISK->lastModified($filePath)
+        )->toISOString();
     }
     public function toArray(): array
     {

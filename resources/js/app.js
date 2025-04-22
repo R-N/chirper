@@ -12,6 +12,8 @@ import piniaPersist from 'pinia-plugin-persistedstate';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 import vuetify from './plugins/vuetify';
 import 'vuetify/styles';
 import '@mdi/font/css/materialdesignicons.css';
@@ -20,6 +22,8 @@ import App from './App.vue';
 import '../css/app.css';
 
 dayjs.extend(relativeTime);
+dayjs.extend(utc);
+dayjs.extend(localizedFormat);
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 

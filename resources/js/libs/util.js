@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 export const isObject = (val) => val !== null && typeof val === 'object' && !Array.isArray(val);
 
 export const filterObject = (obj, keys) => Object.fromEntries(
@@ -147,4 +149,7 @@ export const getFileName = (response) => {
     }
   }
   return filename;
+}
+export const formatDate = (utcDate) => {
+  return dayjs.utc(utcDate).local().format('LLL');
 }
