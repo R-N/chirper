@@ -12,6 +12,7 @@ import chirpService from '../services/chirp';
 import { VDataTable } from 'vuetify/components';
 import IconButton from '@/components/button/IconButton.vue';
 import ConfirmationIconButton from '@/components/button/ConfirmationIconButton.vue';
+import { bulkDeleteFromArray } from '@/libs/util';
 
 @Component({
     name: "ChirpCrudView",
@@ -25,7 +26,6 @@ import ConfirmationIconButton from '@/components/button/ConfirmationIconButton.v
     },
 })
 class ChirpCrudView extends CrudViewBase {
-    editing = null;
 
     get nameField(){ return "created_at"; }
     get itemName(){ return 'Chirp'; }
@@ -42,23 +42,20 @@ class ChirpCrudView extends CrudViewBase {
     duration(time){
         return dayjs(time).fromNow();
     }
-    
-    async setMessage(chirp, message){
-        const view = this;
-        view.busy=true;
-        try{
-            let res = await chirpService.set_message(chirp, message);
-            Object.assign(chirp, res.chirp); 
-        } catch (error) {
-            view.showError(error);
-        } finally {
-            view.busy = false;
-        }
-    }
 
     showForm(chirp=null){
         this.editing = chirp;
         this.formDialog = true;
+    }
+
+    async bulkDelete(){
+        await this.waitBusy(
+            async () => {
+                let res = await chirpService.bulk_destroy({ ids: this.selected });
+                bulkDeleteFromArray(this.items, this.selected);
+                this.selected.splice(0);
+            }
+        );
     }
 }
 export { ChirpCrudView };
@@ -74,7 +71,20 @@ export default toNative(ChirpCrudView);
         :export-csv="exportCsv"
         :export-xlsx="exportXlsx"
         :export-pdf="exportPdf"
+        :selectable="true"
+        v-model:selecting="selecting"
+        :selected="selected.length"
     >
+        <template v-slot:bulk-actions>
+            <ConfirmationIconButton
+                class="fill-height d-inline-flex" 
+                icon="mdi-delete"
+                text="Delete selected"
+                :disabled="busy"
+                :confirmTextMaker="bulkConfirmText('delete')"
+                :on-confirm="bulkDelete"
+            />
+        </template>
         <template v-slot:default>
             <component
                 :is="dataTableComponent"
@@ -88,13 +98,15 @@ export default toNative(ChirpCrudView);
                 v-model:items-per-page="itemsPerPage"
                 v-model:page="page"
                 @update:options="debouncedFetch"
+                v-model="selected"
+                :show-select="selecting"
             >
                 <template v-slot:item.message="{ item }">
                     <EditableCellTextField
                         name="message"
                         :confirm-text-maker="(value) => setFieldConfirmText('message', item, value)"
                         :value="item.message" 
-                        :on-finish="(value) => setMessage(item, value)"
+                        :on-finish="(value) => setField('message', item, value)"
                         :disabled="busy"
                     />
                 </template>

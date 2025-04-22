@@ -25,11 +25,11 @@ export { IconButton };
 export default toNative(IconButton);
 </script>
 <template>
-    <VTooltip bottom :disabled="disabled || !text">
+    <VTooltip location="bottom" :disabled="disabled || !text" class="fill-height d-inline-flex">
         <template #activator="{ props }">
             <VBtn 
                 icon 
-                class="" 
+                class="fill-height d-inline-flex" 
                 v-bind="props" 
                 :disabled="disabled"
                 @click="emitClick($event)" 

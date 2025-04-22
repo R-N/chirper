@@ -92,6 +92,38 @@ export const deleteFromArray = (array, obj, key = (x) => x?.id) => {
   array.splice(index, 1);
   return true;
 }
+export const isPrimitive = (obj) => typeof obj?.[0] !== 'object' || obj?.[0] === null;
+export const bulkDeleteFromArray = (array, objs, key = (x) => x?.id) => {
+  const keysToDelete = new Set(isPrimitive(objs) ? objs : objs.map(key));
+  const originalLength = array.length;
+
+  for (let i = array.length - 1; i >= 0; i--) {
+    if (keysToDelete.has(key(array[i]))) {
+      array.splice(i, 1);
+    }
+  }
+
+  return originalLength !== array.length;
+};
+export const jsonToFormData = (json, formData = null, parentKey = '') => {
+  formData = formData ?? new FormData();
+  for (const key in json) {
+    if (!json.hasOwnProperty(key)) continue;
+
+    const value = json[key];
+    const formKey = parentKey ? `${parentKey}[${key}]` : key;
+
+    if (value instanceof File || value instanceof Blob) {
+      formData.append(formKey, value);
+    } else if (typeof value === 'object' && value !== null && !(value instanceof Date)) {
+      jsonToFormData(value, formData, formKey); // Recursively flatten
+    } else {
+      formData.append(formKey, value);
+    }
+  }
+  return formData;
+}
+
 export const arraysEqual = (a, b) => {
   return (
     Array.isArray(a) &&

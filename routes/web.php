@@ -46,6 +46,8 @@ Route::middleware('auth:sanctum', 'verified')->group(function () {
         ->parameters(['' => 'chirp']);
     Route::get('/chirps2', [ChirpController::class, 'index2'])->name('chirps.index2');
     Route::get('/chirps/export', [ChirpController::class, 'export'])->name('chirps.export');
+    // Route::delete('/chirps/bulk', [ChirpController::class, 'bulkDestroy'])->name('chirps.bulk.destroy');
+    Route::post('/chirps/bulk/destroy', [ChirpController::class, 'bulkDestroy'])->name('chirps.bulk.destroy');
 });
 
 Route::bind('backup', function ($value) {

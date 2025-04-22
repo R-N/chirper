@@ -125,4 +125,17 @@ class ChirpController extends Controller
     {
         return ExportUtil::export(Chirp::class, $type);
     }
+    public function bulkDestroy(Request $request)
+    {
+        $data = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:chirps,id',
+        ]);
+    
+        Chirp::whereIn('id', $data['ids'])->delete();
+ 
+        return ResponseUtil::jsonRedirectResponse([
+            'message' => 'Chirps deleted.',
+        ], route('chirps.index'));
+    }
 }

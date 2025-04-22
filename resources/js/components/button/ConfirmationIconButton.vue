@@ -35,20 +35,20 @@ export default toNative(ConfirmationIconButton);
 </script>
 <template>
     <ConfirmationSlot
-        class="text-center justify-center justify-self-center"
+        class="text-center justify-center justify-self-center fill-height"
         :confirmTextMaker="confirmTextMaker"
         :on-confirm="() => onConfirm()"
         :parent-busy="busy"
     >
-    <template v-slot="{ ask }">
-        <IconButton
-            @click.stop="tryAsk(ask)" 
-            :disabled="busy || disabled"
-            :icon="icon"
-            :text="text"
-            :size="size"
-            :small="small"
-        />
+        <template v-slot="{ ask }">
+            <IconButton
+                @click.stop="tryAsk(ask)" 
+                :disabled="busy || disabled"
+                :icon="icon"
+                :text="text"
+                :size="size"
+                :small="small"
+            />
         </template>
     </ConfirmationSlot>
 </template>

@@ -26,6 +26,9 @@ class CrudView extends ViewBase {
   @Prop({ default: null}) exportCsv;
   @Prop({ default: null}) exportXlsx;
   @Prop({ default: null}) exportPdf;
+  @Model({ name: "selecting", default: false }) mySelecting;
+  @Prop({ default: false }) selectable;
+  @Prop({ default: true }) selected;
   _null=null;
 
   @Emit(modelEvent)
@@ -39,6 +42,19 @@ export default toNative(CrudView);
 <template>
   <MainCard :title="title">
     <template v-slot:toolbar-left>
+      <VBtnToggle v-model="_null" class="fill-height d-inline-flex" title="Bulk Actions">
+        <VCheckbox 
+          class="fill-height d-inline-flex"
+          v-model="mySelecting" 
+          v-if="selectable"
+        />
+        <slot 
+          name="bulk-actions" 
+          class="fill-height d-inline-flex" 
+          :busy="busy" 
+          v-if="mySelecting && selected"
+        />
+      </VBtnToggle>
       <IconButton
         @click="create"
         :disabled="busy"
@@ -54,7 +70,7 @@ export default toNative(CrudView);
         :small="false"
       />
       <slot name="toolbar-left" :busy="busy"></slot>
-      <VBtnToggle v-model="_null" prepend-icon="mdi-export" class="fill-height" title="Export">
+      <VBtnToggle v-model="_null" prepend-icon="mdi-export" class="fill-height d-inline-flex" title="Export">
         <VBtn
           class="fill-height"
           @click="exportCsv"

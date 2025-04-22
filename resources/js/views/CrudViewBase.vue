@@ -21,10 +21,12 @@ class CrudViewBase extends ViewBase {
     editing = null;
     search = '';
     items = [];
+    selected = [];
     page = 1;
     itemsPerPage = null;
     debouncedFetch = null;
     itemCount = 0;
+    selecting=false;
 
     get serverside() {
         return !!this.itemsPerPage;
@@ -107,6 +109,11 @@ class CrudViewBase extends ViewBase {
     _deleteConfirmText(item){
         return `Apa Anda yakin ingin menghapus ${this.itemName.toLowerCase()} '${item[this.nameField]}'?`;
     }
+
+    _bulkConfirmText(action){
+        return `Apa Anda yakin ingin ${action} ${this.selected.length} ${this.itemName.toLowerCase()}?`;
+    }
+
 
     storeItem(item){
         let index = findIndex(this.items, item);
@@ -263,8 +270,26 @@ class CrudViewBase extends ViewBase {
     }
 
     
+    async _bulkAction(action, form, onSuccess=null, releaseBusy=true){
+        await this._waitbusy(
+            async () => {
+                await this.client[`bulk_${action}`](form);
+                onSuccess?.();
+            }, releaseBusy
+        );
+    }
+
+    async bulkAction(action, form, onSuccess=null, releaseBusy=true){
+        return await this._bulkAction(action, form, onSuccess, releaseBusy);
+    }
+
+    
     deleteConfirmText(item){
         return this._deleteConfirmText(item);
+    }
+    
+    bulkConfirmText(action){
+        return this._bulkConfirmText(action);
     }
 
     async justAsk(item, ask){

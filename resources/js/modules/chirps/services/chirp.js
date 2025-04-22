@@ -7,6 +7,12 @@ class ChirpService extends CrudService{
       "Chirp", "/chirps", 
       ["index", "store", "update", "destroy"],
       ["message"],
+      [],
+      true,
+      false,
+      [
+        {action: 'destroy', endpoint: route('chirps.bulk.destroy')}
+      ]
     );
   }
 }

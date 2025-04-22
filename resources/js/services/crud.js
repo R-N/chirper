@@ -1,5 +1,5 @@
 import _axios from '@/plugins/axios'; 
-import { filterObject, isObject, getFileName } from '@/libs/util';
+import { filterObject, isObject, getFileName, jsonToFormData } from '@/libs/util';
 
 class CrudService {
   constructor(
@@ -10,6 +10,7 @@ class CrudService {
     files=[],
     setters=true,
     getters=false,
+    bulkActions=[],
     updateMethod='patch',
     axios=null,
   ){
@@ -23,6 +24,7 @@ class CrudService {
 
     this.createSetters(setters);
     this.createGetters(getters);
+    this.createBulkActions(bulkActions);
   }
 
   get allFields(){
@@ -52,7 +54,7 @@ class CrudService {
         ({ field, endpoint, method } = field);
       }
       //build setters
-      let f = (obj, new_value) => this.set_field(field, obj, new_value, method, endpoint);
+      let f = async (obj, new_value) => this.set_field(field, obj, new_value, method, endpoint);
       this[`set_${field}`] = f;
     }
   }
@@ -75,8 +77,18 @@ class CrudService {
         ({ field, endpoint } = field);
       }
       //build getters
-      let f = (obj) => this.get_field(field, obj, endpoint);
+      let f = async (obj) => this.get_field(field, obj, endpoint);
       this[`get_${field}`] = f;
+    }
+  }
+  
+  createBulkActions(actions){
+    // save and build actions
+    this.bulk_actions = actions;
+    for (let { action, endpoint } of this.bulk_actions) {
+      //build getters
+      let f = async (form) => this.bulk_action(endpoint, form);
+      this[`bulk_${action}`] = f;
     }
   }
 
@@ -129,30 +141,24 @@ class CrudService {
     if (this.files.length == 0 || !this.files)
       return form;
     
-    const formData = new FormData();
-    this.fields.forEach((f) => {
-      if (f in form){
-        formData.append(f, form[f]);
-      }
-    });
+    const formData = jsonToFormData(form);
     this.files.forEach((f) => {
       if (f in form && form[f]){
-        formData.append(f, form[f]);
+        formData.set(f, form[f]);
         formData._has_files = true;
       }else if (files && f in files && files[f]){
-        formData.append(f, files[f]);
+        formData.set(f, files[f]);
         formData._has_files = true;
       }
     });
-    return formData;
+    return formData._has_files ? formData : form;
   }
 
-  async index(options={}){
-    let res = await axios.get(this.endpoint(), options);
-    return res.data;
+  async index(options={}, endpoint=null){
+    return await this.get(null, options, endpoint);
   }
-  async fetch(options={}){
-    return await this.index(options);
+  async fetch(options={}, endpoint=null){
+    return await this.index(options, endpoint);
   }
 
   async get(obj, options={}, endpoint=null){
@@ -200,20 +206,14 @@ class CrudService {
       return null;
     return data?.data ?? data?.item ?? data?.items ?? data?.[this.name.toLowerCase()] ?? data?.[`${this.name.toLowerCase()}s`];
   }
-
-  async post(form, options={}){
-    form = filterObject(form, this.fields);
-    let res = await axios.post(this.endpoint(), form, options);
-    return res.data;
+  async create(form, endpoint=null){
+    return await this.post(null, form, endpoint);
   }
-  async create(form){
-    return await this.post(form);
-  }
-  async store(form){
-    return await this.post(form);
+  async store(form, endpoint=null){
+    return await this.post(null, form, endpoint);
   }
 
-  async call(obj=null, form={}, method='put', endpoint=null){
+  async call(obj=null, form={}, method='put', endpoint=null, filter=true){
     // this.checkMethod(method);
 
     // get obj id but store the actual obj
@@ -223,7 +223,8 @@ class CrudService {
     // prepare files
     let hasFiles = false;
     if (form){
-      form = filterObject(form, this.allFields);
+      if(filter)
+        form = filterObject(form, this.allFields);
       form = this.checkFiles(form);
       hasFiles = form._has_files;
     }
@@ -278,20 +279,27 @@ class CrudService {
     return res.data;
   }
 
-  async put(obj, form={}){
-    return await this.call(obj, form, 'put');
+
+  async post(obj=null, form={}, endpoint=null, filter=true){
+    return await this.call(null, form, 'post', endpoint, filter);
   }
-  async patch(obj, form={}){
-    return await this.call(obj, form, 'patch');
+  async put(obj, form={}, endpoint=null){
+    return await this.call(obj, form, 'put', endpoint);
   }
-  async update(obj, form={}){
-    return await this.call(obj, form, this.updateMethod);
+  async patch(obj, form={}, endpoint=null){
+    return await this.call(obj, form, 'patch', endpoint);
   }
-  async delete(obj, form={}){
-    await this.call(obj, form, 'destroy');
+  async update(obj, form={}, endpoint=null){
+    return await this.call(obj, form, this.updateMethod, endpoint);
   }
-  async destroy(obj, form={}){
-    return await this.delete(obj, form);
+  async delete(obj, form={}, endpoint=null){
+    return await this.call(obj, form, 'destroy', endpoint);
+  }
+  async destroy(obj, form={}, endpoint=null){
+    return await this.delete(obj, form, endpoint);
+  }
+  async bulk_action(endpoint, form) {
+    return await this.post(null, form, endpoint, false);
   }
 }
 
