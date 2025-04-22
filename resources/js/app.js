@@ -4,7 +4,7 @@ import './bootstrap';
 import axios from '@/plugins/axios'; 
 
 import { createInertiaApp, router } from '@inertiajs/vue3';
-import { useTabStore } from '@/stores/app';
+import { useTabStore } from '@/stores/tab';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h } from 'vue';
 import { createPinia } from 'pinia'; 
