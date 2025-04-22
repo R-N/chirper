@@ -4,7 +4,7 @@ import './bootstrap';
 import axios from '@/plugins/axios'; 
 
 import { createInertiaApp, router } from '@inertiajs/vue3';
-import { useAppStore } from '@/stores/app';
+import { useTabStore } from '@/stores/app';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h } from 'vue';
 import { createPinia } from 'pinia'; 
@@ -45,7 +45,7 @@ createInertiaApp({
             .use(pinia)
             .use(vuetify)
         router.on('before', () => {
-            let appStore = useAppStore();
+            let tabStore = useTabStore();
             tabStore.breadcrumbs = [];
         });
         return app.mount(el);
