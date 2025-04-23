@@ -22,7 +22,7 @@ class AuthService{
   async logout() {
     const authStore = useAuthStore();
 
-    let res = await this.axios.post("/logout");
+    let res = await this.axios.get("/logout");
 
     authStore.logout();
     return res;

@@ -50,8 +50,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
+    Route::get('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
+
+    Route::get('refresh-token', [AuthenticatedSessionController::class, 'refreshToken'])
+            ->name('token.refresh');
 });
 Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
     ->middleware('throttle:6,1')

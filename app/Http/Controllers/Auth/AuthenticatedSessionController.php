@@ -54,7 +54,7 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request): RedirectResponse|JsonResponse
     {
         $token = $request->user()->currentAccessToken();
-        if ($token && $token instanceof PersonalAccessToken){
+        if ($token && ($token instanceof PersonalAccessToken || isset($token->delete))){
             $token->delete();
         }
 
@@ -66,4 +66,21 @@ class AuthenticatedSessionController extends Controller
             "message" => "Logged out.",
         ], route('login'));
     }
+
+    public function refreshToken(Request $request)
+    {
+        $user = $request->user();
+    
+        $token = $user->currentAccessToken();
+        if (isset($token->delete)){
+            $token->delete();
+        }
+    
+        $newToken = $user->createToken('auth_token', ['*'])->plainTextToken;
+    
+        return ResponseUtil::jsonRedirectResponse([
+            'auth_token' => $newToken
+        ], url()->previous());
+    }
+    
 }
