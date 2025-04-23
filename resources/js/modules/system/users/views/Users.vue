@@ -30,13 +30,12 @@ import { getArrayText } from '@/libs/util.js';
     },
 })
 class UserCrudView extends CrudViewBase {
+    itemName = "User";
+    client = userService;
     editing = null;
     availableRoles = [];
     availablePermissions = [];
 
-    get nameField(){ return "name"; }
-    get itemName(){ return 'User'; }
-    get client(){ return userService; }
     get headers(){
         let headers = [
             { title: 'Name', value: 'name' },
@@ -54,10 +53,10 @@ class UserCrudView extends CrudViewBase {
         this.formDialog = true;
     }
 
-    async _created(){
+    async created(){
         this.availableRoles = (await userService.get_roles()).roles;
         this.availablePermissions = (await userService.get_permissions()).permissions;
-        super._created();
+        super.created();
     }
 
     get hasAvailableRoles(){

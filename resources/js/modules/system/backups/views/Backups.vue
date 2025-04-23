@@ -32,12 +32,12 @@ import ConfirmationIconButton from '@/components/button/ConfirmationIconButton.v
     },
 })
 class BackupView extends CrudViewBase {
+  nameField = "id";
+  itemName = "Backup";
+  client = backupService;
   uploadDialog = false;
   formDialog = false;
 
-  get nameField(){ return "id"; }
-  get itemName(){ return 'Backup'; }
-  get client(){ return backupService; }
   get headers(){
       let headers = [
         { title: 'File', value: 'id' },

@@ -26,17 +26,17 @@ class CrudViewBase extends ViewBase {
     itemsPerPage = null;
     debouncedFetch = null;
     itemCount = 0;
-    selecting=false;
+    selecting = false;
+    nameField = "name";
+    itemName = "Item";
+    client = null;
+    filteredErrors = [];
 
     get serverside() {
         return !!this.itemsPerPage;
     }
     get query() { return {}; }
-    get nameField() { return "name"; }
-    get itemName(){ return 'Item'; }
-    get client(){ return null; }
     get headers(){ return []; }
-    get filteredErrors() { return []; }
 
     get exportItems() { 
         let fields = this.headers.map((h) => h.value); 
@@ -106,11 +106,11 @@ class CrudViewBase extends ViewBase {
     get dataTableComponent(){
         return this.serverside ? VDataTableServer : VDataTable;
     }
-    _deleteConfirmText(item){
+    deleteConfirmText(item){
         return `Apa Anda yakin ingin menghapus ${this.itemName.toLowerCase()} '${item[this.nameField]}'?`;
     }
 
-    _bulkConfirmText(action){
+    bulkConfirmText(action){
         return `Apa Anda yakin ingin ${action} ${this.selected.length} ${this.itemName.toLowerCase()}?`;
     }
 
@@ -124,12 +124,12 @@ class CrudViewBase extends ViewBase {
         }
     }
 
-    async _justAsk(item, ask){
+    async justAsk(item, ask){
         if (ask)
             ask();
     }
 
-    async _deleteItem(item, releaseBusy=true){
+    async deleteItem(item, releaseBusy=true){
         await this.waitBusy(
             async () => {
                 await this.client.delete(item);
@@ -138,13 +138,13 @@ class CrudViewBase extends ViewBase {
         );
     }
 
-    async _created(){
+    async created(){
         this.debouncedFetch = debounce(this.fetch, 300);
         await this.fetch();
     }
 
-    async _fetch(releaseBusy=true){
-        await this.waitbusy(
+    async fetch(releaseBusy=true){
+        await this.waitBusy(
             async () => {
                 let query = this.query;
                 let options = {};
@@ -176,8 +176,8 @@ class CrudViewBase extends ViewBase {
         );
     }
 
-    async _create(form, releaseBusy=true){
-        return await this.waitbusy(
+    async create(form, releaseBusy=true){
+        return await this.waitBusy(
             async () => {
                 let res = await this.client['create'](form);
                 let obj = this.client.getData(res);
@@ -188,15 +188,15 @@ class CrudViewBase extends ViewBase {
         );
     }
 
-    _setNameConfirmText(item, newValue){
+    setNameConfirmText(item, newValue){
         return this.setFieldConfirmText(this.nameField, item, newValue);
     }
 
-    async _setName(item, newValue, releaseBusy=true){
+    async setName(item, newValue, releaseBusy=true){
         return await this.setField(this.nameField, item, newValue, releaseBusy);
     }
 
-    _setFieldConfirmText(fieldName, item, newValue=null, getText=null){
+    setFieldConfirmText(fieldName, item, newValue=null, getText=null){
         let oldValue = item[fieldName];
         // let newValue = item[newField];
         if (getText){
@@ -206,8 +206,8 @@ class CrudViewBase extends ViewBase {
         return `Apa Anda yakin ingin mengubah ${fieldName} ${this.itemName.toLowerCase()} '${item[this.nameField]}' dari '${oldValue}' menjadi '${newValue}'?`
     }
 
-    async _setField(fieldName, item, value=null, releaseBusy=true, getValue=null){
-        await this.waitbusy(
+    async setField(fieldName, item, value=null, releaseBusy=true, getValue=null){
+        await this.waitBusy(
             async () => {
                 await this.client[`set_${fieldName}`](
                     item, 
@@ -218,31 +218,31 @@ class CrudViewBase extends ViewBase {
         );
     }
 
-    _setEnabledConfirmText(item){
+    setEnabledConfirmText(item){
         return this.toggleFieldConfirmText("enabled", 'menonaktifkan', 'mengaktifkan', item);
     }
 
-    async _setEnabled(item, enabled, releaseBusy=true){
+    async setEnabled(item, enabled, releaseBusy=true){
         return await this.toggleField("enabled", item, enabled, releaseBusy);
     }
 
-    _toggleFieldConfirmText(fieldName, disable, enable, item){
+    toggleFieldConfirmText(fieldName, disable, enable, item){
         let action = item[fieldName] ? disable : enable;
         return `Apa Anda yakin ingin ${action} ${this.itemName.toLowerCase()} '${item[this.nameField]}'?`;
     }
 
-    async _toggleField(toggleName, item, enabled, releaseBusy=true){
+    async toggleField(toggleName, item, enabled, releaseBusy=true){
         if (enabled === undefined || enabled === null)
             enabled = !item.enabled;
         return await this.setField(toggleName, item, enabled, releaseBusy);
     }
 
-    _clearFieldConfirmText(fieldName, item){
+    clearFieldConfirmText(fieldName, item){
         return `Apa Anda yakin ingin menghapus ${fieldName} dari ${this.itemName.toLowerCase()} '${item[this.nameField]}'?`;
     }
 
-    async _clearField(fieldName, item, releaseBusy=true){
-        await this.waitbusy(
+    async clearField(fieldName, item, releaseBusy=true){
+        await this.waitBusy(
             async () => {
                 await this.client[`clear_${fieldName}`](item);
                 item[fieldName] = null;
@@ -250,42 +250,13 @@ class CrudViewBase extends ViewBase {
         );
     }
 
-    async _bulkAction(action, form, onSuccess=null, releaseBusy=true){
-        await this.waitbusy(
+    async bulkAction(action, form, onSuccess=null, releaseBusy=true){
+        await this.waitBusy(
             async () => {
                 await this.client[`bulk_${action}`](form);
                 onSuccess?.();
             }, releaseBusy
         );
-    }
-
-    async bulkAction(action, form, onSuccess=null, releaseBusy=true){
-        return await this._bulkAction(action, form, onSuccess, releaseBusy);
-    }
-
-    
-    deleteConfirmText(item){
-        return this._deleteConfirmText(item);
-    }
-    
-    bulkConfirmText(action){
-        return this._bulkConfirmText(action);
-    }
-
-    async justAsk(item, ask){
-        return await this._justAsk(item, ask);
-    }
-
-    async deleteItem(item, releaseBusy=true){
-        return await this._deleteItem(item, releaseBusy);
-    }
-
-    async created(){
-        return await this._created();
-    }
-
-    async fetch(releaseBusy=true){
-        return await this._fetch(releaseBusy);
     }
 
     async debouncedFetch2(releaseBusy=true){
@@ -294,49 +265,6 @@ class CrudViewBase extends ViewBase {
         return await this.fetch(releaseBusy);
     }
 
-    setNameConfirmText(item, newValue){
-        return this._setNameConfirmText(item, newValue);
-    }
-
-    async setName(item, name, releaseBusy=true){
-        return await this._setName(item, name, releaseBusy);
-    }
-
-    setFieldConfirmText(fieldName, item, newValue=null, getText=null){
-        return this._setFieldConfirmText(fieldName, item, newValue, getText);
-    }
-
-    async create(form, releaseBusy=true){
-        return await this._create(form, releaseBusy);
-    }
-
-    async setField(fieldName, item, value=null, releaseBusy=true, getValue=null){
-        return await this._setField(fieldName, item, value, releaseBusy, getValue);
-    }
-
-    setEnabledConfirmText(item){
-        return this._setEnabledConfirmText(item);
-    }
-
-    async setEnabled(item, enabled, releaseBusy=true){
-        return await this._setEnabled(item, enabled, releaseBusy);
-    }
-
-    toggleFieldConfirmText(fieldName, disable, enable, item){
-        return this._toggleFieldConfirmText(fieldName, disable, enable, item);
-    }
-
-    async toggleField(toggleName, item, enabled, releaseBusy=true){
-        return await this._toggleField(toggleName, item, enabled, releaseBusy);
-    }
-
-    clearFieldConfirmText(fieldName, item){
-        return this._clearFieldConfirmText(fieldName, item);
-    }
-
-    async clearField(toggleName, item, releaseBusy=true){
-        return await this._clearField(toggleName, item, releaseBusy);
-    }
 
 }
 export { CrudViewBase };

@@ -26,10 +26,10 @@ import { bulkDeleteFromArray } from '@/libs/util';
     },
 })
 class ChirpCrudView extends CrudViewBase {
+    nameField = "created_at";
+    itemName = "Chirp";
+    client = chirpService;
 
-    get nameField(){ return "created_at"; }
-    get itemName(){ return 'Chirp'; }
-    get client(){ return chirpService; }
     get headers(){
         let headers = [
             { title: 'User', value: 'user.name' },
