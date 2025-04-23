@@ -99,12 +99,19 @@ export default toNative(TopNavBar);
 			</template>
 
 			<VCard
-				:prepend-avatar="$page.props.auth.user.profile_photo_url" 
-				:prepend-alt="$page.props.auth.user.name"
-				class=""
-				:subtitle="userRolesText"
-				:title="userName"
+				class="d-flex"
 			>
+				<VCardItem 
+					class="d-flex"
+					:prepend-avatar="$page.props.auth.user.profile_photo_url" 
+				>
+					<VCardTitle class="d-flex pl-2">
+							{{ userName }}
+					</VCardTitle>
+					<VCardSubtitle class="d-flex pl-2">
+							{{ userRolesText }}
+					</VCardSubtitle>
+				</VCardItem>
 				<VCardActions class="d-flex flex-grow-1">
 					<VList class="d-flex flex-grow-1 flex-column">
 						<VListItem :href="route('profile.show')">Profile</VListItem>
