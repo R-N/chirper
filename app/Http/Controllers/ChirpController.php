@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ChirpCreated;
 use App\Models\Chirp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -61,6 +62,9 @@ class ChirpController extends Controller
         //user() gets the User object (model)
         //the User model has hasMany relationship to Chirps as chirps function
         $chirp = $request->user()->chirps()->create($validated)->loadEntities();
+        
+        // event(new ChirpCreated($chirp));
+        // automatically dispatched
  
         return ResponseUtil::jsonRedirectResponse([
             'message' => 'Chirp created.',

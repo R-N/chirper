@@ -4,6 +4,7 @@ use App\Http\Controllers\ChirpController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -18,6 +19,14 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
+});
+
+Route::prefix('notifications')->middleware('auth')->group(function() {
+    Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::delete('/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::post('/mark-as-read', [NotificationController::class, 'bulkMarkAsRead'])->name('notifications.bulk.read');
+    Route::post('/destroy', [NotificationController::class, 'bulkDestroy'])->name('notifications.bulk.destroy');
 });
 
 Route::middleware([

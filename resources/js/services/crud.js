@@ -10,7 +10,7 @@ class CrudService {
     files=[],
     setters=true,
     getters=false,
-    bulkActions=[],
+    actions=[],
     updateMethod='patch',
     axios=null,
   ){
@@ -24,7 +24,7 @@ class CrudService {
 
     this.createSetters(setters);
     this.createGetters(getters);
-    this.createBulkActions(bulkActions);
+    this.createActions(actions);
   }
 
   get allFields(){
@@ -54,7 +54,7 @@ class CrudService {
         ({ field, endpoint, method } = field);
       }
       //build setters
-      let f = async (obj, new_value) => this.set_field(field, obj, new_value, method, endpoint);
+      let f = async (obj, new_value) => await this.set_field(field, obj, new_value, method, endpoint);
       this[`set_${field}`] = f;
     }
   }
@@ -77,18 +77,23 @@ class CrudService {
         ({ field, endpoint } = field);
       }
       //build getters
-      let f = async (obj) => this.get_field(field, obj, endpoint);
+      let f = async (obj) => await this.get_field(field, obj, endpoint);
       this[`get_${field}`] = f;
     }
   }
   
-  createBulkActions(actions){
+  createActions(actions){
     // save and build actions
-    this.bulk_actions = actions;
-    for (let { action, endpoint } of this.bulk_actions) {
+    this.actions = actions;
+    for (let { method, action, endpoint, obj } of this.actions) {
       //build getters
-      let f = async (form) => this.bulk_action(endpoint, form);
-      this[`bulk_${action}`] = f;
+      let f = null;
+      if (obj){
+        f = async (o, form) => await this.action(method, endpoint, o, form);
+      }else{
+        f = async (form) => await this.action(method, endpoint, null, form);
+      }
+      this[action] = f;
     }
   }
 
@@ -281,7 +286,7 @@ class CrudService {
 
 
   async post(obj=null, form={}, endpoint=null, filter=true){
-    return await this.call(null, form, 'post', endpoint, filter);
+    return await this.call(obj, form, 'post', endpoint, filter);
   }
   async put(obj, form={}, endpoint=null){
     return await this.call(obj, form, 'put', endpoint);
@@ -298,8 +303,9 @@ class CrudService {
   async destroy(obj, form={}, endpoint=null){
     return await this.delete(obj, form, endpoint);
   }
-  async bulk_action(endpoint, form) {
-    return await this.post(null, form, endpoint, false);
+  async action(method, endpoint, obj=null, form={}) {
+    method = method ?? 'post';
+    return await this.call(obj, form, method, endpoint, false);
   }
 }
 

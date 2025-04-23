@@ -5,37 +5,29 @@
 namespace App\Notifications;
 
 use App\Models\Chirp;
-use Illuminate\Bus\Queueable;
 use Illuminate\Support\Str;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Support\Facades\Log;
 
-class NewChirp extends Notification
+// Do not use ShouldQueue if you don't want to run php artisan queue:work
+class NewChirp extends Notification 
 {
-    use Queueable;
 
-    /**
-     * Create a new notification instance.
-     */
-    public function __construct(public Chirp $chirp)
+    public $chirp;
+
+    public function __construct($chirp)
     {
-        // having public in function parameter means it is also declared and set as its public object attribute
+        Log::info("Notification created!");
+        $this->chirp = $chirp;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
-    public function via(object $notifiable): array
+    public function via($notifiable)
     {
-        return ['mail'];
+        return ['database', 'broadcast'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     */
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
@@ -46,15 +38,19 @@ class NewChirp extends Notification
                     ->line('Thank you for using our application!');
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray(object $notifiable): array
+    public function toDatabase($notifiable)
     {
         return [
-            //
+            'url' => '/chirps/',
+            'message' => "{$this->chirp->user->name} posted a new chirp!",
         ];
+    }
+
+    public function toBroadcast($notifiable)
+    {
+        return new BroadcastMessage([
+            'url' => '/chirps/',
+            'message' => "{$this->chirp->user->name} posted a new chirp!",
+        ]);
     }
 }

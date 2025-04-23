@@ -1,38 +1,31 @@
 <script lang="ts">
 import ApplicationLogo from '@/components/general/ApplicationLogo.vue';
 import { Link, router } from '@inertiajs/vue3';
-import { VAppBar, VToolbarTitle, VBtn, VMenu, VList, VListItem, VAvatar, VIcon, VImg  } from 'vuetify/components';
-import { Component, Prop, Model, toNative } from 'vue-facing-decorator';
-import {MyComponent} from "@/components/MyComponent.vue";
+import { VAppBar, VToolbarTitle, VBtn, VMenu, VList, VListItem, VAvatar, VIcon, VImg, VSpacer, VBtnGroup  } from 'vuetify/components';
+import { Component, Prop, Model, Ref, toNative } from 'vue-facing-decorator';
 import authService from '@/modules/user/auth/services/auth.js';
+import notificationService from '@/services/notification.js';
+import IconButton from '@/components/button/IconButton.vue';
+import {WorkingComponent} from '../WorkingComponent.vue';
+import { deleteFromArray } from '@/libs/util';
+import Notifications from './Notifications.vue';
 
 @Component({
 	name: "TopNavBar",
 	components: {
 		ApplicationLogo,
 		Link,
-		VAppBar,
-		VToolbarTitle,
-		VBtn,
-		VMenu,
-		VList,
-		VListItem,
-		VAvatar,
-		VIcon,
-		VImg,
+		IconButton,
+		Notifications,
 	},
 	emits: ["update:modelValue", "update:drawer", "change"],
 })
-class TopNavBar extends MyComponent {
+class TopNavBar extends WorkingComponent {
 	@Prop({ type: String }) appName;
 	@Model({ type: Boolean }) syncedDrawer;
-	notifs = [
-		{ text: 'Notif 1' },
-		{ text: 'Notif 2' }
-	]
-	get notifCount(){
-		return this.notifs.length;
-	}
+	@Ref() notifications;
+	router = router;
+
 	async logout() {
 		let res = await authService.logout();
 		router.visit(res.redirect || "/");
@@ -80,38 +73,7 @@ export default toNative(TopNavBar);
 			</VListItem>
 			</VList>
 		</VMenu>
-		<VMenu
-			bottom
-			left
-			close-on-click
-			offset-y
-		>
-			<template #activator="{ props }">
-				<VBtn 
-					icon
-					v-bind="props"
-				>
-					<v-badge
-						overlap
-						color="green"
-						:content="notifCount"
-						:value="notifCount"
-					>
-						<VIcon>mdi-bell</VIcon>
-					</v-badge>
-				</VBtn>
-			</template>
-
-			<VList>
-				<VListItem
-					v-for="(notif, i) in notifs"
-					:key="i"
-					@click=""
-				>
-					<VListItemTitle>{{ notif.text }}</VListItemTitle>
-				</VListItem>
-			</VList>
-		</VMenu>
+		<Notifications :ref="notifications"/>
 		<!-- User Profile Menu -->
 		<VMenu
 			bottom
@@ -138,7 +100,8 @@ export default toNative(TopNavBar);
 
 			<VCard
 				:prepend-avatar="$page.props.auth.user.profile_photo_url" 
-				class="mx-auto"
+				:prepend-alt="$page.props.auth.user.name"
+				class=""
 				:subtitle="userRolesText"
 				:title="userName"
 			>

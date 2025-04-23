@@ -130,7 +130,7 @@ class CrudViewBase extends ViewBase {
     }
 
     async _deleteItem(item, releaseBusy=true){
-        await this._waitbusy(
+        await this.waitBusy(
             async () => {
                 await this.client.delete(item);
                 deleteFromArray(this.items, item);
@@ -144,7 +144,7 @@ class CrudViewBase extends ViewBase {
     }
 
     async _fetch(releaseBusy=true){
-        await this._waitbusy(
+        await this.waitbusy(
             async () => {
                 let query = this.query;
                 let options = {};
@@ -177,7 +177,7 @@ class CrudViewBase extends ViewBase {
     }
 
     async _create(form, releaseBusy=true){
-        return await this._waitbusy(
+        return await this.waitbusy(
             async () => {
                 let res = await this.client['create'](form);
                 let obj = this.client.getData(res);
@@ -206,21 +206,8 @@ class CrudViewBase extends ViewBase {
         return `Apa Anda yakin ingin mengubah ${fieldName} ${this.itemName.toLowerCase()} '${item[this.nameField]}' dari '${oldValue}' menjadi '${newValue}'?`
     }
 
-    async _waitbusy(f, releaseBusy=true){
-        const view = this;
-        view.busy=true;
-        try{
-            return await f();
-        } catch (error) {
-            view.showError(error);
-        } finally {
-            if (releaseBusy)
-                view.busy = false;
-        }
-    }
-
     async _setField(fieldName, item, value=null, releaseBusy=true, getValue=null){
-        await this._waitbusy(
+        await this.waitbusy(
             async () => {
                 await this.client[`set_${fieldName}`](
                     item, 
@@ -255,7 +242,7 @@ class CrudViewBase extends ViewBase {
     }
 
     async _clearField(fieldName, item, releaseBusy=true){
-        await this._waitbusy(
+        await this.waitbusy(
             async () => {
                 await this.client[`clear_${fieldName}`](item);
                 item[fieldName] = null;
@@ -263,15 +250,8 @@ class CrudViewBase extends ViewBase {
         );
     }
 
-    _showError(error){
-        // if (this.tabStore.showError(error, this.filteredErrors)) 
-        //     return;
-        throw error;
-    }
-
-    
     async _bulkAction(action, form, onSuccess=null, releaseBusy=true){
-        await this._waitbusy(
+        await this.waitbusy(
             async () => {
                 await this.client[`bulk_${action}`](form);
                 onSuccess?.();
@@ -326,10 +306,6 @@ class CrudViewBase extends ViewBase {
         return this._setFieldConfirmText(fieldName, item, newValue, getText);
     }
 
-    async waitBusy(f, releaseBusy=true){
-        return await this._waitbusy(f, releaseBusy);
-    }
-
     async create(form, releaseBusy=true){
         return await this._create(form, releaseBusy);
     }
@@ -362,9 +338,6 @@ class CrudViewBase extends ViewBase {
         return await this._clearField(toggleName, item, releaseBusy);
     }
 
-    showError(error){
-        return this._showError(error);
-    }
 }
 export { CrudViewBase };
 export default toNative(CrudViewBase);

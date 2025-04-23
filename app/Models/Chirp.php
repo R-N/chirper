@@ -15,7 +15,6 @@ use App\Filters\GlobalSearch;
 use App\Filters\NotNullFilter;
 use App\Sorts\RelationshipField;
 use App\Utils\QueryUtil;
-use Illuminate\Support\Facades\Log;
 use App\Utils\ExportUtil;
 
 class Chirp extends Model

@@ -46,6 +46,21 @@ class WorkingComponent extends MyComponent {
     set tabBusy(busy){
         this.tabStore.tabBusy = busy;
     }
+    showError(error){
+        throw error;
+    }
+    async waitBusy(f, releaseBusy=true){
+        const view = this;
+        view.busy=true;
+        try{
+            return await f();
+        } catch (error) {
+            view.showError(error);
+        } finally {
+            if (releaseBusy)
+                view.busy = false;
+        }
+    }
 }
 export { WorkingComponent };
 export default toNative(WorkingComponent);

@@ -40,13 +40,16 @@ class UserService extends CrudService{
           field: 'permissions',
           endpoint: 'system.users.get-available-permissions',
         },
+      ],
+      [
+        { 
+          method: 'delete', 
+          action: 'clear_password', 
+          endpoint: 'system.users.clear-password', 
+          obj: true
+        },
       ]
     );
-  }
-  async clear_password(user) {
-    let target = route('system.users.clear-password', user);
-    let res = await this.axios.delete(target);
-    return res.data;
   }
 }
 

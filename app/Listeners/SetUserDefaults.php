@@ -3,11 +3,9 @@
 namespace App\Listeners;
 
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Spatie\Permission\Models\Role;
-use App\Models\User;
 
+// Do not use ShouldQueue if you don't want to run php artisan queue:work
 class SetUserDefaults
 {
     /**

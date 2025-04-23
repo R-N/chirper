@@ -7,10 +7,9 @@ namespace App\Listeners;
 use App\Events\ChirpCreated;
 use App\Models\User;
 use App\Notifications\NewChirp;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
-class SendChirpCreatedNotifications implements ShouldQueue
+// Do not use ShouldQueue if you don't want to run php artisan queue:work
+class SendChirpCreatedNotifications 
 {
     /**
      * Create the event listener.

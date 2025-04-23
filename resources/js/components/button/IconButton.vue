@@ -29,7 +29,7 @@ export default toNative(IconButton);
         <template #activator="{ props }">
             <VBtn 
                 icon 
-                class="fill-height d-inline-flex" 
+                class="d-inline-flex" 
                 v-bind="props" 
                 :disabled="disabled"
                 @click="emitClick($event)" 
