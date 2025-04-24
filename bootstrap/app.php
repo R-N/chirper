@@ -17,11 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
             \App\Http\Middleware\EnsureTokenIsNotExpired::class,
+            \App\Http\Middleware\SetUserLocale::class,
         ]);
 
         $middleware->api(append: [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \App\Http\Middleware\EnsureTokenIsNotExpired::class,
+            \App\Http\Middleware\SetUserLocale::class,
         ]);
 
         $middleware->statefulApi();

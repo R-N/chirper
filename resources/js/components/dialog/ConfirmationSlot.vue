@@ -63,7 +63,7 @@ export default toNative(ConfirmationSlot);
       v-model="confirmDialog" 
       :on-submit="confirm"
       :on-cancel="onCancel"
-      title="Konfirmasi"
+      :title="$t('form.confirmation')"
       :text="confirmText"
       no-input="true"
       :parent-busy="busy"

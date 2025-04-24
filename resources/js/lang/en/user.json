@@ -1,0 +1,13 @@
+{
+  "title": "Users",
+  "item": "User",
+  "name": "Name",
+  "email": "Email",
+  "roles": "Roles",
+  "permissions": "Permissions",
+  "verified": "Verified",
+  "enabled": "Enabled",
+  "unverify": "Unverify",
+  "force_verify": "Force verify",
+  "clear_password": "Clear password"
+}

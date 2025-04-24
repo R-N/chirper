@@ -19,7 +19,7 @@ export default toNative(ForgotPasswordPage);
 </script>
 
 <template>
-  <GuestLayout title="Forgot Password">
+  <GuestLayout :title="$t('password_reset.title')">
     <AuthLayout>
       <ForgotPasswordForm :status="status" />
     </AuthLayout>

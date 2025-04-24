@@ -1,0 +1,16 @@
+{
+  "dashboard": "Dashboard",
+  "chirper": "Chirper",
+  "chirps": "Chirps",
+  "chirps_crud": "Chirps CRUD",
+  "system": "System",
+  "users": "Users",
+  "backup": "Backup",
+  "profile": "Profil",
+  "api_tokens": "Token API",
+  "not_found": "Tidak ditemukan",
+  "server_down": "Server sedang down",
+  "server_unreachable": "Server tidak dapat dijangkau",
+  "return": "Kembali",
+  "back": "Kembali"
+}

@@ -1,0 +1,20 @@
+{
+  "checkpoint": "Please confirm access to your account by entering the authentication code provided by your Authenticator application.",
+  "checkpoint_recovery": "Please confirm access to your account by entering one of your emergency recovery codes.",
+  "code": "Code",
+  "recovery_code": "Recovery Code",
+  "recovery": "Use recovery code",
+  "auth": "Use authentication code",
+  "title": "Two Factor Authentication",
+  "desc": "Add additional security to your account.",
+  "enabled": "You have enabled two-factor authentication.",
+  "enabling": "Finish enabling two-factor authentication.",
+  "disabled": "You have not enabled two-factor authentication.",
+  "info": "When two factor authentication is enabled, you will be prompted for a secure, random token during authentication. You may retrieve this token from your Authenticator application.",
+  "enabling_scan": "To finish enabling two-factor authentication, scan the QR code using your authenticator app or enter the setup key.",
+  "enabled_scan": "Two-factor authentication is now enabled. Scan the QR code or enter the setup key.",
+  "setup_key": "Setup Key",
+  "recovery_code_info": "Store these recovery codes safely. They help regain access if you lose your authentication device.",
+  "regenerate_recovery_code": "Regenerate Recovery Codes",
+  "show_recovery_code": "Show Recovery Codes"
+}

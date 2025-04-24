@@ -10,14 +10,12 @@ import FormDialog from '@/components/form/FormDialog.vue';
   }
 })
 class SimpleInputDialog extends FormDialogBase {
-  @Prop({ default: "Batal" }) cancelText;
-  @Prop({ default: "Ok" }) confirmText;
   @Prop({ default: 400 }) maxWidth;
-  @Prop({ default: "Input Text" }) title;
+  @Prop({ type: String }) title;
 
   @Prop({ default: "" }) text;
   @Prop({ default: "" }) type;
-  @Prop({ default: "Input" }) label;
+  @Prop({ type: String }) label;
   @Prop({ default: false }) password;
   @Prop({ default: false }) noInput;
   @Prop({ type: [Array, Function] }) rules;
@@ -25,6 +23,10 @@ class SimpleInputDialog extends FormDialogBase {
   input = ''
   inputConfirm = ''
   passwordVisible = false;
+
+  get _label(){
+    return this.label ?? this.$t('form.input');
+  }
 
   reset(){
     this.input = '';
@@ -65,7 +67,7 @@ export default toNative(SimpleInputDialog);
       <VTextField 
         class="bigger-input" 
         v-if="!noInput && !password" 
-        :label="label" 
+        :label="_label" 
         v-model="input" 
         :disabled="!interactable" 
         required
@@ -75,7 +77,7 @@ export default toNative(SimpleInputDialog);
       <VTextField 
         class="bigger-input" 
         v-if="!noInput && password" 
-        :label="label" 
+        :label="_label" 
         v-model="input" 
         :disabled="!interactable" 
         :append-icon="passwordVisible ? 'mdi-eye' : 'mdi-eye-off'"
@@ -88,7 +90,7 @@ export default toNative(SimpleInputDialog);
       <VTextField 
         class="bigger-input" 
         v-if="!noInput && password" 
-        :label="'Konfirmasi ' + label" 
+        :label="'Konfirmasi ' + _label" 
         v-model="inputConfirm" 
         :disabled="!interactable" 
         type="password"

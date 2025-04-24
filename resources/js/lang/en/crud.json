@@ -1,0 +1,20 @@
+{
+  "delete_confirm_text": "Are you sure to delete the {item} '{name}'?",
+  "bulk_confirm_text": "Are you sure to {action} {count} {item}?",
+  "set_field_confirm_text": "Are you sure to change {field} of {item} '{name}' from '{oldValue}' to '{newValue}'?",
+  "toggle_field_confirm_text": "Are you sure to {action} {item} '{name}'?",
+  "clear_field_confirm_text": "Are you sure to clear {field} of {item} '{name}'?",
+  "unknown_fetch_result": "Unknown fetch result.",
+  "method_not_allowed": "Method {method} not allowed for endpoint {endpoint}",
+  "user": "User",
+  "actions": "Actions",
+  "created_at": "Created at",
+  "last_modified": "Last modified",
+  "edited": "edited",
+  "item": "Item",
+  "delete_selected": "Delete selected",
+  "enable": "Enable",
+  "disable": "Disable",
+  "created": "Created.",
+  "create": "Create"
+}

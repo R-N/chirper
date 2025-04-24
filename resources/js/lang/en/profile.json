@@ -1,0 +1,17 @@
+{
+  "title": "Profile",
+  "update_data": "Update Profile Information",
+  "update_password": "Update Password",
+  "delete": "Delete Account",
+  "delete_desc": "Permanently delete your account.",
+  "delete_note": "Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.",
+  "delete_confirm_text": "Are you sure you want to delete your account? This action cannot be undone. Please enter your password to confirm.",
+  "password_note": "Ensure your account is using a long, random password to stay secure.",
+  "current_password": "Current Password",
+  "info_title": "Profile Information",
+  "info_desc": "Update your account's profile information and email address.",
+  "select_photo": "Select a New Photo",
+  "remove_photo": "Remove Photo",
+  "email_unverified": "Your email address is unverified.",
+  "photo": "Photo"
+}

@@ -33,17 +33,19 @@ import ConfirmationIconButton from '@/components/button/ConfirmationIconButton.v
 })
 class BackupView extends CrudViewBase {
   nameField = "id";
-  itemName = "Backup";
   client = backupService;
   uploadDialog = false;
   formDialog = false;
 
+  get itemName(){
+      return this.$t('backup.item');
+  }
   get headers(){
       let headers = [
-        { title: 'File', value: 'id' },
-        { title: 'Size', value: 'size' },
-        { title: 'Last Modified', value: 'modified' },
-        { title: 'Actions', value: 'actions', sortable: false },
+        { title: this.$t('backup.item'), value: 'id' },
+        { title: this.$t('form.size'), value: 'size' },
+        { title: this.$t('crud.last_modified'), value: 'modified' },
+        { title: this.$t('crud.actions'), value: 'actions', sortable: false },
       ];
       return headers;
   }
@@ -65,7 +67,7 @@ class BackupView extends CrudViewBase {
   }
 
   restoreText(item){
-    return `Apa Anda yakin ingin me-restore backup '${item.id}'?`;
+    return this.$t('backup.restore_confirm_text', { name: item.id });
   }
   async restoreBackup(item){
     await this.waitBusy(
@@ -102,10 +104,10 @@ export default toNative(BackupView);
 </script>
 <template>
   <CrudView 
-    title="Backup"
+    :title="$t('backup.title')"
     :create="() => showForm()"
     :fetch="fetch"
-    create-text="Backup"
+    :create-text="$t('backup.item')"
     v-model:search="search"
     :export-csv="exportCsv"
     :export-xlsx="exportXlsx"
@@ -116,12 +118,12 @@ export default toNative(BackupView);
           @click.stop="uploadDialog = true" 
           :disabled="busy"
           icon="mdi-upload"
-          text="Upload"
+          :text="$t('form.upload')"
       />
     </template>
     <template v-slot:default>
       <VDataTable
-          class="backup-table"
+          class=""
           :headers="headers"
           :items="items"
           item-key="id"
@@ -148,18 +150,18 @@ export default toNative(BackupView);
               @click.stop="() => downloadBackup(item)" 
               :disabled="busy"
               icon="mdi-download"
-              text="Download"
+              :text="$t('form.download')"
           />
           <ConfirmationIconButton
               icon="mdi-restore"
-              text="Restore"
+              :text="$t('backup.restore')"
               :confirmTextMaker="restoreText(item)"
               :on-confirm="() => restoreBackup(item)"
               :disabled="busy"
           />
           <ConfirmationIconButton
               icon="mdi-delete"
-              text="Delete"
+              :text="$t('form.delete')"
               :confirmTextMaker="deleteConfirmText(item)"
               :on-confirm="() => deleteItem(item)"
               :ask="(ask) => justAsk(item, ask)" 
@@ -170,9 +172,9 @@ export default toNative(BackupView);
       <FileUploadDialog 
         v-model="uploadDialog" 
         :on-upload="uploadBackup" 
-        title="Upload Backup"
-        text="Silahkan pilih file backup untuk diupload"
-        label="File backup"
+        :title="$t('backup.upload_title')"
+        :text="$t('backup.upload_desc')"
+        :label="$t('backup.upload_label')"
         acceptedFiles=".zip"
         :mimeTypes="[
           'application/zip',
@@ -181,15 +183,12 @@ export default toNative(BackupView);
       <SimpleInputDialog 
         v-model="formDialog" 
         :on-submit="createBackup"
-        title="Buat Backup?"
-        label="Nama backup"
+        :title="$t('backup.create_title')"
+        :label="$t('backup.create_label')"
         noInput="true"
       />
     </template>
   </CrudView>
 </template>
 <style scoped>
-.backup-table{
-  background: #00000000;
-}
 </style>

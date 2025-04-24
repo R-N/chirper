@@ -31,7 +31,7 @@ export default toNative(ChirpFormDialog);
         max-width="400"
         :parent-busy="busy"
         :on-submit="submit"
-        title="Chirp"
+        :title="$t('chirp.item')"
         :disabled="disabled"
         :on-reset="reset"
         v-model="myDialog"
@@ -40,7 +40,7 @@ export default toNative(ChirpFormDialog);
             <VTextField 
                 name="message"
                 class="bigger-input" 
-                label="Message" 
+                :label="$t('chirp.message')" 
                 v-model="form.message" 
                 :disabled="!interactable" 
                 required

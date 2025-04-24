@@ -28,21 +28,24 @@ class NewChirp extends Notification
         return ['database', 'broadcast'];
     }
 
+    public function message(){
+        return __('chirp.new', ['username' => $this->chirp->user->name]);
+    }
+
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->subject("New Chirp from {$this->chirp->user->name}")
-                    ->greeting("New Chirp from {$this->chirp->user->name}")
-                    ->line(Str::limit($this->chirp->message, 50))
-                    ->action('Go to Chirper', url('/'))
-                    ->line('Thank you for using our application!');
+            ->subject($this->message())
+            ->greeting($this->message())
+            ->line(Str::limit($this->chirp->message, 50))
+            ->action(__('chirp.visit_app'), url('/'));
     }
 
     public function toDatabase($notifiable)
     {
         return [
             'url' => '/chirps/',
-            'message' => "{$this->chirp->user->name} posted a new chirp!",
+            'message' => $this->message(),
         ];
     }
 
@@ -50,7 +53,7 @@ class NewChirp extends Notification
     {
         return new BroadcastMessage([
             'url' => '/chirps/',
-            'message' => "{$this->chirp->user->name} posted a new chirp!",
+            'message' => $this->message(),
         ]);
     }
 }

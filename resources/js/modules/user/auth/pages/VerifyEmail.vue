@@ -19,7 +19,7 @@ export default toNative(VerifyEmailPage);
 </script>
 
 <template>
-  <GuestLayout title="Email Verification">
+  <GuestLayout :title="$t('verify_email.title')">
     <AuthLayout>
       <VerifyEmailForm :status="status" />
     </AuthLayout>

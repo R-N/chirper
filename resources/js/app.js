@@ -2,6 +2,7 @@
 import './bootstrap';
 
 import axios from '@/plugins/axios'; 
+import {createI18n} from '@/plugins/i18n';
 
 import { createInertiaApp, router } from '@inertiajs/vue3';
 import { useTabStore } from '@/stores/tab';
@@ -44,6 +45,7 @@ createInertiaApp({
             .use(ZiggyVue)
             .use(pinia)
             .use(vuetify)
+            .use(await createI18n());
         router.on('before', () => {
             let tabStore = useTabStore();
             tabStore.breadcrumbs = [];

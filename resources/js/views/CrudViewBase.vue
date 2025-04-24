@@ -28,10 +28,12 @@ class CrudViewBase extends ViewBase {
     itemCount = 0;
     selecting = false;
     nameField = "name";
-    itemName = "Item";
     client = null;
     filteredErrors = [];
 
+    get itemName(){
+        return this.$t('crud.item');
+    }
     get serverside() {
         return !!this.itemsPerPage;
     }
@@ -107,11 +109,18 @@ class CrudViewBase extends ViewBase {
         return this.serverside ? VDataTableServer : VDataTable;
     }
     deleteConfirmText(item){
-        return `Apa Anda yakin ingin menghapus ${this.itemName.toLowerCase()} '${item[this.nameField]}'?`;
+        return this.$t('crud.delete_confirm_text', { 
+            item: this.itemName.toLowerCase(), 
+            name: item[this.nameField] 
+        });
     }
 
     bulkConfirmText(action){
-        return `Apa Anda yakin ingin ${action} ${this.selected.length} ${this.itemName.toLowerCase()}?`;
+        return this.$t('crud.bulk_confirm_text', { 
+            action: action, 
+            count: this.selected.length, 
+            item: this.itemName .toLowerCase()
+        });
     }
 
 
@@ -170,7 +179,7 @@ class CrudViewBase extends ViewBase {
                     this.itemCount = items.total;
                 }else {
                     console.log(items);
-                    this.showError({ message: "Unkown fetch result" });
+                    this.showError({ message: this.$t('crud.unknown_fetch_result') });
                 }
             }, releaseBusy
         );
@@ -203,7 +212,13 @@ class CrudViewBase extends ViewBase {
             oldValue = getText(oldValue);
             newValue = getText(newValue);
         }
-        return `Apa Anda yakin ingin mengubah ${fieldName} ${this.itemName.toLowerCase()} '${item[this.nameField]}' dari '${oldValue}' menjadi '${newValue}'?`
+        return this.$t('crud.set_field_confirm_text', { 
+            field: fieldName,
+            item: this.itemName.toLowerCase(),
+            name: item[this.nameField],
+            oldValue: oldValue,
+            newValue: newValue,
+        });
     }
 
     async setField(fieldName, item, value=null, releaseBusy=true, getValue=null){
@@ -228,7 +243,11 @@ class CrudViewBase extends ViewBase {
 
     toggleFieldConfirmText(fieldName, disable, enable, item){
         let action = item[fieldName] ? disable : enable;
-        return `Apa Anda yakin ingin ${action} ${this.itemName.toLowerCase()} '${item[this.nameField]}'?`;
+        return this.$t('crud.toggle_field_confirm_text', { 
+            field: fieldName,
+            item: this.itemName.toLowerCase(),
+            name: item[this.nameField],
+        });
     }
 
     async toggleField(toggleName, item, enabled, releaseBusy=true){
@@ -238,7 +257,11 @@ class CrudViewBase extends ViewBase {
     }
 
     clearFieldConfirmText(fieldName, item){
-        return `Apa Anda yakin ingin menghapus ${fieldName} dari ${this.itemName.toLowerCase()} '${item[this.nameField]}'?`;
+        return this.$t('crud.clear_field_confirm_text', { 
+            field: fieldName,
+            item: this.itemName.toLowerCase(),
+            name: item[this.nameField],
+        });
     }
 
     async clearField(fieldName, item, releaseBusy=true){

@@ -9,7 +9,7 @@ import { VDivider, VExpandTransition } from "vuetify/components";
   },
 })
 class SectionBorder extends Vue {
-  @Prop({ type: Boolean, required: true }) on;
+  // @Prop({ type: Boolean, required: true }) on;
 }
 
 export default toNative(SectionBorder);

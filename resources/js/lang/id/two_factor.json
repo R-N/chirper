@@ -1,0 +1,17 @@
+{
+  "checkpoint": "Tolong konfirmasi akses akun Anda dengan memasukkan kode autentikasi yang diberikan aplikasi Authenticator Anda.",
+  "checkpoint_recovery": "Tolong konfirmasi akses akun Anda dengan memasukkan salah satu kode pemulihan darurat Anda.",
+  "code": "Kode",
+  "recovery_code": "Kode Pemulihan",
+  "recovery": "Gunakan kode pemulihan",
+  "auth": "Gunakan kode autentikasi",
+  "title": "Autentikasi Dua Cara",
+  "desc": "Tingkatkan keamanan akun Anda.",
+  "info": "Ketika autentikasi dua cara aktif, Anda akan dimintai token acak ketika autentikasi. Anda bisa memperoleh token ini dari aplikasi Authenticator Anda",
+  "enabling_scan": "Untuk menyelesaikan pengaktifan autentikasi dua cara, scan kode QR berikut menggunakan aplikasi Authenticator atau masukkan kode setupnya.",
+  "enabled_scan": "Autentikasi dua cara sudah aktif. Scan kode QR atau masukkan kode setup.",
+  "setup_key": "Kode Setup",
+  "recovery_code_info": "Simpan kode pemulihan berikut dengan aman. Kode ini bisa digunakan untuk memulihkan akses jika Anda kehilangan perangkat Authenticator.",
+  "regenerate_recovery_code": "Regenerasi Kode Pemulihan",
+  "show_recovery_code": "Tampilkan Kode Pemulihan"
+}

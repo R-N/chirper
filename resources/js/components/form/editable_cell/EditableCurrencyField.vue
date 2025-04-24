@@ -25,7 +25,7 @@ export default toNative(EditableCellCurrencyField);
         :title="title"
     >
         <template v-slot:editing>
-            <v-currency-field 
+            <VCurrencyField 
                 class="bigger-input"
                 :name="name" 
                 v-model="valueEdit" 

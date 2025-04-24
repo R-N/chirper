@@ -1,0 +1,8 @@
+{
+  "title": "Other Sessions",
+  "desc": "Manage and log out your active sessions on other browsers and devices.",
+  "note": "If necessary, you may log out of all other browser sessions. Some recent sessions are listed below.",
+  "this_device": "This device",
+  "last_active": "Last active",
+  "logout": "Log Out Other Sessions"
+}

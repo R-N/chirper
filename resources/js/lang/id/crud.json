@@ -1,0 +1,20 @@
+{
+  "delete_confirm_text": "Apa Anda yakin ingin menghapus {item} '{name}'?",
+  "bulk_confirm_text": "Apa Anda yakin ingin {action} {count} {item}?",
+  "set_field_confirm_text": "Apa Anda yakin ingin mengubah {field} {item} '{name}' dari '{oldValue}' menjadi '{newValue}'?",
+  "toggle_field_confirm_text": "Apa Anda yakin ingin {action} {item} '{name}'?",
+  "clear_field_confirm_text": "Apa Anda yakin ingin menghapus {field} dari {item} '{name}'?",
+  "unknown_fetch_result": "Unknown fetch result.",
+  "method_not_allowed": "Method {method} tidak diijinkan untuk endpoint {endpoint}",
+  "user": "User",
+  "actions": "Aksi",
+  "created_at": "Dibuat pada",
+  "last_modified": "Terakhir diubah",
+  "edited": "diubah",
+  "item": "Item",
+  "delete_selected": "Hapus yang dipilih",
+  "enable": "Aktifkan",
+  "disable": "Nonaktifkan",
+  "created": "Dibuat.",
+  "create": "Buat"
+}

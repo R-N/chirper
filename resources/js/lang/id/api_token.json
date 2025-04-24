@@ -1,0 +1,15 @@
+{
+  "title": "Token API",
+  "create_title": "Buat Token API",
+  "create_desc": "Token API memungkinkan layanan pihak ketiga untuk melakukan autentikasi pada aplikasi kami.",
+  "name": "Nama",
+  "manage_title": "Kelola Token API",
+  "manage_desc": "Anda bisa menghapus token jika sudah tidak digunakan.",
+  "last_used": "Terakhir digunakan",
+  "permissions": "Wewenang",
+  "display_title": "Token API",
+  "display_desc": "Tolong salin token API baru Anda. Demi keamanan, token ini tidak akan ditampilkan lagi.",
+  "permissions_title": "Wewenang Token API",
+  "delete_title": "Hapus Token API",
+  "delete_confirm_text": "Apa Anda yakin untuk menghapus Token API ini?"
+}

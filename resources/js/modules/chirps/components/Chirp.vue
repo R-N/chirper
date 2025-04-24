@@ -76,7 +76,7 @@ export default toNative(Chirp);
         <div>
           <span class="text-gray-800">{{ chirp.user.name }}</span>
           <small class="ml-2 text-sm text-gray-600">{{ createdAt }}</small>
-          <small v-if="chirp.created_at !== chirp.updated_at" class="text-sm text-gray-600"> &middot; edited</small>
+          <small v-if="chirp.created_at !== chirp.updated_at" class="text-sm text-gray-600"> &middot; {{ $t('crud.edited') }}</small>
         </div>
 
         <VMenu v-if="chirp.user.id === $page.props.auth.user.id">
@@ -86,19 +86,19 @@ export default toNative(Chirp);
             </VBtn>
           </template>
           <VList>
-            <VListItem @click="resetForm(true)">Edit</VListItem>
-            <VListItem @click.prevent="destroyChirp">Delete</VListItem>
+            <VListItem @click="resetForm(true)">{{ $t('form.edit') }}</VListItem>
+            <VListItem @click.prevent="destroyChirp">{{ $t('form.delete') }}</VListItem>
           </VList>
         </VMenu>
       </div>
 
       <form v-if="editing" @submit.prevent="updateChirp">
-        <VTextarea v-model="form.message" class="mt-4" label="Edit message" auto-grow />
+        <VTextarea v-model="form.message" class="mt-4" :label="$t('chirp.edit')" auto-grow />
         <InputError :message="form.errors.message" class="mt-2" />
 
         <div class="mt-4 d-flex gap-2">
-          <VBtn color="primary" variant="elevated" type="submit">Save</VBtn>
-          <VBtn color="secondary" variant="text" @click="resetForm(false)">Cancel</VBtn>
+          <VBtn color="primary" variant="elevated" type="submit">{{ $t('form.save') }}</VBtn>
+          <VBtn color="secondary" variant="text" @click="resetForm(false)">{{ $t('form.cancel') }}</VBtn>
         </div>
       </form>
 

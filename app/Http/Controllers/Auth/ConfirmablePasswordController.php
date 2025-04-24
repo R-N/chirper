@@ -32,14 +32,14 @@ class ConfirmablePasswordController extends Controller
             'password' => $request->password,
         ])) {
             return ResponseUtil::jsonRedirectResponse([
-                'message' => 'Bad request.',
+                'message' => __('errors.bad_request'),
             ], route('password.confirm'), 400);
         }
 
         $request->session()->put('auth.password_confirmed_at', time());
 
         return ResponseUtil::jsonRedirectResponse([
-            'message' => 'Password confirmed.',
+            'message' => __('auth.password_confirmed'),
         ], route('dsahboard'));
     }
 }

@@ -30,20 +30,22 @@ import { getArrayText } from '@/libs/util.js';
     },
 })
 class UserCrudView extends CrudViewBase {
-    itemName = "User";
     client = userService;
     editing = null;
     availableRoles = [];
     availablePermissions = [];
 
+    get itemName(){
+        return this.$t('user.item');
+    }
     get headers(){
         let headers = [
-            { title: 'Name', value: 'name' },
-            { title: 'Roles', value: 'roles' },
-            { title: 'Email', value: 'email' },
-            { title: 'Verified', value: 'verified' },
-            { title: 'Enabled', value: 'enabled' },
-            { title: 'Actions', value: 'actions' }
+            { title: this.$t('user.name'), value: 'name' },
+            { title: this.$t('user.roles'), value: 'roles' },
+            { title: this.$t('user.email'), value: 'email' },
+            { title: this.$t('user.verified'), value: 'verified' },
+            { title: this.$t('user.enabled'), value: 'enabled' },
+            { title: this.$t('crud.actions'), value: 'actions' }
         ];
         return headers;
     }
@@ -79,10 +81,10 @@ export default toNative(UserCrudView);
 </script>
 <template>
     <CrudView 
-        title="Users"
+        :title="$t('user.title')"
         :create="() => showForm()"
         :fetch="fetch"
-        create-text="User"
+        :create-text="$t('user.item')"
         v-model:search="search"
         :export-csv="exportCsv"
         :export-xlsx="exportXlsx"
@@ -91,7 +93,7 @@ export default toNative(UserCrudView);
         <template v-slot:default>
             <component
                 :is="dataTableComponent"
-                class="backup-table"
+                class=""
                 :headers="headers"
                 :items="items"
                 item-key="id"
@@ -116,6 +118,7 @@ export default toNative(UserCrudView);
                     <EditableCellSelect
                         name="roles" 
                         type="roles"
+                        :label="$t('user.roles')" 
                         :confirm-text-maker="(value) => setFieldConfirmText(
                             'roles', item, value,
                             (v) => getRolesText(v)
@@ -147,8 +150,8 @@ export default toNative(UserCrudView);
                         :on-change="value => setEnabled(item, value)"
                         :confirm-text-maker="() => setEnabledConfirmText(item)"
                         :disabled="busy"
-                        text-disable="Nonaktifkan"
-                        text-enable="Aktifkan"
+                        :text-enable="$t('crud.enable')"
+                        :text-disable="$t('crud.disable')"
                     />
                 </template>
                 <template v-slot:item.verified="{ item }">
@@ -158,8 +161,8 @@ export default toNative(UserCrudView);
                         :confirm-text-maker="() => toggleFieldConfirmText('verified', 'menghilangkan verifikasi', 'memaksa verifikasi', item)"
                         readonly
                         :disabled="busy"
-                        text-disable="Batalkan verifikasi"
-                        text-enable="Paksa verifikasi"
+                        :text-disable="$t('user.unverify')"
+                        :text-enable="$t('user.force_verify')"
                     />
                 </template>
                 <template v-slot:item.actions="{ item }">
@@ -167,11 +170,11 @@ export default toNative(UserCrudView);
                         @click.stop="() => showForm(item)" 
                         :disabled="busy"
                         icon="mdi-pencil"
-                        text="Edit"
+                        :text="$t('form.edit')"
                     />
                     <ConfirmationIconButton
                         icon="mdi-key-variant"
-                        text="Clear password"
+                        :text="$t('user.clear_password')"
                         :confirmTextMaker="clearFieldConfirmText('password', item)"
                         :on-confirm="() => clearField('password', item)"
                         :ask="(ask) => justAsk(item, ask)" 
@@ -179,7 +182,7 @@ export default toNative(UserCrudView);
                     />
                     <ConfirmationIconButton
                         icon="mdi-delete"
-                        text="Delete"
+                        :text="$t('form.delete')"
                         :confirmTextMaker="deleteConfirmText(item)"
                         :on-confirm="() => deleteItem(item)"
                         :ask="(ask) => justAsk(item, ask)" 

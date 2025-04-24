@@ -1,0 +1,11 @@
+{
+  "title": "Backup",
+  "item": "Backup",
+  "restore": "Restore",
+  "upload_title": "Upload Backup",
+  "upload_desc": "Please choose backup file to upload",
+  "upload_label": "Backup file",
+  "create_title": "Create backup?",
+  "create_label": "Backup name",
+  "restore_confirm_text": "Are you sure to restore backup {name}'?"
+}

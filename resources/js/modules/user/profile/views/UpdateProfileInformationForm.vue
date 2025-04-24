@@ -8,7 +8,6 @@ import { VTextField, VFileInput, VBtn, VCard, VImg, VAvatar, VRow, VCol } from '
 import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
 import profileService from '@/modules/user/profile/services/profile.js';
 
-
 @Component({
   components: {
     InputError,
@@ -27,7 +26,7 @@ import profileService from '@/modules/user/profile/services/profile.js';
 class UpdateProfileInformationForm extends Vue {
 //   @Prop({ type: Boolean }) mustVerifyEmail;
 //   @Prop({ type: String }) status;
-  @Prop(Object) user = null;
+  @Prop({ type: Object }) user = null;
 
   form = useForm({
     _method: 'PUT',
@@ -103,13 +102,13 @@ export default toNative(UpdateProfileInformationForm);
 </script>
 
 <template>
-  <FormSection @submitted="updatePassword">
+  <FormSection @submitted="updateProfileInformation">
     <template #title>
-      Profile Information
+      {{ $t('profile.info_title') }}
     </template>
 
     <template #description>
-      Update your account's profile information and email address.
+      {{ $t('profile.info_desc') }}
     </template>
 
     <template #form>    
@@ -119,7 +118,7 @@ export default toNative(UpdateProfileInformationForm);
             id="photo"
             class="d-none"
             ref="photoInput"
-            label="Photo"
+            :label="$t('profile.photo')"
             accept="image/png, image/jpeg"
             @change="updatePhotoPreview"
           />
@@ -129,10 +128,10 @@ export default toNative(UpdateProfileInformationForm);
 
           <div class="mt-2">
             <VBtn color="secondary" class="me-2" @click.prevent="photoInput?.click()">
-              Select A New Photo
+              {{ $t('profile.select_photo') }}
             </VBtn>
             <VBtn color="error" v-if="user.profile_photo_path" @click.prevent="deletePhoto">
-              Remove Photo
+              {{ $t('profile.remove_photo') }}
             </VBtn>
           </div>
 
@@ -142,24 +141,24 @@ export default toNative(UpdateProfileInformationForm);
 
       <VRow>
         <VCol cols="12">
-          <VTextField v-model="form.name" label="Name" required autocomplete="name" />
+          <VTextField v-model="form.name" :label="$t('user.name')" required autocomplete="name" />
           <InputError :message="form.errors.name" class="mt-2" />
         </VCol>
       </VRow>
 
       <VRow>
         <VCol cols="12">
-          <VTextField v-model="form.email" label="Email" required autocomplete="username" type="email" />
+          <VTextField v-model="form.email" :label="$t('user.email')" required autocomplete="username" type="email" />
           <InputError :message="form.errors.email" class="mt-2" />
 
           <div v-if="$page.props.jetstream.hasEmailVerification && user.email_verified_at === null">
             <p class="text-body-2 mt-2">
-              Your email address is unverified.
-              <VBtn variant="text" @click.prevent="verificationLinkSent = true">Click here to re-send the verification email.</VBtn>
+              {{ $t('profile.email_unverified') }}
+              <VBtn variant="text" @click.prevent="verificationLinkSent = true">{{ $t('verify_email.submit') }}</VBtn>
             </p>
 
             <div v-show="verificationLinkSent" class="mt-2 font-weight-bold text-green">
-              A new verification link has been sent to your email address.
+              {{ $t('verify_email.sent') }}
             </div>
           </div>
         </VCol>
@@ -168,10 +167,10 @@ export default toNative(UpdateProfileInformationForm);
 
     <template #actions>
       <ActionMessage :on="form.recentlySuccessful" class="me-3">
-        Saved.
+        {{ $t('form.saved') }}
       </ActionMessage>
       <VBtn color="primary" variant="elevated" type="submit" :loading="form.processing" @click="updateProfileInformation">
-        Save
+        {{ $t('form.save') }}
       </VBtn>
     </template>
   </FormSection>

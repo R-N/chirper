@@ -14,8 +14,8 @@ import { ViewBase } from '@/views/ViewBase.vue';
 class BackupsPage extends ViewBase {
   async mounted(){
     this.tabStore.breadcrumbs = [
-      { title: "System" },
-      { title: "Backup" },
+      { title: this.$t('navigation.system') },
+      { title: this.$t('navigation.backup') },
     ];
   }
 }
@@ -23,7 +23,7 @@ export default toNative(BackupsPage);
 </script>
  
 <template>
-  <AppLayout title="Backup">
+  <AppLayout :title="$t('backup.title')">
     <VContainer>
       <BackupView />
     </VContainer>

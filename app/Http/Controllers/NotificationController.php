@@ -21,7 +21,7 @@ class NotificationController extends Controller
         if ($notification) {
             $notification->markAsRead();
         }
-        return response()->json(['message' => 'Notification marked as read']);
+        return response()->json(['message' => __('notification.marked_read')]);
     }
     public function bulkMarkAsRead(Request $request)
     {
@@ -31,7 +31,7 @@ class NotificationController extends Controller
             $notifs = $notifs->whereIn('id', $ids);
         }
         $notifs->markAsRead();
-        return response()->json(['message' => 'Notifications marked as read']);
+        return response()->json(['message' =>  __('notification.marked_read')]);
     }
     public function destroy(Request $request, $id)
     {
@@ -39,7 +39,7 @@ class NotificationController extends Controller
         if ($notification) {
             $notification->delete();
         }
-        return response()->json(['message' => 'Notification deleted']);
+        return response()->json(['message' => __('notification.deleted')]);
     }
     public function bulkDestroy(Request $request)
     {
@@ -49,7 +49,7 @@ class NotificationController extends Controller
             $notifs = $notifs->whereIn('id', $ids);
         }
         $notifs->delete();
-        return response()->json(['message' => 'Notifications deleted']);
+        return response()->json(['message' => __('notification.bulk_deleted')]);
     }
 
 

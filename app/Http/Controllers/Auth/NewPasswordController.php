@@ -63,14 +63,14 @@ class NewPasswordController extends Controller
         $email = trans($status);
         if ($status == Password::RESET_LINK_SENT) {
             return ResponseUtil::jsonRedirectResponse([
-                'message' => "Password reset link sent.",
+                'message' => __('auth.password_reset_sent'),
                 'status' => $status,
                 'email' => $email,
             ], route('password.request'));
         }
 
         return ResponseUtil::jsonRedirectResponse([
-            'message' => "Password reset link sent.",
+            'message' => __('errors.invalid_token'),
             'status' => $status,
             'email' => $email,
         ], route('password.request'), 403);

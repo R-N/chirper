@@ -19,7 +19,6 @@ class ChirpCreated
     public function __construct(public Chirp $chirp)
     {
         //public means it's also set as attribute
-        Log::info("Event created!");
     }
 
     public function broadcastOn(): array

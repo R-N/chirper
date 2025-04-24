@@ -1,5 +1,6 @@
 import _axios from '@/plugins/axios'; 
-import { filterObject, isObject, getFileName, jsonToFormData } from '@/libs/util';
+import { filterObject, isObject, getFileName, jsonToFormData, getData } from '@/libs/util';
+import { t } from '@/plugins/i18n';
 
 class CrudService {
   constructor(
@@ -136,7 +137,10 @@ class CrudService {
     method = method.toLowerCase();
     if(this.methods.includes(method))
       return true;
-    let err = new Error(`Method ${method} not allowed for endpoint ${this.endpoint()}`);
+    let err = new Error(t('crud.method_not_allowed', {
+      method: method,
+      endpoint: this.endpoint()
+    }));
     err.show = true;
     err.title = "Not allowed";
     throw err;
@@ -207,9 +211,7 @@ class CrudService {
   }
 
   getData(data){
-    if (!data)
-      return null;
-    return data?.data ?? data?.item ?? data?.items ?? data?.[this.name.toLowerCase()] ?? data?.[`${this.name.toLowerCase()}s`];
+    return getData(data, this.name.toLowerCase());
   }
   async create(form, endpoint=null){
     return await this.post(null, form, endpoint);

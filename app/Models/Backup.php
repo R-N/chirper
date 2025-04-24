@@ -33,7 +33,10 @@ class Backup implements Arrayable
         $this->id = basename($file);
         $filePath = self::path1($this->id);
         if (!self::$DISK->exists($filePath)) {
-            throw new BackupException("Backup $this->id not found.", BackupException::BACKUP_NOT_FOUND);
+            throw new BackupException(
+                __('backup.not_found', ['backup_id' => $this->id]), 
+                BackupException::BACKUP_NOT_FOUND
+            );
         }
         $this->size = self::$DISK->size($filePath);
         $this->modified = Carbon::createFromTimestamp(
@@ -74,7 +77,10 @@ class Backup implements Arrayable
         $output = Artisan::output();
         if (strpos($output, 'Error') !== false || strpos($output, 'failed') !== false) {
             Log::error('Backup failed: ' . $output);
-            throw new BackupException("Backup failed: $output", BackupException::BACKUP_FAILED);
+            throw new BackupException(
+                __('backup.failed', ['output' => $output]),
+                BackupException::BACKUP_FAILED
+            );
         } 
         Log::info('Backup succeeded: ' . $output);
         return true;
@@ -103,7 +109,10 @@ class Backup implements Arrayable
         try{
             // Check if the backup file exists
             if (!self::$DISK->exists($filePath)) {
-                throw new BackupException("Backup $this->id not found.", BackupException::BACKUP_NOT_FOUND);
+                throw new BackupException(
+                    __('backup.not_found', ['backup_id' => $this->id]), 
+                    BackupException::BACKUP_NOT_FOUND
+                );
             }
             // Create the temp directory if it doesn't exist
             $tempDir = self::path2(self::TEMP_DIR);
@@ -118,7 +127,10 @@ class Backup implements Arrayable
             $zip = new ZipArchive();
             if ($zip->open($fullPath) !== TRUE) {
                 // If unable to open the zip file
-                throw new BackupException("Failed to open ZIP archive: $this->id.", BackupException::FAIL_OPEN_ZIP);
+                throw new BackupException(
+                    __('backup.fail_open_zip', ['backup_id' => $this->id]), 
+                    BackupException::FAIL_OPEN_ZIP
+                );
             }
             // Extract the zip file contents to the temp directory
             $zip->extractTo($tempDir);
@@ -136,7 +148,10 @@ class Backup implements Arrayable
             }
 
             if ($sqlFile === null) {
-                throw new BackupException("No SQL file found in $this->id backup zip.", BackupException::DB_DUMP_NOT_FOUND);
+                throw new BackupException(
+                    __('backup.db_dump_not_found', ['backup_id' => $this->id]), 
+                    BackupException::DB_DUMP_NOT_FOUND
+                );
             }
             // Define the path to the extracted SQL file
             $sqlFilePath = $sqlDir . DIRECTORY_SEPARATOR . $sqlFile;
@@ -151,7 +166,10 @@ class Backup implements Arrayable
             // Check if the restore was successful
             if ($status !== 0) {
                 Log::error('Restore failed: ' . $output);
-                throw new BackupException("Error restoring backup $this->id: $output", BackupException::RESTORE_FAILED);
+                throw new BackupException(
+                    __('backup.restore_failed', ['output' => $output]),
+                    BackupException::RESTORE_FAILED
+                );
             }
             // Return success response
             Log::info('Restore succeeded: ' . $output);

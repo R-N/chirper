@@ -54,15 +54,14 @@ export default toNative(LogoutOtherBrowserSessionsForm);
 
 <template>
     <ActionSection>
-      <template #title>Browser Sessions</template>
+      <template #title>{{ $t('other_sessions.title') }}</template>
       <template #description>
-        Manage and log out your active sessions on other browsers and devices.
+        {{ $t('other_sessions.desc') }}
       </template>
   
       <template #content>
         <p class="text-body-1">
-          If necessary, you may log out of all other browser sessions. Some recent
-          sessions are listed below.
+          {{ $t('other_sessions.note') }}
         </p>
         <div v-if="sessions.length" class="mt-5 space-y-4">
           <VRow v-for="(session, i) in sessions" :key="i" class="items-center">
@@ -75,27 +74,27 @@ export default toNative(LogoutOtherBrowserSessionsForm);
               </p>
               <p class="text-body-1 text-sm">
                 {{ session.ip_address }}
-                <span v-if="session.is_current_device" class="text-green-500 font-semibold">(This device)</span>
-                <span v-else>Last active {{ session.last_active }}</span>
+                <span v-if="session.is_current_device" class="text-green-500 font-semibold">({{ $t('other_sessions.this_device') }})</span>
+                <span v-else>{{ $t('other_sessions.last_active') }} {{ session.last_active }}</span>
               </p>
             </VCol>
           </VRow>
         </div>
   
         <div class="flex items-center mt-5">
-          <VBtn color="primary" @click="confirmLogout">Log Out Other Browser Sessions</VBtn>
-          <ActionMessage :on="form.recentlySuccessful" class="ms-3">Done.</ActionMessage>
+          <VBtn color="primary" @click="confirmLogout">{{ $t('other_sessions.logout') }}</VBtn>
+          <ActionMessage :on="form.recentlySuccessful" class="ms-3">{{ $t('form.done') }}</ActionMessage>
         </div>
   
         <VDialog v-model="confirmingLogout" max-width="500px">
           <VRow class="p-4">
             <VCol>
-              <h3>Log Out Other Browser Sessions</h3>
-              <p class="mt-2">Please enter your password to confirm.</p>
+              <h3>{{ $t('other_sessions.logout') }}</h3>
+              <p class="mt-2">{{ $t('auth.enter_confirm_password') }}</p>
               <VTextField
                 ref="passwordInput"
                 v-model="form.password"
-                label="Password"
+                :label="$t('auth.password')"
                 type="password"
                 autocomplete="current-password"
                 variant="outlined"
@@ -106,9 +105,9 @@ export default toNative(LogoutOtherBrowserSessionsForm);
                 {{ form.errors.password }}
               </p>
               <div class="mt-4 flex justify-end">
-                <VBtn variant="text" @click="closeModal">Cancel</VBtn>
+                <VBtn variant="text" @click="closeModal">{{ $t('form.cancel') }}</VBtn>
                 <VBtn color="primary" :loading="form.processing" @click="logoutOtherBrowserSessions" class="ms-3">
-                  Log Out
+                  {{ $t('auth.logout') }}
                 </VBtn>
               </div>
             </VCol>

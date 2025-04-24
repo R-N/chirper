@@ -15,6 +15,7 @@ import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
     ActionSection, 
     FormSection,
     InputError, 
+    InputLabel,
     VCard, 
     VCardTitle, 
     VCardText, 
@@ -109,11 +110,11 @@ export default toNative(ApiTokenManagerPage);
         <!-- Generate API Token -->
         <FormSection @submitted="createApiToken">
             <template #title>
-                Create API Token
+                {{ $t('api_token.create_title') }}
             </template>
 
             <template #description>
-                API tokens allow third-party services to authenticate with our application on your behalf.
+                {{ $t('api_token.create_desc') }}
             </template>
 
             <template #form>
@@ -123,7 +124,7 @@ export default toNative(ApiTokenManagerPage);
                     <VTextField
                         id="name"
                         v-model="createApiTokenForm.name"
-                        label="Name"
+                        :label="$t('api_token.name')"
                         autofocus
                         outlined
                         dense
@@ -157,7 +158,7 @@ export default toNative(ApiTokenManagerPage);
 
             <template #actions>
                 <ActionMessage :on="createApiTokenForm.recentlySuccessful" class="me-3">
-                    Created.
+                    {{ $t('crud.created') }}
                 </ActionMessage>
 
                 <VBtn 
@@ -166,7 +167,7 @@ export default toNative(ApiTokenManagerPage);
                     elevation="2"
                     type="submit"
                 >
-                    Create
+                    {{ $t('crud.create') }}
                 </VBtn>
             </template>
         </FormSection>
@@ -174,11 +175,11 @@ export default toNative(ApiTokenManagerPage);
         <div v-if="tokens.length > 0">
             <ActionSection>
                 <template #title>
-                Manage API Tokens
+                    {{ $t('api_token.manage_title') }}
                 </template>
 
                 <template #description>
-                You may delete any of your existing tokens if they are no longer needed.
+                    {{ $t('api_token.manage_desc') }}
                 </template>
 
                 <template #content>
@@ -188,13 +189,13 @@ export default toNative(ApiTokenManagerPage);
                     <template v-slot:append>
                         <div class="d-flex align-center">
                         <span v-if="token.last_used_ago" class="text-grey-darken-1 text-caption">
-                            Last used {{ token.last_used_ago }}
+                            {{ $t('api_token.last_used') }} {{ token.last_used_ago }}
                         </span>
                         <VBtn v-if="availablePermissions.length > 0" text class="ms-4" @click="manageApiTokenPermissions(token)">
-                            Permissions
+                            {{ $t('api_token.permissions') }}
                         </VBtn>
                         <VBtn text color="red" class="ms-4" @click="confirmApiTokenDeletion(token)">
-                            Delete
+                            {{ $t('form.delete') }}
                         </VBtn>
                         </div>
                     </template>
@@ -206,10 +207,10 @@ export default toNative(ApiTokenManagerPage);
         <!-- Token Value Modal -->
         <VDialog v-model="displayingToken" max-width="500">
             <VCard>
-            <VCardTitle>API Token</VCardTitle>
+            <VCardTitle>{{ $t('api_token.display_title') }}</VCardTitle>
 
             <VCardText>
-                <p>Please copy your new API token. For your security, it won't be shown again.</p>
+                <p>{{ $t('api_token.display_desc') }}</p>
 
                 <VAlert
                 v-if="$page.props.jetstream.flash.token"
@@ -226,7 +227,7 @@ export default toNative(ApiTokenManagerPage);
 
             <VCardActions>
                 <VSpacer />
-                <VBtn variant="outlined" @click="displayingToken = false">Close</VBtn>
+                <VBtn variant="outlined" @click="displayingToken = false">{{ $t('form.close') }}</VBtn>
             </VCardActions>
             </VCard>
         </VDialog>
@@ -235,7 +236,7 @@ export default toNative(ApiTokenManagerPage);
         <VDialog v-model="isManagingPermissions" persistent max-width="500px">
             <VCard>
                 <VCardTitle>
-                    API Token Permissions
+                    {{ $t('api_token.permissions_title') }}
                 </VCardTitle>
 
                 <VCardText>
@@ -251,10 +252,10 @@ export default toNative(ApiTokenManagerPage);
                 <VCardActions>
                     <VSpacer />
                     <VBtn variant="outlined" @click="managingPermissionsFor=null">
-                        Cancel
+                        {{ $t('form.cancel') }}
                     </VBtn>
                     <VBtn color="primary" :loading="updateApiTokenForm.processing" @click="updateApiToken">
-                        Save
+                        {{ $t('form.save') }}
                     </VBtn>
                 </VCardActions>
             </VCard>
@@ -262,11 +263,11 @@ export default toNative(ApiTokenManagerPage);
 
         <VDialog v-model="apiTokenBeingDeleted" max-width="500">
             <VCard>
-                <VCardTitle>Delete API Token</VCardTitle>
-                <VCardText>Are you sure you would like to delete this API token?</VCardText>
+                <VCardTitle>{{ $t('api_token.delete_title') }}</VCardTitle>
+                <VCardText>{{ $t('api_token.delete_confirm_text') }}</VCardText>
                 <VCardActions class="justify-end">
                 <VBtn variant="outlined" @click="apiTokenBeingDeleted = null">
-                    Cancel
+                    {{ $t('form.cancel') }}
                 </VBtn>
                 <VBtn
                     color="error"
@@ -274,7 +275,7 @@ export default toNative(ApiTokenManagerPage);
                     :loading="deleteApiTokenForm.processing"
                     @click="deleteApiToken"
                 >
-                    Delete
+                    {{ $t('form.delete') }}
                 </VBtn>
                 </VCardActions>
             </VCard>

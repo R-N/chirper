@@ -43,8 +43,8 @@ class VerifyEmailForm extends WorkingComponent {
     try{
       let res = await authService.verifyEmail(this.form);
       this.tabStore.tabDialogs.push({
-        title: "Periksa Email Anda",
-        text: "Link verifikasi email telah dikirimkan ke email akun Anda, jika username/email yang Anda masukkan benar."
+        title: this.$t('auth.check_email'),
+        text: this.$t('verify_email.sent')
       });
     } finally {
       view.globalBusy = false;
@@ -57,27 +57,26 @@ export default toNative(VerifyEmailForm);
 <template>
   <VForm ref="myForm" v-model="valid" @submit.prevent="send" class="p-2" :disabled="busy">
     <CardTitle>
-      <h2 class="text-center">Verify Email</h2>
+      <h2 class="text-center">{{ $t('verify_email.title') }}</h2>
     </CardTitle>
     <VCardText>
       <VAlert v-if="status" type="success" dense class="mb-4">
         {{ status }}
       </VAlert>
       <p class="text-body-2 mb-4">
-          Before continuing, could you verify your email address by clicking on the link we just emailed to you? 
-          If you didn't receive the email, we will gladly send you another.
+          {{ $t('verify_email.intro') }}
       </p>
       <VTextField
         v-if="!isLoggedIn"
         v-model="form.email" 
         class="bigger-input" 
-        label="Email" 
+        :label="$t('user.email')" 
         type="email" 
         name="email" 
         autocomplete="email" 
         :disabled="busy" 
         required
-        :rules="[ v => !!v || 'Email harus diisi']"
+        :rules="[ v => !!v || $t('auth.email_required')]"
       />
       <InputError 
         class="mt-2" 
@@ -93,7 +92,7 @@ export default toNative(VerifyEmailForm);
         :disabled="busy" 
         :loading="busy || form.isSubmitting" 
       >
-        Send
+        {{ $t('form.send') }}
       </VBtn>
     </VCardText>
   </VForm>

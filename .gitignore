@@ -26,3 +26,6 @@ laragon.crt
 laragon.key
 
 stats.html
+
+public/build/*
+resources/js/lang-gen/**/*.json

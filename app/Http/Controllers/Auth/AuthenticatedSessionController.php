@@ -43,7 +43,7 @@ class AuthenticatedSessionController extends Controller
 
         return ResponseUtil::jsonRedirectResponse([
             'auth_token' => $token,
-            'message' => 'Login successful.',
+            'message' => __('auth.login_success'),
             'user' => $user,
         ], route('dashboard'));
     }
@@ -63,7 +63,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return ResponseUtil::jsonRedirectResponse([
-            "message" => "Logged out.",
+            "message" => __('auth.logout_success'),
         ], route('login'));
     }
 

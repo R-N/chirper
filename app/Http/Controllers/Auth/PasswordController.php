@@ -28,7 +28,7 @@ class PasswordController extends Controller
         ]);
 
         return ResponseUtil::jsonRedirectResponse([
-            'message' => 'Password updated.',
+            'message' => __('auth.password_updated'),
         ], url()->previous());
     }
 }

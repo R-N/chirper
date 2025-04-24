@@ -18,11 +18,10 @@ class FileUploadDialog extends DialogBase {
   @Prop({ type: Function }) onUpload;
   @Prop({ type: Function }) postUpload;
 
-  @Prop({ default: "Upload File" }) title;
-  @Prop({ default: "Choose backup file to upload" }) text;
-  @Prop({ default: "Drop here" }) dropText;
-  @Prop({ default: "Browse" }) browseText;
-  @Prop({ default: "File" }) label;
+  @Prop({ type: String }) title;
+  @Prop({ type: String }) text;
+  @Prop({ type: String }) dropText;
+  @Prop({ type: String }) browseText;
   @Prop({ default: true }) dropUpload;
 
   @Prop({ default: "" }) acceptedFiles;
@@ -146,15 +145,15 @@ export default toNative(FileUploadDialog);
   >
     <VCard class="pt-3 pb-3 pl-3 pr-3">
       <VForm @submit.prevent.stop="uploadFile">
-          <VCardTitle class="headline">{{ title }}</VCardTitle>
+          <VCardTitle class="headline">{{ title ?? $t('form.upload_title') }}</VCardTitle>
           <VCardText>
-            <p class="text-left">{{ text }}</p>
+            <p class="text-left">{{ text ?? $t('form.upload_desc') }}</p>
             <VFileUpload
               clearable density="compact" variant="compact"
               ref="myFileUpload"
               v-model="files"
-              :browse-text="browseText"
-              :title="dropText"
+              :browse-text="browseText ?? $t('form.browse')"
+              :title="dropText ?? $t('form.drop_here')"
               :accept="accept"
               :multiple="true"
               show-size

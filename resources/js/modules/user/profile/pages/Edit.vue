@@ -7,8 +7,6 @@ import { Head } from '@inertiajs/vue3';
 
 import { VContainer, VRow, VCol, VCard, VCardTitle, VCardText } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import profileService from '@/modules/user/profile/services/profile.js';
-import { router } from '@inertiajs/vue3';
 
 @Component({
   components: {
@@ -34,15 +32,15 @@ export default toNative(ProfileEditPage);
 
 <template>
     <AppLayout>
-        <Head title="Profile" />
+        <Head :title="$t('profile.title')" />
         <template #header>
             <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Profile
+                {{ $t('profile.title') }}
             </h2>
         </template>
 
         <VContainer class="d-flex flex-column ga-5" justify="center">
-            <VCard title="Update Profile Information">
+            <VCard :title="$t('profile.update_data')">
                 <VCardText>
                     <UpdateProfileInformationForm
                         :must-verify-email="mustVerifyEmail"
@@ -51,12 +49,12 @@ export default toNative(ProfileEditPage);
                     />
                 </VCardText>
             </VCard>
-            <VCard title="Update Password">
+            <VCard :title="$t('profile.update_password')">
                 <VCardText>
                     <UpdatePasswordForm />
                 </VCardText>
             </VCard>
-            <VCard title="Delete Account">
+            <VCard :title="$t('profile.delete')">
                 <VCardText>
                     <DeleteUserForm />
                 </VCardText>

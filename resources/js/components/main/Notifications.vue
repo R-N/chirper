@@ -122,14 +122,14 @@ export default toNative(Notifications);
                 <IconButton
                     :disabled="busy"
                     icon="mdi-check"
-                    text="Mark all as read"
+                    :text="$t('notification.read_all')"
                     @click.stop="bulkMarkAsRead"
                     v-if="hasUnreadNotif"
                 />
                 <IconButton
                     :disabled="busy"
                     icon="mdi-delete"
-                    text="Delete all read"
+                    :text="$t('notification.delete_all')"
                     @click.stop="bulkDestroy"
                     v-if="hasReadNotif"
                 />
@@ -170,14 +170,14 @@ export default toNative(Notifications);
                 <IconButton
                     :disabled="busy"
                     icon="mdi-check"
-                    text="Mark as read"
+                    :text="$t('notification.read')"
                     @click.stop.prevent="() => markAsRead(notif)"
                     v-if="!notif.read_at"
                 />
                 <IconButton
                     :disabled="busy"
                     icon="mdi-delete"
-                    text="Delete"
+                    :text="$t('form.delete')"
                     @click.stop.prevent="() => destroy(notif)"
                     v-if="notif.read_at"
                 />

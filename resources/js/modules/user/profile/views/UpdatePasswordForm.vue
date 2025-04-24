@@ -58,11 +58,11 @@ export default toNative(UpdatePasswordForm);
 <template>
   <FormSection @submitted="updatePassword">
     <template #title>
-      Update Password
+      {{ $t('profile.update_password') }}
     </template>
 
     <template #description>
-      Ensure your account is using a long, random password to stay secure.
+      {{ $t('profile.password_note') }}
     </template>
 
     <template #form>
@@ -73,7 +73,7 @@ export default toNative(UpdatePasswordForm);
             id="current_password"
             ref="currentPasswordInput"
             v-model="form.current_password"
-            label="Current Password"
+            :label="$t('profile.current_password')"
             type="password"
             autocomplete="current-password"
           />
@@ -88,7 +88,7 @@ export default toNative(UpdatePasswordForm);
             id="password"
             ref="passwordInput"
             v-model="form.password"
-            label="New Password"
+            :label="$t('password_reset.new_password')"
             type="password"
             autocomplete="new-password"
           />
@@ -102,7 +102,7 @@ export default toNative(UpdatePasswordForm);
           <VTextField
             id="password_confirmation"
             v-model="form.password_confirmation"
-            label="Confirm Password"
+            :label="$t('register.confirm_password')"
             type="password"
             autocomplete="new-password"
           />
@@ -113,11 +113,11 @@ export default toNative(UpdatePasswordForm);
 
     <template #actions>
       <ActionMessage :on="form.recentlySuccessful" class="me-3">
-        Saved.
+        {{ $t('form.saved') }}
       </ActionMessage>
       
       <VBtn color="primary" variant="elevated" type="submit" :disabled="form.processing">
-        Save
+        {{ $t('form.save') }}
       </VBtn>
     </template>
   </FormSection>

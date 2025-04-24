@@ -8,8 +8,6 @@ import UpdatePasswordForm from '../views/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from '../views/UpdateProfileInformationForm.vue';
 
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import profileService from '@/modules/user/profile/services/profile.js';
-import { router } from '@inertiajs/vue3';
 
 @Component({
   components: {
@@ -30,10 +28,10 @@ export default toNative(ProfileShowPage);
 </script>
 
 <template>
-    <AppLayout title="Profile">
+    <AppLayout :title="$t('profile.title')">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                Profile
+                {{ $t('profile.title') }}
             </h2>
         </template>
 

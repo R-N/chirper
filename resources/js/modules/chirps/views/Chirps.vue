@@ -27,15 +27,17 @@ import { bulkDeleteFromArray } from '@/libs/util';
 })
 class ChirpCrudView extends CrudViewBase {
     nameField = "created_at";
-    itemName = "Chirp";
     client = chirpService;
 
+    get itemName(){
+        return this.$t('chirp.item');
+    }
     get headers(){
         let headers = [
-            { title: 'User', value: 'user.name' },
-            { title: 'Meessage', value: 'message' },
-            { title: 'Created At', value: 'created_at' },
-            { title: 'Actions', value: 'actions' }
+            { title: this.$t('crud.user'), value: 'user.name' },
+            { title: this.$t('chirp.message'), value: 'message' },
+            { title: this.$t('crud.created_at'), value: 'created_at' },
+            { title: this.$t('crud.actions'), value: 'actions' }
         ];
         return headers;
     }
@@ -63,10 +65,10 @@ export default toNative(ChirpCrudView);
 </script>
 <template>
     <CrudView 
-        title="Chirps"
+        :title="$t('chirp.title')"
         :create="() => showForm()"
         :fetch="fetch"
-        create-text="Chirp"
+        :create-text="itemName"
         v-model:search="search"
         :export-csv="exportCsv"
         :export-xlsx="exportXlsx"
@@ -79,7 +81,7 @@ export default toNative(ChirpCrudView);
             <ConfirmationIconButton
                 class="fill-height d-inline-flex" 
                 icon="mdi-delete"
-                text="Delete selected"
+                :text="$t('crud.delete_selected')"
                 :disabled="busy"
                 :confirmTextMaker="bulkConfirmText('delete')"
                 :on-confirm="bulkDelete"
@@ -88,7 +90,7 @@ export default toNative(ChirpCrudView);
         <template v-slot:default>
             <component
                 :is="dataTableComponent"
-                class="backup-table"
+                class=""
                 :headers="headers"
                 :items="items"
                 item-key="id"
@@ -122,11 +124,11 @@ export default toNative(ChirpCrudView);
                         @click.stop="() => showForm(item)" 
                         :disabled="busy"
                         icon="mdi-pencil"
-                        text="Edit"
+                        :text="$t('form.edit')"
                     />
                     <ConfirmationIconButton
                         icon="mdi-delete"
-                        text="Delete"
+                        :text="$t('form.delete')"
                         :confirmTextMaker="deleteConfirmText(item)"
                         :on-confirm="() => deleteItem(item)"
                         :ask="(ask) => justAsk(item, ask)" 

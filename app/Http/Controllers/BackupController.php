@@ -36,7 +36,7 @@ class BackupController extends Controller
             throw $e;
         }
         return ResponseUtil::jsonRedirectResponse([
-            'message' => 'Backup created.',
+            'message' => __('backup.created'),
         ], route('system.backups.index'), 201);
     }
 
@@ -55,7 +55,7 @@ class BackupController extends Controller
     {
         $backup->delete();
         return ResponseUtil::jsonRedirectResponse([
-            'message' => "Backup {$backup->id} deleted.",
+            'message' => __('backup.deleted', ['backup_id' => $backup->id]),
         ], route('system.backups.index'));
     }
 
@@ -66,6 +66,10 @@ class BackupController extends Controller
         $backup->rename($newName);
 
         return ResponseUtil::jsonRedirectResponse([
+            'message' => __('backup.renamed', [
+                'old_name' => $oldName,
+                'new_name' => $newName,
+            ]),
             'message' => "Backup {$oldName} renamed to {$newName}.",
             'backup' => $backup,
         ], route('system.backups.index'));
@@ -77,7 +81,7 @@ class BackupController extends Controller
         $file = $request->file('file');
         $backup = Backup::save($file);
         return ResponseUtil::jsonRedirectResponse([
-            'message' => "Backup {$backup->id} uploaded.",
+            'message' => __('backup.uploaded'),
             'backup' => $backup,
         ], route('system.backups.index'), 201);
     }
@@ -87,7 +91,7 @@ class BackupController extends Controller
         try{
             $backup->restore();
             return ResponseUtil::jsonRedirectResponse([
-                'message' => "Backup $backup->id restored.",
+                'message' => __('backup.restored'),
             ], route('system.backups.index'));
         }catch(BackupException $e){
             switch($e->getCode()){

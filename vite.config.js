@@ -3,7 +3,10 @@ import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import { execSync } from 'child_process';
 //import babel from '@qubit-ltd/vite-plugin-babel';
+
+execSync('php artisan lang:sync-to-frontend');
 
 export default defineConfig({
   plugins: [

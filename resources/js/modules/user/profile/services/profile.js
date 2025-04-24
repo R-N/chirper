@@ -54,6 +54,13 @@ class ProfileService{
     let res = await this.axios.delete(route('current-user-photo.destroy'));
     return res.data;
   };
+  async setLocale(form) {
+    const authStore = useAuthStore();
+    let res = await this.axios.put("/user/locale", form);
+    authStore.user.locale = form.locale;
+    i18n.global.locale.value = form.locale ?? 'en';
+    return res;
+  }
 }
 
 const profileService = new ProfileService();

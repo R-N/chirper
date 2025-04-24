@@ -18,10 +18,10 @@ class EnsureTokenIsNotExpired
         if ($token && ($token instanceof PersonalAccessToken || isset($token->expires_at))){
             if ($token->expires_at?->isPast()) {
                 return ResponseUtil::jsonRedirectResponse([
-                    'message' => 'Token has expired.',
+                    'message' => __('errors.token_expired'),
                     'show' => true,
                 ], route('login'), 401);
-                throw new AuthenticationException('Token has expired.');
+                throw new AuthenticationException(__('errors.token_expired'));
             }
         }
 

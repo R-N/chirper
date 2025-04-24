@@ -7,7 +7,12 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Illuminate\Auth\Events\Registered;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+// #[AsCommand(
+//     name: 'make:admin-user {email?} {password?} {name?}', 
+//     description: 'Create an admin user with given email and password'
+// )]
 class CreateAdminUser extends Command
 {
     protected $signature = 'make:admin-user {email?} {password?} {name?}';

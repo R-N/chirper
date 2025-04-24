@@ -185,3 +185,34 @@ export const getFileName = (response) => {
 export const formatDate = (utcDate) => {
   return dayjs.utc(utcDate).local().format('LLL');
 }
+export const deepAssign = (base, override) => {
+  const result = { ...base };
+
+  for (const key in override) {
+    if (
+      Object.prototype.hasOwnProperty.call(override, key) &&
+      typeof override[key] === 'object' &&
+      override[key] !== null &&
+      !Array.isArray(override[key]) &&
+      typeof base[key] === 'object' &&
+      base[key] !== null &&
+      !Array.isArray(base[key])
+    ) {
+      result[key] = deepAssign(base[key], override[key]);
+    } else {
+      result[key] = override[key];
+    }
+  }
+
+  return result;
+}
+export const deepMerge = (objects) => {
+  return objects.reduce((acc, curr) => deepAssign(acc, curr), {});
+}
+export const getData = (data, name='item') => {
+  if (!data)
+    return null;
+  return data?.data ?? data?.item ?? data?.items ?? data?.[name.toLowerCase()] ?? data?.[`${name.toLowerCase()}s`];
+}
+
+

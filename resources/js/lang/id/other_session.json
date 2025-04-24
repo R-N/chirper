@@ -1,0 +1,8 @@
+{
+  "title": "Sesi Lain",
+  "desc": "Kelola dan log out sesi aktif pada perangkat atau browser lain.",
+  "note": "Kalau perlu, Anda bisa log out dari semua sesi lain. Beberapa sesi terakhir ada di bawah ini.",
+  "this_device": "Perangkta ini",
+  "last_active": "Aktivitas terakhir",
+  "logout": "Logout Sesi Lainnya"
+}

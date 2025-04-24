@@ -47,20 +47,20 @@ export default toNative(RegisterPage);
 
 </script>
 <template>
-  <GuestLayout title="Register">
+  <GuestLayout :title="$t('register.title')">
     <AuthLayout>
       <VCard class="d-flex flex-column pa-6">
         <VCardTitle>
-            Register
+            {{ $t('register.title') }}
         </VCardTitle>
         <VCardText class="d-flex flex-column pa-0 ga-2">
-          <VTextField v-model="form.name" label="Name" type="text" name="name" autocomplete="name" required autofocus />
+          <VTextField v-model="form.name" :label="$t('user.name')" type="text" name="name" autocomplete="name" required autofocus />
           <InputError class="mt-2" :message="form.errors.name" />
-          <VTextField v-model="form.email" label="Email" type="email" name="email"  autocomplete="email" required />
+          <VTextField v-model="form.email" :label="$t('user.email')" type="email" name="email"  autocomplete="email" required />
           <InputError class="mt-2" :message="form.errors.email" />
-          <VTextField v-model="form.password" label="Password" type="password" name="password" autocomplete="new-password" required />
+          <VTextField v-model="form.password" :label="$t('auth.password')" type="password" name="password" autocomplete="new-password" required />
           <InputError class="mt-2" :message="form.errors.password" />
-          <VTextField v-model="form.password_confirmation" label="Confirm Password" type="password" required />
+          <VTextField v-model="form.password_confirmation" :label="$t('register.confirm_password')"type="password" required />
           <InputError class="mt-2" :message="form.errors.password_confirmation" />
   
           <VCheckbox 
@@ -68,17 +68,17 @@ export default toNative(RegisterPage);
             v-model="form.terms"
           >
             <template #label>
-              I agree to the
-              <Link target="_blank" :href="route('terms.show')" class="text-primary">Terms of Service</Link>
-              and
-              <Link target="_blank" :href="route('policy.show')" class="text-primary">Privacy Policy</Link>
+              {{ $t('register.i_agree') }}
+              <Link target="_blank" :href="route('terms.show')" class="text-primary">{{ $t('register.terms_of_service') }}</Link>
+              {{ $t('form.and') }}
+              <Link target="_blank" :href="route('policy.show')" class="text-primary">{{ $t('register.privacy_policy') }}</Link>
             </template>
           </VCheckbox>
         </VCardText>
   
         <VCardActions class="d-flex justify-space-between">
-          <Link :href="route('login')" class="text-sm">Already registered?</Link>
-          <VBtn :loading="form.processing" @click="register" color="primary"  variant="elevated">Register</VBtn>
+          <Link :href="route('login')" class="text-sm">{{ $t('register.already_registered') }}</Link>
+          <VBtn :loading="form.processing" @click="register" color="primary"  variant="elevated">{{ $t('register.submit') }}</VBtn>
         </VCardActions>
       </VCard>
     </AuthLayout>

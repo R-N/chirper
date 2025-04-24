@@ -56,21 +56,21 @@ export default toNative(DeleteUserForm);
 <template>
     <ActionSection>
       <template #title>
-        Delete Account
+        {{ $t('profile.delete') }}
       </template>
   
       <template #description>
-        Permanently delete your account.
+        {{  $t('profile.delete_desc') }}
       </template>
   
       <template #content>
         <p class="text-sm text-body-1">
-          Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.
+          {{ $t('profile.delete_note') }}
         </p>
   
         <div class="mt-5">
           <VBtn color="error" variant="elevated" @click="confirmUserDeletion">
-            Delete Account
+            {{ $t('profile.delete') }}
           </VBtn>
         </div>
   
@@ -78,12 +78,12 @@ export default toNative(DeleteUserForm);
           <template #default>
             <div class="p-5">
               <h2 class="text-lg font-bold">Delete Account</h2>
-              <p class="mt-2">Are you sure you want to delete your account? This action cannot be undone. Please enter your password to confirm.</p>
+              <p class="mt-2">{{ $t('profile.delete_confirm_text') }}</p>
               
               <VTextField
                 ref="passwordInput"
                 v-model="form.password"
-                label="Password"
+                :label="$t('auth.password')"
                 type="password"
                 variant="outlined"
                 class="mt-4"
@@ -93,9 +93,9 @@ export default toNative(DeleteUserForm);
               <InputError :message="form.errors.password" class="mt-2" />
               
               <div class="mt-4 d-flex justify-end">
-                <VBtn variant="text" @click="closeModal">Cancel</VBtn>
+                <VBtn variant="text" @click="closeModal">{{ $t('form.cancel') }}</VBtn>
                 <VBtn color="error" variant="elevated" class="ms-3" :loading="loading" @click="deleteUser">
-                  Delete Account
+                  {{ $t('profile.delete') }}
                 </VBtn>
               </div>
             </div>

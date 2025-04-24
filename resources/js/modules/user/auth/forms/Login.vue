@@ -51,21 +51,21 @@ export default toNative(LoginForm);
 <template>
   <VForm v-model="valid" ref="myForm" @submit.prevent="login" class="p-2" :disabled="busy">
     <CardTitle>
-          <h2 class="text-center">Login</h2>
+      <h2 class="text-center">{{$t('auth.login')}}</h2>
     </CardTitle>
     <VCardText>
       <div v-if="status" class="mb-4 text-green-600">{{ status }}</div>
       <VTextField 
         v-model="form.email" 
         class="bigger-input" 
-        label="Email" 
+        :label="$t('user.email')" 
         type="email" 
         name="email" 
         autocomplete="email" 
         required 
         autofocus 
         :disabled="busy" 
-        :rules="[ v => !!v || 'Email harus diisi']"
+        :rules="[ v => !!v || $t('auth.email_required')]"
       />
       <InputError 
         class="mt-2" 
@@ -74,7 +74,7 @@ export default toNative(LoginForm);
       <VTextField 
         v-model="form.password" 
         class="bigger-input" 
-        label="Password" 
+        :label="$t('auth.password')" 
         name="password" 
         autocomplete="current-password" 
         required 
@@ -82,7 +82,7 @@ export default toNative(LoginForm);
         :append-icon="passwordVisible ? 'mdi-eye' : 'mdi-eye-off'"
         @click:append="() => { passwordVisible = !passwordVisible }"
         :type="passwordVisible ? 'text' : 'password'"
-        :rules="[ v => !!v || 'Password harus diisi']"
+        :rules="[ v => !!v || $t('auth.password_required')]"
       />
       <InputError 
         class="mt-2" 
@@ -90,7 +90,7 @@ export default toNative(LoginForm);
       />
       <VCheckbox 
         v-model="form.remember" 
-        label="Remember me" 
+        :label="$t('auth.remember')" 
         density="compact"
       />
     </VCardText>
@@ -100,7 +100,7 @@ export default toNative(LoginForm);
         :href="route('password.request')" 
         class="text-sm"
       >
-        Forgot password?
+        {{ $t('password_reset.forgot') }}
       </Link>
       <VBtn 
         @click="login" 
@@ -112,7 +112,7 @@ export default toNative(LoginForm);
         :disabled="busy"
         :loading="busy || form.isSubmitting" 
       >
-        Log in
+        {{ $t('auth.login') }}
       </VBtn>
     </VCardActions>
   </VForm>

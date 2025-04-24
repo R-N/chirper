@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LanguageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
@@ -29,5 +30,8 @@ Route::get('/csrf-debug', function (Request $request) {
         'session_id' => session()->getId(),
     ]);
 });
+Route::get('/lang/{locale}', [LanguageController::class, 'get'])->name('lang.get');
+Route::get('/lang', [LanguageController::class, 'index'])->name('lang.index');
+
 
 require __DIR__.'/auth.php';

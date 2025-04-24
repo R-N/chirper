@@ -1,0 +1,16 @@
+{
+  "dashboard": "Dashboard",
+  "chirper": "Chirper",
+  "chirps": "Chirps",
+  "chirps_crud": "Chirps CRUD",
+  "system": "System",
+  "users": "Users",
+  "backup": "Backup",
+  "profile": "Profile",
+  "api_tokens": "API Tokens",
+  "not_found": "Not found",
+  "server_down": "Server is down",
+  "server_unreachable": "Server is unreachable",
+  "return": "Return",
+  "back": "Back"
+}

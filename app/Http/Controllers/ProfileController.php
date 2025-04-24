@@ -12,12 +12,23 @@ use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Utils\ResponseUtil;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 
 class ProfileController extends Controller
 {
     /**
      * Display the user's profile form.
      */
+
+    public function getSessions(){
+        $sessions = DB::table('sessions')
+            ->where('user_id', request()->user()->id)
+            ->get();
+        return $sessions;
+    }
+
     public function edit(Request $request): Response
     {
         $user = $request->user()->loadEntities();
@@ -25,7 +36,7 @@ class ProfileController extends Controller
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
             'user' => $user,
-            'sessions' => session()->all(),
+            'sessions' => $this->getSessions(),
         ], 'user/profile/pages/Edit');
     }
 
@@ -39,7 +50,7 @@ class ProfileController extends Controller
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
             'user' => $user,
-            'sessions' => session()->all(),
+            'sessions' => $this->getSessions(),
         ], 'user/profile/pages/Show');
     }
 
@@ -56,7 +67,7 @@ class ProfileController extends Controller
 
         return ResponseUtil::jsonRedirectResponse([
             'user' => $user,
-            "message" => "Profile updated.",
+            "message" => __('profile.updated'),
         ], route('profile.edit'));
     }
 
@@ -84,7 +95,21 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return ResponseUtil::jsonRedirectResponse([
-            "message" => "Logged out.",
+            "message" => __('profile.deleted'),
         ], route('login'));
+    }
+    
+    function setLocale(Request $request) {
+        $locale = $request->input('locale');
+        Session::put('locale', $locale);
+        $user = $request->user();
+        if ($user){
+            $user->locale = $locale;
+            $user->save();
+        }
+        App::setLocale($locale);
+        return ResponseUtil::jsonRedirectResponse([
+            'message' => __('settings.locale_updated', ['locale' => $locale]),
+        ], url()->previous());
     }
 }

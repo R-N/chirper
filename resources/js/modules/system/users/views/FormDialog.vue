@@ -44,7 +44,7 @@ export default toNative(UserFormDialog);
     max-width="400"
     :parent-busy="busy"
     :on-submit="submit"
-    title="User"
+    :title="$t('user.item')"
     :disabled="disabled"
     :on-reset="reset"
     v-model="myDialog"
@@ -53,7 +53,7 @@ export default toNative(UserFormDialog);
       <VTextField 
         name="email"
         class="bigger-input" 
-        label="Email" 
+        :label="$t('user.email')" 
         v-model="form.email" 
         :disabled="!interactable" 
         required
@@ -62,7 +62,7 @@ export default toNative(UserFormDialog);
       <VTextField 
         name="name"
         class="bigger-input" 
-        label="Nama" 
+        :label="$t('user.name')" 
         v-model="form.name" 
         :disabled="!interactable" 
         required
@@ -70,6 +70,7 @@ export default toNative(UserFormDialog);
       <VSelect
         class="bigger-input" 
         name="roles"
+        :label="$t('user.roles')" 
         :items="availableRoles"
         item-value="name"
         item-title="name"
@@ -80,6 +81,7 @@ export default toNative(UserFormDialog);
       <VSelect
         class="bigger-input" 
         name="permissions"
+        :label="$t('user.permissions')" 
         :items="availablePermissions"
         item-value="name"
         item-title="name"

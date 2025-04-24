@@ -13,9 +13,9 @@ import ConfirmationSlot from '@/components/dialog/ConfirmationSlot.vue';
 })
 class EditableCell extends FormBase {
   @Prop({ type: String }) title;
-  @Prop({ type: String, default: "Ubah" }) editText;
-  @Prop({ type: String, default: "Batal" }) cancelText;
-  @Prop({ type: String, default: "Simpan" }) saveText;
+  @Prop({ type: String }) editText;
+  @Prop({ type: String }) cancelText;
+  @Prop({ type: String }) saveText;
 
   @Prop({ type: [String, Function] }) confirmTextMaker; 
   @Prop({ type: Function }) changeDetector;
@@ -128,7 +128,7 @@ export default toNative(EditableCell);
                   <VIcon size="32" small>mdi-check</VIcon>
                 </VBtn>
               </template>
-              <span>{{saveText}}</span>
+              <span>{{ saveText ?? $t('form.save') }}</span>
             </VTooltip>
             <VTooltip bottom key="cancel">
               <template #activator="{ props }">
@@ -141,7 +141,7 @@ export default toNative(EditableCell);
                   <VIcon size="32" small>mdi-cancel</VIcon>
                 </VBtn>
               </template>
-              <span>{{cancelText}}</span>
+              <span>{{ cancelText ?? $t('form.cancel') }}</span>
             </VTooltip>
           </span>
           <span v-else>
@@ -156,7 +156,7 @@ export default toNative(EditableCell);
                   <VIcon size="32" small>mdi-pencil</VIcon>
                 </VBtn>
               </template>
-              <span>{{editText}}</span>
+              <span>{{ editText ?? $t('form.edit') }}</span>
             </VTooltip>
           </span>
         </span>

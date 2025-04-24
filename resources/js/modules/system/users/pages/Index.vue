@@ -14,8 +14,8 @@ import {ViewBase} from '@/views/ViewBase.vue';
 class UsersPage extends ViewBase {
   mounted(){
     this.tabStore.breadcrumbs = [
-      { title: "System" },
-      { title: "Users" },
+      { title: this.$t('navigation.system') },
+      { title: this.$t('navigation.users') },
     ];
   }
 }
@@ -23,7 +23,7 @@ export default toNative(UsersPage);
 </script>
  
 <template>
-  <AppLayout title="Users">
+  <AppLayout :title="$t('user.title')">
     <VContainer>
       <UserCrudView />
     </VContainer>

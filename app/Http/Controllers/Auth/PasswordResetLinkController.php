@@ -45,13 +45,13 @@ class PasswordResetLinkController extends Controller
         $email = trans($status);
         if ($status == Password::RESET_LINK_SENT) {
             return ResponseUtil::jsonRedirectResponse([
-                'message' => "Password reset link sent.",
+                'message' => __('auth.password_reset_sent'),
                 'status' => __($status),
                 'email' => $email,
             ], url()->previous());
         }
         return ResponseUtil::jsonRedirectResponse([
-            'message' => "Failed to send password reset email.",
+            'message' => __('auth.password_reset_send_fail'),
             'status' => __($status),
             'email' => $email,
         ], route('password.request'), 500);

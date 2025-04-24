@@ -1,5 +1,6 @@
 import { useAuthStore } from '@/stores/auth';
 import _axios from '@/plugins/axios'; 
+import { getI18n } from '@/plugins/i18n';
 
 class AuthService{
   constructor(axios) {
@@ -21,6 +22,7 @@ class AuthService{
     }
     if (res.data.user){
       authStore.updateUser(res.data.user);
+      getI18n().global.locale = res.data.user.locale ?? 'en';
     }
     return res;
   }

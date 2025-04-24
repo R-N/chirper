@@ -37,7 +37,7 @@ export default toNative(LoginPage);
 </script>
 
 <template>
-  <GuestLayout title="Log in">
+  <GuestLayout :title="$t('auth.login')">
       <LoginView appear />
   </GuestLayout>
 </template>

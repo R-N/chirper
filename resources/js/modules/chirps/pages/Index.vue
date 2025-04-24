@@ -29,7 +29,7 @@ class ChirpsPage extends ViewBase {
 
   mounted(){
     this.tabStore.breadcrumbs = [
-      { title: "Chirps" },
+      { title: this.$t('navigation.chirps') },
     ];
   }
 
@@ -53,15 +53,15 @@ export default toNative(ChirpsPage);
 </script>
  
 <template>
-  <AppLayout title="Chirps">
+  <AppLayout :title="$t('chirp.title')">
     <VContainer class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
       <form @submit.prevent="storeChirp">
         <VTextarea
           v-model="form.message"
-          label="What's on your mind?"
+          :label="$t('chirp.placeholder')"
           variant="outlined"
         />
-        <VBtn class="mt-4" color="primary" type="submit">Chirp</VBtn>
+        <VBtn class="mt-4" color="primary" type="submit">{{ $t('chirp.submit') }}</VBtn>
       </form>
       <VCard class="mt-6">
         <Chirp

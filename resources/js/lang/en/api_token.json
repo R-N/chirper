@@ -1,0 +1,15 @@
+{
+  "title": "API Tokens",
+  "create_title": "Create API Token",
+  "create_desc": "API tokens allow third-party services to authenticate with our application on your behalf.",
+  "name": "Name",
+  "manage_title": "Manage API Tokens",
+  "manage_desc": "You may delete any of your existing tokens if they are no longer needed.",
+  "last_used": "Last used",
+  "permissions": "Permissions",
+  "display_title": "API Token",
+  "display_desc": "Please copy your new API token. For your security, it won't be shown again.",
+  "permissions_title": "API Token Permissions",
+  "delete_title": "Delete API Token",
+  "delete_confirm_text": "Are you sure you would like to delete this API token?"
+}

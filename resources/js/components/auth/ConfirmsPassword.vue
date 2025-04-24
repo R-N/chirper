@@ -17,9 +17,9 @@ import { useForm } from "@inertiajs/vue3";
   emits: ['confirmed']
 })
 class ConfirmPassword extends Vue {
-  @Prop({ type: String, default: 'Confirm Password' }) title;
-  @Prop({ type: String, default: 'For your security, please confirm your password to continue.' }) content;
-  @Prop({ type: String, default: 'Confirm' }) button;
+  @Prop({ type: String }) title;
+  @Prop({ type: String }) content;
+  @Prop({ type: String }) button;
 
   confirmingPassword = false;
   form = useForm({ 
@@ -78,9 +78,9 @@ export default toNative(ConfirmPassword);
 
     <VDialog v-model="confirmingPassword" persistent max-width="400px">
       <VCard>
-        <VCardTitle>{{ title }}</VCardTitle>
+        <VCardTitle>{{ title ?? $t('auth.confirm_password_title') }}</VCardTitle>
         <VCardText>
-          {{ content }}
+          {{ content ?? $t('auth.confirm_password_text') }}
           <VTextField
             ref="passwordInput"
             v-model="form.password"
@@ -94,9 +94,9 @@ export default toNative(ConfirmPassword);
           <p class="text-error mt-2" v-if="form.error">{{ form.error }}</p>
         </VCardText>
         <VCardActions>
-          <VBtn variant="text" @click="closeModal">Cancel</VBtn>
+          <VBtn variant="text" @click="closeModal">{{ $t('form.cancel') }}</VBtn>
           <VBtn color="primary" variant="elevated" :loading="form.processing" @click="confirmPassword">
-            {{ button }}
+            {{ button ?? $t('form.confirm') }}
           </VBtn>
         </VCardActions>
       </VCard>

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiTokenController;
+use App\Http\Controllers\SettingsController;
 use App\Models\Backup;
 
 Route::get('/', function () {
@@ -47,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/user/api-tokens', [ApiTokenController::class, 'index'])->name('api-tokens.index');
+    Route::put('/user/locale', [ProfileController::class, 'setLocale'])->name('profile.locale');
 });
 
 Route::middleware('auth:sanctum', 'verified')->group(function () {
@@ -86,5 +88,6 @@ Route::prefix('system/users')->as('system.users.')->middleware(['auth'])->group(
     Route::get('/permissions', [UserController::class, 'getAvailablePermissions'])->name('get-available-permissions');
     Route::get('/export', [UserController::class, 'export'])->name('export');
 });
+
 
 require __DIR__.'/auth.php';

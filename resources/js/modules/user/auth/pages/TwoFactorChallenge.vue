@@ -67,17 +67,17 @@ export default toNative(TwoFactorChallengePage);
       <VCard class="mx-auto" max-width="400" variant="elevated" elevation="6">
         <VCardText class="text-gray-600 dark:text-gray-400">
           <template v-if="!recovery">
-            Please confirm access to your account by entering the authentication code provided by your authenticator application.
+            {{ $t('two_factor.checkpoint') }}
           </template>
           <template v-else>
-            Please confirm access to your account by entering one of your emergency recovery codes.
+            {{ $t('two_factor.checkpoint_recovery') }}
           </template>
         </VCardText>
         
         <VCardText>
           <form @submit.prevent="submit">
             <div v-if="!recovery">
-              <VLabel for="code">Code</VLabel>
+              <VLabel for="code">{{ $t('two_factor.code') }}</VLabel>
               <VTextField
                 id="code"
                 ref="codeInput"
@@ -92,7 +92,7 @@ export default toNative(TwoFactorChallengePage);
             </div>
             
             <div v-else>
-              <VLabel for="recovery_code">Recovery Code</VLabel>
+              <VLabel for="recovery_code">{{ $t('two_factor.recovery_code') }}</VLabel>
               <VTextField
                 id="recovery_code"
                 ref="recoveryCodeInput"
@@ -108,12 +108,12 @@ export default toNative(TwoFactorChallengePage);
         
         <VCardActions class="d-flex justify-end">
           <VBtn variant="text" @click.prevent="toggleRecovery">
-            <template v-if="!recovery">Use a recovery code</template>
-            <template v-else>Use an authentication code</template>
+            <template v-if="!recovery">{{ $t('two_factor.recovery') }}</template>
+            <template v-else>{{ $t('two_factor.auth') }}</template>
           </VBtn>
           <VSpacer />
           <VBtn color="primary" variant="elevated" :loading="form.processing" @click="submit">
-            Log in
+            {{ $t('auth.login') }}
           </VBtn>
         </VCardActions>
       </VCard>

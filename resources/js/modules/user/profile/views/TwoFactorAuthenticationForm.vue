@@ -98,40 +98,40 @@ export default toNative(TwoFactorAuthenticationForm);
 
 <template>
   <ActionSection>
-    <template #title>Two Factor Authentication</template>
-    <template #description>Add additional security to your account.</template>
+    <template #title>{{ $t('two_factor.title') }}</template>
+    <template #description>{{ $t('two_factor.desc') }}</template>
 
     <template #content>
       <VAlert 
         v-if="twoFactorEnabled && !confirming" 
         type="success"
-        title="You have enabled two-factor authentication."
+        :title="$t('two_factor.enabled')"
       >
       </VAlert>
       <VAlert 
         v-else-if="twoFactorEnabled && confirming" 
         type="info"
-        title="Finish enabling two-factor authentication."
+        :title="$t('two_factor.enabling')"
       ></VAlert>
       <VAlert 
         v-else 
         type="warning"
-        title="You have not enabled two-factor authentication."
+        :title="$t('two_factor.disabled')"
       ></VAlert>
       <p class="text-body-1 mt-2 mb-2">
-        When two factor authentication is enabled, you will be prompted for a secure, random token during authentication. You may retrieve this token from your phone's Google Authenticator application.
+        {{ $t('two_factor.info') }}
       </p>
 
       <VCard v-if="qrCode" class="mt-4 pa-4">
         <VCardText>
           <p v-if="confirming">
-            To finish enabling two-factor authentication, scan the QR code using your authenticator app or enter the setup key.
+            {{ $t('two_factor.enabling_scan') }}
           </p>
-          <p v-else>Two-factor authentication is now enabled. Scan the QR code or enter the setup key.</p>
+          <p v-else>{{ $t('two_factor.enabled_scan') }}</p>
         </VCardText>
         <div class="text-center" v-html="qrCode"></div>
         <VCardText v-if="setupKey">
-          <strong>Setup Key:</strong> {{ setupKey }}
+          <strong>{{ $t('two_factor.setup_key') }}:</strong> {{ setupKey }}
         </VCardText>
         <VRow v-if="confirming" class="mt-4">
           <VCol cols="12">
@@ -143,7 +143,7 @@ export default toNative(TwoFactorAuthenticationForm);
 
       <VCard v-if="recoveryCodes.length > 0 && !confirming" class="mt-4 pa-4">
         <VCardText>
-          <p>Store these recovery codes safely. They help regain access if you lose your authentication device.</p>
+          <p>{{ $t('two_factor.recovery_code_info') }}</p>
           <div class="bg-gray-100 dark:bg-gray-900 rounded-lg pa-4">
             <div v-for="code in recoveryCodes" :key="code">{{ code }}</div>
           </div>
@@ -152,24 +152,24 @@ export default toNative(TwoFactorAuthenticationForm);
 
       <div class="mt-5">
         <ConfirmsPassword @confirmed="enableTwoFactorAuthentication" v-if="!twoFactorEnabled">
-          <VBtn color="primary" variant="elevated" :disabled="enabling">Enable</VBtn>
+          <VBtn color="primary" variant="elevated" :disabled="enabling">{{ $t('crud.enable') }}</VBtn>
         </ConfirmsPassword>
 
         <template v-else>
           <ConfirmsPassword @confirmed="confirmTwoFactorAuthentication" v-if="confirming">
-            <VBtn color="primary" class="me-3" :disabled="enabling">Confirm</VBtn>
+            <VBtn color="primary" class="me-3" :disabled="enabling">{{ $t('form.confirm') }}</VBtn>
           </ConfirmsPassword>
           
           <ConfirmsPassword @confirmed="regenerateRecoveryCodes" v-if="recoveryCodes.length > 0 && !confirming">
-            <VBtn class="me-3">Regenerate Recovery Codes</VBtn>
+            <VBtn class="me-3">{{ $t('two_factor.regenerate_recovery_code') }}</VBtn>
           </ConfirmsPassword>
 
           <ConfirmsPassword @confirmed="showRecoveryCodes" v-if="recoveryCodes.length === 0 && !confirming">
-            <VBtn class="me-3">Show Recovery Codes</VBtn>
+            <VBtn class="me-3">{{ $t('two_factor.show_recovery_code') }}</VBtn>
           </ConfirmsPassword>
 
           <ConfirmsPassword @confirmed="disableTwoFactorAuthentication">
-            <VBtn color="error" :disabled="disabling">Disable</VBtn>
+            <VBtn color="error" :disabled="disabling">{{ $t('crud.disable') }}</VBtn>
           </ConfirmsPassword>
         </template>
       </div>

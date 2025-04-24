@@ -67,7 +67,7 @@ class ChirpController extends Controller
         // automatically dispatched
  
         return ResponseUtil::jsonRedirectResponse([
-            'message' => 'Chirp created.',
+            'message' => __('chirp.created'),
             'chirp' => $chirp,
         ], route('chirps.index'), 201);
     }
@@ -106,7 +106,7 @@ class ChirpController extends Controller
         $chirp->loadEntities();
  
         return ResponseUtil::jsonRedirectResponse([
-            'message' => 'Chirp updated.',
+            'message' => __('chirp.updated'),
             'chirp' => $chirp,
         ], route('chirps.index'));
     }
@@ -121,7 +121,7 @@ class ChirpController extends Controller
         $chirp->delete();
  
         return ResponseUtil::jsonRedirectResponse([
-            'message' => 'Chirp deleted.',
+            'message' => __('chirp.deleted'),
         ], route('chirps.index'));
     }
 
@@ -139,7 +139,7 @@ class ChirpController extends Controller
         Chirp::whereIn('id', $data['ids'])->delete();
  
         return ResponseUtil::jsonRedirectResponse([
-            'message' => 'Chirps deleted.',
+            'message' => __('chirp.deleted'),
         ], route('chirps.index'));
     }
 }

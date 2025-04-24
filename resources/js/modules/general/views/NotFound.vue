@@ -18,7 +18,7 @@ export default toNative(NotFoundView);
 </script>
 <template>
   <CenterLayout>
-    <h1>404 Not Found: {{ this.$route.params.pathMatch }}</h1>
+    <h1>404 {{ $t('navigation.not_found') }}: {{ this.$route.params.pathMatch }}</h1>
   </CenterLayout>
 </template>
 <style scoped>

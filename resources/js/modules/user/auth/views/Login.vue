@@ -47,10 +47,10 @@ export default toNative(LoginView);
           <LoginForm/>
           <VCardText class="pt-0" >
             <div class="d-flex justify-end px-2 pb-2">
-              <a href="#" @click.stop.prevent="slide = 1">Forgot password?</a>
+              <a href="#" @click.stop.prevent="slide = 1">{{ $t('password_reset.forgot') }}</a>
             </div>
             <div class="d-flex justify-end px-2 pb-2">
-              <a href="#" @click.stop.prevent="slide = 2">Verify email</a>
+              <a href="#" @click.stop.prevent="slide = 2">{{ $t('verify_email.title') }}</a>
             </div>
           </VCardText>
         </VCard>
@@ -64,7 +64,7 @@ export default toNative(LoginView);
           <ForgotPasswordForm />
           <VCardText class="pt-0">
             <div class="d-flex justify-start px-2 pb-2">
-              <a href="#" @click.stop.prevent="slide = 0">Return</a>
+              <a href="#" @click.stop.prevent="slide = 0">{{ $t('navigation.return') }}</a>
             </div>
           </VCardText>
         </VCard>
@@ -78,7 +78,7 @@ export default toNative(LoginView);
           <ResendVerificationForm />
           <VCardText class="pt-0">
             <div class="d-flex justify-start px-2 pb-2">
-              <a href="#" @click.stop.prevent="slide = 0">Return</a>
+              <a href="#" @click.stop.prevent="slide = 0">{{ $t('navigation.return') }}</a>
             </div>
           </VCardText>
         </VCard>

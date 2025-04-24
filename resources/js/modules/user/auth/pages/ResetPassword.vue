@@ -49,25 +49,25 @@ export default toNative(ResetPasswordPage);
 </script>
 
 <template>
-  <GuestLayout title="Reset Password">
+  <GuestLayout :title="$t('password_reset.title')">
     <AuthLayout>
       <VCard class="mx-auto my-10" max-width="400" elevation="10">
         <VCardText>
           <p class="text-body-2 mb-4">
               This also verifies your email, if you haven't.
           </p>
-          <VTextField id="email" v-model="form.email" label="Email" type="email" required autofocus autocomplete="username" />
+          <VTextField id="email" v-model="form.email" :label="$t('user.email')" type="email" required autofocus autocomplete="username" />
           <InputError :message="form.errors.email" class="mt-2" />
 
-          <VTextField id="password" v-model="form.password" label="Password" type="password" required autocomplete="new-password" class="mt-4" />
+          <VTextField id="password" v-model="form.password" :label="$t('auth.password')" type="password" required autocomplete="new-password" class="mt-4" />
           <InputError :message="form.errors.password" class="mt-2" />
 
-          <VTextField id="password_confirmation" v-model="form.password_confirmation" label="Confirm Password" type="password" required autocomplete="new-password" class="mt-4" />
+          <VTextField id="password_confirmation" v-model="form.password_confirmation" :label="$t('register.confirm_password')"  type="password" required autocomplete="new-password" class="mt-4" />
           <InputError :message="form.errors.password_confirmation" class="mt-2" />
         </VCardText>
         <VCardActions class="justify-end">
           <VBtn color="primary" variant="elevated" :loading="form.processing" @click="submit">
-            Reset Password
+            {{ $t('password_reset.submit') }}
           </VBtn>
         </VCardActions>
       </VCard>

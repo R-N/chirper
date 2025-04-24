@@ -21,28 +21,30 @@ import {MyComponent} from "@/components/MyComponent.vue";
 })
 class SideNavDrawer extends MyComponent {
     @Model({ type: Boolean }) syncedDrawer;
-    items = [
-        { icon: 'mdi-home', text: 'Dashboard', href: route('dashboard') },
-        {
-            icon: 'mdi-chat',
-            // 'icon-alt': 'mdi-chevron-down',
-            text: 'Chirper',
-            model: false,
-            children: [
-                { text: 'Chirps', href: route('chirps.index') },
-                { text: 'Chirps CRUD', href: route('chirps.index2') },
-            ],
-        },
-        {
-            icon: 'mdi-wrench',
-            text: 'System',
-            model: false,
-            children: [
-                { text: 'Users', href: route('system.users.index') },
-                { text: 'Backup', href: route('system.backups.index') },
-            ],
-        },
-    ];
+    get items(){
+        return [
+            { icon: 'mdi-home', text: 'Dashboard', href: route('dashboard') },
+            {
+                icon: 'mdi-chat',
+                // 'icon-alt': 'mdi-chevron-down',
+                text: this.$t('navigation.chirper'),
+                model: false,
+                children: [
+                    { text: this.$t('navigation.chirps'), href: route('chirps.index') },
+                    { text: this.$t('navigation.chirps_crud'), href: route('chirps.index2') },
+                ],
+            },
+            {
+                icon: 'mdi-wrench',
+                text: this.$t('navigation.system'),
+                model: false,
+                children: [
+                    { text: this.$t('navigation.users'), href: route('system.users.index') },
+                    { text: this.$t('navigation.backup'), href: route('system.backups.index') },
+                ],
+            },
+        ];
+    } 
 }
 export { SideNavDrawer }
 export default toNative(SideNavDrawer);

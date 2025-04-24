@@ -14,7 +14,7 @@ import {ViewBase} from '@/views/ViewBase.vue';
 class ChirpsPage extends ViewBase {
   mounted(){
     this.tabStore.breadcrumbs = [
-      { title: "Chirps" },
+      { title: this.$t('navigation.chirps') },
     ];
   }
 }
@@ -22,7 +22,7 @@ export default toNative(ChirpsPage);
 </script>
  
 <template>
-  <AppLayout title="Chirps">
+  <AppLayout :title="$t('chirp.title')">
     <VContainer>
       <ChirpCrudView />
     </VContainer>

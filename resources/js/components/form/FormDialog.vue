@@ -12,10 +12,10 @@ import { FormDialogBase } from '@/components/form/FormDialogBase.vue';
   }
 })
 class FormDialog extends FormDialogBase {
-  @Prop({ default: "Batal" }) cancelText;
-  @Prop({ default: "Ok" }) confirmText;
+  @Prop({ type: String }) cancelText;
+  @Prop({ type: String }) confirmText;
   @Prop({ default: 400 }) maxWidth;
-  @Prop({ default: "Form" }) title;
+  @Prop({ type: String }) title;
 }
 export { FormDialog };
 export default toNative(FormDialog);
@@ -28,7 +28,7 @@ export default toNative(FormDialog);
   >
     <VCard class="">
         <VForm ref="myForm" v-model="valid" class="p-2" :disabled="!interactable" @submit.prevent="submit" >
-        <VCardTitle class="headline">{{ title }}</VCardTitle>
+        <VCardTitle class="headline">{{ title ?? $t('form.form') }}</VCardTitle>
         <VCardText>
           <slot name="fields" :interactable="interactable" :busy="busy" :disabled="disabled"></slot>
           <VCardActions>
@@ -41,7 +41,7 @@ export default toNative(FormDialog);
               text
               @click.stop="close()"
               :disabled="!interactable"
-              v-if="cancelText"
+              v-if="cancelText ?? $t('form.cancel')"
             >
               Batal
             </VBtn>
@@ -51,7 +51,7 @@ export default toNative(FormDialog);
               text
               :disabled="!interactable"
               :loading="busy"
-              v-if="confirmText"
+              v-if="confirmText ?? $t('form.confirm')"
             >
               Ok
             </VBtn>

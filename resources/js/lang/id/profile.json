@@ -1,0 +1,17 @@
+{
+  "title": "Profil",
+  "update_data": "Perbarui Data Profil",
+  "update_password": "Update Password",
+  "delete": "Hapus Akun",
+  "delete_desc": "Hapus akun Anda secara permanen.",
+  "delete_note": "Setelah akun dihapus, semua data dan file terkait akan terhapus secara permanen. Sebelum menghapus akun Anda, silahkan download data dan file yang ingin Anda simpan.",
+  "delete_confirm_text": "Apa Anda yakin untuk menghapus akun Anda? Tindakan ini tidak bisa dibatalkan. Tolong masukkan password Anda untuk konfirmasi.",
+  "password_note": "Pastikan akun Anda menggunakan password yang panjang dan acak agar aman.",
+  "current_password": "Password saat ini",
+  "info_title": "Data Profil",
+  "info_desc": "Perbarui data profil dan alamat email akun Anda.",
+  "select_photo": "Pilih Foto Baru",
+  "remove_photo": "Hapus Foto",
+  "email_unverified": "Alamat email Anda belum diverifikasi.",
+  "photo": "Foto"
+}

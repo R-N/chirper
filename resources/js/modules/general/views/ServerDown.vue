@@ -19,7 +19,7 @@ export default toNative(ServerDownView);
 </script>
 <template>
   <CenterLayout column="true">
-    <h1>Server is down</h1>
+    <h1>{{ $t('navigation.server_unreachable') }}</h1>
     <RefreshButton icon large/>
   </CenterLayout>
 </template>

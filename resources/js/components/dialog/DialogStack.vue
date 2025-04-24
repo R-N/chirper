@@ -8,7 +8,7 @@ import { VDialog, VCard, VCardTitle, VCardText, VCardActions, VSpacer, VBtn } fr
 })
 class DialogStack extends Vue {
   @Prop({ type: Array }) items
-  @Prop({default: "Tutup"}) closeText;
+  @Prop({ type: String }) closeText;
 
   get item(){
     if (this.items.length == 0) return null;
@@ -41,7 +41,7 @@ export default toNative(DialogStack);
       <VCardText v-if="item.text">{{ item.text }}</VCardText>
       <VCardActions>
         <VSpacer></VSpacer>
-        <VBtn ref="closeButton" color="secondary" text @click="item = null" :disabled="!item">{{ closeText }}</VBtn>
+        <VBtn ref="closeButton" color="secondary" text @click="item = null" :disabled="!item">{{ closeText ?? $t('form.close') }}</VBtn>
       </VCardActions>
     </VCard>
   </VDialog>

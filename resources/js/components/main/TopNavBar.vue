@@ -114,9 +114,9 @@ export default toNative(TopNavBar);
 				</VCardItem>
 				<VCardActions class="d-flex flex-grow-1">
 					<VList class="d-flex flex-grow-1 flex-column">
-						<VListItem :href="route('profile.show')">Profile</VListItem>
-						<VListItem v-if="$page.props.jetstream.hasApiFeatures" :href="route('api-tokens.index')">API Tokens</VListItem>
-						<VListItem @click="logout">Log Out</VListItem>
+						<VListItem :href="route('profile.show')">{{ $t('navigation.profile') }}</VListItem>
+						<VListItem v-if="$page.props.jetstream.hasApiFeatures" :href="route('api-tokens.index')">{{ $t('navigation.api_tokens') }}</VListItem>
+						<VListItem @click="logout">{{ $t('auth.logout') }}</VListItem>
 					</VList>
 				</VCardActions>
 			</VCard>

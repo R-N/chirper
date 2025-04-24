@@ -53,7 +53,7 @@ class UserController extends Controller
         $user->loadEntities();
 
         return ResponseUtil::jsonRedirectResponse([
-            "message" => "User created.",
+            "message" => __('user.created'),
             "user" => $user
         ], route('system.users.index'), 201, true);
     }
@@ -78,7 +78,7 @@ class UserController extends Controller
         $user->loadEntities();
 
         return ResponseUtil::jsonRedirectResponse([
-            "message" => "User updated.",
+            "message" => __('user.updated'),
             "user" => $user
         ], route('system.users.index'));
     }
@@ -91,7 +91,7 @@ class UserController extends Controller
         $user->loadEntities();
 
         return ResponseUtil::jsonRedirectResponse([
-            "message" => "User password cleared.",
+            "message" => __('user.password_cleared'),
             "user" => $user
         ], route('system.users.index'));
     }
@@ -109,7 +109,7 @@ class UserController extends Controller
         $user->loadEntities();
 
         return ResponseUtil::jsonRedirectResponse([
-            "message" => "User enabled set to $user->enabled.",
+            "message" => __('user.enabled_set', ['enabled' => $user->enabled]),
             "user" => $user
         ], route('system.users.index'));
     }
@@ -127,7 +127,7 @@ class UserController extends Controller
         $user->loadEntities();
 
         return ResponseUtil::jsonRedirectResponse([
-            "message" => "User verified set to $user->verified.",
+            "message" =>  __('user.verified_set', ['verified' => $user->verified]),
             "user" => $user
         ], route('system.users.index'));
     }
@@ -148,7 +148,7 @@ class UserController extends Controller
         $user->loadEntities();
 
         return ResponseUtil::jsonRedirectResponse([
-            "message" => "User roles updated.",
+            "message" => __('user.roles_updated'),
             "user" => $user
         ], route('system.users.index'));
     }
@@ -168,7 +168,7 @@ class UserController extends Controller
         $user->loadEntities();
 
         return ResponseUtil::jsonRedirectResponse([
-            "message" => "User permissions updated.",
+            "message" => __('user.permissions_updated'),
             "user" => $user
         ], route('system.users.index'));
     }
@@ -176,7 +176,7 @@ class UserController extends Controller
     public function destroy(Request $request, User $user) {
         if ($user->enabled || $user->email_verified_at !== null) {
             return ResponseUtil::jsonRedirectResponse([
-                "message" => "User must be unverified and disabled first.",
+                "message" => __('user.require_disabled_unverified'),
                 "display" => true,
             ], route('system.users.index'), 400);
         }

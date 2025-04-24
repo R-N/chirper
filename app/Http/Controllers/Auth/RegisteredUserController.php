@@ -53,7 +53,7 @@ class RegisteredUserController extends Controller
         return ResponseUtil::jsonRedirectResponse([
             'auth_token' => $token,
             'user' => $user,
-            'message' => 'User registered',
+            'message' => __('auth.registration_success'),
         ], route('dashboard'), 201);
     }
 }

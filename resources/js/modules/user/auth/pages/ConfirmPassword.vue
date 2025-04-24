@@ -45,7 +45,7 @@ export default toNative(ConfirmPasswordPage);
       <VCard elevation="4" class="pa-6" max-width="400">
         <VCardText>
           <p class="mb-4 text-grey-darken-1">
-            This is a secure area of the application. Please confirm your password before continuing.
+            {{ $t('auth.password_checkpoint') }}
           </p>
           
           <form @submit.prevent="submit">
@@ -53,7 +53,7 @@ export default toNative(ConfirmPasswordPage);
               id="password"
               ref="passwordInput"
               v-model="form.password"
-              label="Password"
+              :label="$t('auth.password')"
               type="password"
               variant="outlined"
               required
@@ -63,7 +63,7 @@ export default toNative(ConfirmPasswordPage);
             
             <div class="d-flex justify-end mt-4">
               <VBtn color="primary" variant="elevated" type="submit" :loading="form.processing">
-                Confirm
+                {{ $t('form.confirm') }}
               </VBtn>
             </div>
           </form>

@@ -32,8 +32,8 @@ class ForgotPasswordForm extends WorkingComponent {
     try{
       let res = await authService.forgotPassword(this.form);
       this.tabStore.tabDialogs.push({
-        title: "Periksa Email Anda",
-        text: "Link reset password telah dikirimkan ke alamat email akun Anda, jika username/email yang Anda masukkan benar."
+        title: this.$t('auth.check_email'),
+        text: this.$t('password_reset.sent')
       });
     } finally {
       view.globalBusy = false;
@@ -46,25 +46,25 @@ export default toNative(ForgotPasswordForm);
 <template>
   <VForm ref="myForm" v-model="valid" @submit.prevent="reset" class="p-2" :disabled="busy">
     <CardTitle>
-      <h2 class="text-center">Reset Password</h2>
+      <h2 class="text-center">{{ $t('password_reset.title') }}</h2>
     </CardTitle>
     <VCardText>
       <VAlert v-if="status" type="success" dense class="mb-4">
         {{ status }}
       </VAlert>
       <p class="text-body-2 mb-4">
-        Forgot your password? No problem. Enter your email address and we will send you a password reset link.
+        {{ $t('password_reset.intro') }}
       </p>
       <VTextField
         v-model="form.email" 
         class="bigger-input" 
-        label="Email" 
+        :label="$t('user.email')" 
         type="email" 
         name="email" 
         autocomplete="email" 
         :disabled="busy" 
         required
-        :rules="[ v => !!v || 'Email harus diisi']"
+        :rules="[ v => !!v || $t('auth.email_required')]"
       />
       <InputError 
         class="mt-2" 
@@ -80,7 +80,7 @@ export default toNative(ForgotPasswordForm);
         :disabled="busy" 
         :loading="busy || form.isSubmitting" 
       >
-        Reset
+        {{ $t('form.reset') }}
       </VBtn>
     </VCardText>
   </VForm>

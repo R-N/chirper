@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { deepAssign } from '@/libs/util';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({ 
@@ -11,6 +12,7 @@ export const useAuthStore = defineStore('auth', {
       permissions: [],
       enabled: true,
       verified: false,
+      locale: 'en',
     }
   }),
   getters: {
@@ -28,6 +30,11 @@ export const useAuthStore = defineStore('auth', {
         id: 0,
         name: '',
         email: '',
+        roles: [],
+        permissions: [],
+        enabled: true,
+        verified: false,
+        locale: 'en',
       });
     },
   },

@@ -1,0 +1,11 @@
+{
+  "title": "Backup",
+  "item": "Backup",
+  "restore": "Restore",
+  "upload_title": "Upload Backup",
+  "upload_desc": "Silahkan pilih file backup untuk diupload",
+  "upload_label": "File backup",
+  "create_title": "Buat backup?",
+  "create_label": "Nama backup",
+  "restore_confirm_text": "Apa Anda yakin ingin me-restore backup {name}'?"
+}

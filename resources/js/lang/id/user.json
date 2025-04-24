@@ -1,0 +1,13 @@
+{
+  "title": "User",
+  "item": "User",
+  "name": "Nama",
+  "email": "Email",
+  "roles": "Peran",
+  "permissions": "Wewenang",
+  "verified": "Terverifikasi",
+  "enabled": "Aktif",
+  "unverify": "Batalkan verifikasi",
+  "force_verify": "Paksa verifikasi",
+  "clear_password": "Kosongkan password"
+}

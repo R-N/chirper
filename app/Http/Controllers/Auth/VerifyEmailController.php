@@ -22,13 +22,13 @@ class VerifyEmailController extends Controller
 
         if (!$user){
             return ResponseUtil::jsonRedirectResponse([
-                'message' => 'User not found.',
+                'message' => __('auth.user_not_found'),
             ], $redirect, 404);
         }
 
         if ($user->hasVerifiedEmail()) {
             return ResponseUtil::jsonRedirectResponse([
-                'message' => 'Email verified.',
+                'message' => __('auth.email_already_verified'),
             ], $redirect, 302);
         }
 
@@ -37,7 +37,7 @@ class VerifyEmailController extends Controller
         }
 
         return ResponseUtil::jsonRedirectResponse([
-            'message' => 'Email verified.',
+            'message' => __('auth.email_verification_success'),
         ], $redirect);
     }
 }

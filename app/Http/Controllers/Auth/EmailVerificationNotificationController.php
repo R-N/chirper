@@ -28,7 +28,7 @@ class EmailVerificationNotificationController extends Controller
 
         if ($user->hasVerifiedEmail()) {
             return ResponseUtil::jsonRedirectResponse([
-                'message' => 'Email already verified',
+                'message' => __('auth.email_already_verified'),
             ], route('dashboard'), 302);
         }
 
@@ -36,7 +36,7 @@ class EmailVerificationNotificationController extends Controller
 
         $back = url()->previous();
         return ResponseUtil::jsonRedirectResponse([
-            'message' => 'Email verification notification sent',
+            'message' => __('auth.email_verification_sent'),
         ], route('verification-link-sent'));
     }
 }
