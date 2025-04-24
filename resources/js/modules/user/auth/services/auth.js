@@ -15,8 +15,13 @@ class AuthService{
     }));
 
     let res = await this.axios.post("/login", form);
-    authStore.updateUser(res.data.user);
-    authStore.auth_token = res.data.auth_token;
+    authStore.logout();
+    if (res.data.auth_token){
+      authStore.auth_token = res.data.auth_token;
+    }
+    if (res.data.user){
+      authStore.updateUser(res.data.user);
+    }
     return res;
   }
   async logout() {
@@ -42,7 +47,7 @@ class AuthService{
     const authStore = useAuthStore();
     let res = await this.axios.post("/register", form);
     if (res.data.suer) authStore.updateUser(res.data.user);
-    if (res.data.auth_token) authStore.setAuthToken(res.data.auth_token);
+    if (res.data.auth_token) authStore.auth_token = res.data.auth_token;
     return res.data;
   }
   async twoFactorLogin(form) {

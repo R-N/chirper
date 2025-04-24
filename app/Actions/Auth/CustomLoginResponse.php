@@ -12,19 +12,14 @@ class CustomLoginResponse implements LoginResponse
 {
     public function toResponse($request): JsonResponse|RedirectResponse
     {
-      if (!$request->wantsJson()) {
-          return redirect()->intended(route('dashboard', absolute: false));
-      }
+        $user = Auth::user()->loadEntities();
 
-      $user = Auth::user()->loadEntities();
+        $token = $user->createToken('auth_token', ['*'])->plainTextToken;
 
-      $token = $user->createToken('auth_token', ['*'])->plainTextToken;
-
-      return response()->json([
-          'auth_token' => $token,
-          'user' => $user,
-          'message' => 'Login successful',
-          'redirect' => route('dashboard', absolute: false)
-      ]);
+        return ResponseUtil::jsonRedirectResponse([
+            'auth_token' => $token,
+            'message' => __('auth.login_success'),
+            'user' => $user,
+        ], route('dashboard'));
     }
 }

@@ -41,10 +41,14 @@ const initXsrf = async(api) =>{
 const injectAuth = (config) => {
   if (config.headers.Authorization)
     return config;
-  const authStore = useAuthStore();
-  let authToken = authStore.auth_token || localStorage.getItem("auth_token");
-  if (authToken) {
-    config.headers.Authorization = `Bearer ${authToken}`;
+  try{
+    const authStore = useAuthStore();
+    let authToken = authStore.auth_token || localStorage.getItem("auth_token");
+    if (authToken) {
+      config.headers.Authorization = `Bearer ${authToken}`;
+    }
+  }catch(ex){
+    
   }
   return config;
 };
