@@ -11,10 +11,10 @@ import {MyComponent} from '@/components/MyComponent.vue';
     emits: ['click']
 })
 class IconButton extends MyComponent {
-    @Prop({default: 32}) size;
-    @Prop({default: true}) small;
+    @Prop({default: 'small'}) size;
     @Prop({ type: String }) icon;
     @Prop({ type: String }) text;
+    @Prop({ type: String }) type;
     @Prop({default: false}) disabled;
     @Emit('click')
     emitClick(event){
@@ -33,8 +33,10 @@ export default toNative(IconButton);
                 v-bind="props" 
                 :disabled="disabled"
                 @click="emitClick($event)" 
+                :size="size"
+                :type="type"
             >
-                <VIcon :size="size" :small="small">{{ icon }}</VIcon>
+                <VIcon :size="size">{{ icon }}</VIcon>
             </VBtn>
         </template>
         <span>{{ text }}</span>

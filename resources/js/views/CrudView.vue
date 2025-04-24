@@ -60,14 +60,14 @@ export default toNative(CrudView);
         :disabled="busy"
         icon="mdi-plus"
         :text="createText"
-        :small="false"
+        size="default"
       />
       <IconButton
         @click="fetch"
         :disabled="busy"
         icon="mdi-refresh"
         :text="refreshText"
-        :small="false"
+        size="default"
       />
       <slot name="toolbar-left" :busy="busy"></slot>
       <VBtnToggle v-model="_null" prepend-icon="mdi-export" class="fill-height d-inline-flex" title="Export">

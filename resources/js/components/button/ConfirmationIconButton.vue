@@ -12,8 +12,8 @@ import IconButton from '@/components/button/IconButton.vue';
     }
 })
 class ConfirmationIconButton extends WorkingComponent {
-    @Prop({default: 32}) size;
-    @Prop({default: true}) small;
+    @Prop({ default: 'small' }) size;
+    @Prop({ type: String }) type;
     @Prop({ type: String }) icon;
     @Prop({ type: String }) text;
     @Prop({ type: [String, Function] }) confirmTextMaker; 
@@ -47,7 +47,7 @@ export default toNative(ConfirmationIconButton);
                 :icon="icon"
                 :text="text"
                 :size="size"
-                :small="small"
+                :type="type"
             />
         </template>
     </ConfirmationSlot>

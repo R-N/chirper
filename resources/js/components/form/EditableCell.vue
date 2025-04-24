@@ -3,11 +3,13 @@ import { Vue, Component, Prop, Model, Emit, Ref, toNative } from 'vue-facing-dec
 import { FormBase } from '@/components/form/FormBase.vue';
 
 import ConfirmationSlot from '@/components/dialog/ConfirmationSlot.vue';
+import IconButton from '../button/IconButton.vue';
 
 @Component({
     name: "EditableCell",
     components: {
-      ConfirmationSlot
+      ConfirmationSlot,
+      IconButton
     },
     emits: ['edit', 'finish']
 })
@@ -117,47 +119,27 @@ export default toNative(EditableCell);
         </span>
         <span class="flex-grow-0 flex-shrink-0" v-if="!(disabled || busy)">
           <span v-if="editing">
-            <VTooltip bottom key="submit">
-              <template #activator="{ props }">
-                <VBtn 
-                  icon 
-                  type="submit"  
-                  v-bind="props" 
-                  :disabled="busy"
-                >
-                  <VIcon size="32" small>mdi-check</VIcon>
-                </VBtn>
-              </template>
-              <span>{{ saveText ?? $t('form.save') }}</span>
-            </VTooltip>
-            <VTooltip bottom key="cancel">
-              <template #activator="{ props }">
-                <VBtn 
-                  icon 
-                  @click.stop="cancelEdit" 
-                  v-bind="props" 
-                  :disabled="busy"
-                >
-                  <VIcon size="32" small>mdi-cancel</VIcon>
-                </VBtn>
-              </template>
-              <span>{{ cancelText ?? $t('form.cancel') }}</span>
-            </VTooltip>
+            <IconButton
+                @click.stop="() => finishEdit(ask)" 
+                type="submit"  
+                :disabled="busy"
+                icon="mdi-check"
+                :text="saveText ?? $t('form.save')"
+            />
+            <IconButton
+                @click.stop="cancelEdit" 
+                :disabled="busy"
+                icon="mdi-cancel"
+                :text="cancelText ?? $t('form.cancel')"
+            />
           </span>
           <span v-else>
-            <VTooltip bottom key="edit">
-              <template #activator="{ props }">
-                <VBtn 
-                  icon 
-                  @click.stop="beginEdit" 
-                  v-bind="props" 
-                  :disabled="busy"
-                >
-                  <VIcon size="32" small>mdi-pencil</VIcon>
-                </VBtn>
-              </template>
-              <span>{{ editText ?? $t('form.edit') }}</span>
-            </VTooltip>
+            <IconButton
+                @click.stop="beginEdit" 
+                :disabled="busy"
+                icon="mdi-pencil"
+                :text="editText ?? $t('form.edit')"
+            />
           </span>
         </span>
       </div>
