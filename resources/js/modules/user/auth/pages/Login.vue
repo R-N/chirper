@@ -21,17 +21,6 @@ class LoginPage extends ViewBase {
   @Prop({ type: Boolean }) canResetPassword;
   @Prop({ type: String }) status;
 
-  form = useForm({
-      email: '',
-      password: '',
-      remember: false,
-  });
-
-  async login() {
-    let res = await authService.login(this.form);
-    this.form.reset('password');
-    router.visit(res.redirect || "/dashboard");
-  }
 }
 export default toNative(LoginPage);
 </script>
