@@ -2,13 +2,13 @@
 import ApplicationLogo from '@/components/general/ApplicationLogo.vue';
 import { Link, router } from '@inertiajs/vue3';
 import { VAppBar, VToolbarTitle, VBtn, VMenu, VList, VListItem, VAvatar, VIcon, VImg, VSpacer, VBtnGroup  } from 'vuetify/components';
-import { Component, Prop, Model, Ref, toNative } from 'vue-facing-decorator';
+import { Component, Prop, Model, Ref, Watch, toNative } from 'vue-facing-decorator';
 import authService from '@/modules/user/auth/services/auth.js';
-import notificationService from '@/services/notification.js';
+import profileService from '@/modules/user/profile/services/profile';
 import IconButton from '@/components/button/IconButton.vue';
-import {WorkingComponent} from '../WorkingComponent.vue';
-import { deleteFromArray } from '@/libs/util';
+import { WorkingComponent } from '../WorkingComponent.vue';
 import Notifications from './Notifications.vue';
+import { getI18n, locales } from '@/plugins/i18n'
 
 @Component({
 	name: "TopNavBar",
@@ -25,6 +25,7 @@ class TopNavBar extends WorkingComponent {
 	@Model({ type: Boolean }) syncedDrawer;
 	@Ref() notifications;
 	router = router;
+	locale = getI18n()?.global.locale ?? 'en';
 
 	async logout() {
 		let res = await authService.logout();
@@ -33,6 +34,16 @@ class TopNavBar extends WorkingComponent {
 	async switchToTeam(team){
 		let res = await authService.switchToTeam(team);
 	};
+  @Watch('locale')
+  onLocaleChanged(newLocale) {
+		this.setLocale(newLocale);
+  }
+	async setLocale(locale){
+		profileService.setLocale({ locale: locale });
+	}
+	get locales(){
+		return locales ?? [];
+	}
 }
 export { TopNavBar }
 export default toNative(TopNavBar);
@@ -104,6 +115,7 @@ export default toNative(TopNavBar);
 				<VCardItem 
 					class="d-flex"
 					:prepend-avatar="$page.props.auth.user.profile_photo_url" 
+					@click.stop
 				>
 					<VCardTitle class="d-flex pl-2">
 							{{ userName }}
@@ -114,6 +126,18 @@ export default toNative(TopNavBar);
 				</VCardItem>
 				<VCardActions class="d-flex flex-grow-1">
 					<VList class="d-flex flex-grow-1 flex-column">
+						<VListItem @click.stop>
+							<VSelect
+								class="mt-2"
+								v-model="locale"
+								:items="locales"
+								:label="$t('profile.lang')"
+								hide-details
+								density="compact"
+								variant="outlined"
+								@update:model-value="setLocale"
+							/>
+						</VListItem>
 						<VListItem :href="route('profile.show')">{{ $t('navigation.profile') }}</VListItem>
 						<VListItem v-if="$page.props.jetstream.hasApiFeatures" :href="route('api-tokens.index')">{{ $t('navigation.api_tokens') }}</VListItem>
 						<VListItem @click="logout">{{ $t('auth.logout') }}</VListItem>

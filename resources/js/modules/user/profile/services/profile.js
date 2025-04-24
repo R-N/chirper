@@ -1,5 +1,7 @@
 import { useAuthStore } from '@/stores/auth';
 import _axios from '@/plugins/axios'; 
+import { getI18n } from '@/plugins/i18n';
+import { getData } from '@/libs/util';
 
 class ProfileService{
   constructor(axios) {
@@ -57,8 +59,10 @@ class ProfileService{
   async setLocale(form) {
     const authStore = useAuthStore();
     let res = await this.axios.put("/user/locale", form);
-    authStore.user.locale = form.locale;
-    i18n.global.locale.value = form.locale ?? 'en';
+    let data = res.data;
+    data = getData(data, 'user');
+    authStore.updateUser(data)
+    getI18n().global.locale = data.locale ?? 'en';
     return res;
   }
 }

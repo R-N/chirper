@@ -2,6 +2,12 @@ import { createI18n as _createI18n } from 'vue-i18n';
 import axios from '@/plugins/axios.js';
 import { deepMerge, getData } from '@/libs/util';
 
+export let locales = [
+  { value: 'en', title: 'English' },
+  { value: 'id', title: 'Bahasa Indonesia' },
+];
+export let messages = {};
+
 export const loadLocaleMessages = (files, trim) => {
   const messages = {}
   const regex = new RegExp(`^\.?\/?${trim}\/?`);
@@ -56,7 +62,7 @@ export const fetchAll = async () => {
 export let i18nInstance = null;
 
 export const createI18n = async() => {
-  let messages = [
+  messages = [
     loadLocaleMessages(
       import.meta.glob("/resources/js/lang-gen/**/*.json", { eager: true }),
       "resources/js/lang-gen"

@@ -13,5 +13,6 @@
   "select_photo": "Select a New Photo",
   "remove_photo": "Remove Photo",
   "email_unverified": "Your email address is unverified.",
-  "photo": "Photo"
+  "photo": "Photo",
+  "lang": "Language"
 }

@@ -108,7 +108,9 @@ class ProfileController extends Controller
             $user->save();
         }
         App::setLocale($locale);
+        $user->loadEntities();
         return ResponseUtil::jsonRedirectResponse([
+            'user' => $user,
             'message' => __('settings.locale_updated', ['locale' => $locale]),
         ], url()->previous());
     }
