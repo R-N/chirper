@@ -33,7 +33,7 @@ class ResponseUtil
             return response()->json($data, $statusCode);
         }
 
-        $response = Redirect::to($route, $data);
+        $response = Redirect::to($route)->with($data);
 
         if ($overrideStatusCode) {
             $response = $response->setStatusCode($statusCode);
