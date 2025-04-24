@@ -16,5 +16,7 @@
   "enable": "Aktifkan",
   "disable": "Nonaktifkan",
   "created": "Dibuat.",
-  "create": "Buat"
+  "create": "Buat",
+  "refresh": "Refresh",
+  "title": "CRUD"
 }

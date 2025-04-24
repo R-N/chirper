@@ -16,5 +16,7 @@
   "enable": "Enable",
   "disable": "Disable",
   "created": "Created.",
-  "create": "Create"
+  "create": "Create",
+  "refresh": "Refresh",
+  "title": "CRUD"
 }

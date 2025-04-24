@@ -17,9 +17,9 @@ let modelEvent = "update:modelValue"
     emits: [modelEvent]
 })
 class CrudView extends ViewBase {
-  @Prop({ default: 'Crud' }) title;
-  @Prop({ default: 'Buat' }) createText;
-  @Prop({ default: 'Refresh' }) refreshText;
+  @Prop({ type: String }) title;
+  @Prop({ type: String }) createText;
+  @Prop({ type: String }) refreshText;
   @Prop({ type: Function }) create;
   @Prop({ type: Function }) fetch;
   @Model({ name: "search", type: [String, Object] }) mySearch;
@@ -40,7 +40,7 @@ export { CrudView };
 export default toNative(CrudView);
 </script>
 <template>
-  <MainCard :title="title">
+  <MainCard :title="title ?? $t('crud.title')">
     <template v-slot:toolbar-left>
       <VBtnToggle v-model="_null" class="fill-height d-inline-flex" title="Bulk Actions">
         <VCheckbox 
@@ -59,14 +59,14 @@ export default toNative(CrudView);
         @click="create"
         :disabled="busy"
         icon="mdi-plus"
-        :text="createText"
+        :text="createText ?? $t('crud.create')"
         size="default"
       />
       <IconButton
         @click="fetch"
         :disabled="busy"
         icon="mdi-refresh"
-        :text="refreshText"
+        :text="refreshText ?? $t('crud.refresh')"
         size="default"
       />
       <slot name="toolbar-left" :busy="busy"></slot>
