@@ -84,7 +84,6 @@ export default toNative(UserCrudView);
         :title="$t('user.title')"
         :create="() => showForm()"
         :fetch="fetch"
-        :create-text="$t('user.item')"
         v-model:search="search"
         :export-csv="exportCsv"
         :export-xlsx="exportXlsx"

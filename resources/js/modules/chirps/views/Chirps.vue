@@ -68,7 +68,6 @@ export default toNative(ChirpCrudView);
         :title="$t('chirp.title')"
         :create="() => showForm()"
         :fetch="fetch"
-        :create-text="itemName"
         v-model:search="search"
         :export-csv="exportCsv"
         :export-xlsx="exportXlsx"

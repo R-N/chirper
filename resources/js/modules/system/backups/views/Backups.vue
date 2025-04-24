@@ -107,7 +107,6 @@ export default toNative(BackupView);
     :title="$t('backup.title')"
     :create="() => showForm()"
     :fetch="fetch"
-    :create-text="$t('backup.item')"
     v-model:search="search"
     :export-csv="exportCsv"
     :export-xlsx="exportXlsx"
