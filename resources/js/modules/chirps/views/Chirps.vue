@@ -85,6 +85,7 @@ export default toNative(ChirpCrudView);
                 :disabled="busy"
                 :confirmTextMaker="bulkConfirmText('delete')"
                 :on-confirm="bulkDelete"
+                size="default"
             />
         </template>
         <template v-slot:default>
@@ -114,7 +115,7 @@ export default toNative(ChirpCrudView);
                 </template>
                 <template v-slot:item.created_at="{ item }">
                     <small class="ml-2 text-sm text-gray-600">{{ duration(item.created_at) }}</small>
-                    <small v-if="item.created_at !== item.updated_at" class="text-sm text-gray-600"> &middot; edited</small>
+                    <small v-if="item.created_at !== item.updated_at" class="text-sm text-gray-600"> &middot; {{ $t('crud.edited') }}</small>
                 </template>
                 <template v-slot:item.user.name="{ item }">
                     <span class="text-gray-800">{{ item.user.name }}</span>
