@@ -49,7 +49,7 @@ const injectAuth = (config) => {
   return config;
 };
 
-const createApi = async () => {
+const createApi = () => {
   const api = axios.create({
     baseURL: axios.defaults.baseURL,
     withCredentials: true,
@@ -62,14 +62,14 @@ const createApi = async () => {
   api.init = () => initXsrf(api);
   let xsrfToken = Cookies.get("XSRF-TOKEN");
   if (!xsrfToken){
-    await api.init();
+    api.init();
   }
   api.interceptors.request.use(injectAuth);
   return api;
 }
 
 axios.interceptors.request.use(injectAuth);
-const api = await createApi();
+const api = createApi();
 
 export {
   api,
