@@ -93,15 +93,19 @@ class FormBase extends WorkingComponent {
       this.emitReset(this.getForm());
   }
   async submit(){
+    this.resetValidation();
     this.validate();
     if(!this.valid) return;
-    if(this.onSubmit){
-        this.busy = true;
-        await this.onSubmit(this.getValue());
-    }else{
-        this.emitSubmit(this.getValue());
-    }
-    this.close();
+    await this.waitBusy(
+      async () => {
+        if(this.onSubmit){
+            await this.onSubmit(this.getValue());
+        }else{
+            this.emitSubmit(this.getValue());
+        }
+        this.close();
+      }
+    );
   }
   close(){}
 }
