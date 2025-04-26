@@ -89,7 +89,7 @@ class CrudViewBase extends ViewBase {
         doc.save(`${this.itemName}_${timestamp()}.pdf`);
     }
 
-    async downloadExport(type="xlsx", query=false, endpoint=null){
+    async downloadExport(type="xlsx", query=false, endpoint=null, releaseBusy=true){
         await this.waitBusy(
             async () => {
                 let res = await this.client.export(null, type, { 
@@ -101,7 +101,7 @@ class CrudViewBase extends ViewBase {
                     }
                 }, endpoint);
                 FileSaver.saveAs(res.data, res.filename);
-            }
+            }, null, releaseBusy
         );
     }
     
@@ -143,7 +143,7 @@ class CrudViewBase extends ViewBase {
             async () => {
                 await this.client.delete(item);
                 deleteFromArray(this.items, item);
-            }, releaseBusy
+            }, null, releaseBusy
         );
     }
 
@@ -181,7 +181,7 @@ class CrudViewBase extends ViewBase {
                     console.log(items);
                     this.showError({ message: this.$t('crud.unknown_fetch_result') });
                 }
-            }, releaseBusy
+            }, null, releaseBusy
         );
     }
 
@@ -193,7 +193,7 @@ class CrudViewBase extends ViewBase {
                 if (obj){
                     this.items.push(obj);
                 }
-            }, releaseBusy
+            }, null, releaseBusy
         );
     }
 
@@ -233,7 +233,7 @@ class CrudViewBase extends ViewBase {
                 }else{
                     item[fieldName] = value;
                 }
-            }, releaseBusy
+            }, null, releaseBusy
         );
     }
 
@@ -273,7 +273,7 @@ class CrudViewBase extends ViewBase {
             async () => {
                 await this.client[`clear_${fieldName}`](item);
                 item[fieldName] = null;
-            }, releaseBusy
+            }, null, releaseBusy
         );
     }
 
@@ -282,7 +282,7 @@ class CrudViewBase extends ViewBase {
             async () => {
                 await this.client[`bulk_${action}`](form);
                 onSuccess?.();
-            }, releaseBusy
+            }, null, releaseBusy
         );
     }
 

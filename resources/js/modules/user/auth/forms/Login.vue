@@ -31,22 +31,14 @@ class LoginForm extends WorkingComponent {
 
   async login() {
     this.myForm.validate();
-    if(!this.valid) return;
-    const view = this;
-    view.globalBusy = true;
-    try{
-      let res = await authService.login(this.form);
-      router.visit(res.redirect || "/dashboard");
-      this.form.reset('password');
-    }catch(e){
-      if (e?.message === "CSRF token mismatch."){
-        window.location.reload();
-      }else{
-        throw e;
-      }
-    } finally {
-      view.globalBusy = false;
-    }
+    // if(!this.valid) return;
+		await this.waitBusy(
+			async () => {
+        let res = await authService.login(this.form);
+        router.visit(res.redirect || "/dashboard");
+        this.form.reset('password');
+			}, "globalBusy"
+		);
   }
 }
 export { LoginForm }

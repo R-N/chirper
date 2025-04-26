@@ -50,16 +50,22 @@ class WorkingComponent extends MyComponent {
         this.tabStore.showError(error);
         // throw error;
     }
-    async waitBusy(f, releaseBusy=true){
+    async waitBusy(f, busy="busy", releaseBusy=true){
         const view = this;
-        view.busy=true;
+        busy = busy || "busy";
+        view[busy] = true;
         try{
             return await f();
-        } catch (error) {
-            view.showError(error);
+        } catch (e) {
+            if (e?.message === "CSRF token mismatch."){
+                window.location.reload();
+            }else{
+                throw e;
+                view.showError(e);
+            }
         } finally {
             if (releaseBusy)
-                view.busy = false;
+                view[busy] = false;
         }
     }
 }
