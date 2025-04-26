@@ -26,8 +26,8 @@ class CrudFormDialogBase extends FormDialogBase {
     this.validate();
     if(!this.valid) return;
     
-		await this.waitBusy(
-			async () => {
+    await this.waitBusy(
+      async () => {
         let res = null;
         if (this.data){
           res = await this.client[this.updateFunction](this.data, this.form);
@@ -40,8 +40,8 @@ class CrudFormDialogBase extends FormDialogBase {
           this.emitSubmit(this.client.getData(res) || this.getValue());
         }
         this.close();
-			}
-		);
+      }
+    );
   }
 }
 export { CrudFormDialogBase };
