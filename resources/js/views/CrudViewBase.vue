@@ -3,7 +3,7 @@
 
 import { Component, Prop, Watch, Model, toNative } from 'vue-facing-decorator';
 import { ViewBase } from '@/views/ViewBase.vue';
-import { deleteFromArray, findIndex, getField, timestamp } from '@/libs/util';
+import { deleteFromArray, findIndex, getField, timestamp, isInertiaForm } from '@/libs/util';
 import debounce from 'lodash/debounce';
 import { VDataTable, VDataTableServer } from 'vuetify/components';
 import FileSaver from 'file-saver';
@@ -228,7 +228,11 @@ class CrudViewBase extends ViewBase {
                     item, 
                     getValue ? getValue(value) : value
                 );
-                item[fieldName] = value;
+                if (isInertiaForm(value)){
+                    item[fieldName] = value[fieldName];
+                }else{
+                    item[fieldName] = value;
+                }
             }, releaseBusy
         );
     }

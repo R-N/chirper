@@ -100,10 +100,8 @@ export default toNative(LogoutOtherBrowserSessionsForm);
                 variant="outlined"
                 class="mt-4"
                 @keyup.enter="logoutOtherBrowserSessions"
+                :error-messages="form.errors.password"
               />
-              <p v-if="form.errors.password" class="text-red-500 text-sm mt-2">
-                {{ form.errors.password }}
-              </p>
               <div class="mt-4 flex justify-end">
                 <VBtn variant="text" @click="closeModal">{{ $t('form.cancel') }}</VBtn>
                 <VBtn color="primary" :loading="form.processing" @click="logoutOtherBrowserSessions" class="ms-3">

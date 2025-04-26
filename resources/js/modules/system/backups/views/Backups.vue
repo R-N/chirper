@@ -12,7 +12,7 @@ import FileUploadDialog from '@/components/dialog/FileUploadDialog.vue';
 import SimpleInputDialog from '@/components/dialog/SimpleInputDialog.vue';
 
 import backupService from '../services/backup.js';
-import { formatDate } from '@/libs/util.js';
+import { formatDate, isInertiaForm } from '@/libs/util.js';
 
 import EditableCellTextField from '@/components/form/editable_cell/EditableCellTextField.vue';
 import { VDataTable } from 'vuetify/components';
@@ -57,10 +57,12 @@ class BackupView extends CrudViewBase {
   showUpload(){
     this.uploadDialog = true;
   }
-  async createBackup(file_name){
+  async createBackup(form){
+    if (!isInertiaForm(form))
+      form = { id: form };
     await this.waitBusy(
       async () => {
-        let res = await backupService.create({ id: file_name });
+        let res = await backupService.create(form);
         this.fetch();
       }
     );
@@ -118,6 +120,7 @@ export default toNative(BackupView);
           :disabled="busy"
           icon="mdi-upload"
           :text="$t('form.upload')"
+          size="default"
       />
     </template>
     <template v-slot:default>
@@ -185,6 +188,7 @@ export default toNative(BackupView);
         :title="$t('backup.create_title')"
         :label="$t('backup.create_label')"
         noInput="true"
+        name="id"
       />
     </template>
   </CrudView>

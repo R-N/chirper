@@ -44,6 +44,7 @@ export default toNative(ChirpFormDialog);
                 v-model="form.message" 
                 :disabled="!interactable" 
                 required
+                :error-messages="form.errors.message"
             />
         </template>
     </FormDialog>

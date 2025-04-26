@@ -1,5 +1,5 @@
 import _axios from '@/plugins/axios'; 
-import { filterObject, isObject, getFileName, jsonToFormData, getData } from '@/libs/util';
+import { filterObject, isObject, getFileName, jsonToFormData, getData, isInertiaForm } from '@/libs/util';
 import { t } from '@/plugins/i18n';
 import BaseService from './base';
 
@@ -131,7 +131,10 @@ class CrudService extends BaseService {
   }
 
   async set_field(field, obj, value, method='patch', endpoint=null){
-    return await this.call(obj, { [field]: value }, method, endpoint);
+    if (!isInertiaForm(value)){
+      value = { [field]: value };
+    }
+    return await this.call(obj, value, method, endpoint);
   }
   async get_field(field, obj=null, endpoint=null){
     return await this.call(obj, {}, 'get', endpoint);

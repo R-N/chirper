@@ -215,5 +215,17 @@ export const getData = (data, name=null) => {
   name = name || 'item';
   return data?.data ?? data?.item ?? data?.items ?? data?.[name?.toLowerCase()] ?? data?.[`${name?.toLowerCase()}s`];
 }
-
+export const isInertiaForm = (obj) => {
+  return obj 
+    && typeof obj === 'object' 
+    && typeof obj.data === 'function' 
+    && typeof obj.submit === 'function';
+}
+export const bindMethod = (cls, obj, methodName) => {
+  const method = cls.prototype[methodName];
+  if (typeof method !== 'function') {
+    throw new Error(`Method ${methodName} does not exist on ${obj.constructor.name}`);
+  }
+  return method.bind(obj);
+}
 

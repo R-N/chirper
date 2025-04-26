@@ -2,7 +2,6 @@
 import { Component, Prop, Ref, toNative } from 'vue-facing-decorator';
 import { WorkingComponent } from '@/components/WorkingComponent.vue';
 import { useForm, router } from '@inertiajs/vue3';
-import InputError from '@/components/form/InputError.vue';
 import { VTextField, VBtn, VCardText, VCardActions } from 'vuetify/components';
 import authService from '@/modules/user/auth/services/auth.js';
 
@@ -12,7 +11,6 @@ import CardTitle from '@/components/card/CardTitle.vue';
   name: "ForgotPasswordForm",
   components: {
     CardTitle,
-    InputError
   }
 })
 class ForgotPasswordForm extends WorkingComponent {
@@ -65,10 +63,7 @@ export default toNative(ForgotPasswordForm);
         :disabled="busy" 
         required
         :rules="[ v => !!v || $t('auth.email_required')]"
-      />
-      <InputError 
-        class="mt-2" 
-        :message="form.errors.email" 
+        :error-messages="form.errors.email" 
       />
       <VBtn 
         raised 

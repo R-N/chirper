@@ -1,7 +1,6 @@
 <script lang="ts">
 import { nextTick } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import InputError from '@/components/form/InputError.vue';
 import { VCard, VCardText, VCardTitle, VCardActions, VTextField, VLabel, VBtn, VSpacer } from 'vuetify/components';
 import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
 import authService from '@/modules/user/auth/services/auth.js';
@@ -14,7 +13,6 @@ import {ViewBase} from '@/views/ViewBase.vue';
   components: {
     AuthLayout,
     GuestLayout,
-    InputError,
     VCard,
     VCardText,
     VCardTitle,
@@ -87,8 +85,8 @@ export default toNative(TwoFactorChallengePage);
                 variant="outlined"
                 autocomplete="one-time-code"
                 autofocus
+                :error-messages="form.errors.code"
               />
-              <InputError class="mt-2" :message="form.errors.code" />
             </div>
             
             <div v-else>
@@ -100,8 +98,8 @@ export default toNative(TwoFactorChallengePage);
                 type="text"
                 variant="outlined"
                 autocomplete="one-time-code"
+                :error-messages="form.errors.recovery_code"
               />
-              <InputError class="mt-2" :message="form.errors.recovery_code" />
             </div>
           </form>
         </VCardText>

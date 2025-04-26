@@ -1,7 +1,8 @@
 <script lang="ts">
-import { Component, Prop, Model, Watch, toNative } from 'vue-facing-decorator';
+import { Component, Prop, Model, Watch, toNative, Setup } from 'vue-facing-decorator';
 import { FormDialogBase } from '@/components/form/FormDialogBase.vue';
 import FormDialog from '@/components/form/FormDialog.vue';
+import { useForm } from '@inertiajs/vue3';
 
 @Component({
     name: "SimpleInputDialog",
@@ -16,10 +17,26 @@ class SimpleInputDialog extends FormDialogBase {
   @Prop({ default: "" }) text;
   @Prop({ default: "" }) type;
   @Prop({ type: String }) label;
+  @Prop({ type: String, default: "value" }) name;
   @Prop({ default: false }) password;
   @Prop({ default: false }) noInput;
   @Prop({ type: [Array, Function] }) rules;
   @Prop({ type: [Function, Number] }) counter;
+  @Prop({ default: null }) errorMessages;
+  @Prop({ default: null }) confirmErrorMessages;
+  @Setup((props, ctx) => {
+      if (props.name){
+          return useForm({
+              [props.name]: null,
+          });
+      }else{
+          return useForm({
+              value: null,
+          });
+      }
+  }) form;
+  @Prop({ default: true }) emitForm;
+  valueEdit = '';
   input = ''
   inputConfirm = ''
   passwordVisible = false;
@@ -38,6 +55,8 @@ class SimpleInputDialog extends FormDialogBase {
   }
 
   getValue(){
+    if (this.emitForm)
+      return this.form;
     return this.input;
   }
 
@@ -73,6 +92,8 @@ export default toNative(SimpleInputDialog);
         required
         :rules="rules"
         :counter="counter"
+        :name="name"
+        :error-messages="errorMessages || form?.errors?.[name]"
       />
       <VTextField 
         class="bigger-input" 
@@ -86,6 +107,8 @@ export default toNative(SimpleInputDialog);
         required
         :rules="rules"
         :counter="counter"
+        :name="name"
+        :error-messages="errorMessages || form?.errors?.[name]"
       />
       <VTextField 
         class="bigger-input" 
@@ -97,6 +120,8 @@ export default toNative(SimpleInputDialog);
         required
         :counter="counter"
         :rules="confirmRules"
+        :name="name+'_confirm'"
+        :error-messages="confirmErrorMessages"
       />
     </template>
   </FormDialog>

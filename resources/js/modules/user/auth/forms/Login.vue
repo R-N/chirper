@@ -5,7 +5,6 @@ import { Component, Prop, toNative, Ref } from 'vue-facing-decorator';
 import { WorkingComponent } from '@/components/WorkingComponent.vue';
 import CardTitle from '@/components/card/CardTitle.vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
-import InputError from '@/components/form/InputError.vue';
 import { VTextField, VCheckbox, VBtn, VCardText, VCardActions, } from 'vuetify/components';
 import authService from '@/modules/user/auth/services/auth.js';
 
@@ -14,7 +13,6 @@ import authService from '@/modules/user/auth/services/auth.js';
   components: {
     CardTitle,
     Link,
-    InputError,
     VTextField, VCheckbox, VBtn, VCardText, VCardActions,
   }
 })
@@ -72,10 +70,7 @@ export default toNative(LoginForm);
         autofocus 
         :disabled="busy" 
         :rules="[ v => !!v || $t('auth.email_required')]"
-      />
-      <InputError 
-        class="mt-2" 
-        :message="form.errors.email" 
+        :error-messages="form.errors.email"
       />
       <VTextField 
         v-model="form.password" 
@@ -89,10 +84,7 @@ export default toNative(LoginForm);
         @click:append="() => { passwordVisible = !passwordVisible }"
         :type="passwordVisible ? 'text' : 'password'"
         :rules="[ v => !!v || $t('auth.password_required')]"
-      />
-      <InputError 
-        class="mt-2" 
-        :message="form.errors.password" 
+        :error-messages="form.errors.password"
       />
       <VCheckbox 
         v-model="form.remember" 

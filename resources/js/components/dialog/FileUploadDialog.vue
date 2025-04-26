@@ -1,10 +1,11 @@
 <script lang="ts">
 import { emptyArray } from '@/libs/util';
 
-import { Component, Prop, Watch, Model, Ref, toNative } from 'vue-facing-decorator';
+import { Component, Prop, Watch, Model, Ref, toNative, Setup } from 'vue-facing-decorator';
 import { DialogBase } from '@/components/dialog/DialogBase.vue';
 
 let defaultBackendUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+import { useForm } from '@inertiajs/vue3';
 
 
 @Component({
@@ -20,12 +21,26 @@ class FileUploadDialog extends DialogBase {
 
   @Prop({ type: String }) title;
   @Prop({ type: String }) text;
+  @Prop({ type: String, default: "file" }) name;
   @Prop({ type: String }) dropText;
   @Prop({ type: String }) browseText;
   @Prop({ default: true }) dropUpload;
 
   @Prop({ default: "" }) acceptedFiles;
   @Prop({ default: [] }) mimeTypes;
+  @Prop({ default: null }) errorMessages;
+  @Setup((props, ctx) => {
+      if (props.name){
+          return useForm({
+              [props.name]: null,
+          });
+      }else{
+          return useForm({
+              value: null,
+          });
+      }
+  }) form;
+  // @Prop({ default: true }) emitForm;
 
   file = null
   files = []
@@ -127,6 +142,9 @@ class FileUploadDialog extends DialogBase {
     } catch (error) {
       comp.files.unshift(comp.file);
       comp.file = null;
+      if (error?.response?.data?.errors){
+        this.form.setError(error.response.data.errors);
+      }
       throw error;
     } finally {
       if (comp.postUpload) comp.postUpload();
@@ -158,6 +176,7 @@ export default toNative(FileUploadDialog);
               :multiple="true"
               show-size
               @change="onFilesChanged"
+              :error-messages="errorMessages || form?.errors?.[name]"
             />
           </VCardText>
           <VCardActions>

@@ -3,7 +3,6 @@ import { useForm, router } from '@inertiajs/vue3';
 import ActionMessage from '@/components/auth/ActionMessage.vue';
 import ActionSection from '@/components/auth/ActionSection.vue';
 import FormSection from '@/components/auth/FormSection.vue';
-import InputError from '@/components/form/InputError.vue';
 import InputLabel from '@/components/auth/InputLabel.vue';
 import { VCard, VCardTitle, VCardText, VCardActions, VTextField, VCheckbox, VBtn, VDialog, VRow, VCol, VSnackbar } from 'vuetify/components';
 import axios from '@/plugins/axios'; 
@@ -14,7 +13,6 @@ import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
     ActionMessage,
     ActionSection, 
     FormSection,
-    InputError, 
     InputLabel,
     VCard, 
     VCardTitle, 
@@ -128,8 +126,8 @@ export default toNative(ApiTokenManagerPage);
                         autofocus
                         outlined
                         dense
+                        :error-messages="createApiTokenForm.errors.name"
                     />
-                    <InputError :message="createApiTokenForm.errors.name" class="mt-2" />
                     </VCol>
                 </VRow>
 

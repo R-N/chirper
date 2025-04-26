@@ -1,6 +1,5 @@
 <script lang="ts">
 import ActionSection from '@/components/auth/ActionSection.vue';
-import InputError from '@/components/form/InputError.vue';
 import { useForm } from '@inertiajs/vue3';
 import { nextTick, ref } from 'vue';
 
@@ -15,7 +14,6 @@ import { router } from '@inertiajs/vue3';
     VDialog,
     VTextField,
     VBtn,
-    InputError,
   }
 })
 class DeleteUserForm extends Vue {
@@ -89,8 +87,8 @@ export default toNative(DeleteUserForm);
                 class="mt-4"
                 autocomplete="current-password"
                 @keyup.enter="deleteUser"
+                :error-messages="form.errors.password"
               />
-              <InputError :message="form.errors.password" class="mt-2" />
               
               <div class="mt-4 d-flex justify-end">
                 <VBtn variant="text" @click="closeModal">{{ $t('form.cancel') }}</VBtn>

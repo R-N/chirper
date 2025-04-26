@@ -1,5 +1,4 @@
 <script lang="ts">
-import InputError from '@/components/form/InputError.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 
 import { VCard, VCardText, VCardTitle, VTextField, VBtn } from 'vuetify/components';
@@ -19,7 +18,6 @@ import {ViewBase} from '@/views/ViewBase.vue';
     VCardTitle,
     VTextField,
     VBtn,
-    InputError,
   }
 })
 class ConfirmPasswordPage extends ViewBase {

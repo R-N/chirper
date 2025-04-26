@@ -20,6 +20,7 @@ class SyncCheckbox extends WorkingComponent {
     @Prop({default: true}) ask;
     @Prop({ type: Function }) onChange;
     @Model({ type: Boolean, default: false }) inputValue;
+    @Prop({ default: null }) errorMessages;
 
     async tryAsk(ask){
         if (!this.disabled){
@@ -67,6 +68,7 @@ export default toNative(SyncCheckbox);
                         readonly
                         class="text-center justify-center justify-self-center"
                         :disabled="disabled"
+                        :error-messages="errorMessages"
                     />
                 </template>
                 <span>{{ text }}</span>

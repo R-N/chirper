@@ -78,6 +78,7 @@ export default toNative(EditableCellSelect);
                 :disabled="busy || disabled"
                 :return-object="returnObject"
                 :multiple="multiple"
+                :error-messages="errorMessages || form?.errors?.[name]"
             />
         </template>
         <template v-slot:default>

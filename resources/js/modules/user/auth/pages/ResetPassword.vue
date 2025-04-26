@@ -1,5 +1,4 @@
 <script lang="ts">
-import InputError from '@/components/form/InputError.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 
 import { VCard, VCardTitle, VCardText, VCardActions, VTextField, VBtn } from 'vuetify/components';
@@ -14,7 +13,6 @@ import {ViewBase} from '@/views/ViewBase.vue';
   components: {
     AuthLayout,
     GuestLayout,
-    InputError,
     VCard,
     VCardTitle,
     VCardText,
@@ -56,14 +54,11 @@ export default toNative(ResetPasswordPage);
           <p class="text-body-2 mb-4">
               This also verifies your email, if you haven't.
           </p>
-          <VTextField id="email" v-model="form.email" :label="$t('user.email')" type="email" required autofocus autocomplete="username" />
-          <InputError :message="form.errors.email" class="mt-2" />
+          <VTextField id="email" v-model="form.email" :label="$t('user.email')" type="email" required autofocus autocomplete="username" :error-messages="form.errors.email" />
 
-          <VTextField id="password" v-model="form.password" :label="$t('auth.password')" type="password" required autocomplete="new-password" class="mt-4" />
-          <InputError :message="form.errors.password" class="mt-2" />
+          <VTextField id="password" v-model="form.password" :label="$t('auth.password')" type="password" required autocomplete="new-password" class="mt-4" :error-messages="form.errors.password" />
 
-          <VTextField id="password_confirmation" v-model="form.password_confirmation" :label="$t('register.confirm_password')"  type="password" required autocomplete="new-password" class="mt-4" />
-          <InputError :message="form.errors.password_confirmation" class="mt-2" />
+          <VTextField id="password_confirmation" v-model="form.password_confirmation" :label="$t('register.confirm_password')"  type="password" required autocomplete="new-password" class="mt-4" :error-messages="form.errors.password_confirmation" />
         </VCardText>
         <VCardActions class="justify-end">
           <VBtn color="primary" variant="elevated" :loading="form.processing" @click="submit">

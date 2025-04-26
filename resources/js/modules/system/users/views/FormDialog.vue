@@ -58,6 +58,7 @@ export default toNative(UserFormDialog);
         :disabled="!interactable" 
         required
         type="email"
+        :error-messages="form.errors.email"
       />
       <VTextField 
         name="name"
@@ -66,6 +67,7 @@ export default toNative(UserFormDialog);
         v-model="form.name" 
         :disabled="!interactable" 
         required
+        :error-messages="form.errors.name"
       />
       <VSelect
         class="bigger-input" 
@@ -77,6 +79,7 @@ export default toNative(UserFormDialog);
         v-model="form.roles"
         multiple
         v-if="hasAvailableRoles"
+        :error-messages="form.errors.roles"
       />
       <VSelect
         class="bigger-input" 
@@ -88,6 +91,7 @@ export default toNative(UserFormDialog);
         v-model="form.permissions"
         multiple
         v-if="hasAvailablePermissions"
+        :error-messages="form.errors.permissions"
       />
     </template>
   </FormDialog>

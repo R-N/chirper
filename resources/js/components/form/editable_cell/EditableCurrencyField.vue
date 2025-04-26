@@ -35,6 +35,7 @@ export default toNative(EditableCellCurrencyField);
                 :disabled="busy || disabled"
                 :required="required"
                 :label="label"
+                :error-messages="errorMessages || form?.errors?.[name]"
             />
         </template>
         <template v-slot:default>

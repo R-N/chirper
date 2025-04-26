@@ -121,6 +121,7 @@ export default toNative(UpdateProfileInformationForm);
             :label="$t('profile.photo')"
             accept="image/png, image/jpeg"
             @change="updatePhotoPreview"
+            :error-messages="form.errors.photo"
           />
 
           <VAvatar v-if="!photoPreview" :image="user.profile_photo_url" :alt="user.name" size="80" cover />
@@ -141,15 +142,13 @@ export default toNative(UpdateProfileInformationForm);
 
       <VRow>
         <VCol cols="12">
-          <VTextField v-model="form.name" :label="$t('user.name')" required autocomplete="name" />
-          <InputError :message="form.errors.name" class="mt-2" />
+          <VTextField v-model="form.name" :label="$t('user.name')" required autocomplete="name" :error-messages="form.errors.name" />
         </VCol>
       </VRow>
 
       <VRow>
         <VCol cols="12">
-          <VTextField v-model="form.email" :label="$t('user.email')" required autocomplete="username" type="email" />
-          <InputError :message="form.errors.email" class="mt-2" />
+          <VTextField v-model="form.email" :label="$t('user.email')" required autocomplete="username" type="email" :error-messages="form.errors.email" />
 
           <div v-if="$page.props.jetstream.hasEmailVerification && user.email_verified_at === null">
             <p class="text-body-2 mt-2">

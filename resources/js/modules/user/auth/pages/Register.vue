@@ -1,7 +1,6 @@
 <script lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
-import InputError from '@/components/form/InputError.vue';
 import { VTextField, VCheckbox, VBtn, VCard, VCardText, VCardActions, VContainer, VRow, VCol, VImg, VCardTitle } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import authService from '@/modules/user/auth/services/auth.js'; 
@@ -26,7 +25,6 @@ import {ViewBase} from '@/views/ViewBase.vue';
     VRow,
     VCol,
     VImg,
-    InputError
   }
 })
 class RegisterPage extends ViewBase {
@@ -54,14 +52,10 @@ export default toNative(RegisterPage);
             {{ $t('register.title') }}
         </VCardTitle>
         <VCardText class="d-flex flex-column pa-0 ga-2">
-          <VTextField v-model="form.name" :label="$t('user.name')" type="text" name="name" autocomplete="name" required autofocus />
-          <InputError class="mt-2" :message="form.errors.name" />
-          <VTextField v-model="form.email" :label="$t('user.email')" type="email" name="email"  autocomplete="email" required />
-          <InputError class="mt-2" :message="form.errors.email" />
-          <VTextField v-model="form.password" :label="$t('auth.password')" type="password" name="password" autocomplete="new-password" required />
-          <InputError class="mt-2" :message="form.errors.password" />
-          <VTextField v-model="form.password_confirmation" :label="$t('register.confirm_password')"type="password" required />
-          <InputError class="mt-2" :message="form.errors.password_confirmation" />
+          <VTextField v-model="form.name" :label="$t('user.name')" type="text" name="name" autocomplete="name" required autofocus :error-messages="form.errors.name" />
+          <VTextField v-model="form.email" :label="$t('user.email')" type="email" name="email"  autocomplete="email" required :error-messages="form.errors.email" />
+          <VTextField v-model="form.password" :label="$t('auth.password')" type="password" name="password" autocomplete="new-password" required :error-messages="form.errors.password" />
+          <VTextField v-model="form.password_confirmation" :label="$t('register.confirm_password')"type="password" required :error-messages="form.errors.password_confirmation" />
   
           <VCheckbox 
             v-if="$page.props.jetstream.hasTermsAndPrivacyPolicyFeature"

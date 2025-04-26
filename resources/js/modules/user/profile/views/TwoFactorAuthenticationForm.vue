@@ -2,7 +2,6 @@
 import { router, useForm, usePage } from '@inertiajs/vue3';
 import ActionSection from '@/components/auth/ActionSection.vue';
 import ConfirmsPassword from '@/components/auth/ConfirmsPassword.vue';
-import InputError from '@/components/form/InputError.vue';
 
 import { VRow, VCol, VTextField, VBtn, VAlert, VCard, VCardText } from 'vuetify/components';
 import { Component, Prop, Vue, toNative, Ref, Watch } from 'vue-facing-decorator';
@@ -12,7 +11,6 @@ import profileService from '@/modules/user/profile/services/profile';
 @Component({
   components: {
     ActionSection,
-    InputError,
     ConfirmsPassword,
     VRow,
     VCol,
@@ -135,8 +133,7 @@ export default toNative(TwoFactorAuthenticationForm);
         </VCardText>
         <VRow v-if="confirming" class="mt-4">
           <VCol cols="12">
-            <VTextField v-model="confirmationForm.code" label="Code" autofocus @keyup.enter="confirmTwoFactorAuthentication" />
-            <InputError :message="confirmationForm.errors.code" />
+            <VTextField v-model="confirmationForm.code" label="Code" autofocus @keyup.enter="confirmTwoFactorAuthentication" :error-messages="confirmationForm.errors.code" />
           </VCol>
         </VRow>
       </VCard>

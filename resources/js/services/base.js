@@ -1,5 +1,5 @@
 import _axios from '@/plugins/axios'; 
-import { filterObject, isObject, getFileName, jsonToFormData, getData } from '@/libs/util';
+import { filterObject, isObject, getFileName, jsonToFormData, getData, bindMethod } from '@/libs/util';
 import { t } from '@/plugins/i18n';
 
 class BaseService {
@@ -19,6 +19,26 @@ class BaseService {
     this._endpoint = endpoint || '/';
     this.methods = methods || [];
     this.updateMethod = updateMethod || 'patch';
+
+    this.bindMethods([
+      "get", "download", "export", "call", 
+      "post", "put", "patch", "delete"
+    ]);
+  }
+
+  bindMethods(methods){
+    this.baseMethods = [];
+    for(const method of methods){
+      this.baseMethods[method] = bindMethod(BaseService, this, method);
+    }
+  }
+
+  async _call(methodName, ...args) {
+    return await this.baseMethods[methodName](...args);
+  }
+
+  __call(methodName) {
+    return this.baseMethods[methodName];
   }
 
   get allFields(){
@@ -115,7 +135,7 @@ class BaseService {
         Accept: this.constructor.ACCEPT_MAP[type.toLowerCase()]
       }
     };
-    return await this.download(endpoint, options, obj);
+    return await this.__call("download")(endpoint, options, obj);
   }
 
   getData(data){
@@ -209,20 +229,20 @@ class BaseService {
 
 
   async post(endpoint, form={}, filter=true, obj=null){
-    return await this.call(endpoint, form, 'post', filter, obj);
+    return await this.__call("call")(endpoint, form, 'post', filter, obj);
   }
   async put(endpoint, form={}, obj=null){
-    return await this.call(endpoint, form, 'put', true, obj);
+    return await this.__call("call")(endpoint, form, 'put', true, obj);
   }
   async patch(endpoint, form={}, obj=null){
-    return await this.call(endpoint, form, 'patch', true, obj);
+    return await this.__call("call")(endpoint, form, 'patch', true, obj);
   }
   async delete(endpoint, form={}, obj=null){
-    return await this.call(endpoint, form, 'destroy', true, obj);
+    return await this.__call("call")(endpoint, form, 'destroy', true, obj);
   }
   async action(method, endpoint, form={}, obj=null) {
     method = method ?? 'post';
-    return await this.call(endpoint, form, method, false, obj);
+    return await this.__call("call")(endpoint, form, method, false, obj);
   }
 }
 

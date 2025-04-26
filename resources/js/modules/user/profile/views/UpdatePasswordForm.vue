@@ -1,7 +1,6 @@
 <script lang="ts">
 import ActionMessage from '@/components/auth/ActionMessage.vue';
 import FormSection from '@/components/auth/FormSection.vue';
-import InputError from '@/components/form/InputError.vue';
 import { useForm } from '@inertiajs/vue3';
 
 import { VTextField, VBtn, VRow, VCol } from 'vuetify/components';
@@ -13,7 +12,6 @@ import { router } from '@inertiajs/vue3';
   components: {
     ActionMessage,
     FormSection,
-    InputError,
     VTextField,
     VBtn,
     VRow,
@@ -76,8 +74,8 @@ export default toNative(UpdatePasswordForm);
             :label="$t('profile.current_password')"
             type="password"
             autocomplete="current-password"
+            :error-messages="form.errors.current_password"
           />
-          <InputError :message="form.errors.current_password" class="mt-2" />
         </VCol>
       </VRow>
 
@@ -91,8 +89,8 @@ export default toNative(UpdatePasswordForm);
             :label="$t('password_reset.new_password')"
             type="password"
             autocomplete="new-password"
+            :error-messages="form.errors.password"
           />
-          <InputError :message="form.errors.password" class="mt-2" />
         </VCol>
       </VRow>
 
@@ -105,8 +103,8 @@ export default toNative(UpdatePasswordForm);
             :label="$t('register.confirm_password')"
             type="password"
             autocomplete="new-password"
+            :error-messages="form.errors.password_confirmation"
           />
-          <InputError :message="form.errors.password_confirmation" class="mt-2" />
         </VCol>
       </VRow>
     </template>
