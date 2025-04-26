@@ -46,9 +46,10 @@ class AuthException extends Exception
     use Redirects;
     use HasStatus;
     
-    public function __construct(AuthExceptionCode $code, $data=true, $message=null)
+    public function __construct(AuthExceptionCode $code, $data=true, $message=null, $title=null)
     {
-        parent::__construct($message || $this->getMessage($data));
         $this->setErrorCode($code);
+        parent::__construct($message || $this->getMessage($data));
+        $this->setTitle($title || $this->getTitle());
     }
 }

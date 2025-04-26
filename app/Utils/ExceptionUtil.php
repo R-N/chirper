@@ -46,8 +46,15 @@ class ExceptionUtil
     // if (property_exists($e, 'redirect') && $e->redirect) {
     //   $data['redirect'] = $e->redirect;
     // }
-    if (property_exists($e, 'status') && $e->status) {
+    if (method_exists($e, 'getStatus')) {
+      $data['status'] = $e->getStatus();
+    } else if (property_exists($e, 'status') && $e->status) {
       $data['status'] = $e->status;
+    }
+    if (method_exists($e, 'getTitle')) {
+      $data['title'] = $e->getTitle();
+    } else if (property_exists($e, 'title') && $e->title) {
+      $data['title'] = $e->title;
     }
 
     if (method_exists($e, 'errors')){

@@ -44,9 +44,10 @@ class BackupException extends Exception
     use HasErrorCode;
     use Redirects;
     
-    public function __construct(BackupExceptionCode $code, $data=true, $message=null)
+    public function __construct(BackupExceptionCode $code, $data=true, $message=null, $title=null)
     {
-        parent::__construct($message || $this->getMessage($data));
         $this->setErrorCode($code);
+        parent::__construct($message || $this->getMessage($data));
+        $this->setTitle($title || $this->getTitle());
     }
 }

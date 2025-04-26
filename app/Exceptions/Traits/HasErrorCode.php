@@ -3,11 +3,13 @@
 namespace App\Exceptions\Traits;
 
 use App\Exceptions\Traits\HasStatusCode;
+use App\Exceptions\Traits\HasTitle;
 use Exception;
 
 trait HasErrorCode
 {
   use HasStatusCode;
+  use HasTitle;
 
   public function getErrorCode()
   {
@@ -66,5 +68,28 @@ trait HasErrorCode
         return parent::getMessage();
     }
     return "";
+  }
+  public function getTitle()
+  {
+    if (property_exists($this, 'title') && $this->title){
+      if (method_exists(get_parent_class($this), 'getTitle')) {
+        return parent::getTitle();
+      }
+      return $this->message;
+    }
+    if (method_exists($this, 'getCode')){
+      $errorCode = $this->getCode();
+      if(method_exists($errorCode, 'getTitle')){
+        $title = $errorCode->getTitle();
+        try{
+          $title = __($title);
+        }catch(Exception $e){}
+        return $title;
+      }
+    }
+    if (method_exists(get_parent_class($this), 'getTitle')) {
+        return parent::getTitle();
+    }
+    return null;
   }
 }
