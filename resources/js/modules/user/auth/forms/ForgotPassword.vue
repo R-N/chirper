@@ -23,19 +23,19 @@ class ForgotPasswordForm extends WorkingComponent {
   });
 
   async reset(){
+    this.form?.clearErrors?.();
     this.myForm.validate();
     if(!this.valid) return;
-    const view = this;
-    view.globalBusy = true;
-    try{
-      let res = await authService.forgotPassword(this.form);
-      this.tabStore.tabDialogs.push({
-        title: this.$t('auth.check_email'),
-        text: this.$t('password_reset.sent')
-      });
-    } finally {
-      view.globalBusy = false;
-    }
+    
+    await this.waitBusy(
+      async () => {
+        let res = await authService.forgotPassword(this.form);
+        this.tabStore.tabDialogs.push({
+          title: this.$t('auth.check_email'),
+          text: this.$t('password_reset.sent')
+        });
+      }, "globalBusy"
+    );
   }
 }
 export { ForgotPasswordForm };

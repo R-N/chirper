@@ -36,9 +36,10 @@ class SyncCheckbox extends WorkingComponent {
     }
     async change(){
         if (this.onChange){
-            this.busy = true;
-            await this.onChange(!this.inputValue, this.releaseBusy);
-            this.busy = false;
+            await this.waitBusy(
+                async () => await this.onChange(!this.inputValue, this.releaseBusy),
+                // null, this.releaseBusy
+            );
         } else{
             // this.emitChange({ value: !this.inputValue, releaseBusy: this.releaseBusy });
             this.$emit('update:modelValue', !this.inputValue, this.releaseBusy);

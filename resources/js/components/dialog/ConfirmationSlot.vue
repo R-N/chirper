@@ -27,10 +27,12 @@ class ConfirmationSlot extends WorkingComponent {
     return true;
   }
 
-  confirm(){
+  async confirm(){
     if(this.onConfirm){
-      this.busy = true;
-      this.onConfirm();
+      await this.waitBusy(
+          async () => await this.onConfirm(),
+          // null, this.releaseBusy
+      );
     }else{
       this.emitConfirm();
     }

@@ -34,19 +34,18 @@ class VerifyEmailForm extends WorkingComponent {
     router.visit(res.redirect || "/login");
   }
   async send(){
+    this.form?.clearErrors?.();
     this.myForm.validate();
     if(!this.valid) return;
-    const view = this;
-    view.globalBusy = true;
-    try{
-      let res = await authService.verifyEmail(this.form);
-      this.tabStore.tabDialogs.push({
-        title: this.$t('auth.check_email'),
-        text: this.$t('verify_email.sent')
-      });
-    } finally {
-      view.globalBusy = false;
-    }
+    await this.waitBusy(
+      async () => {
+        let res = await authService.verifyEmail(this.form);
+        this.tabStore.tabDialogs.push({
+          title: this.$t('auth.check_email'),
+          text: this.$t('verify_email.sent')
+        });
+      }, "globalBusy"
+    );
   }
 }
 export { VerifyEmailForm };

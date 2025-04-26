@@ -48,10 +48,12 @@ class DialogBase extends FormBase {
         return value;
     }
 
-    async _close(){
+    async close(){
         if(this.onCancel){
-            this.busy = true;
-            await this.onCancel(this.myDialog, this.releaseBusy);
+            await this.waitBusy(
+                async () => await this.onCancel(this.myDialog, this.releaseBusy),
+                // null, this.releaseBusy
+            );
         }else{
             // this.emitCancel({ value: this.myDialog, releaseBusy: this.releaseBusy });
             this.$emit("cancel", this.myDialog, this.releaseBusy);
@@ -71,9 +73,6 @@ class DialogBase extends FormBase {
         if (this.reset)
             this.reset();
         this.busy = false;
-    }
-    async close(){
-        return await this._close();
     }
 
     get interactable(){

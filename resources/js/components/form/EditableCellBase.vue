@@ -46,14 +46,15 @@ class EditableCellBase extends WorkingComponent {
         return this.valueEdit;
     }
 
-    finish(){
+    async finish(){
         this.form.clearErrors();
         this.form[this.name] = this.valueEdit;
         this.$emit("change", this.getValue());
         if (this.onFinish){
-            this.busy = true;
-            this.onFinish(this.getValue(), this.releaseBusy);
-            this.busy = false;
+            await this.waitBusy(
+                async () => await this.onFinish(this.getValue(), this.releaseBusy),
+                // null, this.releaseBusy
+            );
         } else{
             // this.emitFinish({ value: this.valueEdit, releaseBusy: this.releaseBusy });
             this.$emit("finish", this.getValue(), this.releaseBusy);
