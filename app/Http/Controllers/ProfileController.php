@@ -8,12 +8,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Inertia\Inertia;
 use Inertia\Response;
 use App\Utils\ResponseUtil;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 
 class ProfileController extends Controller
@@ -97,21 +93,5 @@ class ProfileController extends Controller
         return ResponseUtil::jsonRedirectResponse([
             "message" => __('profile.deleted'),
         ], route('login'));
-    }
-    
-    function setLocale(Request $request) {
-        $locale = $request->input('locale');
-        Session::put('locale', $locale);
-        $user = $request->user();
-        if ($user){
-            $user->locale = $locale;
-            $user->save();
-        }
-        App::setLocale($locale);
-        $user->loadEntities();
-        return ResponseUtil::jsonRedirectResponse([
-            'user' => $user,
-            'message' => __('settings.locale_updated', ['locale' => $locale]),
-        ], url()->previous());
     }
 }

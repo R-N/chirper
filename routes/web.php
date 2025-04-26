@@ -11,6 +11,7 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\LanguageController;
 use App\Models\Backup;
 
 Route::get('/', function () {
@@ -48,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/user/api-tokens', [ApiTokenController::class, 'index'])->name('api-tokens.index');
-    Route::put('/user/locale', [ProfileController::class, 'setLocale'])->name('profile.locale');
+    Route::put('/user/locale', [LanguageController::class, 'setLocale'])->name('profile.locale');
 });
 
 Route::middleware('auth:sanctum', 'verified')->group(function () {

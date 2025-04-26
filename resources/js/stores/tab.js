@@ -19,8 +19,10 @@ export const useTabStore = defineStore('tab', {
         this.tabDialogs.push(error);
       }else{
         title = title || "Error";
-        if (error.redirect && !onDismiss)
-          onDismiss = () => router.visit(error.redirect);
+        if (error.redirect && !onDismiss){
+          const redirect = error.redirect;
+          onDismiss = async () => await router.visit(redirect);
+        }
         error = error.message || error;
         this.tabDialogs.push({
           title, text: error, onDismiss,

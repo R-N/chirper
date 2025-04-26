@@ -11,6 +11,8 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Utils\ResponseUtil;
+use App\Exceptions\AuthException;
+use App\Exceptions\AuthExceptionCode;
 
 class ConfirmablePasswordController extends Controller
 {
@@ -31,9 +33,7 @@ class ConfirmablePasswordController extends Controller
             'email' => $request->user()->email,
             'password' => $request->password,
         ])) {
-            return ResponseUtil::jsonRedirectResponse([
-                'message' => __('errors.bad_request'),
-            ], route('password.confirm'), 400);
+            throw new AuthException(AuthExceptionCode::BAD_REQUEST);
         }
 
         $request->session()->put('auth.password_confirmed_at', time());

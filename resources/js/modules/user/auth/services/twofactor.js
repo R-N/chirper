@@ -1,50 +1,50 @@
 import { useAuthStore } from '@/stores/auth';
-import _axios from '@/plugins/axios'; 
+import BaseService from '@/services/base';
 
-class TwoFactorAuthService{
+class TwoFactorAuthService extends BaseService{
   constructor(axios) {
-    this.axios = axios || _axios;
+    super(axios);
   }
   async enableTwoFactorAuthentication(){
-    let res = await this.axios.post(route('two-factor.enable'));
+    let res = await this.post(route('two-factor.enable'));
     let qrCode = await this.showQrCode();
     let setupKey = await this.showSetupKey();
     let recoveryCodes = await this.showRecoveryCodes();
     return {
-      ...res.data,
+      ...res,
       qrCode,
       setupKey,
       recoveryCodes
     }
   };
   async showQrCode(){
-    let res = await this.axios.get(route('two-factor.qr-code'));
-    return res.data.svg;
+    let res = await this.get(route('two-factor.qr-code'));
+    return res.svg;
   };
 
   async showSetupKey(){
-    let res = await this.axios.get(route('two-factor.secret-key'));
-    return res.data.secretKey;
+    let res = await this.get(route('two-factor.secret-key'));
+    return res.secretKey;
   }
 
   async showRecoveryCodes(){
-    let res = await this.axios.get(route('two-factor.recovery-codes'));
-    return res.data;
+    let res = await this.get(route('two-factor.recovery-codes'));
+    return res;
   };
 
   async confirmTwoFactorAuthentication(form){
-    let res = await this.axios.post(route('two-factor.confirm'), form);
-    return res.data;
+    let res = await this.post(route('two-factor.confirm'), form);
+    return res;
   };
 
   async regenerateRecoveryCodes(){
-    let res = await this.axios.post(route('two-factor.confirm'));
+    let res = await this.post(route('two-factor.confirm'));
     return this.showRecoveryCodes();
   };
 
   async disableTwoFactorAuthentication(){
-    let res = await this.axios.delete(route('two-factor.disable'));
-    return res.data;
+    let res = await this.delete(route('two-factor.disable'));
+    return res;
   };
 }
 

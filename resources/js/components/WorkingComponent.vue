@@ -47,7 +47,8 @@ class WorkingComponent extends MyComponent {
         this.tabStore.tabBusy = busy;
     }
     showError(error){
-        throw error;
+        this.tabStore.showError(error);
+        // throw error;
     }
     async waitBusy(f, releaseBusy=true){
         const view = this;

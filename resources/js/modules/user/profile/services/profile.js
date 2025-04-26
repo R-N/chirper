@@ -1,35 +1,35 @@
 import { useAuthStore } from '@/stores/auth';
-import _axios from '@/plugins/axios'; 
 import { getI18n } from '@/plugins/i18n';
 import { getData } from '@/libs/util';
+import BaseService from '@/services/base';
 
-class ProfileService{
+class ProfileService extends BaseService{
   constructor(axios) {
-    this.axios = axios || _axios;
+    super(axios);
   }
 
   async deleteUser(form) {
     //let target = route('profile.destroy');
     let target = route('current-user.destroy');
-    let res = await this.axios.delete(target, { data: form });
-    return res.data;
+    let res = await this.delete(target, { data: form });
+    return res;
   }
   async logoutOtherBrowserSessions(form){
     let target = route('other-browser-sessions.destroy');
-    let res = await this.axios.delete(target, { data: form });
-    return res.data;
+    let res = await this.delete(target, { data: form });
+    return res;
   };
   async updatePassword(form) {
     // let target = route('password.update');
     // let target = '/user/password';
     let target = route('user-password.update');
-    let res = await this.axios.put(target, form);
-    return res.data;
+    let res = await this.put(target, form);
+    return res;
   }
   
   async _updateProfileInformation(form) {
-    let res = await this.axios.patch(route('profile.update'), form);
-    return res.data;
+    let res = await this.patch(route('profile.update'), form);
+    return res;
   }
   
   async updateProfileInformation(form, photo=null){
@@ -42,7 +42,7 @@ class ProfileService{
       formData.append("photo", photo || form.photo);
     }
     
-    let res = await this.axios.post(route('user-profile-information.update'), formData, {
+    let res = await this.post(route('user-profile-information.update'), formData, {
       headers: { "Content-Type": "multipart/form-data" },
       params: {
         // Laravel won't process multipart/form-data in a PUT request
@@ -50,16 +50,16 @@ class ProfileService{
         _method: "PUT", 
       },
     });
-    return res.data;
+    return res;
   };
   async deletePhoto(){
-    let res = await this.axios.delete(route('current-user-photo.destroy'));
-    return res.data;
+    let res = await this.delete(route('current-user-photo.destroy'));
+    return res;
   };
   async setLocale(form) {
     const authStore = useAuthStore();
-    let res = await this.axios.put("/user/locale", form);
-    let data = res.data;
+    let res = await this.put("/user/locale", form);
+    let data = res;
     data = getData(data, 'user');
     authStore.updateUser(data)
     getI18n().global.locale = data.locale ?? 'en';

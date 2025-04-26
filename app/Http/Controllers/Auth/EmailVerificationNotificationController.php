@@ -8,6 +8,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Utils\ResponseUtil;
+use App\Exceptions\AuthException;
+use App\Exceptions\AuthExceptionCode;
 
 class EmailVerificationNotificationController extends Controller
 {
@@ -27,9 +29,8 @@ class EmailVerificationNotificationController extends Controller
         }
 
         if ($user->hasVerifiedEmail()) {
-            return ResponseUtil::jsonRedirectResponse([
-                'message' => __('auth.email_already_verified'),
-            ], route('dashboard'), 302);
+            throw (new AuthException(AuthExceptionCode::EMAIL_ALREADY_VERIFIED))
+                ->setRedirect(route('dashboard'));
         }
 
         $request->user()->sendEmailVerificationNotification();

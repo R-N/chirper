@@ -10,6 +10,10 @@ import { VAlert, VExpandTransition } from "vuetify/components";
 })
 class InputError extends Vue {
   @Prop({ type: String, default: "" }) message!: string;
+
+  get messageIsArray(){
+    return Array.isArray(this.message);
+  }
 }
 
 export default toNative(InputError);
@@ -18,7 +22,12 @@ export default toNative(InputError);
 <template>
   <VExpandTransition>
     <VAlert v-if="message" type="error" variant="tonal" density="compact">
-      {{ message }}
+      <ul v-if="messageIsArray">
+        <li v-for="(msg, i) in message">
+          {{ msg }}
+        </li>
+      </ul>
+      <p v-else>{{ message }}</p>
     </VAlert>
   </VExpandTransition>
 </template>

@@ -1,31 +1,59 @@
 import _axios from '@/plugins/axios'; 
 import { filterObject, isObject, getFileName, jsonToFormData, getData } from '@/libs/util';
 import { t } from '@/plugins/i18n';
+import BaseService from './base';
 
-class CrudService {
+class CrudService extends BaseService {
   constructor(
     name,
     endpoint,
-    methods=['index', 'fetch', 'show', 'get', 'store', 'create', 'put', 'patch', 'update', 'destroy', 'delete'],
+    methods=[],
     fields=[],
-    files=[],
+    files=['file'],
     setters=true,
     getters=false,
     actions=[],
     updateMethod='patch',
     axios=null,
   ){
-    this.axios = axios || _axios;
-    this.name = name;
-    this._endpoint = endpoint;
-    this.methods = methods;
+    super(axios, endpoint, methods, name, files, updateMethod);
     this.fields = fields;
-    this.files = files;
-    this.updateMethod = updateMethod;
 
     this.createSetters(setters);
     this.createGetters(getters);
     this.createActions(actions);
+  }
+  async get(obj, options={}, endpoint=null){
+    return await super.get(endpoint, options, obj);
+  }
+
+  async download(obj, options={}, endpoint=null){
+    return await super.download(endpoint, options, obj);
+  }
+
+  async export(obj, type='xlsx', options={}, endpoint=null){
+    return await super.export(endpoint, type, options, obj);
+  }
+
+  getData(data){
+    return getData(data, this.name);
+  }
+
+  async call(obj=null, form={}, method='put', endpoint=null, filter=true){
+    return await super.call(endpoint, form, method, filter, obj);
+  }
+
+  async post(obj=null, form={}, endpoint=null, filter=true){
+    return await super.post(endpoint, form, filter, obj);
+  }
+  async put(obj, form={}, endpoint=null){
+    return await super.put(endpoint, form, obj);
+  }
+  async patch(obj, form={}, endpoint=null){
+    return await super.patch(endpoint, form, obj);
+  }
+  async delete(obj, form={}, endpoint=null){
+    return await super.delete(endpoint, form, obj);
   }
 
   get allFields(){
@@ -98,120 +126,21 @@ class CrudService {
     }
   }
 
+  async index(options={}, endpoint=null){
+    return await this.get(null, options, endpoint);
+  }
+
   async set_field(field, obj, value, method='patch', endpoint=null){
     return await this.call(obj, { [field]: value }, method, endpoint);
   }
-
   async get_field(field, obj=null, endpoint=null){
     return await this.call(obj, {}, 'get', endpoint);
-  }
-
-  endpoint(obj=null, endpoint=null){
-    obj = obj?.id ?? obj;
-    endpoint = endpoint ?? this._endpoint;
-    // handle named routes
-    if(obj == null){
-      if (endpoint.includes('/')) {
-        return endpoint;
-      }else{
-        try{
-          return route(endpoint);
-        }catch(e){
-          return endpoint;
-        }
-      }
-    }else{
-      if (endpoint.includes('/')) {
-        return `${endpoint}/${obj}`;
-      }else{
-        try{
-          return route(endpoint, obj);
-        }catch(e){
-          return `${endpoint}/${obj}`;
-        }
-      }
-    }
-  }
-
-  checkMethod(method){
-    method = method.toLowerCase();
-    if(this.methods.includes(method))
-      return true;
-    let err = new Error(t('crud.method_not_allowed', {
-      method: method,
-      endpoint: this.endpoint()
-    }));
-    err.show = true;
-    err.title = "Not allowed";
-    throw err;
-  }
-
-  checkFiles(form, files={}){
-    if (this.files.length == 0 || !this.files)
-      return form;
-    
-    const formData = jsonToFormData(form);
-    this.files.forEach((f) => {
-      if (f in form && form[f]){
-        formData.set(f, form[f]);
-        formData._has_files = true;
-      }else if (files && f in files && files[f]){
-        formData.set(f, files[f]);
-        formData._has_files = true;
-      }
-    });
-    return formData._has_files ? formData : form;
-  }
-
-  async index(options={}, endpoint=null){
-    return await this.get(null, options, endpoint);
   }
   async fetch(options={}, endpoint=null){
     return await this.index(options, endpoint);
   }
-
-  async get(obj, options={}, endpoint=null){
-    let res = await axios.get(this.endpoint(obj, endpoint), options);
-    return res.data;
-  }
-
   async show(obj, options={}, endpoint=null){
     return await this.get(obj, options, endpoint);
-  }
-
-  async download(obj, options={}, endpoint=null){
-    let res = await axios.get(this.endpoint(obj, endpoint), {
-      ...options,
-      responseType: 'blob',
-    });
-    res.filename = getFileName(res);
-    return res;
-  }
-
-  static ACCEPT_MAP = {
-    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    csv: 'text/csv',
-    pdf: 'application/pdf',
-    zip: 'application/zip'
-  }
-
-  async export(obj, type='xlsx', options={}, endpoint=null){
-    options = { 
-      ...options,
-      params: {
-        ...(options?.params ?? {}),
-        export_type: type
-      },
-      headers: {
-        ...(options?.headers ?? {}),
-        Accept: this.constructor.ACCEPT_MAP[type.toLowerCase()]
-      }
-    };
-    return await this.download(obj, options, endpoint);
-  }
-
-  getData(data){
-    return getData(data, this.name.toLowerCase());
   }
   async create(form, endpoint=null){
     return await this.post(null, form, endpoint);
@@ -219,95 +148,11 @@ class CrudService {
   async store(form, endpoint=null){
     return await this.post(null, form, endpoint);
   }
-
-  async call(obj=null, form={}, method='put', endpoint=null, filter=true){
-    // this.checkMethod(method);
-
-    // get obj id but store the actual obj
-    let obj0 = obj;
-    obj = obj?.id ?? obj;
-
-    // prepare files
-    let hasFiles = false;
-    if (form){
-      if(filter)
-        form = filterObject(form, this.allFields);
-      form = this.checkFiles(form);
-      hasFiles = form._has_files;
-    }
-    let res = null;
-
-    // set api target, allowing custom endpoint
-    let target = this.endpoint(obj, endpoint);
-
-    // resolve update method to proper HTTP method
-    if ([this.updateMethod, 'update'].includes(method.toLowerCase())){
-      method = this.updateMethod.toUpperCase();
-    }
-
-    // if delete, data needs to be handled differently
-    if (['delete', 'destroy'].includes(method.toLowerCase())){
-      form = {
-        data: form
-      };
-      method = 'delete';
-    }
-
-    // choose function based on method
-    // needs to be done before files because
-    // files need post
-    let f = this.axios[method.toLowerCase()];
-
-    // prepare files if any
-    let options = {};
-    if (hasFiles){
-      options = {
-        ...options,
-        headers: { "Content-Type": "multipart/form-data" },
-        params: {
-          // Laravel won't process multipart/form-data in a PUT request
-          // So we send a POST request but spoof it
-          _method: method.toUpperCase(), 
-        },
-      };
-      f = this.axios.post;
-    }
-
-    // make api call
-    res = await f(target, form, options);
-
-    // auto update object
-    if (isObject(obj0) || Array.isArray(obj0)){
-      if (res?.data){
-        Object.assign(obj0, this.getData(res.data));
-      }
-    }
-
-    return res.data;
-  }
-
-
-  async post(obj=null, form={}, endpoint=null, filter=true){
-    return await this.call(obj, form, 'post', endpoint, filter);
-  }
-  async put(obj, form={}, endpoint=null){
-    return await this.call(obj, form, 'put', endpoint);
-  }
-  async patch(obj, form={}, endpoint=null){
-    return await this.call(obj, form, 'patch', endpoint);
-  }
   async update(obj, form={}, endpoint=null){
     return await this.call(obj, form, this.updateMethod, endpoint);
   }
-  async delete(obj, form={}, endpoint=null){
-    return await this.call(obj, form, 'destroy', endpoint);
-  }
   async destroy(obj, form={}, endpoint=null){
     return await this.delete(obj, form, endpoint);
-  }
-  async action(method, endpoint, obj=null, form={}) {
-    method = method ?? 'post';
-    return await this.call(obj, form, method, endpoint, false);
   }
 }
 

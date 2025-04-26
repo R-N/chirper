@@ -36,7 +36,6 @@ class GuestLayout extends ViewBase {
   errorCaptured(error, vm, info) {
     if (error?.show || error?.response?.data?.show) {
       this.tabStore.showError(error?.response?.data ?? error);
-      console.warn(error);
       return true;
     } 
     return false;

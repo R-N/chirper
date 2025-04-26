@@ -9,6 +9,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use App\Utils\ResponseUtil;
 use App\Models\User;
+use App\Exceptions\AuthException;
+use App\Exceptions\AuthExceptionCode;
 
 class VerifyEmailController extends Controller
 {
@@ -21,15 +23,12 @@ class VerifyEmailController extends Controller
         $user = $request->user() ?? User::firstOrFail($request->input('email'));
 
         if (!$user){
-            return ResponseUtil::jsonRedirectResponse([
-                'message' => __('auth.user_not_found'),
-            ], $redirect, 404);
+            throw new AuthException(AuthExceptionCode::USER_NOT_FOUND);
         }
 
         if ($user->hasVerifiedEmail()) {
-            return ResponseUtil::jsonRedirectResponse([
-                'message' => __('auth.email_already_verified'),
-            ], $redirect, 302);
+            throw (new AuthException(AuthExceptionCode::EMAIL_ALREADY_VERIFIED))
+                ->setRedirect(route('dashboard'));
         }
 
         if ($user->markEmailAsVerified()) {

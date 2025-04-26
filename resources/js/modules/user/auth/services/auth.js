@@ -1,10 +1,10 @@
 import { useAuthStore } from '@/stores/auth';
-import _axios from '@/plugins/axios'; 
 import { getI18n } from '@/plugins/i18n';
+import BaseService from '@/services/base';
 
-class AuthService{
+class AuthService extends BaseService{
   constructor(axios) {
-    this.axios = axios || _axios;
+    super(axios);
   }
 
   async login(form) {
@@ -15,21 +15,21 @@ class AuthService{
         remember: data.remember ? 'on' : '',
     }));
 
-    let res = await this.axios.post("/login", form);
+    let res = await this.post("/login", form);
     authStore.logout();
-    if (res.data.auth_token){
-      authStore.auth_token = res.data.auth_token;
+    if (res.auth_token){
+      authStore.auth_token = res.auth_token;
     }
-    if (res.data.user){
-      authStore.updateUser(res.data.user);
-      getI18n().global.locale = res.data.user.locale ?? 'en';
+    if (res.user){
+      authStore.updateUser(res.user);
+      getI18n().global.locale = res.user.locale ?? 'en';
     }
     return res;
   }
   async logout() {
     const authStore = useAuthStore();
 
-    let res = await this.axios.get("/logout");
+    let res = await this.get("/logout");
 
     authStore.logout();
     return res;
@@ -40,42 +40,42 @@ class AuthService{
     // }, {
     //   preserveState: false,
     // });
-    let res = await this.axios.put(route('current-team.update'), {
+    let res = await this.put(route('current-team.update'), {
       team_id: team.id,
     });
-    return res.data;
+    return res;
   };
   async register(form) {
     const authStore = useAuthStore();
-    let res = await this.axios.post("/register", form);
-    if (res.data.suer) authStore.updateUser(res.data.user);
-    if (res.data.auth_token) authStore.auth_token = res.data.auth_token;
-    return res.data;
+    let res = await this.post("/register", form);
+    if (res.suer) authStore.updateUser(res.user);
+    if (res.auth_token) authStore.auth_token = res.auth_token;
+    return res;
   }
   async twoFactorLogin(form) {
     // await form.post(route('two-factor.login'));
-    let res = await this.axios.post(route('two-factor.login'), form);
-    return res.data;
+    let res = await this.post(route('two-factor.login'), form);
+    return res;
   }
   async forgotPassword(form) {
     //await form.post(route('password.email'));
-    let res = await this.axios.post(route('password.email'), form);
-    return res.data;
+    let res = await this.post(route('password.email'), form);
+    return res;
   }
   async resetPassword(form) {
     //let target = route('password.store');
     let target = route('password.store');
-    let res = await this.axios.post(target, form);
-    return res.data;
+    let res = await this.post(target, form);
+    return res;
   }
   async confirmPassword(form) {
     //await form.post(route('password.confirm'));
-    let res = await this.axios.post(route('password.confirm'), form);
-    return res.data;
+    let res = await this.post(route('password.confirm'), form);
+    return res;
   }
   async verifyEmail(form) {
-    let res = await this.axios.post(route('verification.send'), form);
-    return res.data;
+    let res = await this.post(route('verification.send'), form);
+    return res;
   }
 }
 

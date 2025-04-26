@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use App\Utils\ArrayUtil;
+use App\Utils\ResponseUtil;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Session;
+use App\Exceptions\LanguageException;
+use App\Exceptions\LanguageExceptionCode;
 
 class LanguageController extends Controller
 {
@@ -12,7 +17,7 @@ class LanguageController extends Controller
         $path = resource_path('lang');
     
         if (!File::exists($path)) {
-            return response()->json([]);
+            throw new LanguageException(LanguageExceptionCode::NOT_FOUND);
         }
     
         $locales = collect(File::directories($path))
@@ -27,7 +32,7 @@ class LanguageController extends Controller
         $path = resource_path("lang/{$locale}");
 
         if (!File::exists($path)) {
-            return response()->json(['message' => __('lang.locale_not_found')], 404);
+            throw new LanguageException(LanguageExceptionCode::NOT_FOUND);
         }
 
         $translations = [];
@@ -47,5 +52,21 @@ class LanguageController extends Controller
         return response()->json([
             'items' => $converted,
         ]);
+    }
+    
+    function setLocale(Request $request) {
+        $locale = $request->input('locale');
+        Session::put('locale', $locale);
+        $user = $request->user();
+        if ($user){
+            $user->locale = $locale;
+            $user->save();
+        }
+        App::setLocale($locale);
+        $user->loadEntities();
+        return ResponseUtil::jsonRedirectResponse([
+            'user' => $user,
+            'message' => __('settings.locale_updated', ['locale' => $locale]),
+        ], url()->previous());
     }
 }

@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 
 use App\Utils\ResponseUtil;
 use App\Models\Backup;
-use App\Exceptions\BackupException;
 use App\Utils\ExportUtil;
 
 class BackupController extends Controller
@@ -23,18 +22,7 @@ class BackupController extends Controller
 
     public function store(Request $request)
     {
-        try{
-            Backup::create();
-        }catch(BackupException $e){
-            switch($e->getCode()){
-                case BackupException::BACKUP_FAILED: {
-                    return ResponseUtil::jsonRedirectResponse([
-                        'message' => $e->getMessage()
-                    ], route('system.backups.index'), 500);
-                }
-            }
-            throw $e;
-        }
+        Backup::create();
         return ResponseUtil::jsonRedirectResponse([
             'message' => __('backup.created'),
         ], route('system.backups.index'), 201);
@@ -88,28 +76,10 @@ class BackupController extends Controller
 
     public function restore(Request $request, Backup $backup)
     {
-        try{
-            $backup->restore();
-            return ResponseUtil::jsonRedirectResponse([
-                'message' => __('backup.restored'),
-            ], route('system.backups.index'));
-        }catch(BackupException $e){
-            switch($e->getCode()){
-                case BackupException::BACKUP_NOT_FOUND: 
-                case BackupException::DB_DUMP_NOT_FOUND: {
-                    return ResponseUtil::jsonRedirectResponse([
-                        'message' => $e->getMessage()
-                    ], route('system.backups.index'), 404);
-                }
-                case BackupException::FAIL_OPEN_ZIP:
-                case BackupException::RESTORE_FAILED: {
-                    return ResponseUtil::jsonRedirectResponse([
-                        'message' => $e->getMessage()
-                    ], route('system.backups.index'), 500);
-                }
-            }
-            throw $e;
-        }
+        $backup->restore();
+        return ResponseUtil::jsonRedirectResponse([
+            'message' => __('backup.restored'),
+        ], route('system.backups.index'));
     }
 
     public function export($type='xlsx')

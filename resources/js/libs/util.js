@@ -209,10 +209,11 @@ export const deepAssign = (base, override) => {
 export const deepMerge = (objects) => {
   return objects.reduce((acc, curr) => deepAssign(acc, curr), {});
 }
-export const getData = (data, name='item') => {
+export const getData = (data, name=null) => {
   if (!data)
     return null;
-  return data?.data ?? data?.item ?? data?.items ?? data?.[name.toLowerCase()] ?? data?.[`${name.toLowerCase()}s`];
+  name = name || 'item';
+  return data?.data ?? data?.item ?? data?.items ?? data?.[name?.toLowerCase()] ?? data?.[`${name?.toLowerCase()}s`];
 }
 
 

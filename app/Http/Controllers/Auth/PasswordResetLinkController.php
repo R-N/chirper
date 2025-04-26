@@ -11,6 +11,8 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Utils\ResponseUtil;
+use App\Exceptions\AuthException;
+use App\Exceptions\AuthExceptionCode;
 
 class PasswordResetLinkController extends Controller
 {
@@ -50,10 +52,8 @@ class PasswordResetLinkController extends Controller
                 'email' => $email,
             ], url()->previous());
         }
-        return ResponseUtil::jsonRedirectResponse([
-            'message' => __('auth.password_reset_send_fail'),
-            'status' => __($status),
-            'email' => $email,
-        ], route('password.request'), 500);
+
+        throw (new AuthException(AuthExceptionCode::PASSWORD_RESET_SEND_FAIL))
+            ->setStatus(__($status));
     }
 }

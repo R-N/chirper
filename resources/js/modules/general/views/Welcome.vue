@@ -11,7 +11,7 @@ import {ViewBase} from '@/views/ViewBase.vue';
 })
 class WelcomeView extends ViewBase {
   tryError(){
-    let err = new Error('Unknown error!!!');
+    let err = new Error('Test error!!!');
     err.show = true;
     throw err;
   }

@@ -15,6 +15,8 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Utils\ResponseUtil;
+use App\Exceptions\AuthException;
+use App\Exceptions\AuthExceptionCode;
 
 class NewPasswordController extends Controller
 {
@@ -69,10 +71,7 @@ class NewPasswordController extends Controller
             ], route('password.request'));
         }
 
-        return ResponseUtil::jsonRedirectResponse([
-            'message' => __('errors.invalid_token'),
-            'status' => $status,
-            'email' => $email,
-        ], route('password.request'), 403);
+        throw (new AuthException(AuthExceptionCode::INVALID_TOKEN))
+            ->setStatus($status);
     }
 }
