@@ -1,7 +1,7 @@
 <script lang="ts">
 import { nextTick } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import InputError from '@/components/auth/InputError.vue';
+import InputError from '@/components/form/InputError.vue';
 import { VCard, VCardText, VCardTitle, VCardActions, VTextField, VLabel, VBtn, VSpacer } from 'vuetify/components';
 import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
 import authService from '@/modules/user/auth/services/auth.js';

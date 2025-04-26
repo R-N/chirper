@@ -2,7 +2,7 @@
 import { router, useForm, usePage } from '@inertiajs/vue3';
 import ActionSection from '@/components/auth/ActionSection.vue';
 import ConfirmsPassword from '@/components/auth/ConfirmsPassword.vue';
-import InputError from '@/components/auth/InputError.vue';
+import InputError from '@/components/form/InputError.vue';
 
 import { VRow, VCol, VTextField, VBtn, VAlert, VCard, VCardText } from 'vuetify/components';
 import { Component, Prop, Vue, toNative, Ref, Watch } from 'vue-facing-decorator';

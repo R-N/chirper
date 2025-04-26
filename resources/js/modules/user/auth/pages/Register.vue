@@ -1,7 +1,7 @@
 <script lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
-import InputError from '@/components/auth/InputError.vue';
+import InputError from '@/components/form/InputError.vue';
 import { VTextField, VCheckbox, VBtn, VCard, VCardText, VCardActions, VContainer, VRow, VCol, VImg, VCardTitle } from 'vuetify/components';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import authService from '@/modules/user/auth/services/auth.js'; 

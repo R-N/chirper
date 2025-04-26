@@ -1,7 +1,7 @@
 <script lang="ts">
 import ActionMessage from '@/components/auth/ActionMessage.vue';
 import FormSection from '@/components/auth/FormSection.vue';
-import InputError from '@/components/auth/InputError.vue';
+import InputError from '@/components/form/InputError.vue';
 import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import { VTextField, VFileInput, VBtn, VCard, VImg, VAvatar, VRow, VCol } from 'vuetify/components';
 

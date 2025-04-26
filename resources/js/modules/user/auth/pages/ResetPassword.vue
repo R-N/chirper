@@ -1,5 +1,5 @@
 <script lang="ts">
-import InputError from '@/components/auth/InputError.vue';
+import InputError from '@/components/form/InputError.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 
 import { VCard, VCardTitle, VCardText, VCardActions, VTextField, VBtn } from 'vuetify/components';

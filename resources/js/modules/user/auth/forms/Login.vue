@@ -5,7 +5,7 @@ import { Component, Prop, toNative, Ref } from 'vue-facing-decorator';
 import { WorkingComponent } from '@/components/WorkingComponent.vue';
 import CardTitle from '@/components/card/CardTitle.vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
-import InputError from '@/components/auth/InputError.vue';
+import InputError from '@/components/form/InputError.vue';
 import { VTextField, VCheckbox, VBtn, VCardText, VCardActions, } from 'vuetify/components';
 import authService from '@/modules/user/auth/services/auth.js';
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 import ActionSection from '@/components/auth/ActionSection.vue';
-import InputError from '@/components/auth/InputError.vue';
+import InputError from '@/components/form/InputError.vue';
 import { useForm } from '@inertiajs/vue3';
 import { nextTick, ref } from 'vue';
 

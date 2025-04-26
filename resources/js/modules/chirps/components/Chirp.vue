@@ -1,5 +1,5 @@
 <script lang="ts">
-import InputError from '@/components/auth/InputError.vue';
+import InputError from '@/components/form/InputError.vue';
 import dayjs from 'dayjs';
 import { useForm } from '@inertiajs/vue3';
 

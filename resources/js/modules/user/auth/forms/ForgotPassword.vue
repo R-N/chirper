@@ -2,7 +2,7 @@
 import { Component, Prop, Ref, toNative } from 'vue-facing-decorator';
 import { WorkingComponent } from '@/components/WorkingComponent.vue';
 import { useForm, router } from '@inertiajs/vue3';
-import InputError from '@/components/auth/InputError.vue';
+import InputError from '@/components/form/InputError.vue';
 import { VTextField, VBtn, VCardText, VCardActions } from 'vuetify/components';
 import authService from '@/modules/user/auth/services/auth.js';
 
