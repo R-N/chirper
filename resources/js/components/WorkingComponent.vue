@@ -51,6 +51,7 @@ class WorkingComponent extends MyComponent {
         // throw error;
     }
     async waitBusy(f, busy="busy", releaseBusy=true){
+        this.form?.clearErrors();
         const view = this;
         busy = busy || "busy";
         view[busy] = true;

@@ -16,8 +16,9 @@ class CrudFormDialogBase extends FormDialogBase {
     return null;
   }
 
-  _reset(){
-    this.form.reset();
+  reset(){
+    super.reset?.();
+    this.form?.reset?.();
   }
 
   async _submit(){

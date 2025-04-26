@@ -30,8 +30,9 @@ class LoginForm extends WorkingComponent {
   });
 
   async login() {
+    this.form.clearErrors();
     this.myForm.validate();
-    // if(!this.valid) return;
+    if(!this.valid) return;
 		await this.waitBusy(
 			async () => {
         let res = await authService.login(this.form);

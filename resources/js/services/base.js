@@ -146,11 +146,13 @@ class BaseService {
     // this.checkMethod(method);
 
     // get obj id but store the actual obj
-    let obj0 = obj;
+    const obj0 = obj;
     obj = obj?.id ?? obj;
 
+    // save original form for later use
+    const form0 = form;
+
     // prepare files
-    let form0 = form;
     let hasFiles = false;
     if (form){
       if(filter && this.allFields?.length)
@@ -206,14 +208,25 @@ class BaseService {
       f = this.axios.post;
     }
 
+    // clear form errors
+    if ('clearErrors' in form0)
+      form0.clearErrors?.();
+    if ('clearError' in form0)
+      form0.clearError?.();
+
     // make api call
     try{
       res = await f(target, form, options);
+      if ('reset' in form0)
+        form0.reset?.();
     }catch(error){
       // set form errors
-      if (error?.response?.data?.errors && 'setError' in form0){
-        form0.setError(error.response.data.errors);
-      }
+      if (error?.response?.data?.errors){
+        if ('setError' in form0)
+          form0.setError?.(error.response.data.errors);
+        if ('setErrors' in form0)
+          form0.setErrors?.(error.response.data.errors);
+      } 
       throw error;
     }
 

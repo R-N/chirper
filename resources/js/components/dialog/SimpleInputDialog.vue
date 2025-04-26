@@ -46,6 +46,7 @@ class SimpleInputDialog extends FormDialogBase {
   }
 
   reset(){
+    super.reset?.();
     this.input = '';
     this.inputConfirm = ''
   }

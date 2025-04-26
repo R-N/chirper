@@ -54,6 +54,7 @@ class FileUploadDialog extends DialogBase {
   }
 
   reset(){
+    super.reset?.();
     this.file = null;
     emptyArray(this.files);
   }
@@ -125,6 +126,7 @@ class FileUploadDialog extends DialogBase {
   }
 
   async uploadFile(){
+    this.form.clearErrors();
     const comp = this;
     comp.busy=true;
     if (comp.preUpload) comp.preUpload();

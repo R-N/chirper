@@ -57,17 +57,15 @@ class FormBase extends WorkingComponent {
     return this.myForm;
   }
 
-  _getValue(){
+  getValue(){
       let val = this.form || this.getForm();
       if (!val)
           val = this.$event;
       return val;
   }
-  getValue(){
-      return this._getValue();
-  }
 
-  _validate(){
+  validate(){
+    this.resetValidation();
     if(this.getForm()){
       this.getForm().validate();
     }
@@ -77,43 +75,33 @@ class FormBase extends WorkingComponent {
       this.emitValidate(this.getForm());
     return true;
   }
-  validate(){
-      return this._validate();
-  }
 
-  _resetValidation(){
+  resetValidation(){
+    this.form?.clearErrors?.();
     if(this.getForm()){
       this.getForm().resetValidation();
     }
     this.valid = true;
   }
-  resetValidation(){
-      return this._resetValidation();
-  }
 
-  _reset(){
+  reset(){
     this.resetValidation();
+    this.form?.reset?.();
     if (this.onReset)
       this.onReset(this.getForm());
     else
       this.emitReset(this.getForm());
   }
-  reset(){
-      this._reset();
-  }
-  async _submit(){
-      this.validate();
-      if(!this.valid) return;
-      if(this.onSubmit){
-          this.busy = true;
-          await this.onSubmit(this.getValue());
-      }else{
-          this.emitSubmit(this.getValue());
-      }
-      this.close();
-  }
   async submit(){
-      return await this._submit();
+    this.validate();
+    if(!this.valid) return;
+    if(this.onSubmit){
+        this.busy = true;
+        await this.onSubmit(this.getValue());
+    }else{
+        this.emitSubmit(this.getValue());
+    }
+    this.close();
   }
   close(){}
 }

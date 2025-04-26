@@ -47,6 +47,7 @@ class EditableCellBase extends WorkingComponent {
     }
 
     finish(){
+        this.form.clearErrors();
         this.form[this.name] = this.valueEdit;
         this.$emit("change", this.getValue());
         if (this.onFinish){
