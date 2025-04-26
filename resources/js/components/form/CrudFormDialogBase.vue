@@ -21,26 +21,27 @@ class CrudFormDialogBase extends FormDialogBase {
     this.form?.reset?.();
   }
 
-  async _submit(){
+  async submit(){
+    this.resetValidation();
+    this.validate();
     if(!this.valid) return;
-    const view = this;
-    view.busy = true;
-    try{
-      let res = null;
-      if (view.data){
-        res = await view.client[view.updateFunction](view.data, view.form);
-      }else{
-        res = await view.client[view.storeFunction](view.form);
-      }
-      if(view.onSubmit){
-        await view.onSubmit(view.client.getData(res) || view.getValue());
-      }else{
-        view.emitSubmit(view.client.getData(res) || view.getValue());
-      }
-      view.close();
-    } finally {
-      view.busy = false;
-    }
+    
+		await this.waitBusy(
+			async () => {
+        let res = null;
+        if (this.data){
+          res = await this.client[this.updateFunction](this.data, this.form);
+        }else{
+          res = await this.client[this.storeFunction](this.form);
+        }
+        if(this.onSubmit){
+          await this.onSubmit(this.client.getData(res) || this.getValue());
+        }else{
+          this.emitSubmit(this.client.getData(res) || this.getValue());
+        }
+        this.close();
+			}
+		);
   }
 }
 export { CrudFormDialogBase };
