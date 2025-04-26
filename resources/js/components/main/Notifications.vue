@@ -17,10 +17,11 @@ class Notifications extends WorkingComponent {
 	router = router;
   selected = [];
 	notifications = [
-		{ data: { url: '#', title: 'Notif', message: 'Desc' }, id: 0, read_at: null },
+		// { data: { url: '#', title: 'Notif', message: 'Desc' }, id: 0, read_at: null },
 	]
 	created(){
 		this.fetchNotifications();
+		setInterval(this.fetchNotifications, 30000);
 	}
 	get notificationCount(){
 		return this.notifications.length;
