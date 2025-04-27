@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
-use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Response;
-use App\Utils\ResponseUtil;
 use Illuminate\Support\Facades\DB;
+use Inertia\Response;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ProfileUpdateRequest;
+use App\Utils\ResponseUtil;
 
 class ProfileController extends Controller
 {

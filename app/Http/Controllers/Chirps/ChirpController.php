@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Chirps;
 
-use App\Events\ChirpCreated;
-use App\Models\Chirp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use App\Http\Controllers\Controller;
+use App\Models\Chirp;
 use App\Utils\ResponseUtil;
 use App\Utils\ExportUtil;
+
 class ChirpController extends Controller
 {
     /**

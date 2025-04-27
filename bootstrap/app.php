@@ -21,7 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
             \App\Http\Middleware\EnsureTokenIsNotExpired::class,
             \App\Http\Middleware\SetUserLocale::class,
-        ]);
+        ])->statefulApi();
 
         $middleware->api(append: [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
@@ -29,7 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SetUserLocale::class,
         ]);
 
-        $middleware->statefulApi();
+        // $middleware->statefulApi();
 
         // $middleware->validateCsrfTokens();
     })

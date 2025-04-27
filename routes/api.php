@@ -1,37 +1,46 @@
 <?php
 
-use App\Http\Controllers\LanguageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\System\DebugController;
+use App\Http\Controllers\System\LanguageController;
+use App\Http\Controllers\User\NotificationController;
 
-Route::post('/login', [AuthenticatedSessionController::class, 'store']);
-Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth:sanctum');
+Route::as('api.')->group(function () {
+    require __DIR__.'/hybrid.php';
+    
+    Route::middleware([
+        'auth:sanctum',
+        config('jetstream.auth_session'),
+        'verified',
+    ])->group(function () {
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
+        Route::get('/user', function (Request $request) {
+            return $request->user();
+        });
+
+        Route::get('refresh-token', [AuthenticatedSessionController::class, 'refreshToken'])->name('token.refresh');
+
+        Route::prefix('notifications')->as('notifications.')->middleware('auth')->group(function() {
+            Route::get('/', [NotificationController::class, 'index'])->name('index');
+            Route::delete('/{id}', [NotificationController::class, 'destroy'])->name('destroy');
+            Route::patch('/{id}', [NotificationController::class, 'markAsRead'])->name('read');
+            Route::post('/mark-as-read', [NotificationController::class, 'bulkMarkAsRead'])->name('bulk.read');
+            Route::post('/destroy', [NotificationController::class, 'bulkDestroy'])->name('bulk.destroy');
+        });
     });
+
+    Route::prefix('lang')->as('lang.')->group(function(){
+        Route::get('/{locale}', [LanguageController::class, 'get'])->name('get');
+        Route::get('/', [LanguageController::class, 'index'])->name('index');
+    });
+
+    if (config('app.debug')) {
+        Route::prefix('debug')->as('debug.')->group(function(){
+            Route::get('/session', [DebugController::class, 'session']);
+            Route::get('/csrf', [DebugController::class, 'csrf']);
+        });
+    }
+
 });
-
-Route::get('/session-debug', function (Request $request) {
-    return response()->json([
-        'session_id' => session()->getId(),
-        'auth_user' => auth()->user(),
-        'chirper_session' => request()->cookie('chirper_session'),
-        'session_data' => session()->all(),
-    ]);
-});
-
-Route::get('/csrf-debug', function (Request $request) {
-    return response()->json([
-        'csrf_token' => csrf_token(),
-        'xsrf_token_cookie' => $request->cookie('XSRF-TOKEN'),
-        'session_id' => session()->getId(),
-    ]);
-});
-Route::get('/lang/{locale}', [LanguageController::class, 'get'])->name('lang.get');
-Route::get('/lang', [LanguageController::class, 'index'])->name('lang.index');
-
-
-require __DIR__.'/auth.php';

@@ -66,7 +66,7 @@ class Backup implements Arrayable
             ->map(fn($file) => new self($file));
         return $backups;
     }
-    public static function get($file){
+    public static function find($file){
         return new self($file);
     }
     public static function create() 

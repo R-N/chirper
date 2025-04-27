@@ -9,26 +9,26 @@ class ProfileService extends BaseService{
   }
 
   async deleteUser(form) {
-    //let target = route('profile.destroy');
-    let target = route('current-user.destroy');
+    //let target = route('api.profile.destroy');
+    let target = route('api.current-user.destroy');
     let res = await this.delete(target, { data: form });
     return res;
   }
   async logoutOtherBrowserSessions(form){
-    let target = route('other-browser-sessions.destroy');
+    let target = route('api.other-browser-sessions.destroy');
     let res = await this.delete(target, { data: form });
     return res;
   };
   async updatePassword(form) {
-    // let target = route('password.update');
-    // let target = '/user/password';
-    let target = route('user-password.update');
+    // let target = route('api.password.update');
+    // let target = '/api/user/password';
+    let target = route('api.user-password.update');
     let res = await this.put(target, form);
     return res;
   }
   
   async _updateProfileInformation(form) {
-    let res = await this.patch(route('profile.update'), form);
+    let res = await this.patch(route('api.profile.update'), form);
     return res;
   }
   
@@ -42,7 +42,7 @@ class ProfileService extends BaseService{
       formData.append("photo", photo || form.photo);
     }
     
-    let res = await this.post(route('user-profile-information.update'), formData, {
+    let res = await this.post(route('api.user-profile-information.update'), formData, {
       headers: { "Content-Type": "multipart/form-data" },
       params: {
         // Laravel won't process multipart/form-data in a PUT request
@@ -53,12 +53,12 @@ class ProfileService extends BaseService{
     return res;
   };
   async deletePhoto(){
-    let res = await this.delete(route('current-user-photo.destroy'));
+    let res = await this.delete(route('api.current-user-photo.destroy'));
     return res;
   };
   async setLocale(form) {
     const authStore = useAuthStore();
-    let res = await this.put("/user/locale", form);
+    let res = await this.put("/api/user/locale", form);
     let data = res;
     data = getData(data, 'user');
     authStore.updateUser(data)

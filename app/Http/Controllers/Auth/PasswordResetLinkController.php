@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Utils\ResponseUtil;
+use App\Http\Controllers\Controller;
 use App\Exceptions\AuthException;
 use App\Exceptions\AuthExceptionCode;
+use App\Utils\ResponseUtil;
 
 class PasswordResetLinkController extends Controller
 {

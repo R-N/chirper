@@ -4,7 +4,7 @@ import CrudService from '@/services/crud';
 class UserService extends CrudService{
   constructor() {
     super(
-      "User", "/system/users", 
+      "User", "/api/system/users", 
       ["index", "store", "update", "destroy"],
       ["email", "name", "verified", "enabled", "roles", "permissions"],
       [],
@@ -13,39 +13,39 @@ class UserService extends CrudService{
         {
           field: 'enabled',
           method: 'put',
-          endpoint: 'system.users.set-enabled',
+          endpoint: 'api.system.users.set-enabled',
         },
         {
           field: 'verified',
           method: 'put',
-          endpoint: 'system.users.set-verified',
+          endpoint: 'api.system.users.set-verified',
         },
         {
           field: 'roles',
           method: 'put',
-          endpoint: 'system.users.set-roles',
+          endpoint: 'api.system.users.set-roles',
         },
         {
           field: 'permissions',
           method: 'put',
-          endpoint: 'system.users.set-permissions',
+          endpoint: 'api.system.users.set-permissions',
         },
       ],
       [
         {
           field: 'roles',
-          endpoint: 'system.users.get-available-roles',
+          endpoint: 'api.system.users.get-available-roles',
         },
         {
           field: 'permissions',
-          endpoint: 'system.users.get-available-permissions',
+          endpoint: 'api.system.users.get-available-permissions',
         },
       ],
       [
         { 
           method: 'delete', 
           action: 'clear_password', 
-          endpoint: 'system.users.clear-password', 
+          endpoint: 'api.system.users.clear-password', 
           obj: true
         },
       ]

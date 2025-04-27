@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
-use Inertia\Inertia;
 use Illuminate\Http\Request;
-use Laravel\Jetstream\Jetstream;
+use Inertia\Inertia;
 use Inertia\Response;
+use Laravel\Jetstream\Jetstream;
+use App\Http\Controllers\Controller;
 use App\Utils\ResponseUtil;
 
 class ApiTokenController extends Controller

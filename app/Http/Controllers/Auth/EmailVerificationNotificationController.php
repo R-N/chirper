@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Utils\ResponseUtil;
 use App\Exceptions\AuthException;
 use App\Exceptions\AuthExceptionCode;
+use App\Utils\ResponseUtil;
 
 class EmailVerificationNotificationController extends Controller
 {

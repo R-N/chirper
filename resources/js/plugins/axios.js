@@ -28,6 +28,7 @@ const initXsrf = async(api) =>{
     return;
   }
   console.log("CSRF Cookie not found. Obtaining.");
+  // No API route
   await api.get('/sanctum/csrf-cookie');
   xsrfToken = Cookies.get("XSRF-TOKEN");
   if (xsrfToken){

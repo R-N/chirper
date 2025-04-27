@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\System;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use App\Utils\ArrayUtil;
-use App\Utils\ResponseUtil;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\Controller;
 use App\Exceptions\LanguageException;
 use App\Exceptions\LanguageExceptionCode;
+use App\Utils\ArrayUtil;
+use App\Utils\ResponseUtil;
 
 class LanguageController extends Controller
 {

@@ -30,7 +30,7 @@ class ConfirmPassword extends Vue {
   @Ref('passwordInput') passwordInput;
 
   async startConfirmingPassword() {
-    const response = await axios.get(route('password.confirmation'));
+    const response = await axios.get(route('api.password.confirmation'));
     if (response.data.confirmed) {
       this.emitConfirmed();
     } else {
@@ -47,7 +47,7 @@ class ConfirmPassword extends Vue {
   async confirmPassword() {
     this.form.processing = true;
     try {
-      await axios.post(route('password.confirm'), { 
+      await axios.post(route('api.password.confirm'), { 
         password: this.form.password 
       });
       this.form.processing = false;

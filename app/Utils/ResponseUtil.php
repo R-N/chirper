@@ -11,7 +11,7 @@ class ResponseUtil
     {
         $request = request();
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() || $request->expectsJson()) {
             return response()->json($data, $statusCode);
         }
 
@@ -28,7 +28,7 @@ class ResponseUtil
     {
         $request = request();
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() || $request->expectsJson()) {
             if ($route)
                 $data['redirect'] = $route;
             return response()->json($data, $statusCode);
@@ -36,6 +36,12 @@ class ResponseUtil
 
         if (!$route)
             $route = url()->current();
+        if (in_array($statusCode, [401, 403])){
+            if (!$route || $route == url()->current())
+                $route = url()->previous();
+            if ($route == url()->previous())
+                $route = "/";
+        }
         $response = Redirect::to($route)->with($data);
 
         if ($overrideStatusCode) {

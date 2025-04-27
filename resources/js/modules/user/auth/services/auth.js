@@ -15,7 +15,7 @@ class AuthService extends BaseService{
         remember: data.remember ? 'on' : '',
     }));
 
-    let res = await this.post("/login", form);
+    let res = await this.post("/api/login", form);
     authStore.logout();
     if (res.auth_token){
       authStore.auth_token = res.auth_token;
@@ -29,52 +29,52 @@ class AuthService extends BaseService{
   async logout() {
     const authStore = useAuthStore();
 
-    let res = await this.get("/logout");
+    let res = await this.get("/api/logout");
 
     authStore.logout();
     return res;
   }
   async switchToTeam(team){
-    // router.put(route('current-team.update'), {
+    // router.put(route('api.current-team.update'), {
     //   team_id: team.id,
     // }, {
     //   preserveState: false,
     // });
-    let res = await this.put(route('current-team.update'), {
+    let res = await this.put(route('api.current-team.update'), {
       team_id: team.id,
     });
     return res;
   };
   async register(form) {
     const authStore = useAuthStore();
-    let res = await this.post("/register", form);
+    let res = await this.post("/api/register", form);
     if (res.suer) authStore.updateUser(res.user);
     if (res.auth_token) authStore.auth_token = res.auth_token;
     return res;
   }
   async twoFactorLogin(form) {
-    // await form.post(route('two-factor.login'));
-    let res = await this.post(route('two-factor.login'), form);
+    // await form.post(route('api.two-factor.login'));
+    let res = await this.post(route('api.two-factor.login'), form);
     return res;
   }
   async forgotPassword(form) {
-    //await form.post(route('password.email'));
-    let res = await this.post(route('password.email'), form);
+    //await form.post(route('api.password.email'));
+    let res = await this.post(route('api.password.email'), form);
     return res;
   }
   async resetPassword(form) {
-    //let target = route('password.store');
-    let target = route('password.store');
+    //let target = route('api.password.store');
+    let target = route('api.password.store');
     let res = await this.post(target, form);
     return res;
   }
   async confirmPassword(form) {
-    //await form.post(route('password.confirm'));
-    let res = await this.post(route('password.confirm'), form);
+    //await form.post(route('api.password.confirm'));
+    let res = await this.post(route('api.password.confirm'), form);
     return res;
   }
   async verifyEmail(form) {
-    let res = await this.post(route('verification.send'), form);
+    let res = await this.post(route('api.verification.send'), form);
     return res;
   }
 }

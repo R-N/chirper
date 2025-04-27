@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\System;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\Controller;
 use App\Utils\ResponseUtil;
 
 class SettingsController extends Controller

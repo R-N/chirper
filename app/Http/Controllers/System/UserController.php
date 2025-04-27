@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\System;
 
 use Illuminate\Http\Request;
-use App\Models\User;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use App\Utils\ResponseUtil;
+use Illuminate\Support\Facades\Password;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use Illuminate\Support\Facades\Password;
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Utils\ResponseUtil;
 use App\Utils\ExportUtil;
 
 class UserController extends Controller

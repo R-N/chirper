@@ -4,14 +4,17 @@ import CrudService from '@/services/crud';
 class ChirpService extends CrudService{
   constructor() {
     super(
-      "Chirp", "/chirps", 
+      "Chirp", "/api/chirps", 
       ["index", "store", "update", "destroy"],
       ["message"],
       [],
       true,
       false,
       [
-        {action: 'bulk_destroy', endpoint: route('chirps.bulk.destroy')}
+        {
+          action: 'bulk_destroy', 
+          endpoint: route('api.chirps.bulk.destroy')
+        }
       ]
     );
   }

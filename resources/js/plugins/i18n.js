@@ -41,12 +41,12 @@ export const loadLocaleMessages = (files, trim) => {
 }
 
 export const fetchLocales = async () => {
-  const res = await axios.get(route('lang.index'));
+  const res = await axios.get(route('api.lang.index'));
   return getData(res.data, 'locale');
 }
 
 export const fetchTranslations = async (locale) => {
-  const res = await axios.get(route('lang.get', locale));
+  const res = await axios.get(route('api.lang.get', locale));
   return getData(res.data, 'translation');
 }
 
