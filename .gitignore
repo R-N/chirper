@@ -29,3 +29,4 @@ stats.html
 
 public/build/*
 resources/js/lang-gen/**/*.json
+resources/js/validations-gen/**/*.json

@@ -15,6 +15,8 @@ import ConfirmationIconButton from '@/components/button/ConfirmationIconButton.v
 import SyncCheckbox from '@/components/checkbox/SyncCheckbox.vue';
 import EditableCellSelect from '@/components/form/editable_cell/EditableCellSelect.vue';
 import { getArrayText } from '@/libs/util.js';
+import rules from '@/validations-gen/users.json';
+import { parseLaravelRules } from '@/libs/validation';
 
 @Component({
     name: "UserCrudView",
@@ -75,6 +77,9 @@ class UserCrudView extends CrudViewBase {
     getRolesText(val){
         return getArrayText(val, (v) => v.name, false);
     }
+    get rules(){
+        return parseLaravelRules(rules);
+    }
 }
 export { UserCrudView };
 export default toNative(UserCrudView);
@@ -111,6 +116,7 @@ export default toNative(UserCrudView);
                         :value="item.email" 
                         :on-finish="(value) => setField('email', item, value)"
                         :disabled="busy"
+                        :rules="rules.email"
                     />
                 </template>
                 <template v-slot:item.roles="{ item }">
@@ -141,6 +147,7 @@ export default toNative(UserCrudView);
                         :value="item.name" 
                         :on-finish="(value) => setName(item, value)"
                         :disabled="busy"
+                        :rules="rules.name"
                     />
                 </template>
                 <template v-slot:item.enabled="{ item }">
@@ -196,6 +203,7 @@ export default toNative(UserCrudView);
                 :parent-busy="busy"
                 :availableRoles="availableRoles"
                 :availablePermissions="availablePermissions"
+                :rules="rules"
             />
         </template>
     </CrudView>

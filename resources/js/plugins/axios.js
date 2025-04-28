@@ -49,7 +49,7 @@ const injectAuth = (config) => {
       config.headers.Authorization = `Bearer ${authToken}`;
     }
   }catch(ex){
-    
+    console.error("Failed to inject auth token");
   }
   return config;
 };

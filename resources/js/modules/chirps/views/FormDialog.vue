@@ -45,6 +45,7 @@ export default toNative(ChirpFormDialog);
                 :disabled="!interactable" 
                 required
                 :error-messages="form.errors.message"
+                :rules="rules.message"
             />
         </template>
     </FormDialog>

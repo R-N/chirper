@@ -23,9 +23,13 @@ use App\Filters\NotNullFilter;
 use App\Sorts\RelationshipField;
 use App\Utils\QueryUtil;
 use App\Utils\ExportUtil;
+use App\Utils\ValidationUtil;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
+    public const TABLE = "users";
+    protected $table = self::TABLE;
+
     use HasApiTokens;
     use HasRoles;
     use HasPermissions;
@@ -159,6 +163,13 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     public static function query2($raw=false){
+        $validated = request()->validate(
+            ValidationUtil::buildQueryRules("chirps", User::rules(), [
+                'id', 'email', 'name', 
+                'enabled', 'verified',
+                'roles.name', 'permissions.name', 
+            ])
+        );
         $items = QueryBuilder::for(User::class)
             ->withEntities()
             ->allowedFilters([
@@ -198,5 +209,28 @@ class User extends Authenticatable implements MustVerifyEmail
             ]);
         $items = ExportUtil::filter($items, $filter);
         return $items;
+    }
+    public static function rules()
+    {
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'password' => 'string|min:8|max:255|regex:/[A-Z]/|regex:/[a-z]/|regex:/[0-9]/|regex:/[@$!%*?&#]/|confirmed',
+            'profile_photo_path' => 'string|max:2048|regex:/^(?!.*\.\.)(?!.*\/\/)(?!\/)[a-zA-Z0-9\/_\-\.]+(?<!\/)$/',
+            'locale' => 'string|max:10',
+            'enabled' => 'boolean',
+            'verified' => 'boolean',
+            'email_verified_at' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
+            'created_at' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
+            'modified_at' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
+            'roles' => 'array',
+            'roles.*' => 'string|max:255|exists:roles,name',
+            'roles.name' => 'string|max:255|exists:roles,name',
+            'permissions' => 'array',
+            'permissions.*' => 'string|max:255|exists:permissions,name',
+            'permissions.name' => 'string|max:255|exists:permissions,name',
+        ];
+        $rules = ValidationUtil::duplicateRules($rules);
+        return $rules;
     }
 }

@@ -11,6 +11,8 @@ use App\Exceptions\LanguageException;
 use App\Exceptions\LanguageExceptionCode;
 use App\Utils\ArrayUtil;
 use App\Utils\ResponseUtil;
+use App\Utils\ValidationUtil;
+use App\Models\User;
 
 class LanguageController extends Controller
 {
@@ -56,6 +58,15 @@ class LanguageController extends Controller
     }
     
     function setLocale(Request $request) {
+        $validated = $request->validate(
+            ValidationUtil::mergeRules(
+                ArrayUtil::filterArray(
+                    User::rules(), ["locale"]
+                ), [
+                    "locale" => "required"
+                ]
+            )
+        );
         $locale = $request->input('locale');
         Session::put('locale', $locale);
         $user = $request->user();

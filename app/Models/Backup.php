@@ -11,9 +11,12 @@ use App\Exceptions\BackupExceptionCode;
 use Illuminate\Contracts\Support\Arrayable;
 use App\Utils\ExportUtil;
 use Carbon\Carbon;
+use App\Utils\ValidationUtil;
 
 class Backup implements Arrayable
 {
+    public const TABLE = "backup";
+    protected $table = self::TABLE;
     protected const DISK = 'backup';
     protected static $APP_NAME = 'Chirper';
     protected const TEMP_DIR = 'restore-temp';
@@ -194,6 +197,18 @@ class Backup implements Arrayable
             ]);
         $items = ExportUtil::filter($items, $filter);
         return $items;
+    }
+
+    public static function rules()
+    {
+        $rules = [
+            'id' => 'required|string|max:255|regex:/^[a-zA-Z0-9-_\.]+$/',
+            'file_name' => 'string|max:255|regex:/^[a-zA-Z0-9-_\.]+$/',
+            'size' => 'integer|min:0',
+            'modified' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
+        ];
+        $rules = ValidationUtil::duplicateRules($rules);
+        return $rules;
     }
 }
 

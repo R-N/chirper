@@ -12,12 +12,16 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Utils\ResponseUtil;
 use App\Utils\ExportUtil;
+use App\Utils\ValidationUtil;
+use App\Utils\ArrayUtil;
 
 class UserController extends Controller
 {
+
     public function index(Request $request) {
         if ($request->query("export_type"))
             return $this->export();
+
         $users = User::query2();
         return ResponseUtil::jsonInertiaResponse([
             "items" => $users
@@ -26,14 +30,15 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'email' => 'required|email|unique:users,email',
-            'name' => 'required|string',
-            'roles' => 'array',
-            'roles.*' => 'exists:roles,name',
-            'permissions' => 'array',
-            'permissions.*' => 'exists:permissions,name',
-        ]);
+        $data = $request->validate(
+            ArrayUtil::filterArray(
+                User::rules(), [
+                    "name", "email", 
+                    "roles", "roles.*", 
+                    "permissions", "permissions.*"
+                ]
+            )
+        );
     
         // Create the user without setting a password
         $user = User::create([
@@ -60,15 +65,17 @@ class UserController extends Controller
     
     public function update(Request $request, User $user)
     {
-        $data = $request->validate([
-            'email' => ['email', Rule::unique('users')->ignore($user->id)],
-            'name' => 'string',
-            'enabled' => 'boolean',
-            'roles' => 'array',
-            'roles.*' => 'exists:roles,name',
-            'permissions' => 'array',
-            'permissions.*' => 'exists:permissions,name',
-        ]);
+        $data = $request->validate(
+            ValidationUtil::filterRules(
+                ArrayUtil::filterArray(
+                    User::rules(), [
+                        "name", "email", 
+                        "roles", "roles.*", 
+                        "permissions", "permissions.*"
+                    ]
+                ), ["required"]
+            )
+        );
     
         $user->update($data);
     
@@ -97,9 +104,14 @@ class UserController extends Controller
     }
 
     public function setEnabled(Request $request, User $user) {
-        $data = $request->validate([
-            'enabled' => ['required', 'boolean'],
-        ]);
+        $field = "enabled";
+        $data = $request->validate(
+            ValidationUtil::mergeRules(
+                ArrayUtil::filterArray(
+                    User::rules(), [$field]
+                ), [$field => "required"], true
+            )
+        );
         $enabled = $data["enabled"];
 
         $user->enabled = $enabled;
@@ -116,9 +128,14 @@ class UserController extends Controller
 
 
     public function setVerified(Request $request, User $user) {
-        $data = $request->validate([
-            'verified' => ['required', 'boolean'],
-        ]);
+        $field = "verified";
+        $data = $request->validate(
+            ValidationUtil::mergeRules(
+                ArrayUtil::filterArray(
+                    User::rules(), [$field]
+                ), [$field => "required"], true
+            )
+        );
 
         $user->setVerified($data["verified"]);
 
@@ -135,10 +152,11 @@ class UserController extends Controller
     
     public function setRoles(Request $request, User $user)
     {
-        $data = $request->validate([
-            'roles' => 'array',
-            'roles.*' => 'exists:roles,name',
-        ]);
+        $data = $request->validate(
+            ArrayUtil::filterArray(
+                User::rules(), ["roles", "roles.*"]
+            ),
+        );
     
         // Update the email address
         $user->update($data);
@@ -155,10 +173,11 @@ class UserController extends Controller
 
     public function setPermissions(Request $request, User $user)
     {
-        $data = $request->validate([
-            'permissions' => 'array',
-            'permissions.*' => 'exists:permissions,name',
-        ]);
+        $data = $request->validate(
+            ArrayUtil::filterArray(
+                User::rules(), ["permissions", "permissions.*"]
+            ),
+        );
     
         // Update the email address
         $user->update($data);

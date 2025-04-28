@@ -213,7 +213,10 @@ export const getData = (data, name=null) => {
   if (!data)
     return null;
   name = name || 'item';
-  return data?.data ?? data?.item ?? data?.items ?? data?.[name?.toLowerCase()] ?? data?.[`${name?.toLowerCase()}s`];
+  return data?.[name?.toLowerCase()] ?? data?.[`${name?.toLowerCase()}s`]
+    ?? data?.data 
+    ?? data?.item ?? data?.items
+    ?? data?.value ?? data?.values;
 }
 export const isInertiaForm = (obj) => {
   return obj 

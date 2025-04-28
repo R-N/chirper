@@ -18,6 +18,8 @@ import EditableCellTextField from '@/components/form/editable_cell/EditableCellT
 import { VDataTable } from 'vuetify/components';
 import IconButton from '@/components/button/IconButton.vue';
 import ConfirmationIconButton from '@/components/button/ConfirmationIconButton.vue';
+import rules from '@/validations-gen/backup.json';
+import { parseLaravelRules } from '@/libs/validation';
 
 @Component({
     name: "BackupView",
@@ -100,6 +102,9 @@ class BackupView extends CrudViewBase {
   formatDate(date){
     return formatDate(date);
   }
+  get rules(){
+      return parseLaravelRules(rules);
+  }
 }
 export { BackupView };
 export default toNative(BackupView);
@@ -139,6 +144,7 @@ export default toNative(BackupView);
             :value="item.id"
             :on-finish="(value) => setField('id', item, value)"
             :disabled="busy"
+            :rules="rules.id"
           />
         </template>
         <template v-slot:item.size="{ item }">
@@ -189,6 +195,7 @@ export default toNative(BackupView);
         :label="$t('backup.create_label')"
         noInput="true"
         name="id"
+        :rules="rules.id"
       />
     </template>
   </CrudView>

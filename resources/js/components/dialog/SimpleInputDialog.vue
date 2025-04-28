@@ -3,6 +3,7 @@ import { Component, Prop, Model, Watch, toNative, Setup } from 'vue-facing-decor
 import { FormDialogBase } from '@/components/form/FormDialogBase.vue';
 import FormDialog from '@/components/form/FormDialog.vue';
 import { useForm } from '@inertiajs/vue3';
+import { isObject, getData } from '@/libs/util';
 
 @Component({
     name: "SimpleInputDialog",
@@ -20,7 +21,6 @@ class SimpleInputDialog extends FormDialogBase {
   @Prop({ type: String, default: "value" }) name;
   @Prop({ default: false }) password;
   @Prop({ default: false }) noInput;
-  @Prop({ type: [Array, Function] }) rules;
   @Prop({ type: [Function, Number] }) counter;
   @Prop({ default: null }) errorMessages;
   @Prop({ default: null }) confirmErrorMessages;
@@ -40,6 +40,13 @@ class SimpleInputDialog extends FormDialogBase {
   input = ''
   inputConfirm = ''
   passwordVisible = false;
+
+  get _rules(){
+    if (isObject(this.rules)){
+      return getData(this.rules, this.name);
+    }
+    return this.rules;
+  }
 
   get _label(){
     return this.label ?? this.$t('form.input');
@@ -64,7 +71,8 @@ class SimpleInputDialog extends FormDialogBase {
   get confirmRules(){
     return [
       v => !!v || "Konfirmasi tidak boleh kosong",
-      v => this.validateConfirm(v) || "Konfirmasi tidak sama"
+      v => this.validateConfirm(v) || "Konfirmasi tidak sama",
+      ...this._rules
     ];
   }
 }
@@ -91,7 +99,7 @@ export default toNative(SimpleInputDialog);
         v-model="input" 
         :disabled="!interactable" 
         required
-        :rules="rules"
+        :rules="_rules"
         :counter="counter"
         :name="name"
         :error-messages="errorMessages || form?.errors?.[name]"
@@ -106,7 +114,7 @@ export default toNative(SimpleInputDialog);
         @click:append="() => { passwordVisible = !passwordVisible }"
         :type="passwordVisible ? 'text' : 'password'"
         required
-        :rules="rules"
+        :rules="_rules"
         :counter="counter"
         :name="name"
         :error-messages="errorMessages || form?.errors?.[name]"

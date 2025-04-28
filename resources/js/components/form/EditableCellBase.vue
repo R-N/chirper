@@ -3,6 +3,7 @@ import { Vue, Component, Prop, Emit, toNative, Setup } from 'vue-facing-decorato
 import EditableCell from '@/components/form/EditableCell.vue';
 import {WorkingComponent} from '@/components/WorkingComponent.vue';
 import { useForm } from '@inertiajs/vue3';
+import { isObject, getData } from '@/libs/util';
 
 @Component({
     name: "EditableCellBase",
@@ -20,6 +21,13 @@ class EditableCellBase extends WorkingComponent {
     @Prop({ type: Function }) onFinish;
     @Prop({ default: null }) errorMessages;
     @Prop({ default: true }) emitForm;
+    @Prop({ type: [String, Object, Array] }) rules;
+    get _rules(){
+        if (isObject(this.rules)){
+        return getData(this.rules, this.name);
+        }
+        return this.rules;
+    }
 
     @Setup((props, ctx) => {
         if (props.name){
@@ -32,7 +40,7 @@ class EditableCellBase extends WorkingComponent {
             });
         }
     }) form;
-    valueEdit = '';
+    valueEdit : any = '';
 
     created(){
         this.form = useForm({
@@ -40,7 +48,7 @@ class EditableCellBase extends WorkingComponent {
         });
     }
 
-    getValue(){
+    getValue() : any{
         if (this.emitForm)
             return this.form;
         return this.valueEdit;

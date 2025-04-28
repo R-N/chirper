@@ -14,8 +14,9 @@ class FormBase extends WorkingComponent {
   form = useForm({});
   valid = true;
   @Prop({ type: Boolean, default: false }) disabled;
-
   @Prop({ type: Object, default: null }) data;
+  @Prop({ type: [Array, Function, Object], default: [] }) rules;
+
   @Watch("data")
   dataWatcher(newValue, oldValue){
     if (newValue){

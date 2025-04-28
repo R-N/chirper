@@ -29,7 +29,7 @@ export default toNative(EditableCellCurrencyField);
                 class="bigger-input"
                 :name="name" 
                 v-model="valueEdit" 
-                :rules="rules"
+                :rules="_rules"
                 :counter="counter"
                 :type="type"
                 :disabled="busy || disabled"

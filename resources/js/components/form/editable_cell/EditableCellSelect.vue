@@ -79,6 +79,7 @@ export default toNative(EditableCellSelect);
                 :return-object="returnObject"
                 :multiple="multiple"
                 :error-messages="errorMessages || form?.errors?.[name]"
+                :rules="_rules"
             />
         </template>
         <template v-slot:default>

@@ -16,10 +16,16 @@ use App\Filters\NotNullFilter;
 use App\Sorts\RelationshipField;
 use App\Utils\QueryUtil;
 use App\Utils\ExportUtil;
+use App\Models\User;
+use App\Utils\ValidationUtil;
 
 class Chirp extends Model
 {
+    public const TABLE = "chirps";
+    protected $table = self::TABLE;
+
     use HasRelationshipEntities;
+
 
     protected static array $relationshipEntities = ["user:id,name"];
     # this determines which fields may be mass set
@@ -37,7 +43,11 @@ class Chirp extends Model
     }
 
     public static function query2($raw=false){
-        // Chirps has belongsTo relationship with User as user
+        $validated = request()->validate(
+            ValidationUtil::buildQueryRules("chirps", Chirp::rules(), [
+                'user.name', 'message', 'created_at',
+            ])
+        );
         $items = QueryBuilder::for(Chirp::class)
             ->withEntities()
             ->allowedFilters([
@@ -75,5 +85,19 @@ class Chirp extends Model
             ]);
         $items = ExportUtil::filter($items, $filter);
         return $items;
+    }
+
+    public static function rules()
+    {
+        $userRules = User::rules();
+        $rules = [
+            'message' => 'required|string|max:255',
+            'created_at' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
+            'modified_at' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
+            'user.id' => 'required|integer|min:0|exists:users,id',
+            'user.name' => $userRules['name'],
+        ];
+        $rules = ValidationUtil::duplicateRules($rules);
+        return $rules;
     }
 }

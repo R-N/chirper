@@ -13,6 +13,8 @@ import { VDataTable } from 'vuetify/components';
 import IconButton from '@/components/button/IconButton.vue';
 import ConfirmationIconButton from '@/components/button/ConfirmationIconButton.vue';
 import { bulkDeleteFromArray } from '@/libs/util';
+import rules from '@/validations-gen/chirps.json';
+import { parseLaravelRules } from '@/libs/validation';
 
 @Component({
     name: "ChirpCrudView",
@@ -58,6 +60,10 @@ class ChirpCrudView extends CrudViewBase {
                 this.selected.splice(0);
             }
         );
+    }
+
+    get rules(){
+        return parseLaravelRules(rules);
     }
 }
 export { ChirpCrudView };
@@ -110,6 +116,7 @@ export default toNative(ChirpCrudView);
                         :value="item.message" 
                         :on-finish="(value) => setField('message', item, value)"
                         :disabled="busy"
+                        :rules="rules.message"
                     />
                 </template>
                 <template v-slot:item.created_at="{ item }">
@@ -141,6 +148,7 @@ export default toNative(ChirpCrudView);
                 v-model="formDialog"
                 @submit="storeItem"
                 :parent-busy="busy"
+                :rules="rules"
             />
         </template>
     </CrudView>

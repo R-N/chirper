@@ -7,13 +7,13 @@ use Illuminate\Support\Facades\File;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(
-    name: 'lang:sync-to-frontend',
-    description: 'Sync Laravel language files to Vue frontend'
+    name: 'lang:export',
+    description: 'Export Laravel language files to Vue frontend as JSON'
 )]
 class SyncLangToFrontend extends Command
 {
-    protected $signature = 'lang:sync-to-frontend';
-    protected $description = 'Sync Laravel language files to Vue frontend';
+    protected $signature = 'lang:export';
+    protected $description = 'Export Laravel language files to Vue frontend as JSON';
 
     public function handle()
     {

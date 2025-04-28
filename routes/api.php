@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\System\DebugController;
 use App\Http\Controllers\System\LanguageController;
 use App\Http\Controllers\User\NotificationController;
+use App\Http\Controllers\ValidationRulesController;
 
 Route::as('api.')->group(function () {
     require __DIR__.'/hybrid.php';
@@ -34,6 +35,11 @@ Route::as('api.')->group(function () {
     Route::prefix('lang')->as('lang.')->group(function(){
         Route::get('/{locale}', [LanguageController::class, 'get'])->name('get');
         Route::get('/', [LanguageController::class, 'index'])->name('index');
+    });
+
+    Route::prefix('validation')->as('validation.')->group(function(){
+        Route::get('/rules', [ValidationRulesController::class, 'index']);
+        Route::get('/rules/{item}', [ValidationRulesController::class, 'show']);
     });
 
     if (config('app.debug')) {

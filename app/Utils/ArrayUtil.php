@@ -19,4 +19,8 @@ class ArrayUtil
   
       return $result;
   }
+  public static function filterArray(array $array, array $keys): array
+  {
+      return array_intersect_key($array, array_flip($keys));
+  }
 }

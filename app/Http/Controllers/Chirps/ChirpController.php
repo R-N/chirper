@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Chirp;
 use App\Utils\ResponseUtil;
 use App\Utils\ExportUtil;
+use App\Utils\ValidationUtil;
+use App\Utils\ArrayUtil;
 
 class ChirpController extends Controller
 {
@@ -15,7 +17,8 @@ class ChirpController extends Controller
      * Display a listing of the resource.
      */
 
-    function fetch(Request $request=null){
+    function fetch($request=null){
+        $fields = ["message", "created_at", "modified_at", "user.id", "user.name"];
         $chirps = Chirp::query2();
         return $chirps;
     }
@@ -56,9 +59,9 @@ class ChirpController extends Controller
     public function store(Request $request)
     {
         //
-        $validated = $request->validate([
-            'message' => 'required|string|max:255',
-        ]);
+        $validated = $request->validate(
+            ArrayUtil::filterArray(Chirp::rules(), ["message"])
+        );
  
         //user() gets the User object (model)
         //the User model has hasMany relationship to Chirps as chirps function
@@ -99,9 +102,9 @@ class ChirpController extends Controller
     {
         Gate::authorize('update', $chirp);
  
-        $validated = $request->validate([
-            'message' => 'required|string|max:255',
-        ]);
+        $validated = $request->validate(
+            ArrayUtil::filterArray(Chirp::rules(), ["message"])
+        );
  
         $chirp->update($validated);
         $chirp->loadEntities();

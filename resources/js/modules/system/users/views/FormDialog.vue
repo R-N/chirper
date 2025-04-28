@@ -59,6 +59,7 @@ export default toNative(UserFormDialog);
         required
         type="email"
         :error-messages="form.errors.email"
+        :rules="rules.email"
       />
       <VTextField 
         name="name"
@@ -68,6 +69,7 @@ export default toNative(UserFormDialog);
         :disabled="!interactable" 
         required
         :error-messages="form.errors.name"
+        :rules="rules.name"
       />
       <VSelect
         class="bigger-input" 

@@ -55,7 +55,8 @@ createInertiaApp({
               let tabStore = useTabStore();
               tabStore.showError(error?.response?.data ?? error);
               return true;
-            } 
+            }
+            console.error(error);
             return false;
         };
         return app.mount(el);

@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Backup;
 use App\Utils\ResponseUtil;
 use App\Utils\ExportUtil;
+use App\Utils\ValidationUtil;
+use App\Utils\ArrayUtil;
 
 class BackupController extends Controller
 {
@@ -14,6 +16,7 @@ class BackupController extends Controller
     {
         if ($request->query("export_type"))
             return $this->export();
+
         $backups = Backup::all();
         return ResponseUtil::jsonInertiaResponse([
             'items' => $backups,
@@ -22,6 +25,13 @@ class BackupController extends Controller
 
     public function store(Request $request)
     {
+        $validated = $request->validate(
+            ValidationUtil::filterRules(
+                ArrayUtil::filterArray(
+                    Backup::rules(), ["id"]
+                ), ["required"]
+            )
+        );
         Backup::create();
         return ResponseUtil::jsonRedirectResponse([
             'message' => __('backup.created'),
@@ -49,6 +59,13 @@ class BackupController extends Controller
 
     public function rename(Request $request, Backup $backup)
     {
+        $validated = $request->validate(
+            ValidationUtil::filterRules(
+                ArrayUtil::filterArray(
+                    Backup::rules(), ["id"]
+                ), ["required"]
+            )
+        );
         $newName = $request->input('id');
         $oldName = $backup->id;
         $backup->rename($newName);

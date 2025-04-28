@@ -39,6 +39,7 @@ class CrudViewBase extends ViewBase {
     }
     get query() { return {}; }
     get headers(){ return []; }
+    get rules(){ return {}; }
 
     get exportItems() { 
         let fields = this.headers.map((h) => h.value); 
