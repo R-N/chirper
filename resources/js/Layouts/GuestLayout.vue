@@ -33,13 +33,6 @@ class GuestLayout extends ViewBase {
   async popTabDialog(){
     await this.tabStore.tabDialogs.pop();
   }
-  errorCaptured(error, vm, info) {
-    if (error?.show || error?.response?.data?.show) {
-      this.tabStore.showError(error?.response?.data ?? error);
-      return true;
-    } 
-    return false;
-  }
 }
 export { GuestLayout };
 export default toNative(GuestLayout);

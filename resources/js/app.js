@@ -50,6 +50,14 @@ createInertiaApp({
             let tabStore = useTabStore();
             tabStore.breadcrumbs = [];
         });
+        app.config.errorHandler = (error, vm, info) => {
+            if (error?.show || error?.response?.data?.show) {
+              let tabStore = useTabStore();
+              tabStore.showError(error?.response?.data ?? error);
+              return true;
+            } 
+            return false;
+        };
         return app.mount(el);
     },
     progress: {
