@@ -22,7 +22,7 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     updateUser(user) {
-      Object.assign(this.user, user); 
+      deepAssign(this.user, user); 
     },
     logout() {
       this.auth_token = null;

@@ -1,5 +1,5 @@
 import _axios from '@/plugins/axios'; 
-import { filterObject, isObject, getFileName, jsonToFormData, getData, bindMethod } from '@/libs/util';
+import { filterObject, isObject, getFileName, jsonToFormData, getData, bindMethod, deepAssign } from '@/libs/util';
 import { t } from '@/plugins/i18n';
 
 class BaseService {
@@ -233,7 +233,7 @@ class BaseService {
     // auto update object
     if (isObject(obj0) || Array.isArray(obj0)){
       if (res?.data){
-        Object.assign(obj0, this.getData(res.data));
+        deepAssign(obj0, this.getData(res?.data));
       }
     }
 

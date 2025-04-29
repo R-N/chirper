@@ -3,7 +3,7 @@
 
 import { Component, Prop, Watch, Model, toNative } from 'vue-facing-decorator';
 import { ViewBase } from '@/views/ViewBase.vue';
-import { deleteFromArray, findIndex, getField, timestamp, isInertiaForm } from '@/libs/util';
+import { deleteFromArray, findIndex, getField, timestamp, isInertiaForm, isObject, deepAssign } from '@/libs/util';
 import debounce from 'lodash/debounce';
 import { VDataTable, VDataTableServer } from 'vuetify/components';
 import FileSaver from 'file-saver';
@@ -130,6 +130,7 @@ class CrudViewBase extends ViewBase {
         if (index < 0){
             this.items.push(item);
         }else{
+            deepAssign(this.items[index], item);
             this.items[index] = item;
         }
     }
@@ -225,11 +226,15 @@ class CrudViewBase extends ViewBase {
     async setField(fieldName, item, value=null, releaseBusy=true, getValue=null){
         await this.waitBusy(
             async () => {
-                await this.client[`set_${fieldName}`](
+                const ret = await this.client[`set_${fieldName}`](
                     item, 
                     getValue ? getValue(value) : value
                 );
-                if (isInertiaForm(value)){
+                const data = this.client.getData(ret);
+                if (isObject(data)){
+                    item[fieldName] = data[fieldName];
+                    this.storeItem(data);
+                }else if (isInertiaForm(value)){
                     item[fieldName] = value[fieldName];
                 }else{
                     item[fieldName] = value;
@@ -272,8 +277,14 @@ class CrudViewBase extends ViewBase {
     async clearField(fieldName, item, releaseBusy=true){
         await this.waitBusy(
             async () => {
-                await this.client[`clear_${fieldName}`](item);
-                item[fieldName] = null;
+                const ret = await this.client[`clear_${fieldName}`](item);
+                const data = this.client.getData(ret);
+                if (isObject(data)){
+                    item[fieldName] = data[fieldName];
+                    this.storeItem(data);
+                }else{
+                    item[fieldName] = null;
+                }
             }, null, releaseBusy
         );
     }

@@ -2,6 +2,7 @@
 
 import { Component, Prop, Watch, Model, Emit, toNative } from 'vue-facing-decorator';
 import { FormDialogBase } from '@/components/form/FormDialogBase.vue';
+import { deepAssign } from '@/libs/util';
 
 @Component({
   name: "CrudFormDialogBase",
@@ -31,6 +32,10 @@ class CrudFormDialogBase extends FormDialogBase {
         let res = null;
         if (this.data){
           res = await this.client[this.updateFunction](this.data, this.form);
+          const data = this.client.getData(res);
+          if (data){
+            deepAssign(this.data, data);
+          }
         }else{
           res = await this.client[this.storeFunction](this.form);
         }

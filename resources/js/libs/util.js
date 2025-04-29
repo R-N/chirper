@@ -186,7 +186,7 @@ export const formatDate = (utcDate) => {
   return dayjs.utc(utcDate).local().format('LLL');
 }
 export const deepAssign = (base, override) => {
-  const result = { ...base };
+  const result = base;
 
   for (const key in override) {
     if (
