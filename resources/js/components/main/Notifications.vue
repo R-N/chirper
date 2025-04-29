@@ -120,8 +120,8 @@ export default toNative(Notifications);
 						class="d-flex-inline flex-grow-1"
 						density="compact"
 					>
-						<h3 class="fill-height d-flex-inline align-center justify-center">Notifications</h3>
-						<VListItemSubtitle class="fill-height d-flex-inline" v-if="!notifications.length">None for now</VListItemSubtitle>
+						<h3 class="fill-height d-flex-inline align-center justify-center">{{ $t('notification.title') }}</h3>
+						<VListItemSubtitle class="fill-height d-flex-inline" v-if="!notifications.length">{{ $t('notification.empty') }}</VListItemSubtitle>
 						<VSpacer />
 						<template v-slot:append="{  }">
 							<VListItemAction start>
