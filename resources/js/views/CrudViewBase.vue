@@ -17,12 +17,13 @@ import autoTable from 'jspdf-autotable';
     }
 })
 class CrudViewBase extends ViewBase {
-    @Prop({ type: Object, default: {} }) query;
+    @Model({ name: "query", type: Object, default: {} }) _query;
+    @Model({ name: "items", type: Array, default: null }) _items; 
 
     formDialog = false;
     editing = null;
     search = '';
-    items = [];
+    __items = [];
     selected = [];
     page = 1;
     itemsPerPage = null;
@@ -33,14 +34,30 @@ class CrudViewBase extends ViewBase {
     client = null;
     filteredErrors = [];
 
+    get items(){
+        if (this._items){
+            return this._items;
+        }else{
+            return this.__items;
+        }
+    }
+
+    set items(value){
+        if (this._items){
+            this._items = value;
+        }else{
+            this.__items = value;
+        }
+    }
+
     get itemName(){
         return this.$t('crud.item');
     }
     get serverside() {
         return !!this.itemsPerPage;
     }
-    get _query() { return {}; }
-    get __query() { return { ...this._query, ...this.query }; }
+    get query() { return {}; }
+    get __query() { return { ...this.query, ...this._query }; }
     get headers(){ return []; }
     get rules(){ return {}; }
 
