@@ -3,7 +3,7 @@
 
 import { Component, Prop, Watch, Model, toNative } from 'vue-facing-decorator';
 import { ViewBase } from '@/views/ViewBase.vue';
-import { deleteFromArray, findIndex, getField, timestamp, isInertiaForm, isObject, deepAssign } from '@/libs/util';
+import { deleteFromArray, findIndex, getField, timestamp, isInertiaForm, isObject, deepAssign, deepMerge } from '@/libs/util';
 import debounce from 'lodash/debounce';
 import { VDataTable, VDataTableServer } from 'vuetify/components';
 import FileSaver from 'file-saver';
@@ -17,6 +17,8 @@ import autoTable from 'jspdf-autotable';
     }
 })
 class CrudViewBase extends ViewBase {
+    @Prop({ type: Object, default: {} }) query;
+
     formDialog = false;
     editing = null;
     search = '';
@@ -37,7 +39,8 @@ class CrudViewBase extends ViewBase {
     get serverside() {
         return !!this.itemsPerPage;
     }
-    get query() { return {}; }
+    get _query() { return {}; }
+    get __query() { return { ...this._query, ...this.query }; }
     get headers(){ return []; }
     get rules(){ return {}; }
 
@@ -97,7 +100,7 @@ class CrudViewBase extends ViewBase {
                     params: {
                         ...(this.serverside && query ? { 
                             ["filter[search]"]: this.search,
-                            ...this.query
+                            ...this.__query,
                         } : {}),
                     }
                 }, endpoint);
@@ -157,9 +160,9 @@ class CrudViewBase extends ViewBase {
     async fetch(releaseBusy=true){
         await this.waitBusy(
             async () => {
-                let query = this.query;
+                let query = this.__query;
                 let options = {};
-                if (this.itemsPerPage || this.query){
+                if (this.itemsPerPage || this.__query){
                     options = {
                         params: {
                             page: this.page,
@@ -167,7 +170,7 @@ class CrudViewBase extends ViewBase {
                                 ["filter[search]"]: this.search,
                                 per_page: this.itemsPerPage 
                             } : {}),
-                            ...this.query
+                            ...this.__query
                         }
                     }
                 }
