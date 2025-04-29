@@ -75,6 +75,7 @@ export const createI18n = async() => {
   ];
   messages = deepMerge(messages);
   let i18n = _createI18n({
+    legacy: false,
     locale: 'en',
     fallbackLocale: 'en',
     messages: messages,
