@@ -2,8 +2,8 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import ChirpCrudView from '../views/Chirps.vue';
-import { ViewBase } from '@/views/ViewBase.vue';
+import { ChirpCrudView } from '../views/Chirps.vue';
+import {ViewBase} from '@/views/ViewBase.vue';
 
 @Component({
   components: {
@@ -12,7 +12,6 @@ import { ViewBase } from '@/views/ViewBase.vue';
   }
 })
 class ChirpsPage extends ViewBase {
-  @Prop({ type: Array, default: null }) items;
   mounted(){
     this.tabStore.breadcrumbs = [
       { title: this.$t('navigation.chirps') },
