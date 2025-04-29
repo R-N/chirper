@@ -36,10 +36,10 @@ class ResponseUtil
 
         if (!$route)
             $route = url()->current();
-        if (in_array($statusCode, [401, 403])){
+        if (in_array($statusCode, [401, 403, 404])){
             if (!$route || $route == url()->current())
                 $route = url()->previous();
-            if ($route == url()->previous())
+            else if ($route == url()->previous())
                 $route = "/";
         }
         $response = Redirect::to($route)->with($data);
