@@ -40,7 +40,7 @@ export default toNative(EditableCellTextField);
                 :type="type"
                 :disabled="busy || disabled"
                 :required="required"
-                :label="label"
+                :label="_label"
                 :error-messages="errorMessages || form?.errors?.[name]"
                 @blur="validate"
             />

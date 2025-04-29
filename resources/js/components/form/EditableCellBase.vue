@@ -22,6 +22,12 @@ class EditableCellBase extends WorkingComponent {
     @Prop({ default: null }) errorMessages;
     @Prop({ default: true }) emitForm;
     @Prop({ type: [String, Object, Array] }) rules;
+
+    get _label(){
+        if (this.title)
+            return null;
+        return this.label;
+    }
     get _rules(){
         if (isObject(this.rules)){
         return getData(this.rules, this.name);

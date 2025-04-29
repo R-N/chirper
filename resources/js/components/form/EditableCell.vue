@@ -92,7 +92,7 @@ export default toNative(EditableCell);
     :confirmTextMaker="confirmTextMaker"
     v-slot="{ ask }"
     :on-confirm="onConfirm"
-    class="d-flex flex-grow-1"
+    class="d-flex flex-column flex-grow-1"
   >
     <div class="d-flex align-left justify-space-between" v-if="title">
       <span class="font-weight-bold">{{ title }}</span>

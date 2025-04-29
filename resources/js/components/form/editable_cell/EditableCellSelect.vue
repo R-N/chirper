@@ -69,7 +69,7 @@ export default toNative(EditableCellSelect);
         <template v-slot:editing>
             <VSelect
                 class="bigger-input"
-                :label="label"
+                :label="_label"
                 :name="name"
                 :items="items"
                 :item-title="itemTitle"

@@ -35,7 +35,7 @@ export default toNative(EditableCellCurrencyField);
                 :type="type"
                 :disabled="busy || disabled"
                 :required="required"
-                :label="label"
+                :label="_label"
                 :error-messages="errorMessages || form?.errors?.[name]"
                 @blur="validate"
             />
