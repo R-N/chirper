@@ -2,8 +2,8 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import { UserCrudView } from '../views/Users.vue';
-import {ViewBase} from '@/views/ViewBase.vue';
+import UserCrudView from '../views/Users.vue';
+import { ViewBase } from '@/views/ViewBase.vue';
 
 @Component({
   components: {
@@ -12,6 +12,7 @@ import {ViewBase} from '@/views/ViewBase.vue';
   }
 })
 class UsersPage extends ViewBase {
+  @Prop({ type: Array, default: null }) items;
   mounted(){
     this.tabStore.breadcrumbs = [
       { title: this.$t('navigation.system') },

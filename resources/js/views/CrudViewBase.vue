@@ -14,15 +14,17 @@ import autoTable from 'jspdf-autotable';
 @Component({
     name: "CrudViewBase",
     components: {
-    }
+    },
+    emits: ['update:items']
 })
 class CrudViewBase extends ViewBase {
-    @Prop({ type: Object, default: {} }) query;
+    @Prop({ type: Object, default: {} }) __query;
+    @Prop({ type: [Array], default: null }) __items;
 
     formDialog = false;
     editing = null;
     search = '';
-    items = [];
+    _items = [];
     selected = [];
     page = 1;
     itemsPerPage = null;
@@ -40,7 +42,22 @@ class CrudViewBase extends ViewBase {
         return !!this.itemsPerPage;
     }
     get _query() { return {}; }
-    get __query() { return { ...this._query, ...this.query }; }
+    get query() { return { ...this._query, ...this.__query }; }
+
+    get items(){
+        if (this.__items){
+            return this.__items;
+        }else{
+            return this._items;
+        }
+    }
+    set items(value){
+        if (this.__items){
+            this.$emit('update:items', value);
+        }else{
+            this._items = value;
+        }
+    }
     get headers(){ return []; }
     get rules(){ return {}; }
 
@@ -100,7 +117,7 @@ class CrudViewBase extends ViewBase {
                     params: {
                         ...(this.serverside && query ? { 
                             ["filter[search]"]: this.search,
-                            ...this.__query,
+                            ...this.query,
                         } : {}),
                     }
                 }, endpoint);
@@ -160,9 +177,9 @@ class CrudViewBase extends ViewBase {
     async fetch(releaseBusy=true){
         await this.waitBusy(
             async () => {
-                let query = this.__query;
+                let query = this.query;
                 let options = {};
-                if (this.itemsPerPage || this.__query){
+                if (this.itemsPerPage || this.query){
                     options = {
                         params: {
                             page: this.page,
@@ -170,7 +187,7 @@ class CrudViewBase extends ViewBase {
                                 ["filter[search]"]: this.search,
                                 per_page: this.itemsPerPage 
                             } : {}),
-                            ...this.__query
+                            ...this.query
                         }
                     }
                 }
