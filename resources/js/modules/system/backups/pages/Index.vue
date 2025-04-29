@@ -12,7 +12,6 @@ import { ViewBase } from '@/views/ViewBase.vue';
   }
 })
 class BackupsPage extends ViewBase {
-  @Prop({ type: Array, default: null }) items;
   async mounted(){
     this.tabStore.breadcrumbs = [
       { title: this.$t('navigation.system') },
