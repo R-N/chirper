@@ -1,6 +1,7 @@
 <script lang="ts">
-import { Vue, Component, Prop, Model, Emit, Ref, toNative } from 'vue-facing-decorator';
+import { Vue, Component, Prop, Model, Emit, Ref, toNative, Setup } from 'vue-facing-decorator';
 import { FormBase } from '@/components/form/FormBase.vue';
+import { useForm } from '@inertiajs/vue3';
 
 import ConfirmationSlot from '@/components/dialog/ConfirmationSlot.vue';
 import IconButton from '../button/IconButton.vue';
@@ -25,16 +26,7 @@ class EditableCell extends FormBase {
 
   editing = false;
   @Model({ default: false }) edit;
-
-  // get editing(){
-  //  return this.edit;
-  // }
-  // set editing(value){
-  //  if(value == this.edit) return;
-  //  this.resetValidation();
-  //  this.busy = false;
-  //  this.emitChange(value);
-  // }
+  @Prop({ type: String, default: 'value' }) name;
   
   @Prop({ type: Function }) onEdit;
   @Prop({ type: Function }) onFinish;
@@ -44,7 +36,7 @@ class EditableCell extends FormBase {
     return true;
   }
   @Emit("finish")
-  emitFinish(value){
+  emitFinish(value=null){
       return value;
   }
   
@@ -82,12 +74,12 @@ class EditableCell extends FormBase {
 
   async onConfirm(){
     //this.emitSubmit(e);
-    let form = this.myForm.$el;
-    let formData = Object.fromEntries(new FormData(form).entries());
+    // let form = this.myForm.$el;
+    // let formData = Object.fromEntries(new FormData(form).entries());
     if(this.onFinish)
-      await this.onFinish(formData);
+      await this.onFinish();
     else
-      this.emitFinish(formData);
+      this.emitFinish();
     this.editing = false;
   }
 
@@ -102,48 +94,43 @@ export default toNative(EditableCell);
     :on-confirm="onConfirm"
     class="d-flex flex-grow-1"
   >
-    <VForm 
-      class="flex-grow-1" 
-      ref="myForm" 
-      @submit.native.prevent.stop="finishEdit(ask)"
-      v-model="valid"
-      :disabled="busy"
+    <div class="d-flex align-left justify-space-between" v-if="title">
+      <span class="font-weight-bold">{{ title }}</span>
+    </div>
+    <div 
+      class="d-flex align-center justify-space-between"
+      @keydown.enter="finishEdit(ask)"
     >
-      <div class="d-flex align-left justify-space-between" v-if="title">
-        <span class="font-weight-bold">{{ title }}</span>
-      </div>
-      <div class="d-flex align-center justify-space-between">
-        <span class="flex-grow-1">
-          <slot v-if="editing && !(disabled || busy)" name="editing" :readonly="disabled || busy || !editing" :disabled="disabled || busy || !editing" :editing="editing"></slot>
-          <slot v-else name="default"></slot>
+      <span class="flex-grow-1">
+        <slot v-if="editing && !(disabled || busy)" name="editing" :readonly="disabled || busy || !editing" :disabled="disabled || busy || !editing" :editing="editing"></slot>
+        <slot v-else name="default"></slot>
+      </span>
+      <span class="flex-grow-0 flex-shrink-0" v-if="!(disabled || busy)">
+        <span v-if="editing">
+          <IconButton
+              @click.stop="() => finishEdit(ask)" 
+              type="submit"  
+              :disabled="busy"
+              icon="mdi-check"
+              :text="saveText ?? $t('form.save')"
+          />
+          <IconButton
+              @click.stop="cancelEdit" 
+              :disabled="busy"
+              icon="mdi-cancel"
+              :text="cancelText ?? $t('form.cancel')"
+          />
         </span>
-        <span class="flex-grow-0 flex-shrink-0" v-if="!(disabled || busy)">
-          <span v-if="editing">
-            <IconButton
-                @click.stop="() => finishEdit(ask)" 
-                type="submit"  
-                :disabled="busy"
-                icon="mdi-check"
-                :text="saveText ?? $t('form.save')"
-            />
-            <IconButton
-                @click.stop="cancelEdit" 
-                :disabled="busy"
-                icon="mdi-cancel"
-                :text="cancelText ?? $t('form.cancel')"
-            />
-          </span>
-          <span v-else>
-            <IconButton
-                @click.stop="beginEdit" 
-                :disabled="busy"
-                icon="mdi-pencil"
-                :text="editText ?? $t('form.edit')"
-            />
-          </span>
+        <span v-else>
+          <IconButton
+              @click.stop="beginEdit" 
+              :disabled="busy"
+              icon="mdi-pencil"
+              :text="editText ?? $t('form.edit')"
+          />
         </span>
-      </div>
-    </VForm>
+      </span>
+    </div>
   </ConfirmationSlot>
 </template>
 <style scoped>

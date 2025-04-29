@@ -54,8 +54,32 @@ class EditableCellBase extends WorkingComponent {
         return this.valueEdit;
     }
 
-    async finish(){
+    resetValidation(){
         this.form.clearErrors();
+    }
+
+    validate(){
+        this.resetValidation();
+        const rules = this._rules;
+        if (!rules)
+            return;
+        for (const rule of rules) {
+            const result = rule(this.valueEdit)
+            if (result !== true) {
+                this.form.errors[this.name] = result;
+                break
+            }
+        }
+    }
+
+    get valid(){
+        return !Object.keys(this.form.errors).length;
+    }
+
+    async finish(){
+        this.validate();
+        if (!this.valid)
+            return;
         this.form[this.name] = this.valueEdit;
         this.$emit("change", this.getValue());
         if (this.onFinish){

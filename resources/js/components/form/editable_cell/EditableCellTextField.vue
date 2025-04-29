@@ -28,6 +28,7 @@ export default toNative(EditableCellTextField);
         :parent-busy="busy"
         :disabled="disabled"
         :title="title"
+        :name="name"
     >
         <template v-slot:editing>
             <VTextField 
@@ -41,6 +42,7 @@ export default toNative(EditableCellTextField);
                 :required="required"
                 :label="label"
                 :error-messages="errorMessages || form?.errors?.[name]"
+                @blur="validate"
             />
         </template>
         <template v-slot:default>

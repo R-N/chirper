@@ -64,6 +64,7 @@ export default toNative(EditableCellSelect);
         :parent-busy="busy"
         :disabled="disabled"
         :title="title"
+        :name="name"
     >
         <template v-slot:editing>
             <VSelect
@@ -80,6 +81,7 @@ export default toNative(EditableCellSelect);
                 :multiple="multiple"
                 :error-messages="errorMessages || form?.errors?.[name]"
                 :rules="_rules"
+                @blur="validate"
             />
         </template>
         <template v-slot:default>
