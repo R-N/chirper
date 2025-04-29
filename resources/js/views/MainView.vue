@@ -4,7 +4,7 @@ import { Component, toNative } from 'vue-facing-decorator'
 import { ViewBase } from '@/views/ViewBase.vue';
 
 import { VFadeTransition, VSlideYTransition, VSlideXTransition, VExpandTransition } from 'vuetify/components';
-import LoginView from '@/modules/user/auth/views/login.vue';
+import LoginView from '@/modules/user/auth/views/Login.vue';
 
 @Component({
     name: "MainView",

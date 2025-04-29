@@ -15,6 +15,7 @@ import IconButton from '../button/IconButton.vue';
     emits: ['edit', 'finish']
 })
 class EditableCell extends FormBase {
+  @Prop({ default: false }) bypass;
   @Prop({ type: String }) title;
   @Prop({ type: String }) editText;
   @Prop({ type: String }) cancelText;
@@ -94,7 +95,7 @@ export default toNative(EditableCell);
     :on-confirm="onConfirm"
     class="d-flex flex-column flex-grow-1"
   >
-    <div class="d-flex align-left justify-space-between" v-if="title">
+    <div class="d-flex align-left justify-space-between" v-if="title && !bypass">
       <span class="font-weight-bold">{{ title }}</span>
     </div>
     <div 
@@ -102,10 +103,10 @@ export default toNative(EditableCell);
       @keydown.enter="finishEdit(ask)"
     >
       <span class="flex-grow-1">
-        <slot v-if="editing && !(disabled || busy)" name="editing" :readonly="disabled || busy || !editing" :disabled="disabled || busy || !editing" :editing="editing"></slot>
+        <slot v-if="editing && !(disabled || busy) && !bypass" name="editing" :readonly="disabled || busy || !editing" :disabled="disabled || busy || !editing" :editing="editing"></slot>
         <slot v-else name="default"></slot>
       </span>
-      <span class="flex-grow-0 flex-shrink-0" v-if="!(disabled || busy)">
+      <span class="flex-grow-0 flex-shrink-0" v-if="!(disabled || busy) && !bypass">
         <span v-if="editing">
           <IconButton
               @click.stop="() => finishEdit(ask)" 

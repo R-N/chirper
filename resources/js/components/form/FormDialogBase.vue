@@ -9,12 +9,7 @@ import { DialogBase } from '@/components/dialog/DialogBase.vue';
   }
 })
 class FormDialogBase extends DialogBase {
-  @Watch("modelValue")
-  dataWatcher(newValue, oldValue){
-    if (newValue){
-      this.prepopulate();
-    }
-  }
+  
 }
 export { FormDialogBase };
 export default toNative(FormDialogBase);

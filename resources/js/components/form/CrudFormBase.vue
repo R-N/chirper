@@ -4,19 +4,18 @@ import { Component, toNative } from 'vue-facing-decorator';
 
 import { WorkingComponent } from '../WorkingComponent.vue';
 import { FormMixin } from '@/mixins/Form.vue';
-import { DialogMixin } from '@/mixins/Dialog.vue';
 import { CrudFormMixin } from '@/mixins/CrudForm.vue';
 
-const BaseClass = CrudFormMixin(DialogMixin(FormMixin(WorkingComponent)));
+const BaseClass = CrudFormMixin(FormMixin(WorkingComponent));
 
 @Component({
-  name: "CrudFormDialogBase",
+  name: "CrudFormBase",
   components: {
   }
 })
-class CrudFormDialogBase extends BaseClass {
+class CrudFormBase extends BaseClass {
 
 }
-export { CrudFormDialogBase };
-export default toNative(CrudFormDialogBase);
+export { CrudFormBase };
+export default toNative(CrudFormBase);
 </script>

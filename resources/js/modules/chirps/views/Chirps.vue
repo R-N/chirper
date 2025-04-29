@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Component, toNative } from 'vue-facing-decorator';
+import { Vue, Component, toNative } from 'vue-facing-decorator';
 
 import dayjs from 'dayjs';
 
@@ -16,6 +16,14 @@ import { bulkDeleteFromArray } from '@/libs/util';
 import rules from '@/validations-gen/chirps.json';
 import { parseLaravelRules } from '@/libs/validation';
 
+import { BaseMixin } from '@/mixins/Component.vue';
+import { WorkingMixin } from '@/mixins/Working.vue';
+import { CrudViewMixin } from '@/mixins/CrudView.vue';
+import {WorkingComponent} from '@/components/WorkingComponent.vue';
+import {MyComponent} from '@/components/MyComponent.vue';
+
+const BaseClass = CrudViewMixin(WorkingMixin(BaseMixin(Vue)));
+
 @Component({
     name: "ChirpCrudView",
     components: {
@@ -27,7 +35,7 @@ import { parseLaravelRules } from '@/libs/validation';
         ConfirmationIconButton
     },
 })
-class ChirpCrudView extends CrudViewBase {
+class ChirpCrudView extends BaseClass  {
     nameField = "created_at";
     client = chirpService;
 
@@ -67,7 +75,7 @@ class ChirpCrudView extends CrudViewBase {
     }
 }
 export { ChirpCrudView };
-export default toNative(ChirpCrudView);
+export default toNative( ChirpCrudView );
 </script>
 <template>
     <CrudView 
