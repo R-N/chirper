@@ -6,7 +6,8 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import { execSync } from 'child_process';
 //import babel from '@qubit-ltd/vite-plugin-babel';
 
-execSync('php artisan lang:sync-to-frontend');
+execSync('php artisan lang:export');
+execSync('php artisan validation:export');
 
 export default defineConfig({
   plugins: [

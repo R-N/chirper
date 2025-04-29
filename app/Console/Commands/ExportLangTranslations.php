@@ -10,7 +10,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
     name: 'lang:export',
     description: 'Export Laravel language files to Vue frontend as JSON'
 )]
-class SyncLangToFrontend extends Command
+class ExportLangTranslations extends Command
 {
     protected $signature = 'lang:export';
     protected $description = 'Export Laravel language files to Vue frontend as JSON';
