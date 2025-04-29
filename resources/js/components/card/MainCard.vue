@@ -5,18 +5,18 @@ import CardTitle from '@/components/card/CardTitle.vue';
 import CardToolbar from '@/components/card/CardToolbar.vue';
 
 @Component({
-    name: "CrudCard",
+    name: "MainCard",
     components: {
       CardTitle,
       CardToolbar
     }
 })
-class CrudCard extends Vue {
+class MainCard extends Vue {
   @Prop({ default: "Title" }) title;
   @Prop({ default: false }) noToolbar;
 }
-export { CrudCard };
-export default toNative(CrudCard);
+export { MainCard };
+export default toNative(MainCard);
 </script>
 <template>
   <VCard class="fill-width py-2 px-4">

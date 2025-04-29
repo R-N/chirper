@@ -3,7 +3,7 @@
 import { Component, Prop, Watch, Model, Emit, toNative } from 'vue-facing-decorator';
 import { ViewBase } from '@/views/ViewBase.vue';
 
-import CrudCard from '@/components/card/CrudCard.vue';
+import MainCard from '@/components/card/MainCard.vue';
 import IconButton from '@/components/button/IconButton.vue';
 
 let modelEvent = "update:modelValue"
@@ -11,7 +11,7 @@ let modelEvent = "update:modelValue"
 @Component({
     name: "CrudView",
     components: {
-      CrudCard,
+      MainCard,
       IconButton
     },
     emits: [modelEvent]
@@ -40,7 +40,7 @@ export { CrudView };
 export default toNative(CrudView);
 </script>
 <template>
-  <CrudCard :title="title ?? $t('crud.title')">
+  <MainCard :title="title ?? $t('crud.title')">
     <template v-slot:toolbar-left>
       <VBtnToggle v-model="_null" class="fill-height d-inline-flex" title="Bulk Actions">
         <VCheckbox 
@@ -110,5 +110,5 @@ export default toNative(CrudView);
     <template v-slot:default>
       <slot name="default" :busy="busy"></slot>
     </template>
-  </CrudCard>
+  </MainCard>
 </template>
