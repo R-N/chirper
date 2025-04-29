@@ -52,10 +52,9 @@ class CrudViewBase extends ViewBase {
         }
     }
     set items(value){
+        this._items = value;
         if (this.__items){
             this.$emit('update:items', value);
-        }else{
-            this._items = value;
         }
     }
     get headers(){ return []; }
