@@ -4,6 +4,7 @@ namespace App\Utils;
 
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Log;
 
 class ResponseUtil
 {
@@ -36,11 +37,13 @@ class ResponseUtil
 
         if (!$route)
             $route = url()->current();
-        if (in_array($statusCode, [401, 403, 404])){
+        if ($statusCode > 299){
             if (!$route || $route == url()->current())
                 $route = url()->previous();
             else if ($route == url()->previous())
                 $route = "/";
+            else 
+                Log::error($route);
         }
         $response = Redirect::to($route)->with($data);
 

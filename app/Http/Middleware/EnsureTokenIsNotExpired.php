@@ -8,6 +8,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Auth\AuthenticationException;
 use App\Utils\ResponseUtil;
 use Laravel\Sanctum\PersonalAccessToken;
+use App\Exceptions\AuthException;
+use App\Exceptions\AuthExceptionCode;
 
 class EnsureTokenIsNotExpired
 {
@@ -17,11 +19,7 @@ class EnsureTokenIsNotExpired
 
         if ($token && ($token instanceof PersonalAccessToken || isset($token->expires_at))){
             if ($token->expires_at?->isPast()) {
-                return ResponseUtil::jsonRedirectResponse([
-                    'message' => __('errors.token_expired'),
-                    'show' => true,
-                ], route('login'), 401);
-                throw new AuthenticationException(__('errors.token_expired'));
+                throw (new AuthException(AuthExceptionCode::TOKEN_EXPIRED))->setRedirect(route('login'));
             }
         }
 

@@ -7,6 +7,7 @@ use App\Exceptions\Traits\Displayable;
 use App\Exceptions\Traits\HasErrorCode;
 use App\Exceptions\Traits\Redirects;
 use App\Exceptions\Traits\HasStatus;
+use Illuminate\Auth\AuthenticationException;
 
 enum AuthExceptionCode
 {
@@ -15,6 +16,7 @@ enum AuthExceptionCode
     case INVALID_TOKEN;
     case PASSWORD_RESET_SEND_FAIL;
     case USER_NOT_FOUND;
+    case TOKEN_EXPIRED;
 
     public function statusCode()
     {
@@ -24,6 +26,7 @@ enum AuthExceptionCode
           self::INVALID_TOKEN => 403,
           self::PASSWORD_RESET_SEND_FAIL => 500,
           self::USER_NOT_FOUND => 404,
+          self::TOKEN_EXPIRED => 401,
         };
     }
 
@@ -35,11 +38,12 @@ enum AuthExceptionCode
             self::INVALID_TOKEN => 'errors.invalid_token',
             self::PASSWORD_RESET_SEND_FAIL => 'auth.password_reset_send_fail',
             self::USER_NOT_FOUND => 'auth.user_not_found',
+            self::TOKEN_EXPIRED => 'errors.token_expired',
         };
     }
 }
 
-class AuthException extends Exception
+class AuthException extends AuthenticationException
 {
     use Displayable;
     use HasErrorCode;
