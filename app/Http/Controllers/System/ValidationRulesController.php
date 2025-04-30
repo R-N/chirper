@@ -5,6 +5,7 @@ namespace App\Http\Controllers\System;
 use App\Models\Chirp;
 use App\Models\Backup;
 use App\Models\User;
+use App\Http\Controllers\Controller;
 
 class ValidationRulesController extends Controller
 {
