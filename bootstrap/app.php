@@ -36,7 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
             $statusCode = ExceptionUtil::getStatusCode($e);
             if (property_exists($e, 'redirect') && $e->redirect){
                 return ResponseUtil::jsonRedirectResponse($data, $e->redirect, $statusCode, true);
-            }else if ($data['show']){
+            }else if (isset($data['show']) && $data['show']){
                 return ResponseUtil::jsonStayResponse($data, $statusCode, true);
             }
             return null;

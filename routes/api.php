@@ -7,6 +7,7 @@ use App\Http\Controllers\System\DebugController;
 use App\Http\Controllers\System\LanguageController;
 use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\System\ValidationRulesController;
+use App\Http\Controllers\System\UserController;
 
 Route::as('api.')->group(function () {
     require __DIR__.'/hybrid.php';
@@ -19,6 +20,11 @@ Route::as('api.')->group(function () {
 
         Route::get('/user', function (Request $request) {
             return $request->user();
+        });
+
+        Route::prefix('system/users')->as('system.users.')->middleware(['auth'])->group(function () {
+            Route::get('/roles', [UserController::class, 'getAvailableRoles'])->name('get-available-roles');
+            Route::get('/permissions', [UserController::class, 'getAvailablePermissions'])->name('get-available-permissions');
         });
 
         Route::get('refresh-token', [AuthenticatedSessionController::class, 'refreshToken'])->name('token.refresh');
