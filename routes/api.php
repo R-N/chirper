@@ -6,7 +6,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\System\DebugController;
 use App\Http\Controllers\System\LanguageController;
 use App\Http\Controllers\User\NotificationController;
-use App\Http\Controllers\ValidationRulesController;
+use App\Http\Controllers\System\ValidationRulesController;
 
 Route::as('api.')->group(function () {
     require __DIR__.'/hybrid.php';
