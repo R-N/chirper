@@ -12,6 +12,7 @@ import {ViewBase} from '@/views/ViewBase.vue';
   }
 })
 class ChirpsPage extends ViewBase {
+  @Prop({ type: [Array, Object], default: null }) items;
   mounted(){
     this.tabStore.breadcrumbs = [
       { title: this.$t('navigation.chirps') },

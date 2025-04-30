@@ -12,7 +12,7 @@ import { ViewBase } from '@/views/ViewBase.vue';
   }
 })
 class UsersPage extends ViewBase {
-  @Prop({ type: Array, default: null }) items;
+  @Prop({ type: [Array, Object], default: null }) items;
   mounted(){
     this.tabStore.breadcrumbs = [
       { title: this.$t('navigation.system') },
