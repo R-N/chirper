@@ -14,9 +14,10 @@ import IconButton from '@/components/button/IconButton.vue';
 import ConfirmationIconButton from '@/components/button/ConfirmationIconButton.vue';
 import SyncCheckbox from '@/components/checkbox/SyncCheckbox.vue';
 import EditableCellSelect from '@/components/form/editable_cell/EditableCellSelect.vue';
-import { getArrayText } from '@/libs/util.js';
-import rules from '@/validations-gen/users.json';
-import { parseLaravelRules } from '@/libs/validation';
+import { UserFormMixin } from '../mixins/UserForm.vue';
+import UserForm from '../forms/User.vue';
+
+const BaseClass = UserFormMixin(CrudViewBase);
 
 @Component({
     name: "UserCrudView",
@@ -28,14 +29,13 @@ import { parseLaravelRules } from '@/libs/validation';
         IconButton,
         ConfirmationIconButton,
         SyncCheckbox,
-        EditableCellSelect
+        EditableCellSelect,
+        UserForm
     },
 })
-class UserCrudView extends CrudViewBase {
+class UserCrudView extends BaseClass {
     client = userService;
     editing = null;
-    availableRoles = [];
-    availablePermissions = [];
 
     get itemName(){
         return this.$t('user.item');
@@ -57,29 +57,6 @@ class UserCrudView extends CrudViewBase {
         this.formDialog = true;
     }
 
-    async created(){
-        this.availableRoles = (await userService.get_roles()).roles;
-        this.availablePermissions = (await userService.get_permissions()).permissions;
-        super.created();
-    }
-
-    get hasAvailableRoles(){
-        return this.availableRoles && this.availableRoles.length > 0;
-    }
-
-    get hasAvailablePermissions(){
-        return this.availablePermissions && this.availablePermissions.length > 0;
-    }
-
-    setRolesConfirmText(item, value){
-        return this.setFieldConfirmText('roles', item, value)
-    }
-    getRolesText(val){
-        return getArrayText(val, (v) => v.name, false);
-    }
-    get rules(){
-        return parseLaravelRules(rules);
-    }
 }
 export { UserCrudView };
 export default toNative(UserCrudView);
@@ -108,98 +85,86 @@ export default toNative(UserCrudView);
                 v-model:page="page"
                 @update:options="debouncedFetch"
             >
-                <template v-slot:item.email="{ item }">
-                    <EditableCellTextField
-                        name="email" 
-                        type="email"
-                        :confirm-text-maker="(value) => setFieldConfirmText('email', item, value)"
-                        :value="item.email" 
-                        :on-finish="(value) => setField('email', item, value)"
+                <template v-slot:item.name="{ item }">
+                    <UserForm 
                         :disabled="busy"
-                        :rules="rules.email"
+                        :bypass-editable-cell="false"
+                        :data="item"
+                        :rules="rules"
+                        select="name"
+                    />
+                </template>
+                <template v-slot:item.email="{ item }">
+                    <UserForm 
+                        :disabled="busy"
+                        :bypass-editable-cell="false"
+                        :data="item"
+                        :rules="rules"
+                        select="email"
                     />
                 </template>
                 <template v-slot:item.roles="{ item }">
-                    <EditableCellSelect
-                        name="roles" 
-                        type="roles"
-                        :label="$t('user.roles')" 
-                        :confirm-text-maker="(value) => setFieldConfirmText(
-                            'roles', item, value,
-                            (v) => getRolesText(v)
-                        )"
-                        :items="availableRoles"
-                        :value="item.roles" 
-                        item-value="name"
-                        item-title="name"
-                        :on-finish="(value) => setField(
-                            'roles', item, value, true, (v) => v.name
-                        )"
-                        :disabled="busy  || !hasAvailableRoles"
-                        :multiple="true"
-                        :return-object="true"
-                    />
-                </template>
-                <template v-slot:item.name="{ item }">
-                    <EditableCellTextField
-                        name="name"
-                        :confirm-text-maker="(value) => setFieldConfirmText('name', item, value)"
-                        :value="item.name" 
-                        :on-finish="(value) => setName(item, value)"
+                    <UserForm 
                         :disabled="busy"
-                        :rules="rules.name"
+                        :bypass-editable-cell="false"
+                        :data="item"
+                        :rules="rules"
+                        select="roles"
                     />
                 </template>
                 <template v-slot:item.enabled="{ item }">
-                    <SyncCheckbox 
-                        v-model="item.enabled" 
-                        :on-change="value => setEnabled(item, value)"
-                        :confirm-text-maker="() => setEnabledConfirmText(item)"
+                    <UserForm 
                         :disabled="busy"
-                        :text-enable="$t('crud.enable')"
-                        :text-disable="$t('crud.disable')"
+                        :bypass-editable-cell="false"
+                        :data="item"
+                        :rules="rules"
+                        select="enabled"
                     />
                 </template>
                 <template v-slot:item.verified="{ item }">
-                    <SyncCheckbox 
-                        v-model="item.verified" 
-                        :on-change="value => setField('verified', item, value)"
-                        :confirm-text-maker="() => toggleFieldConfirmText('verified', 'menghilangkan verifikasi', 'memaksa verifikasi', item)"
-                        readonly
+                    <UserForm 
                         :disabled="busy"
-                        :text-disable="$t('user.unverify')"
-                        :text-enable="$t('user.force_verify')"
+                        :bypass-editable-cell="false"
+                        :data="item"
+                        :rules="rules"
+                        select="verified"
                     />
                 </template>
-                <template v-slot:item.actions="{ item }">
-                    <IconButton
-                        @click.stop="() => showForm(item)" 
-                        :disabled="busy"
-                        icon="mdi-pencil"
-                        :text="$t('form.edit')"
-                    />
-                    <ConfirmationIconButton
-                        icon="mdi-key-variant"
-                        :text="$t('user.clear_password')"
-                        :confirmTextMaker="clearFieldConfirmText('password', item)"
-                        :on-confirm="() => clearField('password', item)"
-                        :ask="(ask) => justAsk(item, ask)" 
-                        :disabled="busy"
-                    />
-                    <ConfirmationIconButton
-                        icon="mdi-delete"
-                        :text="$t('form.delete')"
-                        :confirmTextMaker="deleteConfirmText(item)"
-                        :on-confirm="() => deleteItem(item)"
-                        :ask="(ask) => justAsk(item, ask)" 
-                        :disabled="busy"
-                    />
+                <template v-slot:item.actions="{ item }" class="d-flex flex-row">
+                    <div class="d-flex flex-row">
+                        <IconButton
+                            @click.prevent.stop="() => visit('/system/users/' + item.id)" 
+                            :disabled="busy"
+                            icon="mdi-magnify"
+                            :text="$t('form.details')"
+                        />
+                        <IconButton
+                            @click.prevent.stop="() => showForm(item)" 
+                            :disabled="busy"
+                            icon="mdi-pencil"
+                            :text="$t('form.edit')"
+                        />
+                        <UserForm 
+                            :disabled="busy"
+                            :bypass-editable-cell="false"
+                            :data="item"
+                            :rules="rules"
+                            select="clear_password"
+                        />
+                        <UserForm 
+                            :disabled="busy"
+                            :bypass-editable-cell="false"
+                            :data="item"
+                            :rules="rules"
+                            select="delete"
+                        />
+                    </div>
                 </template>
             </component>
             <UserFormDialog
                 :data="editing"
                 v-model="formDialog"
-                @submit="storeItem"
+                @submit.prevent.stop="storeItem"
                 :parent-busy="busy"
                 :availableRoles="availableRoles"
                 :availablePermissions="availablePermissions"

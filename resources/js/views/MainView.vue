@@ -39,7 +39,7 @@ export default toNative(MainView);
         <LoginView appear v-if="!isLoggedIn" key="login"/>
         <VContainer 
             appear
-            class="" 
+            class="d-flex flex-column" 
             align="start"
             justify="start"
             key="main"
@@ -67,7 +67,7 @@ export default toNative(MainView);
                 appear
                 :duration="transitionDuration"
             >
-                <slot appear key="main" />
+                <slot appear key="main"/>
             </VSlideYTransition>
             <VSpacer></VSpacer>
         </VContainer>

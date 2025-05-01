@@ -16,20 +16,20 @@ import CardTitle from '@/components/card/CardTitle.vue';
 class ForgotPasswordForm extends WorkingComponent {
   valid = true;
   @Prop({ type: String }) status;
-  @Ref('myForm') myForm;
+  @Ref('form') formRef;
 
-  form = useForm({
+  formData = useForm({
       email: '',
   });
 
   async reset(){
-    this.form?.clearErrors?.();
-    this.myForm.validate();
+    this.formData?.clearErrors?.();
+    this.formRef.validate();
     if(!this.valid) return;
     
     await this.waitBusy(
       async () => {
-        let res = await authService.forgotPassword(this.form);
+        let res = await authService.forgotPassword(this.formData);
         this.tabStore.tabDialogs.push({
           title: this.$t('auth.check_email'),
           text: this.$t('password_reset.sent')
@@ -42,7 +42,7 @@ export { ForgotPasswordForm };
 export default toNative(ForgotPasswordForm);
 </script>
 <template>
-  <VForm ref="myForm" v-model="valid" @submit.prevent="reset" class="p-2" :disabled="busy">
+  <VForm ref="form" v-model="valid" @submit.prevent.stop="reset" class="p-2" :disabled="busy">
     <CardTitle>
       <h2 class="text-center">{{ $t('password_reset.title') }}</h2>
     </CardTitle>
@@ -54,7 +54,7 @@ export default toNative(ForgotPasswordForm);
         {{ $t('password_reset.intro') }}
       </p>
       <VTextField
-        v-model="form.email" 
+        v-model="formData.email" 
         class="bigger-input" 
         :label="$t('user.email')" 
         type="email" 
@@ -63,7 +63,7 @@ export default toNative(ForgotPasswordForm);
         :disabled="busy" 
         required
         :rules="[ v => !!v || $t('auth.email_required')]"
-        :error-messages="form.errors.email" 
+        :error-messages="formData.errors.email" 
       />
       <VBtn 
         raised 
@@ -73,7 +73,7 @@ export default toNative(ForgotPasswordForm);
         type="submit" 
         class="text-center w-100 mx-0" 
         :disabled="busy" 
-        :loading="busy || form.isSubmitting" 
+        :loading="busy || formData.isSubmitting" 
       >
         {{ $t('form.reset') }}
       </VBtn>

@@ -9,8 +9,10 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Constructor } from './Constructor.vue';
+import { CrudMixin } from './Crud.vue';
 
 export const CrudViewMixin = <TBase extends Constructor>(Base: TBase) => {
+  Base = CrudMixin(Base);
   @Component({
       name: "CrudViewBase",
       components: {
@@ -31,18 +33,13 @@ export const CrudViewMixin = <TBase extends Constructor>(Base: TBase) => {
       debouncedFetch = null;
       itemCount = 0;
       selecting = false;
-      nameField = "name";
-      client = null;
-      filteredErrors = [];
 
-      get itemName(){
-          return this.$t('crud.item');
-      }
       get serverside() {
           return !!this.itemsPerPage;
       }
       get _query() { return {}; }
       get query() { return { ...this._query, ...this.__query }; }
+      get rules(){ return {}; }
 
       get items(){
           if (this.__items){
@@ -58,7 +55,6 @@ export const CrudViewMixin = <TBase extends Constructor>(Base: TBase) => {
           }
       }
       get headers(){ return []; }
-      get rules(){ return {}; }
 
       get exportItems() { 
           let fields = this.headers.map((h) => h.value); 
@@ -110,7 +106,7 @@ export const CrudViewMixin = <TBase extends Constructor>(Base: TBase) => {
       }
 
       async downloadExport(type="xlsx", query=false, endpoint=null, releaseBusy=true){
-          await this.waitBusy(
+          return await this.waitBusy(
               async () => {
                   let res = await this.client.export(null, type, { 
                       params: {
@@ -120,19 +116,15 @@ export const CrudViewMixin = <TBase extends Constructor>(Base: TBase) => {
                           } : {}),
                       }
                   }, endpoint);
-                  FileSaver.saveAs(res.data, res.filename);
+                  let data = this.client.getData(res);
+                  FileSaver.saveAs(data, res.filename);
+                  return data;
               }, null, releaseBusy
           );
       }
       
       get dataTableComponent(){
           return this.serverside ? VDataTableServer : VDataTable;
-      }
-      deleteConfirmText(item){
-          return this.$t('crud.delete_confirm_text', { 
-              item: this.itemName.toLowerCase(), 
-              name: item[this.nameField] 
-          });
       }
 
       bulkConfirmText(action){
@@ -154,31 +146,32 @@ export const CrudViewMixin = <TBase extends Constructor>(Base: TBase) => {
           }
       }
 
-      async justAsk(item, ask){
-          if (ask)
-              ask();
-      }
-
-      async deleteItem(item, releaseBusy=true){
-          await this.waitBusy(
-              async () => {
-                  await this.client.delete(item);
-                  deleteFromArray(this.items, item);
-              }, null, releaseBusy
-          );
-      }
-
       async created(){
+          super.created?.();
           this.debouncedFetch = debounce(this.fetch, 300);
           await this.fetch();
       }
 
+      async deleteItem(item, releaseBusy=true){
+          return await this.waitBusy(
+              async () => {
+                  const ret = await super.deleteItem(item, false);
+                  deleteFromArray(this.items, item);
+                  return ret;
+              }, null, releaseBusy
+          );
+      }
+
       async fetch(releaseBusy=true){
-          await this.waitBusy(
+          return await this.waitBusy(
               async () => {
                   let query = this.query;
-                  let options = {};
-                  if (this.itemsPerPage || this.query){
+                  let options = {
+                    params: {
+                        ...this.query
+                    }
+                  };
+                  if (this.serverside || this.query){
                       options = {
                           params: {
                               page: this.page,
@@ -190,8 +183,7 @@ export const CrudViewMixin = <TBase extends Constructor>(Base: TBase) => {
                           }
                       }
                   }
-                  let res = await this.client.fetch(options);
-                  let items = this.client.getData(res);
+                  let items = await super.fetch(options, false);
                   if (Array.isArray(items)){
                       this.items = items;
                       this.itemCount = items.length;
@@ -202,6 +194,7 @@ export const CrudViewMixin = <TBase extends Constructor>(Base: TBase) => {
                       console.log(items);
                       this.showError({ message: this.$t('crud.unknown_fetch_result') });
                   }
+                  return items;
               }, null, releaseBusy
           );
       }
@@ -209,112 +202,17 @@ export const CrudViewMixin = <TBase extends Constructor>(Base: TBase) => {
       async create(form, releaseBusy=true){
           return await this.waitBusy(
               async () => {
-                  let res = await this.client['create'](form);
-                  let obj = this.client.getData(res);
+                  let obj = await super.create(form, false);
                   if (obj){
                       this.items.push(obj);
                   }
-              }, null, releaseBusy
-          );
-      }
-
-      setNameConfirmText(item, newValue){
-          return this.setFieldConfirmText(this.nameField, item, newValue);
-      }
-
-      async setName(item, newValue, releaseBusy=true){
-          return await this.setField(this.nameField, item, newValue, releaseBusy);
-      }
-
-      setFieldConfirmText(fieldName, item, newValue=null, getText=null){
-          let oldValue = item[fieldName];
-          // let newValue = item[newField];
-          if (getText){
-              oldValue = getText(oldValue);
-              newValue = getText(newValue);
-          }
-          return this.$t('crud.set_field_confirm_text', { 
-              field: fieldName,
-              item: this.itemName.toLowerCase(),
-              name: item[this.nameField],
-              oldValue: oldValue,
-              newValue: newValue,
-          });
-      }
-
-      async setField(fieldName, item, value=null, releaseBusy=true, getValue=null){
-          await this.waitBusy(
-              async () => {
-                  const ret = await this.client[`set_${fieldName}`](
-                      item, 
-                      getValue ? getValue(value) : value
-                  );
-                  const data = this.client.getData(ret);
-                  if (isObject(data)){
-                      item[fieldName] = data[fieldName];
-                      this.storeItem(data);
-                  }else if (isInertiaForm(value)){
-                      item[fieldName] = value[fieldName];
-                  }else{
-                      item[fieldName] = value;
-                  }
-              }, null, releaseBusy
-          );
-      }
-
-      setEnabledConfirmText(item){
-          return this.toggleFieldConfirmText("enabled", 'menonaktifkan', 'mengaktifkan', item);
-      }
-
-      async setEnabled(item, enabled, releaseBusy=true){
-          return await this.toggleField("enabled", item, enabled, releaseBusy);
-      }
-
-      toggleFieldConfirmText(fieldName, disable, enable, item){
-          let action = item[fieldName] ? disable : enable;
-          return this.$t('crud.toggle_field_confirm_text', { 
-              field: fieldName,
-              item: this.itemName.toLowerCase(),
-              name: item[this.nameField],
-          });
-      }
-
-      async toggleField(toggleName, item, enabled, releaseBusy=true){
-          if (enabled === undefined || enabled === null)
-              enabled = !item.enabled;
-          return await this.setField(toggleName, item, enabled, releaseBusy);
-      }
-
-      clearFieldConfirmText(fieldName, item){
-          return this.$t('crud.clear_field_confirm_text', { 
-              field: fieldName,
-              item: this.itemName.toLowerCase(),
-              name: item[this.nameField],
-          });
-      }
-
-      async clearField(fieldName, item, releaseBusy=true){
-          await this.waitBusy(
-              async () => {
-                  const ret = await this.client[`clear_${fieldName}`](item);
-                  const data = this.client.getData(ret);
-                  if (isObject(data)){
-                      item[fieldName] = data[fieldName];
-                      this.storeItem(data);
-                  }else{
-                      item[fieldName] = null;
-                  }
+                  return obj;
               }, null, releaseBusy
           );
       }
 
       async bulkAction(action, form, onSuccess=null, releaseBusy=true){
-          await this.waitBusy(
-              async () => {
-                  await this.client[`bulk_${action}`](form);
-                  onSuccess?.();
-              }, null, releaseBusy
-          );
+          return await this.action(`bulk_${action}`, form, onSuccess, releaseBusy);
       }
 
       async debouncedFetch2(releaseBusy=true){

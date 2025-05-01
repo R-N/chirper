@@ -42,7 +42,7 @@ export default toNative(FormSection);
         </VCol>
         <VCol cols="12" md="8">
           <VCard class="pa-5">
-            <form @submit.prevent="submitted">
+            <form @submit.prevent.stop="submitted">
               <VCardText>
                 <slot name="form" />
               </VCardText>

@@ -32,7 +32,7 @@ export default toNative(IconButton);
                 class="d-inline-flex" 
                 v-bind="props" 
                 :disabled="disabled"
-                @click="emitClick($event)" 
+                @click.prevent.stop="emitClick($event)" 
                 :size="size"
                 :type="type"
             >

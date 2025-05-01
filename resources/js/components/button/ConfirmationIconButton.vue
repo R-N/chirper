@@ -42,7 +42,7 @@ export default toNative(ConfirmationIconButton);
     >
         <template v-slot="{ ask }">
             <IconButton
-                @click.stop="tryAsk(ask)" 
+                @click.prevent.stop="tryAsk(ask)" 
                 :disabled="busy || disabled"
                 :icon="icon"
                 :text="text"

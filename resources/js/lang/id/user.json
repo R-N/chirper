@@ -9,5 +9,9 @@
   "enabled": "Aktif",
   "unverify": "Batalkan verifikasi",
   "force_verify": "Paksa verifikasi",
-  "clear_password": "Kosongkan password"
+  "clear_password": "Kosongkan password",
+  "enabling": "mengaktifkan",
+  "disabling": "menonaktifkan",
+  "unverifying": "membatalkan verifikasi",
+  "force_verifying": "memaksa verifikasi"
 }

@@ -141,7 +141,7 @@ export default toNative(BackupView);
           <EditableCellTextField
             name="id"
             :confirm-text-maker="(value) => setFieldConfirmText('id', item, value)"
-            :value="item.id"
+            v-model="item.id"
             :on-finish="(value) => setField('id', item, value)"
             :disabled="busy"
             :rules="rules.id"

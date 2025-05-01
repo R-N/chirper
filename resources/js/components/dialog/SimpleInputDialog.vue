@@ -34,7 +34,7 @@ class SimpleInputDialog extends FormDialogBase {
               value: null,
           });
       }
-  }) form;
+  }) formData;
   @Prop({ default: true }) emitForm;
   valueEdit = '';
   input = ''
@@ -55,7 +55,8 @@ class SimpleInputDialog extends FormDialogBase {
   reset(){
     super.reset?.();
     this.input = '';
-    this.inputConfirm = ''
+    this.inputConfirm = '';
+    this.prepopulate?.();
   }
 
   validateConfirm(inputConfirm){
@@ -64,7 +65,7 @@ class SimpleInputDialog extends FormDialogBase {
 
   getValue(){
     if (this.emitForm)
-      return this.form;
+      return this.formData;
     return this.input;
   }
 
@@ -89,8 +90,16 @@ export default toNative(SimpleInputDialog);
     :on-reset="reset"
     :on-cancel="onCancel"
     :on-submit="submit"
+    :form="formRef"
   >
-      <template v-slot:fields="{ interactable, busy }">
+    <template v-slot:fields="{ interactable, busy }">
+      <VForm 
+        v-model="valid" 
+        ref="form" 
+        :disabled="!interactable" 
+        @submit.prevent.stop="submit" 
+        class="d-flex flex-column ga-3" 
+      >
       <p class="text-left">{{ text }}</p>
       <VTextField 
         class="bigger-input" 
@@ -102,7 +111,7 @@ export default toNative(SimpleInputDialog);
         :rules="_rules"
         :counter="counter"
         :name="name"
-        :error-messages="errorMessages || form?.errors?.[name]"
+        :error-messages="errorMessages || formData?.errors?.[name]"
       />
       <VTextField 
         class="bigger-input" 
@@ -117,7 +126,7 @@ export default toNative(SimpleInputDialog);
         :rules="_rules"
         :counter="counter"
         :name="name"
-        :error-messages="errorMessages || form?.errors?.[name]"
+        :error-messages="errorMessages || formData?.errors?.[name]"
       />
       <VTextField 
         class="bigger-input" 
@@ -132,6 +141,7 @@ export default toNative(SimpleInputDialog);
         :name="name+'_confirm'"
         :error-messages="confirmErrorMessages"
       />
+      </VForm>
     </template>
   </FormDialog>
 </template>

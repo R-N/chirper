@@ -12,6 +12,8 @@ import { WorkingComponent } from '@/components/WorkingComponent.vue';
 })
 class SyncCheckbox extends WorkingComponent {
     @Prop({ type: String }) name;
+    @Prop({ type: String }) label;
+    @Prop({ default: true }) showLabel;
     @Prop({ type: String }) value;
     @Prop({ type: [String, Function] }) confirmTextMaker; 
     @Prop({ default: false }) disabled;
@@ -62,6 +64,7 @@ export default toNative(SyncCheckbox);
                 <template #activator="{ props }">
                     <VCheckbox 
                         v-bind="props"
+                        :label="showLabel ? label : null"
                         :name="name"
                         v-model="inputValue"
                         :value="value"

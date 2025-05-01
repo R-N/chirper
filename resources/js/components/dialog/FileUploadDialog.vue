@@ -39,7 +39,7 @@ class FileUploadDialog extends DialogBase {
               value: null,
           });
       }
-  }) form;
+  }) formData;
   // @Prop({ default: true }) emitForm;
 
   file = null
@@ -126,7 +126,7 @@ class FileUploadDialog extends DialogBase {
   }
 
   async uploadFile(){
-    this.form.clearErrors();
+    this.formData.clearErrors();
     const comp = this;
     comp.busy=true;
     if (comp.preUpload) comp.preUpload();
@@ -145,7 +145,7 @@ class FileUploadDialog extends DialogBase {
       comp.files.unshift(comp.file);
       comp.file = null;
       if (error?.response?.data?.errors){
-        this.form.setError(error.response.data.errors);
+        this.formData.setError(error.response.data.errors);
       }
       throw error;
     } finally {
@@ -178,7 +178,7 @@ export default toNative(FileUploadDialog);
               :multiple="true"
               show-size
               @change="onFilesChanged"
-              :error-messages="errorMessages || form?.errors?.[name]"
+              :error-messages="errorMessages || formData?.errors?.[name]"
             />
           </VCardText>
           <VCardActions>
@@ -189,7 +189,7 @@ export default toNative(FileUploadDialog);
               @click.stop="close()"
               :disabled="interactable"
             >
-              Batal
+              {{ $t('form.cancel') }}
             </VBtn>
             <VBtn
               color="green darken-1"
@@ -198,7 +198,7 @@ export default toNative(FileUploadDialog);
               :disabled="interactable"
               :loading="busy"
             >
-              Upload
+              {{ $t('form.upload') }}
             </VBtn>
           </VCardActions>
       </VForm>

@@ -27,7 +27,7 @@ import {ViewBase} from '@/views/ViewBase.vue';
 class TwoFactorChallengePage extends ViewBase {
   recovery = false;
 
-  form = useForm({
+  formData = useForm({
     code: '',
     recovery_code: '',
   });
@@ -42,15 +42,15 @@ class TwoFactorChallengePage extends ViewBase {
 
     if (this.recovery) {
       this.recoveryCodeInput.value.focus();
-      this.form.code = '';
+      this.formData.code = '';
     } else {
       this.codeInput.value.focus();
-      this.form.recovery_code = '';
+      this.formData.recovery_code = '';
     }
   };
 
   async submit() {
-    let res = await authService.twoFactorLogin(this.form);
+    let res = await authService.twoFactorLogin(this.formData);
     router.visit(res.redirect || "/dashboard");
   }
 }
@@ -73,19 +73,19 @@ export default toNative(TwoFactorChallengePage);
         </VCardText>
         
         <VCardText>
-          <form @submit.prevent="submit">
+          <form @submit.prevent.stop="submit">
             <div v-if="!recovery">
               <VLabel for="code">{{ $t('two_factor.code') }}</VLabel>
               <VTextField
                 id="code"
                 ref="codeInput"
-                v-model="form.code"
+                v-model="formData.code"
                 type="text"
                 inputmode="numeric"
                 variant="outlined"
                 autocomplete="one-time-code"
                 autofocus
-                :error-messages="form.errors.code"
+                :error-messages="formData.errors.code"
               />
             </div>
             
@@ -94,11 +94,11 @@ export default toNative(TwoFactorChallengePage);
               <VTextField
                 id="recovery_code"
                 ref="recoveryCodeInput"
-                v-model="form.recovery_code"
+                v-model="formData.recovery_code"
                 type="text"
                 variant="outlined"
                 autocomplete="one-time-code"
-                :error-messages="form.errors.recovery_code"
+                :error-messages="formData.errors.recovery_code"
               />
             </div>
           </form>
@@ -110,7 +110,7 @@ export default toNative(TwoFactorChallengePage);
             <template v-else>{{ $t('two_factor.auth') }}</template>
           </VBtn>
           <VSpacer />
-          <VBtn color="primary" variant="elevated" :loading="form.processing" @click="submit">
+          <VBtn color="primary" variant="elevated" :loading="formData.processing" @click="submit">
             {{ $t('auth.login') }}
           </VBtn>
         </VCardActions>

@@ -23,7 +23,7 @@ class LogoutOtherBrowserSessionsForm extends Vue {
   @Prop({ type: Array }) sessions;
   confirmingLogout = false;
   @Ref('passwordInput') passwordInput;
-  form = useForm({
+  formData = useForm({
     password: '',
   });
 
@@ -34,19 +34,19 @@ class LogoutOtherBrowserSessionsForm extends Vue {
 
   async logoutOtherBrowserSessions(){
     try{
-      let res = await profileService.logoutOtherBrowserSessions(this.form);
+      let res = await profileService.logoutOtherBrowserSessions(this.formData);
       this.closeModal();
     } catch (error) {
       this.passwordInput.focus();
     } finally {
-      this.form.reset();
+      this.formData.reset();
     }
   };
 
   closeModal(){
     this.confirmingLogout = false;
 
-    this.form.reset();
+    this.formData.reset();
   };
 }
 export default toNative(LogoutOtherBrowserSessionsForm);
@@ -83,7 +83,7 @@ export default toNative(LogoutOtherBrowserSessionsForm);
   
         <div class="flex items-center mt-5">
           <VBtn color="primary" @click="confirmLogout">{{ $t('other_sessions.logout') }}</VBtn>
-          <ActionMessage :on="form.recentlySuccessful" class="ms-3">{{ $t('form.done') }}</ActionMessage>
+          <ActionMessage :on="formData.recentlySuccessful" class="ms-3">{{ $t('form.done') }}</ActionMessage>
         </div>
   
         <VDialog v-model="confirmingLogout" max-width="500px">
@@ -93,18 +93,18 @@ export default toNative(LogoutOtherBrowserSessionsForm);
               <p class="mt-2">{{ $t('auth.enter_confirm_password') }}</p>
               <VTextField
                 ref="passwordInput"
-                v-model="form.password"
+                v-model="formData.password"
                 :label="$t('auth.password')"
                 type="password"
                 autocomplete="current-password"
                 variant="outlined"
                 class="mt-4"
                 @keyup.enter="logoutOtherBrowserSessions"
-                :error-messages="form.errors.password"
+                :error-messages="formData.errors.password"
               />
               <div class="mt-4 flex justify-end">
                 <VBtn variant="text" @click="closeModal">{{ $t('form.cancel') }}</VBtn>
-                <VBtn color="primary" :loading="form.processing" @click="logoutOtherBrowserSessions" class="ms-3">
+                <VBtn color="primary" :loading="formData.processing" @click="logoutOtherBrowserSessions" class="ms-3">
                   {{ $t('auth.logout') }}
                 </VBtn>
               </div>

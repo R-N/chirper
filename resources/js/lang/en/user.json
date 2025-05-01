@@ -9,5 +9,9 @@
   "enabled": "Enabled",
   "unverify": "Unverify",
   "force_verify": "Force verify",
-  "clear_password": "Clear password"
+  "clear_password": "Clear password",
+  "enabling": "enable",
+  "disabling": "disable",
+  "unverifying": "unverify",
+  "force_verifying": "force verify"
 }

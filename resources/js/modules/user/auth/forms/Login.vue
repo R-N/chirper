@@ -21,23 +21,23 @@ class LoginForm extends WorkingComponent {
   passwordVisible = false;
   @Prop({ type: Boolean }) canResetPassword;
   @Prop({ type: String }) status;
-  @Ref('myForm') myForm;
+  @Ref('form') formRef;
 
-  form = useForm({
+  formData = useForm({
       email: '',
       password: '',
       remember: false,
   });
 
   async login() {
-    this.form.clearErrors();
-    this.myForm.validate();
+    this.formData.clearErrors();
+    this.formRef.validate();
     if(!this.valid) return;
 		await this.waitBusy(
 			async () => {
-        let res = await authService.login(this.form);
+        let res = await authService.login(this.formData);
         router.visit(res.redirect || "/dashboard");
-        this.form.reset('password');
+        this.formData.reset('password');
 			}, "globalBusy"
 		);
   }
@@ -46,14 +46,14 @@ export { LoginForm }
 export default toNative(LoginForm);
 </script>
 <template>
-  <VForm v-model="valid" ref="myForm" @submit.prevent="login" class="p-2" :disabled="busy">
+  <VForm v-model="valid" ref="form" @submit.prevent.stop="login" class="p-2" :disabled="busy">
     <CardTitle>
       <h2 class="text-center">{{$t('auth.login')}}</h2>
     </CardTitle>
     <VCardText>
       <div v-if="status" class="mb-4 text-green-600">{{ status }}</div>
       <VTextField 
-        v-model="form.email" 
+        v-model="formData.email" 
         class="bigger-input" 
         :label="$t('user.email')" 
         type="email" 
@@ -63,10 +63,10 @@ export default toNative(LoginForm);
         autofocus 
         :disabled="busy" 
         :rules="[ v => !!v || $t('auth.email_required')]"
-        :error-messages="form.errors.email"
+        :error-messages="formData.errors.email"
       />
       <VTextField 
-        v-model="form.password" 
+        v-model="formData.password" 
         class="bigger-input" 
         :label="$t('auth.password')" 
         name="password" 
@@ -77,10 +77,10 @@ export default toNative(LoginForm);
         @click:append="() => { passwordVisible = !passwordVisible }"
         :type="passwordVisible ? 'text' : 'password'"
         :rules="[ v => !!v || $t('auth.password_required')]"
-        :error-messages="form.errors.password"
+        :error-messages="formData.errors.password"
       />
       <VCheckbox 
-        v-model="form.remember" 
+        v-model="formData.remember" 
         :label="$t('auth.remember')" 
         density="compact"
       />
@@ -101,7 +101,7 @@ export default toNative(LoginForm);
         type="submit"
         class="text-center w-100 mx-0"
         :disabled="busy"
-        :loading="busy || form.isSubmitting" 
+        :loading="busy || formData.isSubmitting" 
       >
         {{ $t('auth.login') }}
       </VBtn>

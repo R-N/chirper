@@ -1,5 +1,5 @@
 import axios from 'axios';
-import Cookies from 'js-cookie'
+import Cookies from 'js-cookie';
 import { useAuthStore } from '@/stores/auth';
 
 axios.defaults.withCredentials = true;
@@ -21,10 +21,14 @@ function readCookie(cookieName) {
 }
 
 
-const initXsrf = async(api) =>{
+const initXsrf = async(api, force=false) =>{
   let xsrfToken = null;
+  if (force){
+    Cookies.remove("XSRF-TOKEN");
+    Cookies.remove('XSRF-TOKEN', { path: '/' });
+  }
   xsrfToken = Cookies.get("XSRF-TOKEN");
-  if (xsrfToken){
+  if (!force && xsrfToken){
     return;
   }
   console.log("CSRF Cookie not found. Obtaining.");
@@ -32,8 +36,8 @@ const initXsrf = async(api) =>{
   await api.get('/sanctum/csrf-cookie');
   xsrfToken = Cookies.get("XSRF-TOKEN");
   if (xsrfToken){
-    //axios.defaults.headers['X-XSRF-TOKEN'] = xsrfToken;
-    //console.log(`CSRF cookie set to ${xsrfToken}`);
+    window.location.reload();
+    return xsrfToken;
   }else{
     console.log("Unable to obtain CSRF Cookie");
   }
@@ -64,7 +68,7 @@ const createApi = () => {
       "Accept": "application/json",
     },
   });
-  api.init = () => initXsrf(api);
+  api.init = (force=false) => initXsrf(api, force);
   let xsrfToken = Cookies.get("XSRF-TOKEN");
   if (!xsrfToken){
     api.init();

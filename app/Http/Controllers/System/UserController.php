@@ -14,10 +14,10 @@ use App\Utils\ResponseUtil;
 use App\Utils\ExportUtil;
 use App\Utils\ValidationUtil;
 use App\Utils\ArrayUtil;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
-
     public function index(Request $request) {
         if ($request->query("export_type"))
             return $this->export();
@@ -26,6 +26,13 @@ class UserController extends Controller
         return ResponseUtil::jsonInertiaResponse([
             "items" => $users
         ], "system/users/pages/Index");
+    }
+
+    public function show(Request $request, User $user) {
+        $user->loadEntities();
+        return ResponseUtil::jsonInertiaResponse([
+            "item" => $user
+        ], "system/users/pages/Show");
     }
 
     public function store(Request $request)
@@ -206,6 +213,7 @@ class UserController extends Controller
     }
 
     public function getAvailableRoles(){
+        Log::info("HELLO");
         $allowedRoles = ['chirper'];
         $roles = Role::whereIn('name', $allowedRoles)->get();
         return response()->json([

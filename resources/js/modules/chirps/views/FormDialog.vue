@@ -15,13 +15,10 @@ import { VTextField } from 'vuetify/components';
     emits: ['submit']
 })
 class ChirpFormDialog extends CrudFormDialogBase {
-    form = useForm({
+    formData = useForm({
         message: '',
     });
-
-    get client(){
-        return chirpService;
-    }
+    client = chirpService;
 }
 export { ChirpFormDialog }
 export default toNative(ChirpFormDialog);
@@ -41,10 +38,10 @@ export default toNative(ChirpFormDialog);
                 name="message"
                 class="bigger-input" 
                 :label="$t('chirp.message')" 
-                v-model="form.message" 
+                v-model="formData.message" 
                 :disabled="!interactable" 
                 required
-                :error-messages="form.errors.message"
+                :error-messages="formData.errors.message"
                 :rules="rules.message"
             />
         </template>

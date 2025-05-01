@@ -23,7 +23,7 @@ class ChirpsPage extends ViewBase {
   @Prop({ type: Array }) items = []; // Adjust the type as necessary for chirps
 
   // Form data
-  form = useForm({
+  formData = useForm({
     message: '',
   });
 
@@ -34,10 +34,10 @@ class ChirpsPage extends ViewBase {
   }
 
   async storeChirp(){
-    let res = await chirpService.store(this.form);
+    let res = await chirpService.store(this.formData);
     this.items.unshift(res.chirp);
 
-    this.form.reset();
+    this.formData.reset();
   }
   updateChirp(chirp){
     const index = findIndex(this.items, chirp);
@@ -55,9 +55,9 @@ export default toNative(ChirpsPage);
 <template>
   <AppLayout :title="$t('chirp.title')">
     <VContainer class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
-      <form @submit.prevent="storeChirp">
+      <form @submit.prevent.stop="storeChirp">
         <VTextarea
-          v-model="form.message"
+          v-model="formData.message"
           :label="$t('chirp.placeholder')"
           variant="outlined"
         />

@@ -21,15 +21,15 @@ import {ViewBase} from '@/views/ViewBase.vue';
   }
 })
 class ConfirmPasswordPage extends ViewBase {
-  form = useForm({
+  formData = useForm({
     password: '',
   });
 
   @Ref('passwordInput') passwordInput;
 
   async submit() {
-    let res = await authService.confirmPassword(this.form);
-    this.form.reset();
+    let res = await authService.confirmPassword(this.formData);
+    this.formData.reset();
     this.passwordInput.value.focus();
     router.visit(res.redirect || "/login");
   }
@@ -46,21 +46,21 @@ export default toNative(ConfirmPasswordPage);
             {{ $t('auth.password_checkpoint') }}
           </p>
           
-          <form @submit.prevent="submit">
+          <form @submit.prevent.stop="submit">
             <VTextField
               id="password"
               ref="passwordInput"
-              v-model="form.password"
+              v-model="formData.password"
               :label="$t('auth.password')"
               type="password"
               variant="outlined"
               required
               autocomplete="current-password"
-              :error-messages="form.errors.password"
+              :error-messages="formData.errors.password"
             />
             
             <div class="d-flex justify-end mt-4">
-              <VBtn color="primary" variant="elevated" type="submit" :loading="form.processing">
+              <VBtn color="primary" variant="elevated" type="submit" :loading="formData.processing">
                 {{ $t('form.confirm') }}
               </VBtn>
             </div>

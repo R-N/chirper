@@ -15,11 +15,6 @@ use App\Http\Controllers\System\BackupController;
 use App\Http\Controllers\System\LanguageController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\ApiTokenController;
-use App\Models\Backup;
-
-Route::bind('backup', function ($value) {
-    return new Backup($value);
-});
 
 Route::prefix('verification')->as('verification.')->group(function(){
     Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
@@ -96,14 +91,13 @@ Route::middleware([
         Route::get('/', [UserController::class, 'index'])->name('index');
         Route::post('/', [UserController::class, 'store'])->name('store');
         Route::match(['put', 'patch'], '/{user}', [UserController::class, 'update'])->name('update');
+        Route::get('/{user}', [UserController::class, 'show'])->name('show');
         Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
         Route::delete('/{user}/password', [UserController::class, 'clearPassword'])->name('clear-password');
         Route::put('/{user}/verified', [UserController::class, 'setVerified'])->name('set-verified');
         Route::put('/{user}/enabled', [UserController::class, 'setEnabled'])->name('set-enabled');
         Route::put('/{user}/roles', [UserController::class, 'setRoles'])->name('set-roles');
         Route::put('/{user}/permissions', [UserController::class, 'setPermissions'])->name('set-permissions');
-        Route::get('/roles', [UserController::class, 'getAvailableRoles'])->name('get-available-roles');
-        Route::get('/permissions', [UserController::class, 'getAvailablePermissions'])->name('get-available-permissions');
         Route::get('/export', [UserController::class, 'export'])->name('export');
     });
 

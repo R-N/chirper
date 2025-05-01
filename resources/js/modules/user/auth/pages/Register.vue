@@ -28,7 +28,7 @@ import {ViewBase} from '@/views/ViewBase.vue';
   }
 })
 class RegisterPage extends ViewBase {
-  form = useForm({
+  formData = useForm({
     name: '',
     email: '',
     password: '',
@@ -36,8 +36,8 @@ class RegisterPage extends ViewBase {
     terms: false,
   });
   async register() {
-    let res = await authService.register(this.form);
-    this.form.reset('password', 'password_confirmation');
+    let res = await authService.register(this.formData);
+    this.formData.reset('password', 'password_confirmation');
     router.visit(res.redirect || "/dashboard");
   }
 }
@@ -52,14 +52,14 @@ export default toNative(RegisterPage);
             {{ $t('register.title') }}
         </VCardTitle>
         <VCardText class="d-flex flex-column pa-0 ga-2">
-          <VTextField v-model="form.name" :label="$t('user.name')" type="text" name="name" autocomplete="name" required autofocus :error-messages="form.errors.name" />
-          <VTextField v-model="form.email" :label="$t('user.email')" type="email" name="email"  autocomplete="email" required :error-messages="form.errors.email" />
-          <VTextField v-model="form.password" :label="$t('auth.password')" type="password" name="password" autocomplete="new-password" required :error-messages="form.errors.password" />
-          <VTextField v-model="form.password_confirmation" :label="$t('register.confirm_password')"type="password" required :error-messages="form.errors.password_confirmation" />
+          <VTextField v-model="formData.name" :label="$t('user.name')" type="text" name="name" autocomplete="name" required autofocus :error-messages="formData.errors.name" />
+          <VTextField v-model="formData.email" :label="$t('user.email')" type="email" name="email"  autocomplete="email" required :error-messages="formData.errors.email" />
+          <VTextField v-model="formData.password" :label="$t('auth.password')" type="password" name="password" autocomplete="new-password" required :error-messages="formData.errors.password" />
+          <VTextField v-model="formData.password_confirmation" :label="$t('register.confirm_password')"type="password" required :error-messages="formData.errors.password_confirmation" />
   
           <VCheckbox 
             v-if="$page.props.jetstream.hasTermsAndPrivacyPolicyFeature"
-            v-model="form.terms"
+            v-model="formData.terms"
           >
             <template #label>
               {{ $t('register.i_agree') }}
@@ -72,7 +72,7 @@ export default toNative(RegisterPage);
   
         <VCardActions class="d-flex justify-space-between">
           <Link :href="route('login')" class="text-sm">{{ $t('register.already_registered') }}</Link>
-          <VBtn :loading="form.processing" @click="register" color="primary"  variant="elevated">{{ $t('register.submit') }}</VBtn>
+          <VBtn :loading="formData.processing" @click="register" color="primary"  variant="elevated">{{ $t('register.submit') }}</VBtn>
         </VCardActions>
       </VCard>
     </AuthLayout>

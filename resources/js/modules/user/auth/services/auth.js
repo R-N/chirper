@@ -7,6 +7,10 @@ class AuthService extends BaseService{
     super(axios);
   }
 
+  async getCsrfToken(){
+    return await this.axios.init(true);
+  }
+
   async login(form) {
     const authStore = useAuthStore();
 

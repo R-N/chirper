@@ -12,16 +12,14 @@ import { EditableCellBase } from '../EditableCellBase.vue';
 class EditableCellTextField extends EditableCellBase {
     @Prop({ type: String }) type;
     @Prop({ type: Number }) counter;
-    @Prop({ type: [Function, Array] }) rules; 
     @Prop({default: true}) required; 
-
 }
 export { EditableCellTextField } 
 export default toNative(EditableCellTextField);
 </script>
 <template>
     <EditableCell 
-        :on-reset="() => valueEdit = value"
+        :on-reset="reset"
         :on-finish="finish"
         :change-detector="() => value != valueEdit"
         :confirm-text-maker="() => confirmTextMaker(valueEdit)"
@@ -29,6 +27,7 @@ export default toNative(EditableCellTextField);
         :disabled="disabled"
         :title="title"
         :name="name"
+        :showTitle="showTitle"
     >
         <template v-slot:editing>
             <VTextField 
@@ -41,7 +40,7 @@ export default toNative(EditableCellTextField);
                 :disabled="busy || disabled"
                 :required="required"
                 :label="_label"
-                :error-messages="errorMessages || form?.errors?.[name]"
+                :error-messages="errorMessages || formData?.errors?.[name]"
                 @blur="validate"
             />
         </template>

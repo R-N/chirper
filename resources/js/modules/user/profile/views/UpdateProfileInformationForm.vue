@@ -28,7 +28,7 @@ class UpdateProfileInformationForm extends Vue {
 //   @Prop({ type: String }) status;
   @Prop({ type: Object }) user = null;
 
-  form = useForm({
+  formData = useForm({
     _method: 'PUT',
     name: '',
     email: '',
@@ -41,22 +41,22 @@ class UpdateProfileInformationForm extends Vue {
 
   mounted(){
     // this.user = usePage().props.auth.user;
-    this.form.name = this.user.name;
-    this.form.email = this.user.email;
+    this.formData.name = this.user.name;
+    this.formData.email = this.user.email;
   }
 
   async updateProfileInformation(){
     if (this.photoInput) {
-      this.form.photo = this.photoInput.files[0];
+      this.formData.photo = this.photoInput.files[0];
     }
     
     try{
-      let res = await profileService.updateProfileInformation(this.form, this.photoInput.files[0]);
+      let res = await profileService.updateProfileInformation(this.formData, this.photoInput.files[0]);
       this.clearPhotoFileInput();
       router.reload({ preserveScroll: true });
     } catch (error) {
       if (error.response?.status === 422) {
-        this.form.errors = error.response.data.errors;
+        this.formData.errors = error.response.data.errors;
       } else {
         console.error("Unexpected error:", error);
       }
@@ -121,7 +121,7 @@ export default toNative(UpdateProfileInformationForm);
             :label="$t('profile.photo')"
             accept="image/png, image/jpeg"
             @change="updatePhotoPreview"
-            :error-messages="form.errors.photo"
+            :error-messages="formData.errors.photo"
           />
 
           <VAvatar v-if="!photoPreview" :image="user.profile_photo_url" :alt="user.name" size="80" cover />
@@ -136,19 +136,19 @@ export default toNative(UpdateProfileInformationForm);
             </VBtn>
           </div>
 
-          <InputError :message="form.errors.photo" class="mt-2" />
+          <InputError :message="formData.errors.photo" class="mt-2" />
         </VCol>
       </VRow>
 
       <VRow>
         <VCol cols="12">
-          <VTextField v-model="form.name" :label="$t('user.name')" required autocomplete="name" :error-messages="form.errors.name" />
+          <VTextField v-model="formData.name" :label="$t('user.name')" required autocomplete="name" :error-messages="formData.errors.name" />
         </VCol>
       </VRow>
 
       <VRow>
         <VCol cols="12">
-          <VTextField v-model="form.email" :label="$t('user.email')" required autocomplete="username" type="email" :error-messages="form.errors.email" />
+          <VTextField v-model="formData.email" :label="$t('user.email')" required autocomplete="username" type="email" :error-messages="formData.errors.email" />
 
           <div v-if="$page.props.jetstream.hasEmailVerification && user.email_verified_at === null">
             <p class="text-body-2 mt-2">
@@ -165,10 +165,10 @@ export default toNative(UpdateProfileInformationForm);
     </template>
 
     <template #actions>
-      <ActionMessage :on="form.recentlySuccessful" class="me-3">
+      <ActionMessage :on="formData.recentlySuccessful" class="me-3">
         {{ $t('form.saved') }}
       </ActionMessage>
-      <VBtn color="primary" variant="elevated" type="submit" :loading="form.processing" @click="updateProfileInformation">
+      <VBtn color="primary" variant="elevated" type="submit" :loading="formData.processing" @click="updateProfileInformation">
         {{ $t('form.save') }}
       </VBtn>
     </template>

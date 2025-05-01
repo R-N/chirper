@@ -26,38 +26,36 @@ export default toNative(FormDialog);
     :max-width="maxWidth"
     :persistent="busy"
   >
-    <VCard class="">
-        <VForm ref="myForm" v-model="valid" class="p-2" :disabled="!interactable" @submit.prevent="submit" >
-        <VCardTitle class="headline">{{ title ?? $t('form.form') }}</VCardTitle>
-        <VCardText>
-          <slot name="fields" :interactable="interactable" :busy="busy" :disabled="disabled"></slot>
-          <VCardActions>
-            <slot name="buttons-left" :interactable="interactable" :busy="busy" :disabled="disabled"></slot>
-            <VSpacer></VSpacer>
-            <slot name="buttons" :interactable="interactable" :busy="busy" :disabled="disabled"></slot>
-            <slot name="buttons-right" :interactable="interactable" :busy="busy" :disabled="disabled"></slot>
-            <VBtn
-              color="green darken-1"
-              text
-              @click.stop="close()"
-              :disabled="!interactable"
-              v-if="cancelText ?? $t('form.cancel')"
-            >
-              Batal
-            </VBtn>
-            <VBtn
-              type="submit"
-              color="green darken-1"
-              text
-              :disabled="!interactable"
-              :loading="busy"
-              v-if="confirmText ?? $t('form.confirm')"
-            >
-              Ok
-            </VBtn>
-          </VCardActions>
-        </VCardText>
-        </VForm>
+    <VCard class="pa-2">
+      <VCardTitle class="pb-1">{{ title ?? $t('form.form') }}</VCardTitle>
+      <VCardText>
+        <slot name="fields" :interactable="interactable" :busy="busy" :disabled="disabled" :data="data"></slot>
+      </VCardText>
+      <VCardActions>
+        <slot name="buttons-left" :interactable="interactable" :busy="busy" :disabled="disabled"></slot>
+        <VSpacer></VSpacer>
+        <slot name="buttons" :interactable="interactable" :busy="busy" :disabled="disabled"></slot>
+        <slot name="buttons-right" :interactable="interactable" :busy="busy" :disabled="disabled"></slot>
+        <VBtn
+          color="green darken-1"
+          text
+          @click.stop="close()"
+          :disabled="!interactable"
+          v-if="cancelText ?? $t('form.cancel')"
+        >
+          Batal
+        </VBtn>
+        <VBtn
+          @click.prevent.stop="submit"
+          color="green darken-1"
+          text
+          :disabled="!interactable"
+          :loading="busy"
+          v-if="confirmText ?? $t('form.confirm')"
+        >
+          Ok
+        </VBtn>
+      </VCardActions>
     </VCard>
   </VDialog>
 </template>

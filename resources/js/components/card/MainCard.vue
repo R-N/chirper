@@ -33,6 +33,9 @@ export default toNative(MainCard);
       <slot name="content"></slot>
       <slot name="default"></slot>
     </VCardText>
+    <VCardActions v-if="$slots.actions">
+      <slot name="actions"></slot>
+    </VCardActions>
   </VCard>
 </template>
 <style scoped>

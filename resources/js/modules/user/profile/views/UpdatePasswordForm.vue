@@ -22,7 +22,7 @@ class UpdatePasswordForm extends Vue {
   @Ref('passwordInput') passwordInput;
   @Ref('currentPasswordInput') currentPasswordInput;
 
-  form = useForm({
+  formData = useForm({
     current_password: '',
     password: '',
     password_confirmation: '',
@@ -30,21 +30,21 @@ class UpdatePasswordForm extends Vue {
 
   async updatePassword() {
     try{
-      let res = await profileService.updatePassword(this.form);
-      this.form.reset();
+      let res = await profileService.updatePassword(this.formData);
+      this.formData.reset();
       router.visit(res.redirect || "/login");
     }catch(error){
       if (error.response?.status === 422) {
-        this.form.errors = error.response.data.errors;
+        this.formData.errors = error.response.data.errors;
       } else {
         console.error("Unexpected error:", error);
       }
-      if (this.form.errors.password) {
-        this.form.reset('password', 'password_confirmation');
+      if (this.formData.errors.password) {
+        this.formData.reset('password', 'password_confirmation');
         this.passwordInput.focus();
       }
-      if (this.form.errors.current_password) {
-        this.form.reset('current_password');
+      if (this.formData.errors.current_password) {
+        this.formData.reset('current_password');
         this.currentPasswordInput.focus();
       }
     }
@@ -70,11 +70,11 @@ export default toNative(UpdatePasswordForm);
           <VTextField
             id="current_password"
             ref="currentPasswordInput"
-            v-model="form.current_password"
+            v-model="formData.current_password"
             :label="$t('profile.current_password')"
             type="password"
             autocomplete="current-password"
-            :error-messages="form.errors.current_password"
+            :error-messages="formData.errors.current_password"
           />
         </VCol>
       </VRow>
@@ -85,11 +85,11 @@ export default toNative(UpdatePasswordForm);
           <VTextField
             id="password"
             ref="passwordInput"
-            v-model="form.password"
+            v-model="formData.password"
             :label="$t('password_reset.new_password')"
             type="password"
             autocomplete="new-password"
-            :error-messages="form.errors.password"
+            :error-messages="formData.errors.password"
           />
         </VCol>
       </VRow>
@@ -99,22 +99,22 @@ export default toNative(UpdatePasswordForm);
         <VCol cols="12">
           <VTextField
             id="password_confirmation"
-            v-model="form.password_confirmation"
+            v-model="formData.password_confirmation"
             :label="$t('register.confirm_password')"
             type="password"
             autocomplete="new-password"
-            :error-messages="form.errors.password_confirmation"
+            :error-messages="formData.errors.password_confirmation"
           />
         </VCol>
       </VRow>
     </template>
 
     <template #actions>
-      <ActionMessage :on="form.recentlySuccessful" class="me-3">
+      <ActionMessage :on="formData.recentlySuccessful" class="me-3">
         {{ $t('form.saved') }}
       </ActionMessage>
       
-      <VBtn color="primary" variant="elevated" type="submit" :disabled="form.processing">
+      <VBtn color="primary" variant="elevated" type="submit" :disabled="formData.processing">
         {{ $t('form.save') }}
       </VBtn>
     </template>

@@ -22,7 +22,7 @@ import chirpService from '../services/chirp';
 class Chirp extends Vue {
   @Prop({ type: Object }) chirp;
   editing = false;
-  form = useForm({
+  formData = useForm({
     message: '',
   });
 
@@ -36,12 +36,12 @@ class Chirp extends Vue {
 
   resetForm(editing=false){
     this.editing = editing;
-    this.form.reset();
-    this.form.message = this.chirp.message;
+    this.formData.reset();
+    this.formData.message = this.chirp.message;
   }
 
   async updateChirp(){
-    let res = await chirpService.update(this.chirp, this.form);
+    let res = await chirpService.update(this.chirp, this.formData);
     Object.assign(this.chirp, res.chirp); 
     this.emitUpdate(res.chirp);
     this.resetForm();
@@ -92,9 +92,9 @@ export default toNative(Chirp);
         </VMenu>
       </div>
 
-      <form v-if="editing" @submit.prevent="updateChirp">
-        <VTextarea v-model="form.message" class="mt-4" :label="$t('chirp.edit')" auto-grow />
-        <InputError :message="form.errors.message" class="mt-2" />
+      <form v-if="editing" @submit.prevent.stop="updateChirp">
+        <VTextarea v-model="formData.message" class="mt-4" :label="$t('chirp.edit')" auto-grow />
+        <InputError :message="formData.errors.message" class="mt-2" />
 
         <div class="mt-4 d-flex gap-2">
           <VBtn color="primary" variant="elevated" type="submit">{{ $t('form.save') }}</VBtn>

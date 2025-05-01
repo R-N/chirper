@@ -1,8 +1,8 @@
 <script lang="ts">
-import { Component, Prop, Emit, Setup } from 'vue-facing-decorator';
+import { Component, Prop, Watch, Emit, Setup } from 'vue-facing-decorator';
 import EditableCell from '@/components/form/EditableCell.vue';
 import { useForm } from '@inertiajs/vue3';
-import { isObject, getData } from '@/libs/util';
+import { isObject, getData, isObjectEmpty } from '@/libs/util';
 
 import { Constructor } from './Constructor.vue';
 
@@ -11,19 +11,34 @@ export const EditableCellMixin = <TBase extends Constructor>(Base: TBase) => {
       name: "EditableCellBase",
       components: {
           EditableCell
-      }
+      },
+      emits: ['update:modelValue', 'change', 'finish', 'reset']
   })
   class EditableCellBase extends Base {
       @Prop({ type: String }) title;
       @Prop({ type: String }) label;
       @Prop({ type: String, default: 'value' }) name;
-      @Prop({ type: [String, Object, Array] }) value;
+      @Prop({ type: [String, Object, Array] }) modelValue;
       @Prop({ type: [String, Function] }) confirmTextMaker; 
       @Prop({ default: false }) disabled;
       @Prop({ type: Function }) onFinish;
       @Prop({ default: null }) errorMessages;
       @Prop({ default: true }) emitForm;
       @Prop({ type: [String, Object, Array] }) rules;
+      @Prop({ default: true }) showTitle;
+      valueEdit : any = '';
+
+      get value(){
+          return this.modelValue;
+      }
+      set value(value){
+        this.$emit("update:modelValue", value, this.releaseBusy);
+      }
+
+      @Watch('value')
+      onValueChanged(newValue) {
+        this.reset();
+      }
 
       get _label(){
           if (this.title)
@@ -47,23 +62,60 @@ export const EditableCellMixin = <TBase extends Constructor>(Base: TBase) => {
                   value: null,
               });
           }
-      }) form;
-      valueEdit : any = '';
+      }) formData;
 
       created(){
-          this.form = useForm({
-              [this.name]: '',
-          });
+          if (this.name){
+            if (!this.formData || isObjectEmpty(this.formData)){
+              this.formData = useForm({
+                  [this.name]: '',
+              });
+            } else if (!(this.name in this.formData)){
+              this.formData.set({
+                ...this.formData.data(),
+                [this.name]: '',
+              });
+            }
+          }
+          this.reset();
+      }
+
+      mounted(){
+          this.reset();
       }
 
       getValue() : any{
           if (this.emitForm)
-              return this.form;
+              return this.formData;
           return this.valueEdit;
       }
 
+      reset(){
+          if(Array.isArray(this.value)){
+              this.valueEdit = [];
+          }else{
+              this.valueEdit = null;
+          }
+          this.formData.reset?.();
+          this.prepopulate();
+      }
+
+      prepopulate(){
+          if (this.value){
+            if(Array.isArray(this.value)){
+                this.valueEdit = [...this.value];
+            } else if (isObject(this.value)){
+                this.valueEdit = {...this.value};
+            }else{
+                this.valueEdit = this.value;
+            }
+            this.formData[this.name || 'value'] = this.valueEdit;
+          }else{
+          }
+      }
+
       resetValidation(){
-          this.form.clearErrors();
+        this.formData.clearErrors();
       }
 
       validate(){
@@ -74,32 +126,35 @@ export const EditableCellMixin = <TBase extends Constructor>(Base: TBase) => {
           for (const rule of rules) {
               const result = rule(this.valueEdit)
               if (result !== true) {
-                  this.form.errors[this.name] = result;
+                  this.formData.errors[this.name] = result;
                   break
               }
           }
       }
 
       get valid(){
-          return !Object.keys(this.form.errors).length;
+          return !Object.keys(this.formData.errors).length;
       }
 
       async finish(){
           this.validate();
           if (!this.valid)
               return;
-          this.form[this.name] = this.valueEdit;
-          this.$emit("change", this.getValue());
+          this.formData[this.name] = this.valueEdit;
+          this.value = this.valueEdit; // not getValue because it can return form
+          const value = this.getValue();
+          this.$emit("change", value, this.releaseBusy);
           if (this.onFinish){
               await this.waitBusy(
-                  async () => await this.onFinish(this.getValue(), this.releaseBusy),
+                  async () => await this.onFinish(value, this.releaseBusy),
                   // null, this.releaseBusy
               );
           } else{
               // this.emitFinish({ value: this.valueEdit, releaseBusy: this.releaseBusy });
-              this.$emit("finish", this.getValue(), this.releaseBusy);
+              this.$emit("finish", value, this.releaseBusy);
           }
       }
+
 
       @Emit("change")
       emitChange(value){

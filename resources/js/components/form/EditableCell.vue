@@ -20,6 +20,7 @@ class EditableCell extends FormBase {
   @Prop({ type: String }) editText;
   @Prop({ type: String }) cancelText;
   @Prop({ type: String }) saveText;
+  @Prop({ default: true }) showTitle;
 
   @Prop({ type: [String, Function] }) confirmTextMaker; 
   @Prop({ type: Function }) changeDetector;
@@ -74,9 +75,6 @@ class EditableCell extends FormBase {
   }
 
   async onConfirm(){
-    //this.emitSubmit(e);
-    // let form = this.myForm.$el;
-    // let formData = Object.fromEntries(new FormData(form).entries());
     if(this.onFinish)
       await this.onFinish();
     else
@@ -95,7 +93,7 @@ export default toNative(EditableCell);
     :on-confirm="onConfirm"
     class="d-flex flex-column flex-grow-1"
   >
-    <div class="d-flex align-left justify-space-between" v-if="title && !bypass">
+    <div class="d-flex align-left justify-space-between" v-if="title && showTitle && !bypass">
       <span class="font-weight-bold">{{ title }}</span>
     </div>
     <div 
@@ -103,20 +101,19 @@ export default toNative(EditableCell);
       @keydown.enter="finishEdit(ask)"
     >
       <span class="flex-grow-1">
-        <slot v-if="editing && !(disabled || busy) && !bypass" name="editing" :readonly="disabled || busy || !editing" :disabled="disabled || busy || !editing" :editing="editing"></slot>
+        <slot v-if="bypass || (editing && !(disabled || busy))" name="editing" :readonly="disabled || busy || !editing" :disabled="disabled || busy || !editing" :editing="editing"></slot>
         <slot v-else name="default"></slot>
       </span>
       <span class="flex-grow-0 flex-shrink-0" v-if="!(disabled || busy) && !bypass">
         <span v-if="editing">
           <IconButton
-              @click.stop="() => finishEdit(ask)" 
-              type="submit"  
+              @click.prevent.stop="() => finishEdit(ask)" 
               :disabled="busy"
               icon="mdi-check"
               :text="saveText ?? $t('form.save')"
           />
           <IconButton
-              @click.stop="cancelEdit" 
+              @click.prevent.stop="cancelEdit" 
               :disabled="busy"
               icon="mdi-cancel"
               :text="cancelText ?? $t('form.cancel')"
@@ -124,7 +121,7 @@ export default toNative(EditableCell);
         </span>
         <span v-else>
           <IconButton
-              @click.stop="beginEdit" 
+              @click.prevent.stop="beginEdit" 
               :disabled="busy"
               icon="mdi-pencil"
               :text="editText ?? $t('form.edit')"

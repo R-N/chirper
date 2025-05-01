@@ -22,7 +22,7 @@ class ConfirmPassword extends Vue {
   @Prop({ type: String }) button;
 
   confirmingPassword = false;
-  form = useForm({ 
+  formData = useForm({ 
     password: '', 
     error: '', 
     processing: false 
@@ -45,25 +45,25 @@ class ConfirmPassword extends Vue {
   }
 
   async confirmPassword() {
-    this.form.processing = true;
+    this.formData.processing = true;
     try {
       await axios.post(route('api.password.confirm'), { 
-        password: this.form.password 
+        password: this.formData.password 
       });
-      this.form.processing = false;
+      this.formData.processing = false;
       this.closeModal();
       this.$nextTick(this.emitConfirmed);
     } catch (error) {
-      this.form.processing = false;
-      this.form.error = error.response.data.errors.password[0];
+      this.formData.processing = false;
+      this.formData.error = error.response.data.errors.password[0];
       this.passwordInput.focus();
     }
   }
 
   closeModal() {
     this.confirmingPassword = false;
-    this.form.password = '';
-    this.form.error = '';
+    this.formData.password = '';
+    this.formData.error = '';
   }
 }
 
@@ -83,7 +83,7 @@ export default toNative(ConfirmPassword);
           {{ content ?? $t('auth.confirm_password_text') }}
           <VTextField
             ref="passwordInput"
-            v-model="form.password"
+            v-model="formData.password"
             type="password"
             class="mt-4"
             placeholder="Password"
@@ -91,11 +91,11 @@ export default toNative(ConfirmPassword);
             @keyup.enter="confirmPassword"
             variant="outlined"
           />
-          <p class="text-error mt-2" v-if="form.error">{{ form.error }}</p>
+          <p class="text-error mt-2" v-if="formData.error">{{ formData.error }}</p>
         </VCardText>
         <VCardActions>
           <VBtn variant="text" @click="closeModal">{{ $t('form.cancel') }}</VBtn>
-          <VBtn color="primary" variant="elevated" :loading="form.processing" @click="confirmPassword">
+          <VBtn color="primary" variant="elevated" :loading="formData.processing" @click="confirmPassword">
             {{ button ?? $t('form.confirm') }}
           </VBtn>
         </VCardActions>

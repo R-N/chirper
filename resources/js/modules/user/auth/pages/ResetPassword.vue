@@ -25,7 +25,7 @@ class ResetPasswordPage extends ViewBase {
   @Prop({ type: String }) email;
   @Prop({ type: String }) token;
 
-  form = useForm({
+  formData = useForm({
     token: '',
     email: '',
     password: '',
@@ -33,13 +33,13 @@ class ResetPasswordPage extends ViewBase {
   });
 
   mounted(){
-    this.form.token = this.token;
-    this.form.email = this.email;
+    this.formData.token = this.token;
+    this.formData.email = this.email;
   }
 
   async submit() {
-    let res = await authService.resetPassword(this.form);
-    this.form.reset('password', 'password_confirmation');
+    let res = await authService.resetPassword(this.formData);
+    this.formData.reset('password', 'password_confirmation');
     router.visit(res.redirect || "/login");
   }
 }
@@ -54,14 +54,14 @@ export default toNative(ResetPasswordPage);
           <p class="text-body-2 mb-4">
               This also verifies your email, if you haven't.
           </p>
-          <VTextField id="email" v-model="form.email" :label="$t('user.email')" type="email" required autofocus autocomplete="username" :error-messages="form.errors.email" />
+          <VTextField id="email" v-model="formData.email" :label="$t('user.email')" type="email" required autofocus autocomplete="username" :error-messages="formData.errors.email" />
 
-          <VTextField id="password" v-model="form.password" :label="$t('auth.password')" type="password" required autocomplete="new-password" class="mt-4" :error-messages="form.errors.password" />
+          <VTextField id="password" v-model="formData.password" :label="$t('auth.password')" type="password" required autocomplete="new-password" class="mt-4" :error-messages="formData.errors.password" />
 
-          <VTextField id="password_confirmation" v-model="form.password_confirmation" :label="$t('register.confirm_password')"  type="password" required autocomplete="new-password" class="mt-4" :error-messages="form.errors.password_confirmation" />
+          <VTextField id="password_confirmation" v-model="formData.password_confirmation" :label="$t('register.confirm_password')"  type="password" required autocomplete="new-password" class="mt-4" :error-messages="formData.errors.password_confirmation" />
         </VCardText>
         <VCardActions class="justify-end">
-          <VBtn color="primary" variant="elevated" :loading="form.processing" @click="submit">
+          <VBtn color="primary" variant="elevated" :loading="formData.processing" @click="submit">
             {{ $t('password_reset.submit') }}
           </VBtn>
         </VCardActions>

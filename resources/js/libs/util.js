@@ -38,6 +38,7 @@ export const replaceArray = (arr, anotherArr) => {
 export const emptyArray = (arr) => {
   return arr.splice(0, arr.length);
 }
+export const isObjectEmpty = () => Object.keys(form.data()).length === 0;
 export const addEditFields = (obj, fields) => {
   for (let i = 0; i < fields.length; ++i) {
     obj[fields[i] + "Edit"] = obj[fields[i]];

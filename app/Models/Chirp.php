@@ -54,6 +54,7 @@ class Chirp extends Model
                 AllowedFilter::custom('search', new GlobalSearch([
                     'message', 'user->name', 'chirps.created_at'
                 ])),
+                AllowedFilter::exact('user.id'),
                 AllowedFilter::partial('user.name'),
                 AllowedFilter::partial('message'),
                 AllowedFilter::partial('chirps.created_at'),

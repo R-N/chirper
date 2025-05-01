@@ -21,17 +21,9 @@ class EditableCellSelect extends EditableCellBase {
     @Prop({default: false}) returnObject;
     @Model() model;
 
-    created(){
-        if(Array.isArray(this.value)){
-            this.valueEdit = [];
-        }else{
-            this.valueEdit = null;
-        }
-    }
-
-    getValue(val){
+    getValue2(val){
         if(Array.isArray(val)){
-            return val.map(this.getValue);
+            return val.map(this.getValue2);
         }else{
             return val[this.itemValue];
         }
@@ -44,11 +36,11 @@ class EditableCellSelect extends EditableCellBase {
     changed(){
         if(Array.isArray(this.value)){
             return !arraysEqualUnordered(
-                this.getValue(this.value), 
-                this.getValue(this.valueEdit) 
+                this.getValue2(this.value), 
+                this.getValue2(this.valueEdit) 
             );
         }else{
-            return this.getValue(this.value) != this.getValue(this.valueEdit);
+            return this.getValue2(this.value) != this.getValue2(this.valueEdit);
         }
     }
 }
@@ -57,7 +49,7 @@ export default toNative(EditableCellSelect);
 </script>
 <template>
     <EditableCell 
-        :on-reset="() => valueEdit = [...value]"
+        :on-reset="reset"
         :on-finish="finish"
         :change-detector="changed"
         :confirm-text-maker="() => confirmTextMaker(valueEdit)"
@@ -65,6 +57,7 @@ export default toNative(EditableCellSelect);
         :disabled="disabled"
         :title="title"
         :name="name"
+        :showTitle="showTitle"
     >
         <template v-slot:editing>
             <VSelect
@@ -79,7 +72,7 @@ export default toNative(EditableCellSelect);
                 :disabled="busy || disabled"
                 :return-object="returnObject"
                 :multiple="multiple"
-                :error-messages="errorMessages || form?.errors?.[name]"
+                :error-messages="errorMessages || formData?.errors?.[name]"
                 :rules="_rules"
                 @blur="validate"
             />

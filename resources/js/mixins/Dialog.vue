@@ -42,7 +42,7 @@ export const DialogMixin = <TBase extends Constructor>(Base: TBase) => {
       }
       set myDialog(value){
           if(value == this.modelValue) return;
-          this.reset();
+          this.reset?.();
           this.busy = false;
           this.emitChange(value);
           this.emitModel(value);
@@ -74,14 +74,10 @@ export const DialogMixin = <TBase extends Constructor>(Base: TBase) => {
           }else{
               console.log(this.myDialog);
           }
-          if (this.reset)
-              this.reset();
+          this.reset?.();
           this.busy = false;
       }
 
-      get interactable(){
-          return !this.disabled && !this.busy;
-      }
   }
   return DialogBase;
 }

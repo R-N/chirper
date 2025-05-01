@@ -18,9 +18,9 @@ import CardTitle from '@/components/card/CardTitle.vue';
 class VerifyEmailForm extends WorkingComponent {
   valid = true;
   @Prop({ type: String }) status;
-  @Ref('myForm') myForm;
+  @Ref('form') formRef;
 
-  form = useForm({
+  formData = useForm({
       email: '',
   });
 
@@ -30,16 +30,16 @@ class VerifyEmailForm extends WorkingComponent {
   }
 
   async submit() {
-    let res = await authService.verifyEmail(this.form);
+    let res = await authService.verifyEmail(this.formData);
     router.visit(res.redirect || "/login");
   }
   async send(){
-    this.form?.clearErrors?.();
-    this.myForm.validate();
+    this.formData?.clearErrors?.();
+    this.formRef.validate();
     if(!this.valid) return;
     await this.waitBusy(
       async () => {
-        let res = await authService.verifyEmail(this.form);
+        let res = await authService.verifyEmail(this.formData);
         this.tabStore.tabDialogs.push({
           title: this.$t('auth.check_email'),
           text: this.$t('verify_email.sent')
@@ -52,7 +52,7 @@ export { VerifyEmailForm };
 export default toNative(VerifyEmailForm);
 </script>
 <template>
-  <VForm ref="myForm" v-model="valid" @submit.prevent="send" class="p-2" :disabled="busy">
+  <VForm ref="form" v-model="valid" @submit.prevent.stop="send" class="p-2" :disabled="busy">
     <CardTitle>
       <h2 class="text-center">{{ $t('verify_email.title') }}</h2>
     </CardTitle>
@@ -65,7 +65,7 @@ export default toNative(VerifyEmailForm);
       </p>
       <VTextField
         v-if="!isLoggedIn"
-        v-model="form.email" 
+        v-model="formData.email" 
         class="bigger-input" 
         :label="$t('user.email')" 
         type="email" 
@@ -74,7 +74,7 @@ export default toNative(VerifyEmailForm);
         :disabled="busy" 
         required
         :rules="[ v => !!v || $t('auth.email_required')]"
-        :error-messages="form.errors.email" 
+        :error-messages="formData.errors.email" 
       />
       <VBtn 
         raised 
@@ -84,7 +84,7 @@ export default toNative(VerifyEmailForm);
         type="submit" 
         class="text-center w-100 mx-0" 
         :disabled="busy" 
-        :loading="busy || form.isSubmitting" 
+        :loading="busy || formData.isSubmitting" 
       >
         {{ $t('form.send') }}
       </VBtn>

@@ -2,6 +2,7 @@
 import { useAppStore } from '@/stores/app';
 import { Vue, Component, Prop, toNative } from 'vue-facing-decorator'
 import { MyComponent } from '@/components/MyComponent.vue';
+import authService from '@/modules/user/auth/services/auth';
 
 import { Constructor } from './Constructor.vue';
 
@@ -59,8 +60,8 @@ export const WorkingMixin = <TBase extends Constructor>(Base: TBase) => {
           try{
               return await f();
           } catch (e) {
-              if (e?.message === "CSRF token mismatch."){
-                  window.location.reload();
+              if (e?.message?.toLowerCase().includes("csrf")){
+                  await authService.getCsrfToken();
               }else{
                   throw e;
                   view.showError(e);

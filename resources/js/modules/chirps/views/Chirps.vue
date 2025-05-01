@@ -121,7 +121,7 @@ export default toNative( ChirpCrudView );
                     <EditableCellTextField
                         name="message"
                         :confirm-text-maker="(value) => setFieldConfirmText('message', item, value)"
-                        :value="item.message" 
+                        v-model="item.message" 
                         :on-finish="(value) => setField('message', item, value)"
                         :disabled="busy"
                         :rules="rules.message"
@@ -154,7 +154,7 @@ export default toNative( ChirpCrudView );
             <ChirpFormDialog
                 :data="editing"
                 v-model="formDialog"
-                @submit="storeItem"
+                @submit.prevent.stop="storeItem"
                 :parent-busy="busy"
                 :rules="rules"
             />

@@ -1,7 +1,6 @@
 <script lang="ts">
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import { ViewBase } from '@/views/ViewBase.vue';
-import { Inertia } from '@inertiajs/inertia';
 import CenterLayout from '@/components/layout/CenterLayout.vue';
 
 @Component({

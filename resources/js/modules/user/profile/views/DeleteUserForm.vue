@@ -20,7 +20,7 @@ class DeleteUserForm extends Vue {
   confirmingUserDeletion = false;
   @Ref('passwordInput') passwordInput;
 
-  form = useForm({
+  formData = useForm({
     password: '',
   });
 
@@ -32,19 +32,19 @@ class DeleteUserForm extends Vue {
   closeModal(){
     this.confirmingUserDeletion = false;
 
-    this.form.clearErrors();
-    this.form.reset();
+    this.formData.clearErrors();
+    this.formData.reset();
   };
 
   async deleteUser() {
     try{
-        let res = await profileService.deleteUser(this.form);
+        let res = await profileService.deleteUser(this.formData);
         this.closeModal();
         router.visit(res.redirect || "/");
     } catch (error) {
         this.passwordInput.focus();
     } finally {
-        this.form.reset();
+        this.formData.reset();
     }
   }
 }
@@ -80,19 +80,19 @@ export default toNative(DeleteUserForm);
               
               <VTextField
                 ref="passwordInput"
-                v-model="form.password"
+                v-model="formData.password"
                 :label="$t('auth.password')"
                 type="password"
                 variant="outlined"
                 class="mt-4"
                 autocomplete="current-password"
                 @keyup.enter="deleteUser"
-                :error-messages="form.errors.password"
+                :error-messages="formData.errors.password"
               />
               
               <div class="mt-4 d-flex justify-end">
                 <VBtn variant="text" @click="closeModal">{{ $t('form.cancel') }}</VBtn>
-                <VBtn color="error" variant="elevated" class="ms-3" :loading="loading" @click="deleteUser">
+                <VBtn color="error" variant="elevated" class="ms-3" :loading="formData.processing" @click="deleteUser">
                   {{ $t('profile.delete') }}
                 </VBtn>
               </div>
