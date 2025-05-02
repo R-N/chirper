@@ -81,7 +81,16 @@ class EditableCell extends FormBase {
       this.emitFinish();
     this.editing = false;
   }
-
+  onEnter(e, ask=true){
+    const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+    if (
+      e.key === 'Enter' &&
+      !e.shiftKey &&
+      tag !== 'textarea'
+    ) {
+      this.finishEdit(ask);
+    }
+  }
 }
 export { EditableCell };
 export default toNative(EditableCell);
@@ -98,7 +107,7 @@ export default toNative(EditableCell);
     </div>
     <div 
       class="d-flex align-center justify-space-between"
-      @keydown.enter="finishEdit(ask)"
+      @keydown.enter="(e) => onEnter(e, ask)"
     >
       <span class="flex-grow-1">
         <slot v-if="bypass || (editing && !(disabled || busy))" name="editing" :readonly="disabled || busy || !editing" :disabled="disabled || busy || !editing" :editing="editing"></slot>

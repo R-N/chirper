@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import ChirpFormDialog from '@/modules/chirps/views/FormDialog.vue';
 import CrudView from '@/views/CrudView.vue';
 import { CrudViewBase } from '@/views/CrudViewBase.vue';
-import EditableCellTextField from '@/components/form/editable_cell/EditableCellTextField.vue';
+import EditableCellTextArea from '@/components/form/editable_cell/EditableCellTextArea.vue';
 
 import chirpService from '../services/chirp';
 import { VDataTable } from 'vuetify/components';
@@ -19,8 +19,6 @@ import { parseLaravelRules } from '@/libs/validation';
 import { BaseMixin } from '@/mixins/Component.vue';
 import { WorkingMixin } from '@/mixins/Working.vue';
 import { CrudViewMixin } from '@/mixins/CrudView.vue';
-import {WorkingComponent} from '@/components/WorkingComponent.vue';
-import {MyComponent} from '@/components/MyComponent.vue';
 
 const BaseClass = CrudViewMixin(WorkingMixin(BaseMixin(Vue)));
 
@@ -29,7 +27,7 @@ const BaseClass = CrudViewMixin(WorkingMixin(BaseMixin(Vue)));
     components: {
         ChirpFormDialog,
         CrudView,
-        EditableCellTextField,
+        EditableCellTextArea,
         VDataTable,
         IconButton,
         ConfirmationIconButton
@@ -118,7 +116,7 @@ export default toNative( ChirpCrudView );
                 :show-select="selecting"
             >
                 <template v-slot:item.message="{ item }">
-                    <EditableCellTextField
+                    <EditableCellTextArea
                         name="message"
                         :confirm-text-maker="(value) => setFieldConfirmText('message', item, value)"
                         v-model="item.message" 
