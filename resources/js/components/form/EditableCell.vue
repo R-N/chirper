@@ -110,7 +110,7 @@ export default toNative(EditableCell);
       @keydown.enter="(e) => onEnter(e, ask)"
     >
       <span class="flex-grow-1">
-        <slot v-if="bypass || (editing && !(disabled || busy))" name="editing" :readonly="disabled || busy || !editing" :disabled="disabled || busy || !editing" :editing="editing"></slot>
+        <slot v-if="bypass || (editing && !(disabled || busy))" name="editing" :readonly="disabled || busy || !editing" :disabled="disabled || busy || !editing" :editing="editing" :bypass=bypass></slot>
         <slot v-else name="default"></slot>
       </span>
       <span class="flex-grow-0 flex-shrink-0" v-if="!(disabled || busy) && !bypass">

@@ -28,12 +28,14 @@ export default toNative(EditableCellTextField);
         :title="title"
         :name="name"
         :showTitle="showTitle"
+        :bypass="bypass"
     >
         <template v-slot:editing>
             <VTextField 
                 class="bigger-input"
                 :name="name" 
-                v-model="valueEdit" 
+                :model-value="valueEdit"
+                @update:model-value="onUpdate"
                 :rules="_rules"
                 :counter="counter"
                 :type="type"

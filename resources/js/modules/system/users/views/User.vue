@@ -48,12 +48,18 @@ class UserDetailView extends BaseClass {
       return data;
     })
   }
+
+  get title(){
+    if (this.item)
+      return `${this.$t('user.item')}: ${this.item.name}`;
+    return this.$t('user.item');
+  }
 }
 export { UserDetailView } 
 export default toNative(UserDetailView);
 </script>
 <template>
-  <MainCard title="User" no-toolbar="true">
+  <MainCard :title="title" no-toolbar="true">
     <template v-slot:default>
       <UserForm 
         class="my-3"

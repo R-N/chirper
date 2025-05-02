@@ -58,6 +58,7 @@ export default toNative(EditableCellSelect);
         :title="title"
         :name="name"
         :showTitle="showTitle"
+        :bypass="bypass"
     >
         <template v-slot:editing>
             <VSelect
@@ -67,7 +68,8 @@ export default toNative(EditableCellSelect);
                 :items="items"
                 :item-title="itemTitle"
                 :item-value="itemValue"
-                v-model="valueEdit"
+                :model-value="valueEdit"
+                @update:model-value="onUpdate"
                 :on-change="value => valueEdit = value"
                 :disabled="busy || disabled"
                 :return-object="returnObject"

@@ -171,7 +171,7 @@ export default toNative(BackupView);
               icon="mdi-delete"
               :text="$t('form.delete')"
               :confirmTextMaker="deleteConfirmText(item)"
-              :on-confirm="() => deleteItem(item)"
+              :on-confirm="() => delete2(item)"
               :ask="(ask) => justAsk(item, ask)" 
               :disabled="busy"
           />

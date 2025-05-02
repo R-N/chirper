@@ -135,7 +135,6 @@ export const CrudViewMixin = <TBase extends Constructor>(Base: TBase) => {
           });
       }
 
-
       storeItem(item){
           let index = findIndex(this.items, item);
           if (index < 0){
@@ -152,11 +151,15 @@ export const CrudViewMixin = <TBase extends Constructor>(Base: TBase) => {
           await this.fetch();
       }
 
-      async deleteItem(item, releaseBusy=true){
+      deleteItem(item){
+        deleteFromArray(this.items, item);
+      }
+
+      async delete2(item, releaseBusy=true){
           return await this.waitBusy(
               async () => {
-                  const ret = await super.deleteItem(item, false);
-                  deleteFromArray(this.items, item);
+                  const ret = await super.delete2(item, false);
+                  this.deleteItem(item);
                   return ret;
               }, null, releaseBusy
           );

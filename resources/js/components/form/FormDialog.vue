@@ -43,7 +43,7 @@ export default toNative(FormDialog);
           :disabled="!interactable"
           v-if="cancelText ?? $t('form.cancel')"
         >
-          Batal
+          {{ $t('form.cancel') }}
         </VBtn>
         <VBtn
           @click.prevent.stop="submit"
@@ -53,7 +53,7 @@ export default toNative(FormDialog);
           :loading="busy"
           v-if="confirmText ?? $t('form.confirm')"
         >
-          Ok
+          {{ $t('form.confirm') }}
         </VBtn>
       </VCardActions>
     </VCard>

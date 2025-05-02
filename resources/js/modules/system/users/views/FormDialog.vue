@@ -17,8 +17,15 @@ import { UserForm } from '../forms/User.vue';
   emits: ['submit']
 })
 class UserFormDialog extends CrudFormDialogBase {
+  client = userService;
   @Prop({ default: [] }) availableRoles;
   @Prop({ default: [] }) availablePermissions;
+
+  get title(){
+    if (this.item)
+      return `${this.$t('user.item')}: ${this.item.name}`;
+    return this.$t('user.item');
+  }
 }
 export { UserFormDialog }
 export default toNative(UserFormDialog);
@@ -27,13 +34,12 @@ export default toNative(UserFormDialog);
   <FormDialog
     max-width="400"
     :parent-busy="busy"
-    :on-submit="submit"
-    :title="$t('user.item')"
+    :title="title"
     :disabled="disabled"
     :on-reset="reset"
     v-model="myDialog"
     :data="data"
-    :form="formRef"
+    :form="getForm"
   >
     <template v-slot:fields="{ interactable, busy }">
       <UserForm 
@@ -43,6 +49,7 @@ export default toNative(UserFormDialog);
         :available-permissions="availablePermissions"
         :data="data"
         ref="form"
+        @submit="(...args) => $emit('submit', ...args)"
       />
     </template>
   </FormDialog>

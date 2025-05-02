@@ -4,7 +4,8 @@ import {WorkingComponent} from '@/components/WorkingComponent.vue';
 import { useForm } from '@inertiajs/vue3';
 
 import { Constructor } from './Constructor.vue';
-import { ref, useTemplateRef, defineExpose } from 'vue'
+import { ref, useTemplateRef, defineExpose } from 'vue';
+import { isFunction } from '@/libs/util.js';
 
 export const FormMixin = <TBase extends Constructor>(Base: TBase) => {
   @Component({
@@ -19,7 +20,7 @@ export const FormMixin = <TBase extends Constructor>(Base: TBase) => {
     @Prop({ type: Object, default: null }) data;
     @Prop({ type: [Array, Function, Object], default: [] }) rules;
 
-    @Prop({ type: Object }) form;
+    @Prop({ type: [Object, Function] }) form;
     formData = useForm({});
 
     @Setup((props, ctx) => {
@@ -97,20 +98,25 @@ export const FormMixin = <TBase extends Constructor>(Base: TBase) => {
     }
 
     getForm(){
-      if (this.form)
-        return this.form;
-      if ('dynamicFormRef' in this && this.dynamicFormRef)
-        return this.dynamicFormRef;
+      let form = null;
       const refName = this.name ? `${this.name}Form` : 'form';
-      if (refName in this.$refs && this.$refs[refName])
-        return this.$refs[refName];
-      if ('dynamicFormRef' in this.$refs && this.$refs.dynamicFormRef)
-        return this.$refs.dynamicFormRef;
-      if ('formRef' in this.$refs && this.$refs.formRef)
-        return this.$refs.formRef;
-      if ('form' in this.$refs && this.$refs.form)
-        return this.$refs.form;
-      return this.formRef;
+      if (this.form)
+        form = this.form;
+      else if ('dynamicFormRef' in this && this.dynamicFormRef)
+        form = this.dynamicFormRef;
+      else if (refName in this.$refs && this.$refs[refName])
+        form = this.$refs[refName];
+      else if ('dynamicFormRef' in this.$refs && this.$refs.dynamicFormRef)
+        form = this.$refs.dynamicFormRef;
+      else if ('formRef' in this.$refs && this.$refs.formRef)
+        form = this.$refs.formRef;
+      else if ('form' in this.$refs && this.$refs.form)
+        form = this.$refs.form;
+      else
+        form = this.formRef;
+      if (isFunction(form))
+        form = form();
+      return form;
     }
 
     getValue(){
@@ -157,17 +163,19 @@ export const FormMixin = <TBase extends Constructor>(Base: TBase) => {
     async submit(){
       this.validate();
       if(!this.valid) return;
-      await this.waitBusy(
+      return await this.waitBusy(
         async () => {
           const form = this.getForm();
+          let ret = null;
           if(this.onSubmit){
-              await this.onSubmit(this.getValue());
+              ret = await this.onSubmit(this.getValue());
           }else if (form && form.submit){
-              form.submit();
+              ret = await form.submit();
           }else{
-              this.emitSubmit(this.getValue());
+              ret = this.emitSubmit(this.getValue());
           }
           this.close();
+          return ret;
         }
       );
     }

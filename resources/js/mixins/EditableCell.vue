@@ -15,6 +15,7 @@ export const EditableCellMixin = <TBase extends Constructor>(Base: TBase) => {
       emits: ['update:modelValue', 'change', 'finish', 'reset']
   })
   class EditableCellBase extends Base {
+      @Prop({ default: false }) bypass;
       @Prop({ type: String }) title;
       @Prop({ type: String }) label;
       @Prop({ type: String, default: 'value' }) name;
@@ -41,7 +42,7 @@ export const EditableCellMixin = <TBase extends Constructor>(Base: TBase) => {
       }
 
       get _label(){
-          if (this.title)
+          if (this.title && !this.bypass)
               return null;
           return this.label;
       }
@@ -153,6 +154,13 @@ export const EditableCellMixin = <TBase extends Constructor>(Base: TBase) => {
               // this.emitFinish({ value: this.valueEdit, releaseBusy: this.releaseBusy });
               this.$emit("finish", value, this.releaseBusy);
           }
+      }
+
+      async onUpdate(value){
+        this.valueEdit = value;
+        if(this.bypass){
+          this.value = value;
+        }
       }
 
 

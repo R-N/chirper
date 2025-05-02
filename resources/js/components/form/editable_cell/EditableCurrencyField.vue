@@ -24,12 +24,14 @@ export default toNative(EditableCellCurrencyField);
         :disabled="disabled"
         :title="title"
         :name="name"
+        :bypass="bypass"
     >
         <template v-slot:editing>
             <VCurrencyField 
                 class="bigger-input"
                 :name="name" 
-                v-model="valueEdit" 
+                :model-value="valueEdit"
+                @update:model-value="onUpdate"
                 :rules="_rules"
                 :counter="counter"
                 :type="type"

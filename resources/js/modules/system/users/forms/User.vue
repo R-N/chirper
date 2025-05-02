@@ -29,7 +29,7 @@ class UserForm extends CrudFormBase {
   formData = useForm({
     email: '',
     name: '',
-    roles: [],
+    roles: ['chirper'],
     permissions: [],
     enabled: true,
     verified: false,
@@ -74,7 +74,7 @@ export default toNative(UserForm);
           icon="mdi-delete"
           :text="$t('form.delete')"
           :confirmTextMaker="deleteConfirmText(data)"
-          :on-confirm="() => deleteItem(data)"
+          :on-confirm="() => delete2(data)"
           :ask="(ask) => justAsk(data, ask)" 
           :disabled="busy"
           :size="select ? 'small' : 'default'"

@@ -232,4 +232,5 @@ export const bindMethod = (cls, obj, methodName) => {
   }
   return method.bind(obj);
 }
+export const isFunction = (obj) => typeof obj === 'function';
 

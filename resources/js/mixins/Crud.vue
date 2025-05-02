@@ -9,7 +9,7 @@ export const CrudMixin = <TBase extends Constructor>(Base: TBase) => {
       name: "CrudBase",
       components: {
       },
-      emits: ['update:items']
+      emits: ['store', 'delete']
   })
   class CrudBase extends Base {
       nameField = "name";
@@ -22,7 +22,12 @@ export const CrudMixin = <TBase extends Constructor>(Base: TBase) => {
       get serverside() {
           return false;
       }
-      storeItem(item){ }
+      storeItem(item){ 
+        this.$emit("store", item);
+      }
+      deleteItem(item){ 
+        this.$emit("delete", item);
+      }
 
       deleteConfirmText(item){
           return this.$t('crud.delete_confirm_text', { 
@@ -36,10 +41,12 @@ export const CrudMixin = <TBase extends Constructor>(Base: TBase) => {
               ask();
       }
 
-      async deleteItem(item, releaseBusy=true){
+      async delete2(item, releaseBusy=true){
           return await this.waitBusy(
               async () => {
-                  return await this.client.delete(item);
+                  const ret = await this.client.delete(item);
+                  this.deleteItem(item);
+                  return ret;
               }, null, releaseBusy
           );
       }
@@ -57,7 +64,9 @@ export const CrudMixin = <TBase extends Constructor>(Base: TBase) => {
           return await this.waitBusy(
               async () => {
                   let res = await this.client.create(form);
-                  return this.client.getData(res);
+                  const data = this.client.getData(res);
+                  this.storeItem(data);
+                  return data;
               }, null, releaseBusy
           );
       }

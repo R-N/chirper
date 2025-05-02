@@ -92,6 +92,7 @@ export default toNative(UserCrudView);
                         :data="item"
                         :rules="rules"
                         select="name"
+                        @store="storeItem"
                     />
                 </template>
                 <template v-slot:item.email="{ item }">
@@ -101,6 +102,7 @@ export default toNative(UserCrudView);
                         :data="item"
                         :rules="rules"
                         select="email"
+                        @store="storeItem"
                     />
                 </template>
                 <template v-slot:item.roles="{ item }">
@@ -110,6 +112,7 @@ export default toNative(UserCrudView);
                         :data="item"
                         :rules="rules"
                         select="roles"
+                        @store="storeItem"
                     />
                 </template>
                 <template v-slot:item.enabled="{ item }">
@@ -119,6 +122,7 @@ export default toNative(UserCrudView);
                         :data="item"
                         :rules="rules"
                         select="enabled"
+                        @store="storeItem"
                     />
                 </template>
                 <template v-slot:item.verified="{ item }">
@@ -128,6 +132,7 @@ export default toNative(UserCrudView);
                         :data="item"
                         :rules="rules"
                         select="verified"
+                        @store="storeItem"
                     />
                 </template>
                 <template v-slot:item.actions="{ item }" class="d-flex flex-row">
@@ -150,6 +155,7 @@ export default toNative(UserCrudView);
                             :data="item"
                             :rules="rules"
                             select="clear_password"
+                            @store="storeItem"
                         />
                         <UserForm 
                             :disabled="busy"
@@ -157,6 +163,7 @@ export default toNative(UserCrudView);
                             :data="item"
                             :rules="rules"
                             select="delete"
+                            @delete="deleteItem"
                         />
                     </div>
                 </template>
@@ -164,7 +171,7 @@ export default toNative(UserCrudView);
             <UserFormDialog
                 :data="editing"
                 v-model="formDialog"
-                @submit.prevent.stop="storeItem"
+                @submit="storeItem"
                 :parent-busy="busy"
                 :availableRoles="availableRoles"
                 :availablePermissions="availablePermissions"
