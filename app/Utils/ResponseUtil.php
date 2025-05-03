@@ -40,9 +40,10 @@ class ResponseUtil
         if (! $route) {
             $route = url()->current();
         }
-        if ($statusCode > 299) {
+        if (in_array($statusCode, [401, 403, 404])){
             if (! $route || $route == url()->current()) {
-                $route = url()->previous();
+                $route = '/';
+                // $route = url()->previous();
             } elseif ($route == url()->previous()) {
                 $route = '/';
             } else {
