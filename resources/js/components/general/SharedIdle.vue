@@ -1,53 +1,61 @@
 <script lang="ts">
-
-import { Vue, Component, Prop, Model, Watch, toNative } from 'vue-facing-decorator';
-import {MyComponent} from '@/components/MyComponent.vue';
+import {
+  Vue,
+  Component,
+  Prop,
+  Model,
+  Watch,
+  toNative
+} from "vue-facing-decorator";
+import { MyComponent } from "@/components/MyComponent.vue";
 
 @Component({
   name: "SharedIdle",
-  emits: ["update:modelValue", "update:idle", "change"],
+  emits: ["update:modelValue", "update:idle", "change"]
 })
 class SharedIdle extends MyComponent {
   @Prop({ type: Number }) idleWait;
   @Model({ type: Boolean }) syncedIdle;
   idleTimer = null;
 
-  get idleWaitMillis(){
+  get idleWaitMillis() {
     return this.idleWait * 1000;
   }
 
-  get sharedUserPresent(){
+  get sharedUserPresent() {
     return this.appStore.userPresent;
   }
 
-  @Watch('sharedUserPresent')
+  @Watch("sharedUserPresent")
   onSharedUserPresent(val, oldVal) {
     if (val != oldVal && val && this.syncedIdle) {
       this.syncedIdle = false;
     }
   }
 
-  mounted(){
+  mounted() {
     const comp = this;
     this.idleTimer = window.setInterval(() => {
-      if (comp.appStore.getIdleTime() >= comp.idleWaitMillis && !comp.syncedIdle){
-          comp.syncedIdle = true;
+      if (
+        comp.appStore.getIdleTime() >= comp.idleWaitMillis &&
+        !comp.syncedIdle
+      ) {
+        comp.syncedIdle = true;
       }
     }, 1000);
   }
 
-  beforeDestroy(){
-    if(this.idleTimer){
+  beforeDestroy() {
+    if (this.idleTimer) {
       window.clearInterval(this.idleTimer);
       this.idleTimer = null;
     }
   }
 }
-export { SharedIdle }
+export { SharedIdle };
 export default toNative(SharedIdle);
 </script>
 <template>
   <div></div>
 </template>
-<style scoped>
-</style>
+<style scoped></style>

@@ -1,8 +1,8 @@
 <script lang="ts">
-import { Vue, Component, Prop, toNative } from 'vue-facing-decorator';
+import { Vue, Component, Prop, toNative } from "vue-facing-decorator";
 
 @Component({
-    name: "CardTitle"
+  name: "CardTitle"
 })
 class CardTitle extends Vue {
   @Prop({ default: "Title" }) title;
@@ -21,5 +21,4 @@ export default toNative(CardTitle);
     </VRow>
   </VCardTitle>
 </template>
-<style scoped>
-</style>
+<style scoped></style>

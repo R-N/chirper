@@ -1,19 +1,18 @@
-import { defineStore } from 'pinia';
-import { isObject, deepAssign } from '@/libs/util.js';
-import { router } from '@inertiajs/vue3';
+import { defineStore } from "pinia";
+import { isObject, deepAssign } from "@/libs/util.js";
+import { router } from "@inertiajs/vue3";
 
-export const useAppStore = defineStore('app', {
-  state: () => ({ 
-    globalLogout: false, 
-    globalRefresh: false, 
-    globalBusy: false, 
-    authBusy: false, 
+export const useAppStore = defineStore("app", {
+  state: () => ({
+    globalLogout: false,
+    globalRefresh: false,
+    globalBusy: false,
+    authBusy: false,
 
-    userPresent: true,  
-    serverReachable: true,  
+    userPresent: true,
+    serverReachable: true,
     lastUserPresentTime: new Date().getTime(),
-    settings: {
-    }
+    settings: {}
   }),
   getters: {
     // getIdleTime: (state) => {
@@ -25,22 +24,22 @@ export const useAppStore = defineStore('app', {
   },
   actions: {
     updateSettings(settings) {
-      deepAssign(this.settings, settings); 
+      deepAssign(this.settings, settings);
     },
-    getIdleTime(){
+    getIdleTime() {
       return new Date().getTime() - this.lastUserPresentTime;
     },
-    ping(){
+    ping() {
       var now = new Date().getTime();
       this.lastUserPresentTime = now;
       this.userPresent = true;
     },
-    setIdle(){
+    setIdle() {
       this.userPresent = false;
-    },
+    }
   },
   persist: {
-    storage: localStorage, 
+    storage: localStorage
   }
 });
 
@@ -48,9 +47,9 @@ export const pinger = async (...args) => {
   let appStore = useAppStore();
   if (appStore.getIdleTime() < 1000) return;
   await appStore.ping();
-}
-document.body.addEventListener('mousemove', pinger);
-document.body.addEventListener('keypress', pinger);
-document.body.addEventListener('mousedown', pinger);
+};
+document.body.addEventListener("mousemove", pinger);
+document.body.addEventListener("keypress", pinger);
+document.body.addEventListener("mousedown", pinger);
 
 export default useAppStore;

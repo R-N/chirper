@@ -1,19 +1,24 @@
 <script lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
-import { VMain, VCol, VRow, VContainer, VApp  } from 'vuetify/components';
-import { VFadeTransition, VSlideYTransition, VSlideXTransition, VExpandTransition } from 'vuetify/components';
-import { Component, Prop, Vue, toNative, Watch } from 'vue-facing-decorator';
-import {GuestLayout} from '@/layouts/GuestLayout.vue';
+import { Head, Link, router } from "@inertiajs/vue3";
+import { VMain, VCol, VRow, VContainer, VApp } from "vuetify/components";
+import {
+  VFadeTransition,
+  VSlideYTransition,
+  VSlideXTransition,
+  VExpandTransition
+} from "vuetify/components";
+import { Component, Prop, Vue, toNative, Watch } from "vue-facing-decorator";
+import { GuestLayout } from "@/layouts/GuestLayout.vue";
 
 import TopNavBar from "@/components/main/TopNavBar.vue";
 import SideNavDrawer from "@/components/main/SideNavDrawer.vue";
-import ImageBackground from '@/components/general/ImageBackground.vue'
-import LoadingOverlay from '@/components/overlay/LoadingOverlay.vue';
-import DialogStack from '@/components/dialog/DialogStack.vue';
-import IdleOverlay from '@/components/overlay/IdleOverlay.vue';
+import ImageBackground from "@/components/general/ImageBackground.vue";
+import LoadingOverlay from "@/components/overlay/LoadingOverlay.vue";
+import DialogStack from "@/components/dialog/DialogStack.vue";
+import IdleOverlay from "@/components/overlay/IdleOverlay.vue";
 
-import ServerDownView from '@/modules/general/views/ServerDown.vue';
-import MainView from '@/views/MainView.vue'
+import ServerDownView from "@/modules/general/views/ServerDown.vue";
+import MainView from "@/views/MainView.vue";
 
 @Component({
   components: {
@@ -25,33 +30,33 @@ import MainView from '@/views/MainView.vue'
     IdleOverlay,
     ServerDownView,
     MainView,
-    Head,
+    Head
   }
 })
 class AppLayout extends GuestLayout {
-  appName = import.meta.env.VITE_APP_NAME || 'Chirper';
+  appName = import.meta.env.VITE_APP_NAME || "Chirper";
   drawer = false;
-  toggleDrawer(drawer){
+  toggleDrawer(drawer) {
     this.drawer = drawer;
   }
-  get globalRefresh(){
+  get globalRefresh() {
     return this.appStore.globalRefresh;
   }
-  get globalLogout(){
+  get globalLogout() {
     return this.appStore.globalLogout;
   }
-  @Watch('globalRefresh')
-  onGlobalRefreshFlagSet(val, oldVal){
-    if(val){
+  @Watch("globalRefresh")
+  onGlobalRefreshFlagSet(val, oldVal) {
+    if (val) {
       this.tabStore.routerBusy = true;
       this.appStore.globalRefresh = false;
       window.location.reload();
     }
   }
 
-  @Watch('globalLogout')
-  onGlobalLogoutFlagSet(val, oldVal){
-    if(val){
+  @Watch("globalLogout")
+  onGlobalLogoutFlagSet(val, oldVal) {
+    if (val) {
       this.appStore.globalLogout = false;
       // router.safePush({ name: "beranda" });
     }
@@ -63,20 +68,20 @@ export default toNative(AppLayout);
   <VApp class="d-flex">
     <Head :title="title" />
     <VExpandTransition appear mode="out-in">
-      <TopNavBar appear v-model="drawer" v-if="isLoggedIn"/>
+      <TopNavBar appear v-model="drawer" v-if="isLoggedIn" />
     </VExpandTransition>
-    <SideNavDrawer :appname="appName" v-model="drawer" v-if="isLoggedIn"/>
+    <SideNavDrawer :appname="appName" v-model="drawer" v-if="isLoggedIn" />
     <ImageBackground v-if="showBackground"></ImageBackground>
     <VMain>
-      <VExpandTransition appear >
-        <ServerDownView appear v-if="!serverReachable" key="down"/>
+      <VExpandTransition appear>
+        <ServerDownView appear v-if="!serverReachable" key="down" />
         <MainView v-else key="main">
           <slot appear />
         </MainView>
       </VExpandTransition>
     </VMain>
-    <IdleOverlay :idle-wait="300" :logout-wait="300"/>
-    <LoadingOverlay/>
-    <DialogStack :items="tabDialogs" @dialogstackpop="popTabDialog"/>
+    <IdleOverlay :idle-wait="300" :logout-wait="300" />
+    <LoadingOverlay />
+    <DialogStack :items="tabDialogs" @dialogstackpop="popTabDialog" />
   </VApp>
 </template>

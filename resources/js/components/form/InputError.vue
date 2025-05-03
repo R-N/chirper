@@ -5,13 +5,13 @@ import { VAlert, VExpandTransition } from "vuetify/components";
 @Component({
   components: {
     VAlert,
-    VExpandTransition,
-  },
+    VExpandTransition
+  }
 })
 class InputError extends Vue {
   @Prop({ type: String, default: "" }) message!: string;
 
-  get messageIsArray(){
+  get messageIsArray() {
     return Array.isArray(this.message);
   }
 }

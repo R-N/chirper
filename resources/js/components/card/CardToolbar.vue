@@ -1,11 +1,10 @@
 <script lang="ts">
-import { Vue, Component, Prop, toNative } from 'vue-facing-decorator';
+import { Vue, Component, Prop, toNative } from "vue-facing-decorator";
 
 @Component({
-    name: "CardToolbar"
+  name: "CardToolbar"
 })
-class CardToolbar extends Vue {
-}
+class CardToolbar extends Vue {}
 export { CardToolbar };
 export default toNative(CardToolbar);
 </script>
@@ -21,5 +20,4 @@ export default toNative(CardToolbar);
     </VRow>
   </VCardTitle>
 </template>
-<style scoped>
-</style>
+<style scoped></style>

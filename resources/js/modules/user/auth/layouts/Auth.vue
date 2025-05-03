@@ -1,20 +1,18 @@
-
 <script lang="ts">
-import AuthenticationCardLogo from '@/components/auth/AuthenticationCardLogo.vue';
-import { Component, Prop, toNative } from 'vue-facing-decorator';
-import { ViewBase } from '@/views/ViewBase.vue';
+import AuthenticationCardLogo from "@/components/auth/AuthenticationCardLogo.vue";
+import { Component, Prop, toNative } from "vue-facing-decorator";
+import { ViewBase } from "@/views/ViewBase.vue";
 
-import CenterLayout from '@/components/layout/CenterLayout.vue';
+import CenterLayout from "@/components/layout/CenterLayout.vue";
 
 @Component({
   name: "AuthLayout",
   components: {
     AuthenticationCardLogo,
-    CenterLayout,
+    CenterLayout
   }
 })
-class AuthLayout extends ViewBase {
-}
+class AuthLayout extends ViewBase {}
 export { AuthLayout };
 export default toNative(AuthLayout);
 </script>
@@ -24,6 +22,4 @@ export default toNative(AuthLayout);
     <slot></slot>
   </CenterLayout>
 </template>
-<style scoped>
-
-</style>
+<style scoped></style>

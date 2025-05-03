@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Vue, Component, Prop, toNative } from 'vue-facing-decorator';
+import { Vue, Component, Prop, toNative } from "vue-facing-decorator";
 
 @Component({
   name: "ImageBackground"
@@ -11,7 +11,7 @@ export { ImageBackground };
 export default toNative(ImageBackground);
 </script>
 <template>
-  <img class="bg" :src="src" v-if="src"/>
+  <img class="bg" :src="src" v-if="src" />
   <slot></slot>
 </template>
 <style scoped>

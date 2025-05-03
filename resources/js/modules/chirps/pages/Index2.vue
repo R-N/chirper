@@ -1,9 +1,9 @@
 <script lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
+import AppLayout from "@/layouts/AppLayout.vue";
 
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import { ChirpCrudView } from '../views/Chirps.vue';
-import {ViewBase} from '@/views/ViewBase.vue';
+import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
+import { ChirpCrudView } from "../views/Chirps.vue";
+import { ViewBase } from "@/views/ViewBase.vue";
 
 @Component({
   components: {
@@ -13,15 +13,13 @@ import {ViewBase} from '@/views/ViewBase.vue';
 })
 class ChirpsPage extends ViewBase {
   @Prop({ type: [Array, Object], default: null }) items;
-  mounted(){
-    this.tabStore.breadcrumbs = [
-      { title: this.$t('navigation.chirps') },
-    ];
+  mounted() {
+    this.tabStore.breadcrumbs = [{ title: this.$t("navigation.chirps") }];
   }
 }
 export default toNative(ChirpsPage);
 </script>
- 
+
 <template>
   <AppLayout :title="$t('chirp.title')">
     <VContainer>

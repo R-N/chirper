@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
 
 @Component
 class InputLabel extends Vue {

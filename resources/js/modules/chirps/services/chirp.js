@@ -1,10 +1,11 @@
-import _axios from '@/plugins/axios'; 
-import CrudService from '@/services/crud';
+import _axios from "@/plugins/axios";
+import CrudService from "@/services/crud";
 
-class ChirpService extends CrudService{
+class ChirpService extends CrudService {
   constructor() {
     super(
-      "Chirp", "/api/chirps", 
+      "Chirp",
+      "/api/chirps",
       ["index", "store", "update", "destroy"],
       ["message"],
       [],
@@ -12,8 +13,8 @@ class ChirpService extends CrudService{
       false,
       [
         {
-          action: 'bulk_destroy', 
-          endpoint: route('api.chirps.bulk.destroy')
+          action: "bulk_destroy",
+          endpoint: route("api.chirps.bulk.destroy")
         }
       ]
     );

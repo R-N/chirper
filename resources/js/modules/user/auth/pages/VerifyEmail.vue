@@ -1,9 +1,9 @@
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import AuthLayout from '../layouts/Auth.vue';
-import GuestLayout from '@/layouts/GuestLayout.vue';
-import {ViewBase} from '@/views/ViewBase.vue';
-import VerifyEmailForm from '../forms/VerifyEmail.vue';
+import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
+import AuthLayout from "../layouts/Auth.vue";
+import GuestLayout from "@/layouts/GuestLayout.vue";
+import { ViewBase } from "@/views/ViewBase.vue";
+import VerifyEmailForm from "../forms/VerifyEmail.vue";
 
 @Component({
   components: {

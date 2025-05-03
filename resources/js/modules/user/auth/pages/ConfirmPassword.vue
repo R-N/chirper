@@ -1,13 +1,19 @@
 <script lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm } from "@inertiajs/vue3";
 
-import { VCard, VCardText, VCardTitle, VTextField, VBtn } from 'vuetify/components';
-import { Component, Prop, Vue, Ref, toNative } from 'vue-facing-decorator';
-import authService from '@/modules/user/auth/services/auth.js';
-import { router } from '@inertiajs/vue3';
-import AuthLayout from '../layouts/Auth.vue';
-import GuestLayout from '@/layouts/GuestLayout.vue';
-import {ViewBase} from '@/views/ViewBase.vue';
+import {
+  VCard,
+  VCardText,
+  VCardTitle,
+  VTextField,
+  VBtn
+} from "vuetify/components";
+import { Component, Prop, Vue, Ref, toNative } from "vue-facing-decorator";
+import authService from "@/modules/user/auth/services/auth.js";
+import { router } from "@inertiajs/vue3";
+import AuthLayout from "../layouts/Auth.vue";
+import GuestLayout from "@/layouts/GuestLayout.vue";
+import { ViewBase } from "@/views/ViewBase.vue";
 
 @Component({
   components: {
@@ -17,15 +23,15 @@ import {ViewBase} from '@/views/ViewBase.vue';
     VCardText,
     VCardTitle,
     VTextField,
-    VBtn,
+    VBtn
   }
 })
 class ConfirmPasswordPage extends ViewBase {
   formData = useForm({
-    password: '',
+    password: ""
   });
 
-  @Ref('passwordInput') passwordInput;
+  @Ref("passwordInput") passwordInput;
 
   async submit() {
     let res = await authService.confirmPassword(this.formData);
@@ -43,9 +49,9 @@ export default toNative(ConfirmPasswordPage);
       <VCard elevation="4" class="pa-6" max-width="400">
         <VCardText>
           <p class="mb-4 text-grey-darken-1">
-            {{ $t('auth.password_checkpoint') }}
+            {{ $t("auth.password_checkpoint") }}
           </p>
-          
+
           <form @submit.prevent.stop="submit">
             <VTextField
               id="password"
@@ -58,10 +64,15 @@ export default toNative(ConfirmPasswordPage);
               autocomplete="current-password"
               :error-messages="formData.errors.password"
             />
-            
+
             <div class="d-flex justify-end mt-4">
-              <VBtn color="primary" variant="elevated" type="submit" :loading="formData.processing">
-                {{ $t('form.confirm') }}
+              <VBtn
+                color="primary"
+                variant="elevated"
+                type="submit"
+                :loading="formData.processing"
+              >
+                {{ $t("form.confirm") }}
               </VBtn>
             </div>
           </form>

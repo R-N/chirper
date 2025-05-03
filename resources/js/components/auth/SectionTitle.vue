@@ -1,12 +1,12 @@
 <script lang="ts">
-import { Component, Vue, toNative } from 'vue-facing-decorator';
-import { VRow, VCol } from 'vuetify/components';
+import { Component, Vue, toNative } from "vue-facing-decorator";
+import { VRow, VCol } from "vuetify/components";
 
 @Component({
   components: {
     VRow,
-    VCol,
-  },
+    VCol
+  }
 })
 class SectionTitle extends Vue {}
 

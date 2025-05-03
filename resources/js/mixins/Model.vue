@@ -1,19 +1,23 @@
 <script lang="ts">
-import { Constructor } from './Constructor.vue';
-export const ModelMixin = ({ name=null, type=null, default: defaultValue=null}) => {
-  const hiddenName = name ? `_${name}` : 'value';
-  const modelName = name ? `${name}Model` : 'model';
-  name = name ?? 'modelValue';
+import { Constructor } from "./Constructor.vue";
+export const ModelMixin = ({
+  name = null,
+  type = null,
+  default: defaultValue = null
+}) => {
+  const hiddenName = name ? `_${name}` : "value";
+  const modelName = name ? `${name}Model` : "model";
+  name = name ?? "modelValue";
   return {
     props: {
       [name]: {
         type: type,
-        required: false,
-      },
+        required: false
+      }
     },
     data() {
       return {
-        [hiddenName]: defaultValue,
+        [hiddenName]: defaultValue
       };
     },
     computed: {
@@ -29,9 +33,9 @@ export const ModelMixin = ({ name=null, type=null, default: defaultValue=null}) 
           if (this[name] !== undefined) {
             this.$emit(`update:${name}`, value);
           }
-        },
-      },
-    },
+        }
+      }
+    }
   };
-}
+};
 </script>

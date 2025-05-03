@@ -1,32 +1,32 @@
 import { isObject } from "./util";
 
 export const ruleMapper = {
-  required: () => (v) => !!v || 'This field is required',
-  string: () => (v) => typeof v === 'string' || 'Must be a string',
-  numeric: () => (v) => !isNaN(Number(v)) || 'Must be a number',
-  max: (max) => (v) => 
-    (typeof v === 'string' && v.length <= max) || 
-    (typeof v === 'number' && v <= max) || 
+  required: () => (v) => !!v || "This field is required",
+  string: () => (v) => typeof v === "string" || "Must be a string",
+  numeric: () => (v) => !isNaN(Number(v)) || "Must be a number",
+  max: (max) => (v) =>
+    (typeof v === "string" && v.length <= max) ||
+    (typeof v === "number" && v <= max) ||
     `Maximum allowed is ${max}`,
-  min: (min) => (v) => 
-    (typeof v === 'string' && v.length >= min) || 
-    (typeof v === 'number' && v >= min) || 
+  min: (min) => (v) =>
+    (typeof v === "string" && v.length >= min) ||
+    (typeof v === "number" && v >= min) ||
     `Minimum required is ${min}`,
-  regex: (pattern) => (v) => 
-    pattern.test(v) || 'Invalid format',
-  integer: () => (v) => Number.isInteger(Number(v)) || 'Must be an integer', 
+  regex: (pattern) => (v) => pattern.test(v) || "Invalid format",
+  integer: () => (v) => Number.isInteger(Number(v)) || "Must be an integer",
   dateFormat: (format) => (v) => {
-    const dateRegex = /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/;
+    const dateRegex =
+      /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/;
     return dateRegex.test(v) || `Date must be in the format ${format}`;
   },
   in: (values) => (v) => {
-    const options = values.split(',');
-    return options.includes(v) || `Must be one of: ${options.join(', ')}`;
+    const options = values.split(",");
+    return options.includes(v) || `Must be one of: ${options.join(", ")}`;
   },
   email: () => (v) => {
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    return emailRegex.test(v) || 'Invalid email address';
-  },
+    return emailRegex.test(v) || "Invalid email address";
+  }
 };
 
 export const parseLaravelRules = (rules) => {
@@ -38,19 +38,20 @@ export const parseLaravelRules = (rules) => {
       return acc;
     }, {});
   }
-  
-  if (typeof rules === 'string')
-    rules = rules.split('|');
+
+  if (typeof rules === "string") rules = rules.split("|");
   rules = rules.map((r) => r.trim());
   const functions = [];
 
-  const hasRequired = rules.includes('required');
+  const hasRequired = rules.includes("required");
 
   for (const rule of rules) {
-    if (rule.includes(':')) {
-      const [name, param] = rule.split(':');
+    if (rule.includes(":")) {
+      const [name, param] = rule.split(":");
       if (ruleMapper[name]) {
-        functions.push(wrapOptional(ruleMapper[name](Number(param)), hasRequired));
+        functions.push(
+          wrapOptional(ruleMapper[name](Number(param)), hasRequired)
+        );
       }
     } else {
       if (ruleMapper[rule]) {
@@ -60,19 +61,16 @@ export const parseLaravelRules = (rules) => {
   }
 
   return functions;
-}
+};
 
-export const wrapOptional = (
-  fn, 
-  hasRequired
-) => {
+export const wrapOptional = (fn, hasRequired) => {
   return (v) => {
-    if (!hasRequired && (v === null || v === undefined || v === '')) {
+    if (!hasRequired && (v === null || v === undefined || v === "")) {
       return true;
     }
     return fn(v);
   };
-}
+};
 
 export const mergeRules = (rulesA, rulesB) => {
   const merged = { ...rulesA };
@@ -86,4 +84,4 @@ export const mergeRules = (rulesA, rulesB) => {
   }
 
   return merged;
-}
+};

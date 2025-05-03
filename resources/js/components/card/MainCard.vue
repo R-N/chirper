@@ -1,15 +1,15 @@
 <script lang="ts">
-import { Vue, Component, Prop, toNative } from 'vue-facing-decorator';
+import { Vue, Component, Prop, toNative } from "vue-facing-decorator";
 
-import CardTitle from '@/components/card/CardTitle.vue';
-import CardToolbar from '@/components/card/CardToolbar.vue';
+import CardTitle from "@/components/card/CardTitle.vue";
+import CardToolbar from "@/components/card/CardToolbar.vue";
 
 @Component({
-    name: "MainCard",
-    components: {
-      CardTitle,
-      CardToolbar
-    }
+  name: "MainCard",
+  components: {
+    CardTitle,
+    CardToolbar
+  }
 })
 class MainCard extends Vue {
   @Prop({ default: "Title" }) title;
@@ -38,5 +38,4 @@ export default toNative(MainCard);
     </VCardActions>
   </VCard>
 </template>
-<style scoped>
-</style>
+<style scoped></style>

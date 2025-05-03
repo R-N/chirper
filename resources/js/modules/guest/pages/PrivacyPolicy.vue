@@ -1,17 +1,19 @@
 <script setup>
-import { Head } from '@inertiajs/vue3';
-import AuthenticationCardLogo from '@/components/auth/AuthenticationCardLogo.vue';
-import { VContainer, VCard, VCardText, VSheet } from 'vuetify/components';
-import GuestLayout from '@/layouts/GuestLayout.vue';
+import { Head } from "@inertiajs/vue3";
+import AuthenticationCardLogo from "@/components/auth/AuthenticationCardLogo.vue";
+import { VContainer, VCard, VCardText, VSheet } from "vuetify/components";
+import GuestLayout from "@/layouts/GuestLayout.vue";
 
 defineProps({
-  policy: String,
+  policy: String
 });
 </script>
 
 <template>
   <GuestLayout title="Privacy Policy">
-    <VSheet class="d-flex flex-column align-center justify-center min-vh-100 py-6 bg-grey-lighten-3">
+    <VSheet
+      class="d-flex flex-column align-center justify-center min-vh-100 py-6 bg-grey-lighten-3"
+    >
       <AuthenticationCardLogo />
 
       <VContainer class="mt-6 d-flex justify-center">

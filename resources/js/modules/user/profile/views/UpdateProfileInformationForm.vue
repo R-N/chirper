@@ -1,12 +1,21 @@
 <script lang="ts">
-import ActionMessage from '@/components/auth/ActionMessage.vue';
-import FormSection from '@/components/auth/FormSection.vue';
-import InputError from '@/components/form/InputError.vue';
-import { Link, router, useForm, usePage } from '@inertiajs/vue3';
-import { VTextField, VFileInput, VBtn, VCard, VImg, VAvatar, VRow, VCol } from 'vuetify/components';
+import ActionMessage from "@/components/auth/ActionMessage.vue";
+import FormSection from "@/components/auth/FormSection.vue";
+import InputError from "@/components/form/InputError.vue";
+import { Link, router, useForm, usePage } from "@inertiajs/vue3";
+import {
+  VTextField,
+  VFileInput,
+  VBtn,
+  VCard,
+  VImg,
+  VAvatar,
+  VRow,
+  VCol
+} from "vuetify/components";
 
-import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
-import profileService from '@/modules/user/profile/services/profile.js';
+import { Component, Prop, Vue, toNative, Ref } from "vue-facing-decorator";
+import profileService from "@/modules/user/profile/services/profile.js";
 
 @Component({
   components: {
@@ -20,38 +29,41 @@ import profileService from '@/modules/user/profile/services/profile.js';
     VImg,
     VAvatar,
     VRow,
-    VCol,
+    VCol
   }
 })
 class UpdateProfileInformationForm extends Vue {
-//   @Prop({ type: Boolean }) mustVerifyEmail;
-//   @Prop({ type: String }) status;
+  //   @Prop({ type: Boolean }) mustVerifyEmail;
+  //   @Prop({ type: String }) status;
   @Prop({ type: Object }) user = null;
 
   formData = useForm({
-    _method: 'PUT',
-    name: '',
-    email: '',
-    photo: null,
+    _method: "PUT",
+    name: "",
+    email: "",
+    photo: null
   });
 
   verificationLinkSent = null;
   photoPreview = null;
-  @Ref('photoInput') photoInput;
+  @Ref("photoInput") photoInput;
 
-  mounted(){
+  mounted() {
     // this.user = usePage().props.auth.user;
     this.formData.name = this.user.name;
     this.formData.email = this.user.email;
   }
 
-  async updateProfileInformation(){
+  async updateProfileInformation() {
     if (this.photoInput) {
       this.formData.photo = this.photoInput.files[0];
     }
-    
-    try{
-      let res = await profileService.updateProfileInformation(this.formData, this.photoInput.files[0]);
+
+    try {
+      let res = await profileService.updateProfileInformation(
+        this.formData,
+        this.photoInput.files[0]
+      );
       this.clearPhotoFileInput();
       router.reload({ preserveScroll: true });
     } catch (error) {
@@ -61,42 +73,42 @@ class UpdateProfileInformationForm extends Vue {
         console.error("Unexpected error:", error);
       }
     }
-  };
+  }
 
-  sendEmailVerification(){
+  sendEmailVerification() {
     this.verificationLinkSent = true;
-  };
+  }
 
-  selectNewPhoto(){
+  selectNewPhoto() {
     this.photoInput.click();
-  };
+  }
 
-  async updatePhotoPreview(){
+  async updatePhotoPreview() {
     const photo = this.photoInput.files[0];
 
-    if (! photo) return;
+    if (!photo) return;
 
     const reader = new FileReader();
 
     reader.onload = (e) => {
-        this.photoPreview = e.target.result;
+      this.photoPreview = e.target.result;
     };
 
     return await reader.readAsDataURL(photo);
-  };
+  }
 
-  async deletePhoto(){
+  async deletePhoto() {
     let res = await profileService.deletePhoto();
     this.photoPreview = null;
     this.clearPhotoFileInput();
     router.reload({ preserveScroll: true });
-  };
+  }
 
-  clearPhotoFileInput(){
+  clearPhotoFileInput() {
     if (this.photoInput?.value) {
       this.photoInput.value = null;
     }
-  };
+  }
 }
 export default toNative(UpdateProfileInformationForm);
 </script>
@@ -104,14 +116,14 @@ export default toNative(UpdateProfileInformationForm);
 <template>
   <FormSection @submitted="updateProfileInformation">
     <template #title>
-      {{ $t('profile.info_title') }}
+      {{ $t("profile.info_title") }}
     </template>
 
     <template #description>
-      {{ $t('profile.info_desc') }}
+      {{ $t("profile.info_desc") }}
     </template>
 
-    <template #form>    
+    <template #form>
       <VRow>
         <VCol cols="12" class="d-flex flex-column">
           <VFileInput
@@ -124,15 +136,29 @@ export default toNative(UpdateProfileInformationForm);
             :error-messages="formData.errors.photo"
           />
 
-          <VAvatar v-if="!photoPreview" :image="user.profile_photo_url" :alt="user.name" size="80" cover />
+          <VAvatar
+            v-if="!photoPreview"
+            :image="user.profile_photo_url"
+            :alt="user.name"
+            size="80"
+            cover
+          />
           <VAvatar v-if="photoPreview" :image="photoPreview" size="80" />
 
           <div class="mt-2">
-            <VBtn color="secondary" class="me-2" @click.prevent="photoInput?.click()">
-              {{ $t('profile.select_photo') }}
+            <VBtn
+              color="secondary"
+              class="me-2"
+              @click.prevent="photoInput?.click()"
+            >
+              {{ $t("profile.select_photo") }}
             </VBtn>
-            <VBtn color="error" v-if="user.profile_photo_path" @click.prevent="deletePhoto">
-              {{ $t('profile.remove_photo') }}
+            <VBtn
+              color="error"
+              v-if="user.profile_photo_path"
+              @click.prevent="deletePhoto"
+            >
+              {{ $t("profile.remove_photo") }}
             </VBtn>
           </div>
 
@@ -142,22 +168,47 @@ export default toNative(UpdateProfileInformationForm);
 
       <VRow>
         <VCol cols="12">
-          <VTextField v-model="formData.name" :label="$t('user.name')" required autocomplete="name" :error-messages="formData.errors.name" />
+          <VTextField
+            v-model="formData.name"
+            :label="$t('user.name')"
+            required
+            autocomplete="name"
+            :error-messages="formData.errors.name"
+          />
         </VCol>
       </VRow>
 
       <VRow>
         <VCol cols="12">
-          <VTextField v-model="formData.email" :label="$t('user.email')" required autocomplete="username" type="email" :error-messages="formData.errors.email" />
+          <VTextField
+            v-model="formData.email"
+            :label="$t('user.email')"
+            required
+            autocomplete="username"
+            type="email"
+            :error-messages="formData.errors.email"
+          />
 
-          <div v-if="$page.props.jetstream.hasEmailVerification && user.email_verified_at === null">
+          <div
+            v-if="
+              $page.props.jetstream.hasEmailVerification &&
+              user.email_verified_at === null
+            "
+          >
             <p class="text-body-2 mt-2">
-              {{ $t('profile.email_unverified') }}
-              <VBtn variant="text" @click.prevent="verificationLinkSent = true">{{ $t('verify_email.submit') }}</VBtn>
+              {{ $t("profile.email_unverified") }}
+              <VBtn
+                variant="text"
+                @click.prevent="verificationLinkSent = true"
+                >{{ $t("verify_email.submit") }}</VBtn
+              >
             </p>
 
-            <div v-show="verificationLinkSent" class="mt-2 font-weight-bold text-green">
-              {{ $t('verify_email.sent') }}
+            <div
+              v-show="verificationLinkSent"
+              class="mt-2 font-weight-bold text-green"
+            >
+              {{ $t("verify_email.sent") }}
             </div>
           </div>
         </VCol>
@@ -166,10 +217,16 @@ export default toNative(UpdateProfileInformationForm);
 
     <template #actions>
       <ActionMessage :on="formData.recentlySuccessful" class="me-3">
-        {{ $t('form.saved') }}
+        {{ $t("form.saved") }}
       </ActionMessage>
-      <VBtn color="primary" variant="elevated" type="submit" :loading="formData.processing" @click="updateProfileInformation">
-        {{ $t('form.save') }}
+      <VBtn
+        color="primary"
+        variant="elevated"
+        type="submit"
+        :loading="formData.processing"
+        @click="updateProfileInformation"
+      >
+        {{ $t("form.save") }}
       </VBtn>
     </template>
   </FormSection>

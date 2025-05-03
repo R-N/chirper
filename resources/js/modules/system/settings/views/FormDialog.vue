@@ -1,12 +1,12 @@
 <script lang="ts">
-import { Component, Prop, Ref, toNative } from 'vue-facing-decorator';
-import FormDialog from '@/components/form/FormDialog.vue';
-import { CrudFormDialogBase } from '@/components/form/CrudFormDialogBase.vue';
-import { useForm } from '@inertiajs/vue3';
-import settingService from '../services/setting';
-import { VTextField } from 'vuetify/components';
-import SettingForm from '../forms/Setting.vue';
-import { SettingFormMixin } from '../mixins/SettingForm.vue';
+import { Component, Prop, Ref, toNative } from "vue-facing-decorator";
+import FormDialog from "@/components/form/FormDialog.vue";
+import { CrudFormDialogBase } from "@/components/form/CrudFormDialogBase.vue";
+import { useForm } from "@inertiajs/vue3";
+import settingService from "../services/setting";
+import { VTextField } from "vuetify/components";
+import SettingForm from "../forms/Setting.vue";
+import { SettingFormMixin } from "../mixins/SettingForm.vue";
 
 const BaseClass = SettingFormMixin(CrudFormDialogBase);
 
@@ -17,20 +17,19 @@ const BaseClass = SettingFormMixin(CrudFormDialogBase);
     VTextField,
     SettingForm
   },
-  emits: ['submit']
+  emits: ["submit"]
 })
 class SettingFormDialog extends BaseClass {
   client = settingService;
   @Prop({ default: [] }) availableRoles;
   @Prop({ default: [] }) availablePermissions;
 
-  get title(){
-    if (this.item)
-      return `${this.$t('settings.item')}: ${this.item.key}`;
-    return this.$t('settings.item');
+  get title() {
+    if (this.item) return `${this.$t("settings.item")}: ${this.item.key}`;
+    return this.$t("settings.item");
   }
 }
-export { SettingFormDialog }
+export { SettingFormDialog };
 export default toNative(SettingFormDialog);
 </script>
 <template>
@@ -45,7 +44,7 @@ export default toNative(SettingFormDialog);
     :form="getForm"
   >
     <template v-slot:fields="{ interactable, busy }">
-      <SettingForm 
+      <SettingForm
         :disabled="!interactable"
         :bypass-editable-cell="true"
         :setting-types="settingTypes"
@@ -57,5 +56,4 @@ export default toNative(SettingFormDialog);
     </template>
   </FormDialog>
 </template>
-<style scoped>
-</style>
+<style scoped></style>

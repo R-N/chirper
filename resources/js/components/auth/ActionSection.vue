@@ -1,7 +1,7 @@
 <script lang="ts">
-import { Component, Vue, toNative } from 'vue-facing-decorator';
-import SectionTitle from './SectionTitle.vue';
-import { VContainer, VRow, VCol, VCard, VCardText } from 'vuetify/components';
+import { Component, Vue, toNative } from "vue-facing-decorator";
+import SectionTitle from "./SectionTitle.vue";
+import { VContainer, VRow, VCol, VCard, VCardText } from "vuetify/components";
 
 @Component({
   components: {
@@ -10,7 +10,7 @@ import { VContainer, VRow, VCol, VCard, VCardText } from 'vuetify/components';
     VRow,
     VCol,
     VCard,
-    VCardText,
+    VCardText
   }
 })
 class ActionSection extends Vue {}

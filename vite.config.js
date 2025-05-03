@@ -1,55 +1,54 @@
-import { defineConfig } from 'vite';
-import laravel from 'laravel-vite-plugin';
-import vue from '@vitejs/plugin-vue';
-import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
-import vueDevTools from 'vite-plugin-vue-devtools'
-import { execSync } from 'child_process';
+import { defineConfig } from "vite";
+import laravel from "laravel-vite-plugin";
+import vue from "@vitejs/plugin-vue";
+import vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
+import vueDevTools from "vite-plugin-vue-devtools";
+import { execSync } from "child_process";
 //import babel from '@qubit-ltd/vite-plugin-babel';
 
-execSync('php artisan lang:export');
-execSync('php artisan validation:export');
+execSync("php artisan lang:export");
+execSync("php artisan validation:export");
 
 export default defineConfig({
   plugins: [
     laravel({
-      input: 'resources/js/app.js',
+      input: "resources/js/app.js",
       // ssr: 'resources/js/ssr.js',
-      refresh: true,
+      refresh: true
     }),
     vue({
       template: {
         transformAssetUrls: {
           ...transformAssetUrls,
           base: null,
-          includeAbsolute: false,
-        },
+          includeAbsolute: false
+        }
       },
       script: {
-        babelParserPlugins: ['decorators'],
-      },
+        babelParserPlugins: ["decorators"]
+      }
     }),
-    vuetify({ 
-      // styles: { 
+    vuetify({
+      // styles: {
       //   configFile: 'resources/js/settings.scss'
       // },
-      autoImport: { 
+      autoImport: {
         labs: true,
-        ignore: [
-        ]
+        ignore: []
       }
     }),
     //babel(),
-    vueDevTools(),
+    vueDevTools()
   ],
   server: {
-    host: 'localhost',
+    host: "localhost",
     port: 5173,
     hmr: {
-        host: 'localhost',
-    },
+      host: "localhost"
+    }
   },
   build: {
     minify: false,
-    sourcemap: true, 
-  },
+    sourcemap: true
+  }
 });

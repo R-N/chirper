@@ -1,12 +1,12 @@
 <script lang="ts">
-import ActionMessage from '@/components/auth/ActionMessage.vue';
-import FormSection from '@/components/auth/FormSection.vue';
-import { useForm } from '@inertiajs/vue3';
+import ActionMessage from "@/components/auth/ActionMessage.vue";
+import FormSection from "@/components/auth/FormSection.vue";
+import { useForm } from "@inertiajs/vue3";
 
-import { VTextField, VBtn, VRow, VCol } from 'vuetify/components';
-import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
-import profileService from '@/modules/user/profile/services/profile.js';
-import { router } from '@inertiajs/vue3';
+import { VTextField, VBtn, VRow, VCol } from "vuetify/components";
+import { Component, Prop, Vue, toNative, Ref } from "vue-facing-decorator";
+import profileService from "@/modules/user/profile/services/profile.js";
+import { router } from "@inertiajs/vue3";
 
 @Component({
   components: {
@@ -15,36 +15,36 @@ import { router } from '@inertiajs/vue3';
     VTextField,
     VBtn,
     VRow,
-    VCol,
+    VCol
   }
 })
 class UpdatePasswordForm extends Vue {
-  @Ref('passwordInput') passwordInput;
-  @Ref('currentPasswordInput') currentPasswordInput;
+  @Ref("passwordInput") passwordInput;
+  @Ref("currentPasswordInput") currentPasswordInput;
 
   formData = useForm({
-    current_password: '',
-    password: '',
-    password_confirmation: '',
+    current_password: "",
+    password: "",
+    password_confirmation: ""
   });
 
   async updatePassword() {
-    try{
+    try {
       let res = await profileService.updatePassword(this.formData);
       this.formData.reset();
       router.visit(res.redirect || "/login");
-    }catch(error){
+    } catch (error) {
       if (error.response?.status === 422) {
         this.formData.errors = error.response.data.errors;
       } else {
         console.error("Unexpected error:", error);
       }
       if (this.formData.errors.password) {
-        this.formData.reset('password', 'password_confirmation');
+        this.formData.reset("password", "password_confirmation");
         this.passwordInput.focus();
       }
       if (this.formData.errors.current_password) {
-        this.formData.reset('current_password');
+        this.formData.reset("current_password");
         this.currentPasswordInput.focus();
       }
     }
@@ -56,11 +56,11 @@ export default toNative(UpdatePasswordForm);
 <template>
   <FormSection @submitted="updatePassword">
     <template #title>
-      {{ $t('profile.update_password') }}
+      {{ $t("profile.update_password") }}
     </template>
 
     <template #description>
-      {{ $t('profile.password_note') }}
+      {{ $t("profile.password_note") }}
     </template>
 
     <template #form>
@@ -111,11 +111,16 @@ export default toNative(UpdatePasswordForm);
 
     <template #actions>
       <ActionMessage :on="formData.recentlySuccessful" class="me-3">
-        {{ $t('form.saved') }}
+        {{ $t("form.saved") }}
       </ActionMessage>
-      
-      <VBtn color="primary" variant="elevated" type="submit" :disabled="formData.processing">
-        {{ $t('form.save') }}
+
+      <VBtn
+        color="primary"
+        variant="elevated"
+        type="submit"
+        :disabled="formData.processing"
+      >
+        {{ $t("form.save") }}
       </VBtn>
     </template>
   </FormSection>

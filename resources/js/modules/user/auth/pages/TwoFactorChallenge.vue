@@ -1,13 +1,22 @@
 <script lang="ts">
-import { nextTick } from 'vue';
-import { Head, useForm } from '@inertiajs/vue3';
-import { VCard, VCardText, VCardTitle, VCardActions, VTextField, VLabel, VBtn, VSpacer } from 'vuetify/components';
-import { Component, Prop, Vue, toNative, Ref } from 'vue-facing-decorator';
-import authService from '@/modules/user/auth/services/auth.js';
-import { router } from '@inertiajs/vue3';
-import AuthLayout from '../layouts/Auth.vue';
-import GuestLayout from '@/layouts/GuestLayout.vue';
-import {ViewBase} from '@/views/ViewBase.vue';
+import { nextTick } from "vue";
+import { Head, useForm } from "@inertiajs/vue3";
+import {
+  VCard,
+  VCardText,
+  VCardTitle,
+  VCardActions,
+  VTextField,
+  VLabel,
+  VBtn,
+  VSpacer
+} from "vuetify/components";
+import { Component, Prop, Vue, toNative, Ref } from "vue-facing-decorator";
+import authService from "@/modules/user/auth/services/auth.js";
+import { router } from "@inertiajs/vue3";
+import AuthLayout from "../layouts/Auth.vue";
+import GuestLayout from "@/layouts/GuestLayout.vue";
+import { ViewBase } from "@/views/ViewBase.vue";
 
 @Component({
   components: {
@@ -21,33 +30,33 @@ import {ViewBase} from '@/views/ViewBase.vue';
     VLabel,
     VBtn,
     VSpacer,
-    Head,
+    Head
   }
 })
 class TwoFactorChallengePage extends ViewBase {
   recovery = false;
 
   formData = useForm({
-    code: '',
-    recovery_code: '',
+    code: "",
+    recovery_code: ""
   });
 
-  @Ref('recoveryCodeInput') recoveryCodeInput;
-  @Ref('codeInput') codeInput;
+  @Ref("recoveryCodeInput") recoveryCodeInput;
+  @Ref("codeInput") codeInput;
 
-  async toggleRecovery(){
+  async toggleRecovery() {
     this.recovery = !this.recovery;
 
     await nextTick();
 
     if (this.recovery) {
       this.recoveryCodeInput.value.focus();
-      this.formData.code = '';
+      this.formData.code = "";
     } else {
       this.codeInput.value.focus();
-      this.formData.recovery_code = '';
+      this.formData.recovery_code = "";
     }
-  };
+  }
 
   async submit() {
     let res = await authService.twoFactorLogin(this.formData);
@@ -55,8 +64,6 @@ class TwoFactorChallengePage extends ViewBase {
   }
 }
 export default toNative(TwoFactorChallengePage);
-
-
 </script>
 
 <template>
@@ -65,17 +72,17 @@ export default toNative(TwoFactorChallengePage);
       <VCard class="mx-auto" max-width="400" variant="elevated" elevation="6">
         <VCardText class="text-gray-600 dark:text-gray-400">
           <template v-if="!recovery">
-            {{ $t('two_factor.checkpoint') }}
+            {{ $t("two_factor.checkpoint") }}
           </template>
           <template v-else>
-            {{ $t('two_factor.checkpoint_recovery') }}
+            {{ $t("two_factor.checkpoint_recovery") }}
           </template>
         </VCardText>
-        
+
         <VCardText>
           <form @submit.prevent.stop="submit">
             <div v-if="!recovery">
-              <VLabel for="code">{{ $t('two_factor.code') }}</VLabel>
+              <VLabel for="code">{{ $t("two_factor.code") }}</VLabel>
               <VTextField
                 id="code"
                 ref="codeInput"
@@ -88,9 +95,11 @@ export default toNative(TwoFactorChallengePage);
                 :error-messages="formData.errors.code"
               />
             </div>
-            
+
             <div v-else>
-              <VLabel for="recovery_code">{{ $t('two_factor.recovery_code') }}</VLabel>
+              <VLabel for="recovery_code">{{
+                $t("two_factor.recovery_code")
+              }}</VLabel>
               <VTextField
                 id="recovery_code"
                 ref="recoveryCodeInput"
@@ -103,15 +112,22 @@ export default toNative(TwoFactorChallengePage);
             </div>
           </form>
         </VCardText>
-        
+
         <VCardActions class="d-flex justify-end">
           <VBtn variant="text" @click.prevent="toggleRecovery">
-            <template v-if="!recovery">{{ $t('two_factor.recovery') }}</template>
-            <template v-else>{{ $t('two_factor.auth') }}</template>
+            <template v-if="!recovery">{{
+              $t("two_factor.recovery")
+            }}</template>
+            <template v-else>{{ $t("two_factor.auth") }}</template>
           </VBtn>
           <VSpacer />
-          <VBtn color="primary" variant="elevated" :loading="formData.processing" @click="submit">
-            {{ $t('auth.login') }}
+          <VBtn
+            color="primary"
+            variant="elevated"
+            :loading="formData.processing"
+            @click="submit"
+          >
+            {{ $t("auth.login") }}
           </VBtn>
         </VCardActions>
       </VCard>

@@ -1,11 +1,11 @@
 <script lang="ts">
-import { Component, Prop, Ref, toNative } from 'vue-facing-decorator';
-import FormDialog from '@/components/form/FormDialog.vue';
-import { CrudFormDialogBase } from '@/components/form/CrudFormDialogBase.vue';
-import { useForm } from '@inertiajs/vue3';
-import userService from '../services/user';
-import { VTextField } from 'vuetify/components';
-import { UserForm } from '../forms/User.vue';
+import { Component, Prop, Ref, toNative } from "vue-facing-decorator";
+import FormDialog from "@/components/form/FormDialog.vue";
+import { CrudFormDialogBase } from "@/components/form/CrudFormDialogBase.vue";
+import { useForm } from "@inertiajs/vue3";
+import userService from "../services/user";
+import { VTextField } from "vuetify/components";
+import { UserForm } from "../forms/User.vue";
 
 @Component({
   name: "UserFormDialog",
@@ -14,20 +14,19 @@ import { UserForm } from '../forms/User.vue';
     VTextField,
     UserForm
   },
-  emits: ['submit']
+  emits: ["submit"]
 })
 class UserFormDialog extends CrudFormDialogBase {
   client = userService;
   @Prop({ default: [] }) availableRoles;
   @Prop({ default: [] }) availablePermissions;
 
-  get title(){
-    if (this.item)
-      return `${this.$t('user.item')}: ${this.item.key}`;
-    return this.$t('user.item');
+  get title() {
+    if (this.item) return `${this.$t("user.item")}: ${this.item.key}`;
+    return this.$t("user.item");
   }
 }
-export { UserFormDialog }
+export { UserFormDialog };
 export default toNative(UserFormDialog);
 </script>
 <template>
@@ -42,7 +41,7 @@ export default toNative(UserFormDialog);
     :form="getForm"
   >
     <template v-slot:fields="{ interactable, busy }">
-      <UserForm 
+      <UserForm
         :disabled="!interactable"
         :bypass-editable-cell="true"
         :available-roles="availableRoles"
@@ -54,5 +53,4 @@ export default toNative(UserFormDialog);
     </template>
   </FormDialog>
 </template>
-<style scoped>
-</style>
+<style scoped></style>

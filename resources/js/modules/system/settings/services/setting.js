@@ -1,10 +1,11 @@
-import _axios from '@/plugins/axios'; 
-import CrudService from '@/services/crud';
+import _axios from "@/plugins/axios";
+import CrudService from "@/services/crud";
 
-class SettingService extends CrudService{
+class SettingService extends CrudService {
   constructor() {
     super(
-      "Setting", "/api/system/settings", 
+      "Setting",
+      "/api/system/settings",
       ["index", "store", "show", "update", "destroy"],
       ["key", "type", "value", "options"],
       [],

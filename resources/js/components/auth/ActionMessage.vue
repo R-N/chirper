@@ -1,12 +1,12 @@
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
 import { VAlert, VExpandTransition } from "vuetify/components";
 
 @Component({
   components: {
     VAlert,
-    VExpandTransition,
-  },
+    VExpandTransition
+  }
 })
 class ActionMessage extends Vue {
   @Prop({ type: Boolean, required: true }) on;
