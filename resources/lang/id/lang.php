@@ -1,5 +1,5 @@
 <?php
 
 return [
-  'locale_not_found' => 'Locale not found.',
+    'locale_not_found' => 'Locale not found.',
 ];

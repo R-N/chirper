@@ -3,45 +3,47 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Filters\GlobalSearch;
+use App\Filters\NotNullFilter;
+use App\Models\Traits\HasRelationshipEntities;
+use App\Sorts\RelationshipField;
+use App\Utils\ExportUtil;
+use App\Utils\QueryUtil;
+use App\Utils\ValidationUtil;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Password;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Spatie\Permission\Traits\HasRoles;
 use Spatie\Permission\Traits\HasPermissions;
-use App\Models\Traits\HasRelationshipEntities;
-use Illuminate\Support\Facades\Password;
-use Spatie\QueryBuilder\QueryBuilder;
+use Spatie\Permission\Traits\HasRoles;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedSort;
-use App\Filters\GlobalSearch;
-use App\Filters\NotNullFilter;
-use App\Sorts\RelationshipField;
-use App\Utils\QueryUtil;
-use App\Utils\ExportUtil;
-use App\Utils\ValidationUtil;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    public const TABLE = "users";
+    public const TABLE = 'users';
+
     protected $table = self::TABLE;
 
     use HasApiTokens;
-    use HasRoles;
-    use HasPermissions;
-    use HasRelationshipEntities;
-
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
+    use HasPermissions;
     use HasProfilePhoto;
+
+    use HasRelationshipEntities;
+
+    use HasRoles;
     use Notifiable;
     use TwoFactorAuthenticatable;
 
-    protected static array $relationshipEntities = ["roles", "permissions"];
+    protected static array $relationshipEntities = ['roles', 'permissions'];
 
     /**
      * The attributes that are mass assignable.
@@ -54,7 +56,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'enabled',
     ];
-    
+
     protected $attributes = [
         'enabled' => true,
     ];
@@ -96,14 +98,14 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function getVerifiedAttribute()
     {
-        return !is_null($this->email_verified_at);
+        return ! is_null($this->email_verified_at);
     }
-    
+
     public function chirps(): HasMany
     {
         return $this->hasMany(Chirp::class);
     }
-    
+
     public static function createWithRoles(array $attributes, array $options = [])
     {
         $user = self::create($attributes, $options);
@@ -122,10 +124,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function update(array $attributes = [], array $options = [])
     {
         $emailChange = false;
-        if (isset($attributes['email']))
+        if (isset($attributes['email'])) {
             $emailChange = $attributes['email'] !== $this->email;
+        }
 
-        if (isset($attributes['verified'])){
+        if (isset($attributes['verified'])) {
             $this->setVerified($attributes['verified']);
         }
         // Perform the regular update
@@ -147,45 +150,49 @@ class User extends Authenticatable implements MustVerifyEmail
         return $updated;
     }
 
-    public function setVerified($verified){
-        if ($verified){
+    public function setVerified($verified)
+    {
+        if ($verified) {
             $this->email_verified_at = now();
-        }else{
+        } else {
             $this->email_verified_at = null;
         }
     }
 
-    public function resetPassword(){
+    public function resetPassword()
+    {
         // Generate a password reset token
         $token = Password::getRepository()->create($this);
         // Send the password reset notification with the token
         $this->sendPasswordResetNotification($token);
     }
 
-    public function refreshToken(){
+    public function refreshToken()
+    {
         $token = $this->currentAccessToken();
-        if (isset($token->delete)){
+        if (isset($token->delete)) {
             $token->delete();
         }
-    
+
         $newToken = $this->createToken('auth_token', ['*']);
-    
+
         return $newToken;
     }
 
-    public static function query2($raw=false){
+    public static function query2($raw = false)
+    {
         $validated = request()->validate(
-            ValidationUtil::buildQueryRules("chirps", User::rules(), [
-                'id', 'email', 'name', 
+            ValidationUtil::buildQueryRules('chirps', User::rules(), [
+                'id', 'email', 'name',
                 'enabled', 'verified',
-                'roles.name', 'permissions.name', 
+                'roles.name', 'permissions.name',
             ])
         );
         $items = QueryBuilder::for(User::class)
             ->withEntities()
             ->allowedFilters([
                 AllowedFilter::custom('search', new GlobalSearch([
-                    'email', 'name', 'roles->name', 'permissions->name'
+                    'email', 'name', 'roles->name', 'permissions->name',
                 ])),
                 AllowedFilter::exact('id'),
                 AllowedFilter::partial('email'),
@@ -201,26 +208,32 @@ class User extends Authenticatable implements MustVerifyEmail
                 AllowedSort::custom('permissions.name', new RelationshipField(['permissions->name'])),
             ])
             ->defaultSort('name');
-        if ($raw)
+        if ($raw) {
             return $items;
+        }
         $items = QueryUtil::paginateQuery($items);
+
         return $items;
     }
-    public static function collection($filter=null){
+
+    public static function collection($filter = null)
+    {
         $items = self::query2(true)
             ->get()
-            ->map(fn($item) => [
+            ->map(fn ($item) => [
                 'ID' => $item->id,
                 'Name' => $item->name,
                 'Email' => $item->email,
                 'Enabled' => $item->enabled,
                 'Verified' => $item->verified,
-                'Roles' => implode(', ', $item->roles?->map(fn($r) => $r->name)->all()),
-                'Permissions' => implode(', ', $item->permissions?->map(fn($p) => $p->name)->all()),
+                'Roles' => implode(', ', $item->roles?->map(fn ($r) => $r->name)->all()),
+                'Permissions' => implode(', ', $item->permissions?->map(fn ($p) => $p->name)->all()),
             ]);
         $items = ExportUtil::filter($items, $filter);
+
         return $items;
     }
+
     public static function rules()
     {
         $rules = [
@@ -242,6 +255,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'permissions.name' => 'string|max:255|exists:permissions,name',
         ];
         $rules = ValidationUtil::duplicateRules($rules);
+
         return $rules;
     }
 }

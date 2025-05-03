@@ -1,5 +1,5 @@
 <?php
 
 return [
-  'not_found' => 'Bahasa tidak ditemukan.',
+    'not_found' => 'Bahasa tidak ditemukan.',
 ];

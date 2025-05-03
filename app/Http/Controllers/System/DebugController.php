@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\System;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class DebugController extends Controller
 {
@@ -16,6 +16,7 @@ class DebugController extends Controller
             'session_data' => session()->all(),
         ]);
     }
+
     public function csrf(Request $request)
     {
         return response()->json([

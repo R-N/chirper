@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
+use App\Actions\Auth\CustomLoginResponse;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Fortify\Contracts\LoginResponse;
-use App\Actions\Auth\CustomLoginResponse;
 use Inertia\Inertia;
-use App\Models\Setting;
+use Laravel\Fortify\Contracts\LoginResponse;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
         Inertia::share([
             'settings' => Setting::fetchDict(),
             'user' => $user,
-            'notifications' => $user?->notifications
+            'notifications' => $user?->notifications,
         ]);
     }
 }

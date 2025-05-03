@@ -97,7 +97,7 @@ return [
             'schema' => env('DB_SCHEMA', 'public'),
             'sslmode' => 'prefer',
             'dump' => [
-                'dump_binary_path' => env("PG_DUMP_PATH", '/usr/bin'), // or wherever `pg_dump` is
+                'dump_binary_path' => env('PG_DUMP_PATH', '/usr/bin'), // or wherever `pg_dump` is
                 'use_single_transaction' => true,
                 'timeout' => 60,
                 'add_extra_option' => '--no-owner',

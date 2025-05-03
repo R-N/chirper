@@ -4,22 +4,20 @@
 
 namespace App\Notifications;
 
-use App\Models\Chirp;
-use Illuminate\Support\Str;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 // Do not use ShouldQueue if you don't want to run php artisan queue:work
-class NewChirp extends Notification 
+class NewChirp extends Notification
 {
-
     public $chirp;
 
     public function __construct($chirp)
     {
-        Log::info("Notification created!");
+        Log::info('Notification created!');
         $this->chirp = $chirp;
     }
 
@@ -28,7 +26,8 @@ class NewChirp extends Notification
         return ['database', 'broadcast'];
     }
 
-    public function message(){
+    public function message()
+    {
         return __('chirp.new', ['username' => $this->chirp->user->name]);
     }
 

@@ -1,10 +1,10 @@
 <?php
 
+use App\Utils\ExceptionUtil;
+use App\Utils\ResponseUtil;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use App\Utils\ResponseUtil;
-use App\Utils\ExceptionUtil;
 use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -34,11 +34,12 @@ return Application::configure(basePath: dirname(__DIR__))
             ExceptionUtil::shouldShow($e);
             $data = ExceptionUtil::toArray($e);
             $statusCode = ExceptionUtil::getStatusCode($e);
-            if (property_exists($e, 'redirect') && $e->redirect){
+            if (property_exists($e, 'redirect') && $e->redirect) {
                 return ResponseUtil::jsonRedirectResponse($data, $e->redirect, $statusCode, true);
-            }else if (isset($data['show']) && $data['show']){
+            } elseif (isset($data['show']) && $data['show']) {
                 return ResponseUtil::jsonStayResponse($data, $statusCode, true);
             }
+
             return null;
         });
     })->create();

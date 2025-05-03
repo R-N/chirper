@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Exceptions\AuthException;
 use App\Exceptions\AuthExceptionCode;
+use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Utils\ResponseUtil;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class EmailVerificationNotificationController extends Controller
 {
@@ -20,11 +20,11 @@ class EmailVerificationNotificationController extends Controller
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             $request->validate([
                 'email' => 'required|email|exists:users,email',
             ]);
-        
+
             $user = User::where('email', $request->email)->first();
         }
 
@@ -36,6 +36,7 @@ class EmailVerificationNotificationController extends Controller
         $request->user()->sendEmailVerificationNotification();
 
         $back = url()->previous();
+
         return ResponseUtil::jsonRedirectResponse([
             'message' => __('auth.email_verification_sent'),
         ], route('verification-link-sent'));

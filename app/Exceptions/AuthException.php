@@ -2,11 +2,10 @@
 
 namespace App\Exceptions;
 
-use Exception;
 use App\Exceptions\Traits\Displayable;
 use App\Exceptions\Traits\HasErrorCode;
-use App\Exceptions\Traits\Redirects;
 use App\Exceptions\Traits\HasStatus;
+use App\Exceptions\Traits\Redirects;
 use Illuminate\Auth\AuthenticationException;
 
 enum AuthExceptionCode
@@ -21,12 +20,12 @@ enum AuthExceptionCode
     public function statusCode()
     {
         return match ($this) {
-          self::BAD_REQUEST => 400,
-          self::EMAIL_ALREADY_VERIFIED => 403,
-          self::INVALID_TOKEN => 403,
-          self::PASSWORD_RESET_SEND_FAIL => 500,
-          self::USER_NOT_FOUND => 404,
-          self::TOKEN_EXPIRED => 401,
+            self::BAD_REQUEST => 400,
+            self::EMAIL_ALREADY_VERIFIED => 403,
+            self::INVALID_TOKEN => 403,
+            self::PASSWORD_RESET_SEND_FAIL => 500,
+            self::USER_NOT_FOUND => 404,
+            self::TOKEN_EXPIRED => 401,
         };
     }
 
@@ -47,10 +46,10 @@ class AuthException extends AuthenticationException
 {
     use Displayable;
     use HasErrorCode;
-    use Redirects;
     use HasStatus;
-    
-    public function __construct(AuthExceptionCode $code, $data=true, $message=null, $title=null)
+    use Redirects;
+
+    public function __construct(AuthExceptionCode $code, $data = true, $message = null, $title = null)
     {
         $this->setErrorCode($code);
         parent::__construct($message || $this->getMessage($data));

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -16,10 +17,7 @@ class NotNullFilter implements Filter
     /**
      * Apply the filter to the query.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @param  mixed  $value
-     * @param  string  $field
-     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function __invoke(Builder $query, $value, string $field): Builder
     {

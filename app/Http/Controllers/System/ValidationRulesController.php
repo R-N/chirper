@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\System;
 
-use App\Models\Chirp;
-use App\Models\Backup;
-use App\Models\User;
 use App\Http\Controllers\Controller;
+use App\Models\Backup;
+use App\Models\Chirp;
+use App\Models\User;
 
 class ValidationRulesController extends Controller
 {
     const ITEMS = ['chirp', 'backup', 'user'];
 
-    function getRules($item){
-        return match($item){
+    public function getRules($item)
+    {
+        return match ($item) {
             'chirp' => Chirp::rules(),
             'backup' => Backup::rules(),
             'user' => User::rules(),
@@ -21,7 +22,7 @@ class ValidationRulesController extends Controller
 
     public function index($request)
     {
-        return response()->json(array_map(function($item){
+        return response()->json(array_map(function ($item) {
             return $this->getRules($item);
         }, self::ITEMS));
     }
@@ -29,10 +30,11 @@ class ValidationRulesController extends Controller
     public function show($request, $item)
     {
         $request->validate([
-            "item" => "in:" . implode(',', self::ITEMS)
+            'item' => 'in:'.implode(',', self::ITEMS),
         ]);
+
         return response()->json([
-            'data' => $this->getRules($item)
+            'data' => $this->getRules($item),
         ]);
     }
 }

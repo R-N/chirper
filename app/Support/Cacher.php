@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Cache;
 class CacherInstance
 {
     protected string $prefix;
+
     protected string $keysList;
+
     protected int $ttl;
 
     public function __construct(string $prefix, int $ttl = 3600)
@@ -17,26 +19,31 @@ class CacherInstance
         $this->ttl = $ttl;
     }
 
-    public function cacheKey($key=null){
+    public function cacheKey($key = null)
+    {
         $cacheKey = $this->prefix;
-        if ($key)
-            $cacheKey = $cacheKey . '_' .  $key;
+        if ($key) {
+            $cacheKey = $cacheKey.'_'.$key;
+        }
+
         return $cacheKey;
     }
 
-    public function remember($key, $default=null)
+    public function remember($key, $default = null)
     {
         $cacheKey = $this->cacheKey($key);
 
         return Cache::remember($cacheKey, $this->ttl, function () use ($cacheKey, $default) {
             $this->trackKey($cacheKey);
-            if ($default instanceof \Closure)
+            if ($default instanceof \Closure) {
                 return $default();
+            }
+
             return $default;
         });
     }
 
-    public function get($key, $default=null)
+    public function get($key, $default = null)
     {
         return $this->remember($key, $default);
     }
@@ -48,7 +55,7 @@ class CacherInstance
         $this->trackKey($cacheKey);
     }
 
-    public function forget($key=null): void
+    public function forget($key = null): void
     {
         $cacheKey = $this->cachekey($key);
         Cache::forget($cacheKey);
@@ -68,7 +75,7 @@ class CacherInstance
     protected function trackKey($key): void
     {
         $keys = Cache::get($this->keysList, []);
-        if (!in_array($key, $keys)) {
+        if (! in_array($key, $keys)) {
             $keys[] = $key;
             Cache::put($this->keysList, $keys, $this->ttl);
         }
@@ -84,24 +91,27 @@ class CacherInstance
 
 class Cacher
 {
-    public static function remember($prefix, $key=null, $default = null)
+    public static function remember($prefix, $key = null, $default = null)
     {
         $cacherInstance = new CacherInstance($prefix);
+
         return $cacherInstance->remember($key, $default);
     }
-    public static function get($prefix, $key=null, $default = null)
+
+    public static function get($prefix, $key = null, $default = null)
     {
         $cacherInstance = new CacherInstance($prefix);
+
         return $cacherInstance->get($key, $default);
     }
 
-    public static function put($prefix, $key=null, $value, $ttl = null): void
+    public static function put($prefix, $key, $value, $ttl = null): void
     {
         $cacherInstance = new CacherInstance($prefix);
         $cacherInstance->put($key, $value, $ttl);
     }
 
-    public static function forget($prefix, $key=null): void
+    public static function forget($prefix, $key = null): void
     {
         $cacherInstance = new CacherInstance($prefix);
         $cacherInstance->forget($key);

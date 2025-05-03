@@ -1,34 +1,41 @@
 <?php
 
 namespace App\Models;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Artisan;
 
-use ZipArchive;
-use \Illuminate\Support\Facades\Log;
 use App\Exceptions\BackupException;
 use App\Exceptions\BackupExceptionCode;
-use Illuminate\Contracts\Support\Arrayable;
 use App\Utils\ExportUtil;
-use Carbon\Carbon;
 use App\Utils\ValidationUtil;
+use Carbon\Carbon;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use ZipArchive;
 
 class Backup implements Arrayable
 {
-    public const TABLE = "backup";
+    public const TABLE = 'backup';
+
     protected $table = self::TABLE;
+
     protected const DISK = 'backup';
+
     protected static $APP_NAME = 'Chirper';
+
     protected const TEMP_DIR = 'restore-temp';
 
     protected static $DISK = null;
 
     public $id;
+
     public $size = 0;
+
     public $modified;
 
-    public static function init(){
-        self::$APP_NAME = env("APP_NAME", 'Chirper');
+    public static function init()
+    {
+        self::$APP_NAME = env('APP_NAME', 'Chirper');
         self::$DISK = Storage::disk(self::DISK);
     }
 
@@ -36,7 +43,7 @@ class Backup implements Arrayable
     {
         $this->id = basename($file);
         $filePath = self::path1($this->id);
-        if (!self::$DISK->exists($filePath)) {
+        if (! self::$DISK->exists($filePath)) {
             throw new BackupException(
                 BackupExceptionCode::BACKUP_NOT_FOUND,
                 ['backup_id' => $this->id]
@@ -47,6 +54,7 @@ class Backup implements Arrayable
             self::$DISK->lastModified($filePath)
         )->toISOString();
     }
+
     public function toArray(): array
     {
         return [
@@ -55,10 +63,14 @@ class Backup implements Arrayable
             'modified' => $this->modified,
         ];
     }
-    static function path1($file){
-        return self::$APP_NAME . "/$file";
+
+    public static function path1($file)
+    {
+        return self::$APP_NAME."/$file";
     }
-    static function path2($file){
+
+    public static function path2($file)
+    {
         return self::$DISK->path(self::path1($file));
     }
 
@@ -66,13 +78,17 @@ class Backup implements Arrayable
     {
         $files = self::$DISK->files(self::$APP_NAME);
         $backups = collect($files)
-            ->map(fn($file) => new self($file));
+            ->map(fn ($file) => new self($file));
+
         return $backups;
     }
-    public static function find($file){
+
+    public static function find($file)
+    {
         return new self($file);
     }
-    public static function create() 
+
+    public static function create()
     {
         Artisan::call('backup:run', [
             // '--filename' => $request->input('id'),
@@ -80,19 +96,23 @@ class Backup implements Arrayable
         ]);
         $output = Artisan::output();
         if (strpos($output, 'Error') !== false || strpos($output, 'failed') !== false) {
-            Log::error('Backup failed: ' . $output);
+            Log::error('Backup failed: '.$output);
             throw new BackupException(
                 BackupExceptionCode::FAILED,
                 ['output' => $output]
             );
-        } 
-        Log::info('Backup succeeded: ' . $output);
+        }
+        Log::info('Backup succeeded: '.$output);
+
         return true;
     }
-    public function delete(){
+
+    public function delete()
+    {
         $filePath = self::path1($this->id);
         self::$DISK->delete($filePath);
     }
+
     public function rename($newName)
     {
         $filePath = self::path1($this->id);
@@ -100,19 +120,22 @@ class Backup implements Arrayable
         self::$DISK->move($filePath, $newPath);
         $this->id = $newName;
     }
+
     public static function save($file)
     {
         $fileName = $file->getClientOriginalName();
         $filePath = $file->storeAs(self::$APP_NAME, $fileName, self::DISK);
+
         return new self($fileName);
     }
 
-    public function restore(){
+    public function restore()
+    {
         $filePath = self::path1($this->id);
 
-        try{
+        try {
             // Check if the backup file exists
-            if (!self::$DISK->exists($filePath)) {
+            if (! self::$DISK->exists($filePath)) {
                 throw new BackupException(
                     BackupExceptionCode::NOT_FOUND,
                     ['backup_id' => $this->id]
@@ -120,7 +143,7 @@ class Backup implements Arrayable
             }
             // Create the temp directory if it doesn't exist
             $tempDir = self::path2(self::TEMP_DIR);
-            if (!is_dir($tempDir)) {
+            if (! is_dir($tempDir)) {
                 mkdir($tempDir, 0777, true);
             }
 
@@ -128,8 +151,8 @@ class Backup implements Arrayable
             $fullPath = self::$DISK->path($filePath);
 
             // Open the zip file
-            $zip = new ZipArchive();
-            if ($zip->open($fullPath) !== TRUE) {
+            $zip = new ZipArchive;
+            if ($zip->open($fullPath) !== true) {
                 // If unable to open the zip file
                 throw new BackupException(
                     BackupExceptionCode::FAIL_OPEN_ZIP,
@@ -141,7 +164,7 @@ class Backup implements Arrayable
             $zip->close();
 
             // Find the extracted SQL file (assuming there is only one SQL file in the zip)
-            $sqlDir = $tempDir . DIRECTORY_SEPARATOR . 'db-dumps';
+            $sqlDir = $tempDir.DIRECTORY_SEPARATOR.'db-dumps';
             $extractedFiles = scandir($sqlDir);
             $sqlFile = null;
             foreach ($extractedFiles as $f) {
@@ -158,10 +181,10 @@ class Backup implements Arrayable
                 );
             }
             // Define the path to the extracted SQL file
-            $sqlFilePath = $sqlDir . DIRECTORY_SEPARATOR . $sqlFile;
+            $sqlFilePath = $sqlDir.DIRECTORY_SEPARATOR.$sqlFile;
 
             // Run the restore command using the extracted SQL file
-            $command = "psql -U " . env('DB_USERNAME') . " -d " . env('DB_DATABASE') . " -f $sqlFilePath 2>&1";
+            $command = 'psql -U '.env('DB_USERNAME').' -d '.env('DB_DATABASE')." -f $sqlFilePath 2>&1";
 
             exec($command, $output, $status);
 
@@ -169,33 +192,37 @@ class Backup implements Arrayable
 
             // Check if the restore was successful
             if ($status !== 0) {
-                Log::error('Restore failed: ' . $output);
+                Log::error('Restore failed: '.$output);
                 throw new BackupException(
                     BackupExceptionCode::RESTORE_FAILED,
                     ['output' => $output]
                 );
             }
             // Return success response
-            Log::info('Restore succeeded: ' . $output);
+            Log::info('Restore succeeded: '.$output);
+
             return true;
-        }finally{
+        } finally {
             $this->cleanupTemp();
         }
     }
+
     private function cleanupTemp()
     {
         // Delete the temp directory and all its contents
         self::$DISK->deleteDirectory(self::path1(self::TEMP_DIR));
     }
-    
-    public static function collection($filter=null){
+
+    public static function collection($filter = null)
+    {
         $items = self::all()
-            ->map(fn($item) => [
+            ->map(fn ($item) => [
                 'Backup' => $item->id,
                 'Size' => $item->size,
                 'Modified' => $item->modified,
             ]);
         $items = ExportUtil::filter($items, $filter);
+
         return $items;
     }
 
@@ -208,6 +235,7 @@ class Backup implements Arrayable
             'modified' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
         ];
         $rules = ValidationUtil::duplicateRules($rules);
+
         return $rules;
     }
 }

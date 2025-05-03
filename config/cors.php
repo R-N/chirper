@@ -16,26 +16,26 @@ return [
     */
 
     'paths' => [
-        'api/*', 
-        'sanctum/csrf-cookie', 
-        'login', 
-        '*'
+        'api/*',
+        'sanctum/csrf-cookie',
+        'login',
+        '*',
     ],
 
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        '*', 
-        env('APP_DOMAIN', 'localhost'), 
-        env('SESSION_DOMAIN', 'localhost'), 
-        env('APP_URL', 'http://localhost:8000')
+        '*',
+        env('APP_DOMAIN', 'localhost'),
+        env('SESSION_DOMAIN', 'localhost'),
+        env('APP_URL', 'http://localhost:8000'),
     ],
 
     'allowed_origins_patterns' => [],
 
     'allowed_headers' => [
-        '*', 
-        'Set-Cookie'
+        '*',
+        'Set-Cookie',
     ],
 
     'exposed_headers' => [],

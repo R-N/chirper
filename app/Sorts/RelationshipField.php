@@ -39,7 +39,7 @@ class RelationshipField implements Sort
     {
         // Ensure the relation exists
         if (method_exists($query->getModel(), $relation)) {
-            $relatedTable = $relation . 's'; // Assuming plural table name (customize as needed)
+            $relatedTable = $relation.'s'; // Assuming plural table name (customize as needed)
 
             // Join related table if necessary
             $query = $query->join($relatedTable, "{$query->getModel()->getTable()}.{$relation}_id", '=', "{$relatedTable}.id");

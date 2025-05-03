@@ -13,6 +13,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 class ExportLangTranslations extends Command
 {
     protected $signature = 'lang:export';
+
     protected $description = 'Export Laravel language files to Vue frontend as JSON';
 
     public function handle()
@@ -36,7 +37,8 @@ class ExportLangTranslations extends Command
             $this->info("✅ Translations synced for locale: $locale");
         }
 
-        $this->info("✅ All translations synced to Vue!");
+        $this->info('✅ All translations synced to Vue!');
+
         return Command::SUCCESS;
     }
 
@@ -48,14 +50,14 @@ class ExportLangTranslations extends Command
         foreach ($files as $file) {
             $relativePath = str_replace("$langPath/$locale", '', $file->getPathname());
             $group = basename($file, '.php');
-            
+
             $lines = require $file->getPathname();
 
             // Flatten the array and save it as JSON
             $translations = $this->flattenArray($lines, $group);
 
             // Remove .php from the file name and append .json
-            $outputFilePath = $localeOutputPath . $relativePath;
+            $outputFilePath = $localeOutputPath.$relativePath;
             $outputFilePath = preg_replace('/\.php$/', '.json', $outputFilePath);
 
             $outputDir = dirname($outputFilePath);
@@ -76,13 +78,14 @@ class ExportLangTranslations extends Command
             if (is_array($value)) {
                 $result += $this->flattenArray($value, $newKey);
             } else {
-                $value = preg_replace_callback('/:([a-zA-Z0-9_]+)/', function($matches) {
-                    return '{' . $matches[1] . '}';
+                $value = preg_replace_callback('/:([a-zA-Z0-9_]+)/', function ($matches) {
+                    return '{'.$matches[1].'}';
                 }, $value);
-                
+
                 $result[$newKey] = $value;
             }
         }
+
         return $result;
     }
 

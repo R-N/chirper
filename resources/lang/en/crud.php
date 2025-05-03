@@ -1,7 +1,7 @@
 <?php
 
 return [
-  'created' => ':item created.',
-  'updated' => ':item updated.',
-  'deleted' => ':item deleted.',
+    'created' => ':item created.',
+    'updated' => ':item updated.',
+    'deleted' => ':item deleted.',
 ];

@@ -2,14 +2,12 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
-use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Auth\AuthenticationException;
-use App\Utils\ResponseUtil;
-use Laravel\Sanctum\PersonalAccessToken;
 use App\Exceptions\AuthException;
 use App\Exceptions\AuthExceptionCode;
+use Closure;
+use Illuminate\Http\Request;
+use Laravel\Sanctum\PersonalAccessToken;
+use Symfony\Component\HttpFoundation\Response;
 
 class EnsureTokenIsNotExpired
 {
@@ -19,7 +17,7 @@ class EnsureTokenIsNotExpired
 
         $token = $user?->currentAccessToken();
 
-        if ($token && ($token instanceof PersonalAccessToken || isset($token->expires_at))){
+        if ($token && ($token instanceof PersonalAccessToken || isset($token->expires_at))) {
             if ($token->expires_at?->isPast()) {
                 throw (new AuthException(AuthExceptionCode::TOKEN_EXPIRED))->setRedirect(route('login'));
             }

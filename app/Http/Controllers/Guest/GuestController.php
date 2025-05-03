@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Guest;
 
+use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Foundation\Application;
 use Inertia\Inertia;
-use App\Http\Controllers\Controller;
 
 class GuestController extends Controller
 {

@@ -28,7 +28,7 @@ class CreateNewUser implements CreatesNewUsers
                 'email',
                 'max:255',
                 // Rule::unique(User::class),
-                'unique:users'
+                'unique:users',
             ],
             'password' => $this->passwordRules(),
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',

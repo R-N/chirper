@@ -2,33 +2,35 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ProfileUpdateRequest;
+use App\Utils\ResponseUtil;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Response;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\ProfileUpdateRequest;
-use App\Utils\ResponseUtil;
 
 class ProfileController extends Controller
 {
     /**
      * Display the user's profile form.
      */
-
-    public function getSessions(){
+    public function getSessions()
+    {
         $sessions = DB::table('sessions')
             ->where('user_id', request()->user()->id)
             ->get();
+
         return $sessions;
     }
 
     public function edit(Request $request): Response
     {
         $user = $request->user()->loadEntities();
+
         return ResponseUtil::jsonInertiaResponse([
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
@@ -43,6 +45,7 @@ class ProfileController extends Controller
     public function show(Request $request): Response|JsonResponse
     {
         $user = $request->user()->loadEntities();
+
         return ResponseUtil::jsonInertiaResponse([
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
@@ -64,7 +67,7 @@ class ProfileController extends Controller
 
         return ResponseUtil::jsonRedirectResponse([
             'user' => $user,
-            "message" => __('profile.updated'),
+            'message' => __('profile.updated'),
         ], route('profile.edit'));
     }
 
@@ -80,7 +83,7 @@ class ProfileController extends Controller
         $user = $request->user();
         // 🔥 If using token-based auth, revoke tokens
         $tokens = $user->tokens();
-        if ($tokens){
+        if ($tokens) {
             $tokens->delete();
         }
 
@@ -92,7 +95,7 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return ResponseUtil::jsonRedirectResponse([
-            "message" => __('profile.deleted'),
+            'message' => __('profile.deleted'),
         ], route('login'));
     }
 }

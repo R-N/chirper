@@ -2,9 +2,9 @@
 
 namespace App\Utils;
 
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
+use Inertia\Inertia;
 
 class ResponseUtil
 {
@@ -30,20 +30,24 @@ class ResponseUtil
         $request = request();
 
         if ($request->wantsJson() || $request->expectsJson()) {
-            if ($route)
+            if ($route) {
                 $data['redirect'] = $route;
+            }
+
             return response()->json($data, $statusCode);
         }
 
-        if (!$route)
+        if (! $route) {
             $route = url()->current();
-        if ($statusCode > 299){
-            if (!$route || $route == url()->current())
+        }
+        if ($statusCode > 299) {
+            if (! $route || $route == url()->current()) {
                 $route = url()->previous();
-            else if ($route == url()->previous())
-                $route = "/";
-            else 
+            } elseif ($route == url()->previous()) {
+                $route = '/';
+            } else {
                 Log::error($route);
+            }
         }
         $response = Redirect::to($route)->with($data);
 
@@ -53,17 +57,17 @@ class ResponseUtil
 
         return $response;
     }
-    
+
     public static function jsonStayResponse($data, $statusCode = 200, $overrideStatusCode = false)
     {
         return self::jsonRedirectResponse($data, null, $statusCode, $overrideStatusCode);
     }
-    
+
     public static function jsonRefreshResponse($data, $statusCode = 200, $overrideStatusCode = false)
     {
         return self::jsonRedirectResponse($data, url()->current(), $statusCode, $overrideStatusCode);
     }
-    
+
     public static function jsonBackResponse($data, $statusCode = 200, $overrideStatusCode = false)
     {
         return self::jsonRedirectResponse($data, url()->previous(), $statusCode, $overrideStatusCode);

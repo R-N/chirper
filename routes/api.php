@@ -1,14 +1,14 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\System\DebugController;
 use App\Http\Controllers\System\LanguageController;
-use App\Http\Controllers\User\NotificationController;
-use App\Http\Controllers\System\ValidationRulesController;
-use App\Http\Controllers\System\UserController;
 use App\Http\Controllers\System\SettingsController;
+use App\Http\Controllers\System\UserController;
+use App\Http\Controllers\System\ValidationRulesController;
+use App\Http\Controllers\User\NotificationController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 Route::as('api.')->group(function () {
     Route::middleware([
@@ -32,7 +32,7 @@ Route::as('api.')->group(function () {
 
         Route::get('refresh-token', [AuthenticatedSessionController::class, 'refreshToken'])->name('token.refresh');
 
-        Route::prefix('notifications')->as('notifications.')->middleware('auth')->group(function() {
+        Route::prefix('notifications')->as('notifications.')->middleware('auth')->group(function () {
             Route::get('/', [NotificationController::class, 'index'])->name('index');
             Route::delete('/{id}', [NotificationController::class, 'destroy'])->name('destroy');
             Route::patch('/{id}', [NotificationController::class, 'markAsRead'])->name('read');
@@ -41,18 +41,18 @@ Route::as('api.')->group(function () {
         });
     });
 
-    Route::prefix('lang')->as('lang.')->group(function(){
+    Route::prefix('lang')->as('lang.')->group(function () {
         Route::get('/{locale}', [LanguageController::class, 'get'])->name('get');
         Route::get('/', [LanguageController::class, 'index'])->name('index');
     });
 
-    Route::prefix('validation')->as('validation.')->group(function(){
+    Route::prefix('validation')->as('validation.')->group(function () {
         Route::get('/rules', [ValidationRulesController::class, 'index']);
         Route::get('/rules/{item}', [ValidationRulesController::class, 'show']);
     });
 
     if (config('app.debug')) {
-        Route::prefix('debug')->as('debug.')->group(function(){
+        Route::prefix('debug')->as('debug.')->group(function () {
             Route::get('/session', [DebugController::class, 'session']);
             Route::get('/csrf', [DebugController::class, 'csrf']);
         });

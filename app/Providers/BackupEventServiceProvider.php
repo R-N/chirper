@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Backup\Events\DumpingDatabase;
-use Illuminate\Support\Facades\Event;
 
 class BackupEventServiceProvider extends ServiceProvider
 {

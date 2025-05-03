@@ -2,10 +2,10 @@
 
 namespace App\Exceptions;
 
-use Exception;
 use App\Exceptions\Traits\Displayable;
 use App\Exceptions\Traits\HasErrorCode;
 use App\Exceptions\Traits\Redirects;
+use Exception;
 
 enum BackupExceptionCode
 {
@@ -43,8 +43,8 @@ class BackupException extends Exception
     use Displayable;
     use HasErrorCode;
     use Redirects;
-    
-    public function __construct(BackupExceptionCode $code, $data=true, $message=null, $title=null)
+
+    public function __construct(BackupExceptionCode $code, $data = true, $message = null, $title = null)
     {
         $this->setErrorCode($code);
         parent::__construct($message || $this->getMessage($data));

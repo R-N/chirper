@@ -4,7 +4,6 @@ namespace App\Filters;
 
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\QueryBuilder\Filters\Filter;
-use Illuminate\Support\Facades\Log;
 
 class GlobalSearch implements Filter
 {

@@ -10,7 +10,7 @@ class EnsureFrontendRequestsAreStateful extends Middleware
     {
         config([
             'session.http_only' => true,
-            //'session.same_site' => 'lax',
+            // 'session.same_site' => 'lax',
         ]);
     }
 }

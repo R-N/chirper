@@ -2,19 +2,16 @@
 
 namespace App\Http\Controllers\User;
 
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
-use Laravel\Jetstream\Jetstream;
 use App\Http\Controllers\Controller;
 use App\Utils\ResponseUtil;
+use Illuminate\Http\Request;
+use Inertia\Response;
+use Laravel\Jetstream\Jetstream;
 
 class ApiTokenController extends Controller
 {
     /**
      * Show the user's API tokens.
-     *
-     * @return \Inertia\Response
      */
     public function index(Request $request): Response
     {

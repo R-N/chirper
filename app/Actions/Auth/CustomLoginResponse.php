@@ -2,11 +2,11 @@
 
 namespace App\Actions\Auth;
 
-use Laravel\Fortify\Contracts\LoginResponse;
+use App\Utils\ResponseUtil;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use App\Utils\ResponseUtil;
+use Laravel\Fortify\Contracts\LoginResponse;
 
 class CustomLoginResponse implements LoginResponse
 {

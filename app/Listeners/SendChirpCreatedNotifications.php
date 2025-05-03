@@ -1,6 +1,6 @@
 <?php
 
-//created with php artisan make:listener SendChirpCreatedNotifications --event=ChirpCreated
+// created with php artisan make:listener SendChirpCreatedNotifications --event=ChirpCreated
 
 namespace App\Listeners;
 
@@ -9,7 +9,7 @@ use App\Models\User;
 use App\Notifications\NewChirp;
 
 // Do not use ShouldQueue if you don't want to run php artisan queue:work
-class SendChirpCreatedNotifications 
+class SendChirpCreatedNotifications
 {
     /**
      * Create the event listener.

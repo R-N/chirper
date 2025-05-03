@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Chirps\ChirpController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
@@ -10,37 +8,38 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\System\UserController;
+use App\Http\Controllers\Chirps\ChirpController;
 use App\Http\Controllers\System\BackupController;
 use App\Http\Controllers\System\LanguageController;
 use App\Http\Controllers\System\SettingsController;
-use App\Http\Controllers\User\ProfileController;
+use App\Http\Controllers\System\UserController;
 use App\Http\Controllers\User\ApiTokenController;
+use App\Http\Controllers\User\ProfileController;
+use Illuminate\Support\Facades\Route;
 
-Route::prefix('verification')->as('verification.')->group(function(){
+Route::prefix('verification')->as('verification.')->group(function () {
     Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
         ->middleware(['signed', 'throttle:6,1'])
         ->name('verify');
 });
 
-Route::middleware(['throttle:6,1'])->group(function() {
+Route::middleware(['throttle:6,1'])->group(function () {
     Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->name('verification.send');
 });
 
-
 Route::middleware('guest')->group(function () {
-    Route::prefix('register')->group(function(){
+    Route::prefix('register')->group(function () {
         Route::post('/', [RegisteredUserController::class, 'store'])->name('register');
     });
-    Route::prefix('login')->group(function(){
+    Route::prefix('login')->group(function () {
         Route::post('/', [AuthenticatedSessionController::class, 'store'])->name('login');
     });
-    Route::prefix('forgot-password')->as('password.')->group(function(){
-      Route::post('/', [PasswordResetLinkController::class, 'store'])->name('email');
+    Route::prefix('forgot-password')->as('password.')->group(function () {
+        Route::post('/', [PasswordResetLinkController::class, 'store'])->name('email');
     });
-    Route::prefix('reset-password')->as('password.')->group(function(){
-      Route::get('/{token}', [NewPasswordController::class, 'create'])->name('reset');
-      Route::post('/', [NewPasswordController::class, 'store'])->name('store');
+    Route::prefix('reset-password')->as('password.')->group(function () {
+        Route::get('/{token}', [NewPasswordController::class, 'create'])->name('reset');
+        Route::post('/', [NewPasswordController::class, 'store'])->name('store');
     });
 });
 
@@ -50,8 +49,8 @@ Route::middleware([
     'verified',
 ])->group(function () {
 
-    Route::prefix('confirm-password')->as('password.')->group(function(){
-      Route::post('/', [ConfirmablePasswordController::class, 'store'])->name('confirm');
+    Route::prefix('confirm-password')->as('password.')->group(function () {
+        Route::post('/', [ConfirmablePasswordController::class, 'store'])->name('confirm');
     });
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
     Route::get('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');

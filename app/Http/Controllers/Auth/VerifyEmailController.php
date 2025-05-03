@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Illuminate\Auth\Events\Verified;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Exceptions\AuthException;
 use App\Exceptions\AuthExceptionCode;
+use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Utils\ResponseUtil;
+use Illuminate\Auth\Events\Verified;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 
 class VerifyEmailController extends Controller
 {
@@ -22,7 +22,7 @@ class VerifyEmailController extends Controller
         $redirect = route('dashboard', absolute: false).'?verified=1';
         $user = $request->user() ?? User::firstOrFail($request->input('email'));
 
-        if (!$user){
+        if (! $user) {
             throw new AuthException(AuthExceptionCode::USER_NOT_FOUND);
         }
 

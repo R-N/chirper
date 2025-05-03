@@ -5,6 +5,7 @@ namespace App\Support;
 class Decimal
 {
     public const POW = 2;
+
     public const MUL = 100;
 
     public function __construct(public int $cents) {}
@@ -37,20 +38,21 @@ class Decimal
         throw new \InvalidArgumentException('Invalid type for Decimal');
     }
 
-    public static function toDatabase($amount){
-      // If the value is a Decimal instance, store its cents value (int)
-      if ($amount instanceof Decimal) {
-          return $amount->cents;
-      }
-      // If it's a float, we assume it's the decimal number and convert it to cents
-      elseif (is_float($amount)) {
-          return round($amount * Decimal::MUL);
-      }
-      // If it's a string, we also convert it (if needed)
-      elseif (is_string($amount)) {
-          return (int) round((float) $amount * Decimal::MUL);
-      }
-      throw new \InvalidArgumentException('Invalid type for Decimal');
+    public static function toDatabase($amount)
+    {
+        // If the value is a Decimal instance, store its cents value (int)
+        if ($amount instanceof Decimal) {
+            return $amount->cents;
+        }
+        // If it's a float, we assume it's the decimal number and convert it to cents
+        elseif (is_float($amount)) {
+            return round($amount * Decimal::MUL);
+        }
+        // If it's a string, we also convert it (if needed)
+        elseif (is_string($amount)) {
+            return (int) round((float) $amount * Decimal::MUL);
+        }
+        throw new \InvalidArgumentException('Invalid type for Decimal');
     }
 
     public function __toString(): string
