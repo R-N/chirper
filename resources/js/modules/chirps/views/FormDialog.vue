@@ -34,16 +34,25 @@ export default toNative(ChirpFormDialog);
         v-model="myDialog"
     >
         <template v-slot:fields="{ interactable, busy }">
-            <VTextField 
-                name="message"
-                class="bigger-input" 
-                :label="$t('chirp.message')" 
-                v-model="formData.message" 
+            <VForm 
+                v-model="valid" 
                 :disabled="!interactable" 
-                required
-                :error-messages="formData.errors.message"
-                :rules="rules.message"
-            />
+                @click.prevent.stop="() => null"
+                @submit.prevent.stop="submit" 
+                :class="select ? '' : 'd-flex flex-column ga-3'" 
+                ref="form"
+            >
+                <VTextField 
+                    name="message"
+                    class="bigger-input" 
+                    :label="$t('chirp.message')" 
+                    v-model="formData.message" 
+                    :disabled="!interactable" 
+                    required
+                    :error-messages="formData.errors.message"
+                    :rules="rules.message"
+                />
+            </VForm>
         </template>
     </FormDialog>
 </template>

@@ -152,7 +152,7 @@ export default toNative( ChirpCrudView );
             <ChirpFormDialog
                 :data="editing"
                 v-model="formDialog"
-                @submit.prevent.stop="storeItem"
+                @submit="storeItem"
                 :parent-busy="busy"
                 :rules="rules"
             />
