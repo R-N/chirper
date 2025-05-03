@@ -80,4 +80,5 @@ export const WorkingMixin = <TBase extends Constructor>(Base: TBase) => {
   }
   return WorkingComponent;
 };
+export default WorkingMixin;
 </script>

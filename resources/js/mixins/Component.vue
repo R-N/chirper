@@ -42,4 +42,5 @@ export const BaseMixin = <TBase extends Constructor>(Base: TBase) => {
   }
   return BaseComponent;
 };
+export default BaseMixin;
 </script>

@@ -42,4 +42,5 @@ export const UserFormMixin = <TBase extends Constructor>(Base: TBase) => {
   }
   return UserFormMixin;
 };
+export default UserFormMixin;
 </script>

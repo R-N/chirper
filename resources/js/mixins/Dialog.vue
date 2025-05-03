@@ -91,4 +91,5 @@ export const DialogMixin = <TBase extends Constructor>(Base: TBase) => {
   }
   return DialogBase;
 };
+export default DialogMixin;
 </script>

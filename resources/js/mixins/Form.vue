@@ -185,4 +185,5 @@ export const FormMixin = <TBase extends Constructor>(Base: TBase) => {
   }
   return FormBase;
 };
+export default FormMixin;
 </script>

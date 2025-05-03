@@ -21,4 +21,5 @@ export const SettingFormMixin = <TBase extends Constructor>(Base: TBase) => {
   }
   return SettingFormMixin;
 };
+export default SettingFormMixin;
 </script>

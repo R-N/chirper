@@ -46,4 +46,5 @@ export const CrudFormMixin = <TBase extends Constructor>(Base: TBase) => {
   }
   return CrudFormBase;
 };
+export default CrudFormMixin;
 </script>

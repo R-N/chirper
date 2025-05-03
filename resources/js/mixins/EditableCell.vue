@@ -172,4 +172,5 @@ export const EditableCellMixin = <TBase extends Constructor>(Base: TBase) => {
   }
   return EditableCellBase;
 };
+export default EditableCellMixin;
 </script>

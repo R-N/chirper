@@ -264,4 +264,5 @@ export const CrudViewMixin = <TBase extends Constructor>(Base: TBase) => {
   }
   return CrudViewBase;
 };
+export default CrudViewMixin;
 </script>

@@ -206,4 +206,5 @@ export const CrudMixin = <TBase extends Constructor>(Base: TBase) => {
   }
   return CrudBase;
 };
+export default CrudMixin;
 </script>

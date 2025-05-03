@@ -44,4 +44,5 @@ export const AuthMixin = <TBase extends Constructor>(Base: TBase) => {
   }
   return AuthBase;
 };
+export default AuthMixin;
 </script>

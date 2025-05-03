@@ -17,4 +17,5 @@ export const ClearBreadcrumbsMixin = <TBase extends Constructor>(
   }
   return ClearBreadcrumbs;
 };
+export default ClearBreadcrumbsMixin;
 </script>

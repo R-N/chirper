@@ -38,4 +38,5 @@ export const ModelMixin = ({
     }
   };
 };
+export default ModelMixin;
 </script>
