@@ -13,6 +13,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\System\UserController;
 use App\Http\Controllers\System\BackupController;
 use App\Http\Controllers\System\LanguageController;
+use App\Http\Controllers\System\SettingsController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\ApiTokenController;
 
@@ -101,4 +102,11 @@ Route::middleware([
         Route::get('/export', [UserController::class, 'export'])->name('export');
     });
 
+    Route::prefix('system/settings')->as('system.settings.')->group(function () {
+        Route::post('/', [SettingsController::class, 'store'])->name('store');
+        Route::get('/', [SettingsController::class, 'index'])->name('index');
+        Route::get('/{setting}', [SettingsController::class, 'show'])->name('show');
+        Route::match(['put', 'patch'], '/{setting}', [SettingsController::class, 'update'])->name('update');
+        Route::delete('/{setting}', [SettingsController::class, 'destroy'])->name('destroy');
+    });
 });

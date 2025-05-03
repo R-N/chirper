@@ -1,9 +1,10 @@
 <?php
 
 return [
+  'item' => "Chirp",
   'created' => 'Chirp created.',
-  'pdated' => 'Chirp updated.',
+  'updated' => 'Chirp updated.',
   'deleted' => 'Chirp deleted.',
-  'new' => ':username memposting chirp baru!',
-  'visit_app' => 'Buka Chirper',
+  'new' => ':username created new chirp!',
+  'visit_app' => 'Visit Chirper',
 ];

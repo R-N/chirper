@@ -1,6 +1,7 @@
 <?php
 
 return [
+  'item' => "Backup",
   'created' => 'Backup berhasil dibuat.',
   'deleted' => 'Backup :backup_id telah dihapus.',
   'renamed' => 'Nama backup :old_name telah diubah menjadi :new_name.',

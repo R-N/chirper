@@ -215,9 +215,9 @@ class User extends Authenticatable implements MustVerifyEmail
         $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => 'string|min:8|max:255|regex:/[A-Z]/|regex:/[a-z]/|regex:/[0-9]/|regex:/[@$!%*?&#]/|confirmed',
-            'profile_photo_path' => 'string|max:2048|regex:/^(?!.*\.\.)(?!.*\/\/)(?!\/)[a-zA-Z0-9\/_\-\.]+(?<!\/)$/',
-            'locale' => 'string|max:10',
+            'password' => 'nullable|string|min:8|max:255|regex:/[A-Z]/|regex:/[a-z]/|regex:/[0-9]/|regex:/[@$!%*?&#]/|confirmed',
+            'profile_photo_path' => 'nullable|string|max:2048|regex:/^(?!.*\.\.)(?!.*\/\/)(?!\/)[a-zA-Z0-9\/_\-\.]+(?<!\/)$/',
+            'locale' => 'nullable|string|max:10',
             'enabled' => 'boolean',
             'verified' => 'boolean',
             'email_verified_at' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',

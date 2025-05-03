@@ -202,8 +202,8 @@ class Backup implements Arrayable
     public static function rules()
     {
         $rules = [
-            'id' => 'required|string|max:255|regex:/^[a-zA-Z0-9-_\.]+$/',
-            'file_name' => 'string|max:255|regex:/^[a-zA-Z0-9-_\.]+$/',
+            'id' => 'nullable|string|max:255|regex:/^[a-zA-Z0-9-_\.]+$/',
+            'file_name' => 'nullable|string|max:255|regex:/^[a-zA-Z0-9-_\.]+$/',
             'size' => 'integer|min:0',
             'modified' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
         ];

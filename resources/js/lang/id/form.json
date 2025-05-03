@@ -26,5 +26,8 @@
   "fail": "Gagal.",
   "succeeded": "Berhasil.",
   "failed": "Gagal.",
-  "details": "Detail"
+  "details": "Detail",
+  "key": "Kunci",
+  "type": "Tipe",
+  "value": "Nilai"
 }

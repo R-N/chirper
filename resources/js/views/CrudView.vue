@@ -35,6 +35,15 @@ class CrudView extends ViewBase {
   emitModel(value){
     return value;
   }
+  slotFilled(name) {
+    const slot = this.$slots[name];
+    if (!slot) return false;
+
+    const nodes = slot();
+    return nodes.some(
+      vnode => vnode.type !== Comment && vnode.type !== Text && vnode.type !== undefined
+    );
+  }
 }
 export { CrudView };
 export default toNative(CrudView);
@@ -42,7 +51,7 @@ export default toNative(CrudView);
 <template>
   <MainCard :title="title ?? $t('crud.title')">
     <template v-slot:toolbar-left>
-      <VBtnToggle v-model="_null" class="fill-height d-inline-flex" title="Bulk Actions">
+      <VBtnToggle v-model="_null" class="fill-height d-inline-flex" title="Bulk Actions" v-if="slotFilled('bulk-actions')">
         <VCheckbox 
           class="fill-height d-inline-flex"
           v-model="mySelecting" 

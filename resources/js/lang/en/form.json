@@ -26,5 +26,8 @@
   "fail": "Fail.",
   "succeeded": "Succeeded.",
   "failed": "Failed.",
-  "details": "Details"
+  "details": "Details",
+  "key": "Key",
+  "type": "Type",
+  "value": "Value"
 }

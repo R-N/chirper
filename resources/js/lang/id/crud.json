@@ -9,6 +9,7 @@
   "user": "User",
   "actions": "Aksi",
   "created_at": "Dibuat pada",
+  "updated_at": "Terakhir diubah",
   "last_modified": "Terakhir diubah",
   "edited": "diubah",
   "item": "Item",

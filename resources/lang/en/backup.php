@@ -1,6 +1,7 @@
 <?php
 
 return [
+  'item' => "Backup",
   'created' => 'Backup created successfully.',
   'deleted' => 'Backup :backup_id deleted.',
   'renamed' => 'Backup :old_name has been renamed to :new_name.',

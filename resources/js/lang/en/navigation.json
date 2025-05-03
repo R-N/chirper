@@ -6,6 +6,7 @@
   "system": "System",
   "users": "Users",
   "backup": "Backup",
+  "settings": "Settings",
   "profile": "Profile",
   "api_tokens": "API Tokens",
   "not_found": "Not found",

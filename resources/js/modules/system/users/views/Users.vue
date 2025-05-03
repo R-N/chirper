@@ -113,6 +113,7 @@ export default toNative(UserCrudView);
                         :rules="rules"
                         select="roles"
                         @store="storeItem"
+                        :availableRoles="availableRoles"
                     />
                 </template>
                 <template v-slot:item.enabled="{ item }">

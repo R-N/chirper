@@ -18,7 +18,6 @@ class ChirpController extends Controller
      */
 
     function fetch($request=null){
-        $fields = ["message", "created_at", "modified_at", "user.id", "user.name"];
         $chirps = Chirp::query2();
         return $chirps;
     }

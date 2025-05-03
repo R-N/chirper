@@ -23,7 +23,6 @@ class UserForm extends CrudFormBase {
   @Prop({ default: [] }) availableRoles;
   @Prop({ default: [] }) availablePermissions;
   @Prop({ default: true }) bypassEditableCell;
-  @Prop({ type: String, default: null }) select;
 
   client = userService;
   formData = useForm({
@@ -162,7 +161,7 @@ export default toNative(UserForm);
           (v) => getRolesText(v)
       )"
       :on-finish="(value) => setField(
-          'roles', data, value, true, (v) => v.name
+          'roles', data, value,
       )"
       :return-object="true"
     />
@@ -186,7 +185,7 @@ export default toNative(UserForm);
           (v) => getRolesText(v)
       )"
       :on-finish="(value) => setField(
-          'permissions', data, value, true, (v) => v.name
+          'permissions', data, value,
       )"
       :return-object="true"
     />

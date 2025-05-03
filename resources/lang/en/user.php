@@ -1,6 +1,7 @@
 <?php
 
 return [
+  'item' => "User",
   'created' => 'User created.',
   'updated' => 'User updated.',
   'password_cleared' => 'User password cleared.',

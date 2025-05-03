@@ -19,7 +19,7 @@ export const EditableCellMixin = <TBase extends Constructor>(Base: TBase) => {
       @Prop({ type: String }) title;
       @Prop({ type: String }) label;
       @Prop({ type: String, default: 'value' }) name;
-      @Prop({ type: [String, Object, Array] }) modelValue;
+      @Prop() modelValue;
       @Prop({ type: [String, Function] }) confirmTextMaker; 
       @Prop({ default: false }) disabled;
       @Prop({ type: Function }) onFinish;
@@ -137,13 +137,14 @@ export const EditableCellMixin = <TBase extends Constructor>(Base: TBase) => {
           return !Object.keys(this.formData.errors).length;
       }
 
-      async finish(){
+      async finish(getValue=null){
           this.validate();
           if (!this.valid)
               return;
-          this.formData[this.name] = this.valueEdit;
+          let value = this.valueEdit;
+          this.formData[this.name] = getValue ? getValue(value) : value;
           this.value = this.valueEdit; // not getValue because it can return form
-          const value = this.getValue();
+          value = this.getValue();
           this.$emit("change", value, this.releaseBusy);
           if (this.onFinish){
               await this.waitBusy(

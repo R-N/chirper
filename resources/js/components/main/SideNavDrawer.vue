@@ -41,6 +41,7 @@ class SideNavDrawer extends MyComponent {
                 children: [
                     { text: this.$t('navigation.users'), href: route('system.users.index') },
                     { text: this.$t('navigation.backup'), href: route('system.backups.index') },
+                    { text: this.$t('navigation.settings'), href: route('system.settings.index') },
                 ],
             },
         ];

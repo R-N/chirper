@@ -10,8 +10,6 @@ use App\Http\Controllers\General\GeneralController;
 use App\Http\Controllers\Guest\GuestController;
 
 
-require __DIR__.'/hybrid.php';
-
 Route::get('/', [GuestController::class, 'index'])->name('welcome');
 
 Route::prefix('verification')->as('verification.')->group(function(){
@@ -42,3 +40,5 @@ Route::middleware([
         ->name('confirm');
   });
 });
+
+require __DIR__.'/hybrid.php';

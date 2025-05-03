@@ -8,10 +8,9 @@ use App\Http\Controllers\System\LanguageController;
 use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\System\ValidationRulesController;
 use App\Http\Controllers\System\UserController;
+use App\Http\Controllers\System\SettingsController;
 
 Route::as('api.')->group(function () {
-    require __DIR__.'/hybrid.php';
-    
     Route::middleware([
         'auth:sanctum',
         config('jetstream.auth_session'),
@@ -20,6 +19,10 @@ Route::as('api.')->group(function () {
 
         Route::get('/user', function (Request $request) {
             return $request->user();
+        });
+
+        Route::prefix('system/settings')->as('system.settings.')->group(function () {
+            Route::get('/types', [SettingsController::class, 'fetchTypes'])->name('fetch-types');
         });
 
         Route::prefix('system/users')->as('system.users.')->middleware(['auth'])->group(function () {
@@ -54,5 +57,7 @@ Route::as('api.')->group(function () {
             Route::get('/csrf', [DebugController::class, 'csrf']);
         });
     }
+
+    require __DIR__.'/hybrid.php';
 
 });

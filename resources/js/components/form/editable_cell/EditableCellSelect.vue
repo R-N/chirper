@@ -2,7 +2,7 @@
 import { Vue, Component, Prop, Emit, Model, toNative } from 'vue-facing-decorator';
 import EditableCell from '@/components/form/EditableCell.vue';
 import { EditableCellBase } from '../EditableCellBase.vue';
-import { arraysEqualUnordered, getArrayText } from '@/libs/util.js';
+import { arraysEqualUnordered, getArrayText, isObject } from '@/libs/util.js';
 
 const defaultValue = () => {
     return {"value": 0, "title": ""}
@@ -22,6 +22,8 @@ class EditableCellSelect extends EditableCellBase {
     @Model() model;
 
     getValue2(val){
+        if (!this.itemValue || !(isObject(val) || Array.isArray(val)))
+            return val;
         if(Array.isArray(val)){
             return val.map(this.getValue2);
         }else{
@@ -30,6 +32,10 @@ class EditableCellSelect extends EditableCellBase {
     }
 
     getText(val, array=true, separator=', '){
+        if (!this.itemTitle || !(isObject(val) || Array.isArray(val)))
+            return val;
+        if (!Array.isArray(val))
+            return val[this.itemTitle];
         return getArrayText(val, (v) => v[this.itemTitle], array, separator);
     }
 
@@ -42,6 +48,10 @@ class EditableCellSelect extends EditableCellBase {
         }else{
             return this.getValue2(this.value) != this.getValue2(this.valueEdit);
         }
+    }
+
+    async finish(getValue=null){
+        return await super.finish(getValue ?? this.getValue2);
     }
 }
 export { EditableCellSelect };

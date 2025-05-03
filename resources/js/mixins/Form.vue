@@ -19,6 +19,7 @@ export const FormMixin = <TBase extends Constructor>(Base: TBase) => {
     @Prop({ type: Boolean, default: false }) disabled;
     @Prop({ type: Object, default: null }) data;
     @Prop({ type: [Array, Function, Object], default: [] }) rules;
+    @Prop({ type: String, default: null }) select;
 
     @Prop({ type: [Object, Function] }) form;
     formData = useForm({});
