@@ -15,7 +15,9 @@ class EnsureTokenIsNotExpired
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $token = $request->user()?->currentAccessToken();
+        $user = $request->user();
+
+        $token = $user?->currentAccessToken();
 
         if ($token && ($token instanceof PersonalAccessToken || isset($token->expires_at))){
             if ($token->expires_at?->isPast()) {
@@ -23,6 +25,16 @@ class EnsureTokenIsNotExpired
             }
         }
 
-        return $next($request);
+        $response = $next($request);
+
+        // if ($user && $response instanceof \Illuminate\Http\JsonResponse) {
+
+        //     $data = $response->getData(true);
+        //     $data['auth_token'] = $user->refreshToken()->plainTextToken;
+
+        //     $response->setData($data);
+        // }
+
+        return $response;
     }
 }

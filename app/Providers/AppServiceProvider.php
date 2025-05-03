@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Contracts\LoginResponse;
 use App\Actions\Auth\CustomLoginResponse;
+use Inertia\Inertia;
+use App\Models\Setting;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,5 +25,11 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+        $user = request()->user();
+        Inertia::share([
+            'settings' => Setting::fetchDict(),
+            'user' => $user,
+            'notifications' => $user?->notifications
+        ]);
     }
 }

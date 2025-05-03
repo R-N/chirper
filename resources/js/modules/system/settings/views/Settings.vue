@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Vue, Component, toNative } from 'vue-facing-decorator';
+import { Vue, Component, toNative, Watch } from 'vue-facing-decorator';
 
 import dayjs from 'dayjs';
 
@@ -12,7 +12,7 @@ import settingService from '../services/setting';
 import { VDataTable } from 'vuetify/components';
 import IconButton from '@/components/button/IconButton.vue';
 import ConfirmationIconButton from '@/components/button/ConfirmationIconButton.vue';
-import { bulkDeleteFromArray } from '@/libs/util';
+import { bulkDeleteFromArray, isObject, isObjectEmpty } from '@/libs/util';
 import rules from '@/validations-gen/settings.json';
 import { parseLaravelRules } from '@/libs/validation';
 
@@ -73,6 +73,12 @@ class SettingCrudView extends BaseClass  {
     }
     get rules(){
         return parseLaravelRules(rules);
+    }
+
+    @Watch("items")
+    setSettings(settings){
+        if (settings && isObject(settings) && !isObjectEmpty(settings))
+            this.appStore.updateSettings(settings);
     }
 }
 export { SettingCrudView };

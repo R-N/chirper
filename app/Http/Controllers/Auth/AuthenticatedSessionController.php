@@ -70,12 +70,7 @@ class AuthenticatedSessionController extends Controller
     {
         $user = $request->user();
     
-        $token = $user->currentAccessToken();
-        if (isset($token->delete)){
-            $token->delete();
-        }
-    
-        $newToken = $user->createToken('auth_token', ['*'])->plainTextToken;
+        $newToken = $user->refreshToken()->plainTextToken;
     
         return ResponseUtil::jsonRedirectResponse([
             'auth_token' => $newToken

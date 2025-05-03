@@ -12,6 +12,7 @@ use App\Utils\QueryUtil;
 use App\Utils\ExportUtil;
 use App\Utils\ValidationUtil;
 use Illuminate\Support\Facades\Validator;
+use App\Support\Cacher;
 
 class Setting extends Model
 {
@@ -39,6 +40,14 @@ class Setting extends Model
             'string'    => (string) $raw,
             default     => $raw,
         };
+    }
+
+    public static function fetchDict(){
+        return Cacher::remember(self::TABLE, null, function () {
+            return Setting::all()->mapWithKeys(fn($setting) => [
+                $setting->key => $setting->value,
+            ]);
+        });
     }
 
     public static function getValidationRule($type): string
@@ -70,14 +79,16 @@ class Setting extends Model
     
             // $attributes['value'] = self::toDatabase($attributes['value']);
         }
-    
+
+        Cacher::forgetAll(self::TABLE);
+
         return parent::update($attributes, $options);
     }
     
     public static function get(string $key)
     {
-        return cache()->remember("setting_{$key}", 3600, fn () =>
-            static::where('key', $key)->first()?->casted_value
+        return Cacher::remember(self::TABLE, $key, fn () =>
+            static::where('key', $key)->first()?->value
         );
     }
 
@@ -86,13 +97,10 @@ class Setting extends Model
         $setting = static::firstOrCreate(['key' => $key]);
         $setting->value = $value;
         $setting->save();
-        self::forget("setting_{$key}");
+        Cacher::forget(self::TABLE, $key);
         return $setting;
     }
 
-    public static function forget(string $key){
-        cache()->forget("setting_{$key}");
-    }
     public static function query2($raw=false){
         $validated = request()->validate(
             ValidationUtil::buildQueryRules("settings", Setting::rules(), [

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { isObject } from '@/libs/util.js';
+import { isObject, deepAssign } from '@/libs/util.js';
 import { router } from '@inertiajs/vue3';
 
 export const useAppStore = defineStore('app', {
@@ -12,6 +12,8 @@ export const useAppStore = defineStore('app', {
     userPresent: true,  
     serverReachable: true,  
     lastUserPresentTime: new Date().getTime(),
+    settings: {
+    }
   }),
   getters: {
     // getIdleTime: (state) => {
@@ -22,6 +24,9 @@ export const useAppStore = defineStore('app', {
     }
   },
   actions: {
+    updateSettings(settings) {
+      deepAssign(this.settings, settings); 
+    },
     getIdleTime(){
       return new Date().getTime() - this.lastUserPresentTime;
     },

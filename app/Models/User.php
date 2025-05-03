@@ -162,6 +162,17 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->sendPasswordResetNotification($token);
     }
 
+    public function refreshToken(){
+        $token = $this->currentAccessToken();
+        if (isset($token->delete)){
+            $token->delete();
+        }
+    
+        $newToken = $this->createToken('auth_token', ['*']);
+    
+        return $newToken;
+    }
+
     public static function query2($raw=false){
         $validated = request()->validate(
             ValidationUtil::buildQueryRules("chirps", User::rules(), [
