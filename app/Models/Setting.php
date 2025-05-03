@@ -20,11 +20,19 @@ class Setting extends Model
     protected $table = self::TABLE;
 
     protected $fillable = ['key', 'type', 'value', 'options'];
-    public const TYPES = ['int', 'bool', 'decimal', 'date', 'datetime', 'time', 'enum', 'string'];
+    public const TYPES = ['int', 'bool', 'decimal', 'date', 'datetime', 'time', 'enum', 'string', 'array', 'object'];
 
     protected $casts = [
         'options' => 'array',
     ];
+
+    public static function fetchDict(){
+        return Cacher::remember(self::TABLE, null, function () {
+            return Setting::all()->mapWithKeys(fn($setting) => [
+                $setting->key => $setting->value,
+            ]);
+        });
+    }
 
     public function getValueAttribute()
     {
@@ -38,16 +46,10 @@ class Setting extends Model
             'time'      => Carbon::createFromFormat('H:i:s', $raw),
             'enum'      => $raw, // assume you’ll validate externally
             'string'    => (string) $raw,
+            'array'     => json_decode($raw, true),
+            'object'    => json_decode($raw, true),
             default     => $raw,
         };
-    }
-
-    public static function fetchDict(){
-        return Cacher::remember(self::TABLE, null, function () {
-            return Setting::all()->mapWithKeys(fn($setting) => [
-                $setting->key => $setting->value,
-            ]);
-        });
     }
 
     public static function getValidationRule($type): string
@@ -61,6 +63,8 @@ class Setting extends Model
             'time'      => 'date_format:H:i:s',
             'enum'      => 'string',
             'string'    => 'string',
+            'array'     => 'array',
+            'object'    => 'json',
             default     => 'nullable',
         };
     }
