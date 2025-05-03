@@ -1,11 +1,11 @@
 <script lang="ts">
 import { Link, router } from '@inertiajs/vue3';
-import { VList, VListItem, VSpacer, VBtnGroup, VCheckboxBtn, VListItemAction, VContainer, VListItemTitle, VListItemSubtitle  } from 'vuetify/components';
 import { Component, Prop, Model, toNative } from 'vue-facing-decorator';
 import notificationService from '@/services/notification.js';
 import IconButton from '@/components/button/IconButton.vue';
 import {WorkingComponent} from '../WorkingComponent.vue';
 import { deleteFromArray } from '@/libs/util';
+import { usePage } from '@inertiajs/vue3';
 
 @Component({
 	name: "Notifications",
@@ -20,6 +20,7 @@ class Notifications extends WorkingComponent {
 		// { data: { url: '#', title: 'Notif', message: 'Desc' }, id: 0, read_at: null },
 	]
 	created(){
+		this.notifications = usePage()?.props?.notifications ?? this.$page?.props?.notifications ?? [];
 		this.fetchNotifications();
 		const intervalId = setInterval(() => {
 			if (this.isLoggedIn)
