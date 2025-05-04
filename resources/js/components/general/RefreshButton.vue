@@ -22,4 +22,8 @@ class RefreshButton extends MyComponent {
 export { RefreshButton };
 export default toNative(RefreshButton);
 </script>
-<style scoped></style>
+<template>
+	<VBtn :icon="icon" :large="large" @click.stop="refresh">
+		<slot><VIcon>fa-redo</VIcon></slot>
+	</VBtn>
+</template>
