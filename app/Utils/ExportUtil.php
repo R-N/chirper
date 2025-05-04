@@ -41,7 +41,7 @@ class ExportUtil
                 );
             case 'pdf':
                 try {
-                    $headings = $columns || array_keys($items[0]);
+                    $headings = $columns ?? array_keys($items[0]);
                     $pdf = Pdf::loadView('exports.generic_pdf', [
                         'name' => $name,
                         'timestamp' => $timestamp,

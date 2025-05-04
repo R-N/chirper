@@ -39,7 +39,7 @@ class LanguageException extends Exception
     public function __construct(LanguageExceptionCode $code, $data = true, $message = null, $title = null)
     {
         $this->setErrorCode($code);
-        parent::__construct($message || $this->getErrorMessage($data));
-        $this->setTitle($title || $this->getTitle());
+        parent::__construct($message ?? $this->getErrorMessage($data));
+        $this->setTitle($title ?? $this->getTitle());
     }
 }
