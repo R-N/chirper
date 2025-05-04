@@ -62,12 +62,7 @@ class ChirpController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate(
-            ArrayUtil::filterArray(
-                Chirp::rules(), 
-                Chirp::FILLABLE
-            )
-        );
+        $validated = Chirp::validateRequest($request);
 
         // user() gets the User object (model)
         // the User model has hasMany relationship to Chirps as chirps function
@@ -109,12 +104,7 @@ class ChirpController extends Controller
     {
         Gate::authorize('update', $chirp);
 
-        $validated = $request->validate(
-            ArrayUtil::filterArray(
-                Chirp::rules(), 
-                Chirp::FILLABLE
-            )
-        );
+        $validated = Chirp::validateRequest($request);
 
         $chirp->update($validated);
         $chirp->loadEntities();

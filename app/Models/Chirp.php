@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\AllowedSort;
 use Spatie\QueryBuilder\QueryBuilder;
+use App\Models\Traits\Validable;
 
 class Chirp extends Model
 {
@@ -27,8 +28,9 @@ class Chirp extends Model
 
     protected static array $relationshipEntities = ['user:id,name'];
 
-    // this determines which fields may be mass set
+    use Validable;
     public const FILLABLE = ['message'];
+    // this determines which fields may be mass set
     protected $fillable = self::FILLABLE;
 
     protected $dispatchesEvents = [

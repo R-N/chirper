@@ -13,9 +13,12 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
+use App\Models\Traits\Validable;
 
 class Setting extends Model
 {
+    use Validable;
+
     public const TABLE = 'settings';
 
     protected $table = self::TABLE;
