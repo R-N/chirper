@@ -46,6 +46,13 @@ Route::middleware('guest')->group(function () {
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
+])->group(function () {
+    Route::get('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+});
+
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
 
@@ -53,7 +60,6 @@ Route::middleware([
         Route::post('/', [ConfirmablePasswordController::class, 'store'])->name('confirm');
     });
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
-    Route::get('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
     Route::prefix('profile')->as('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');

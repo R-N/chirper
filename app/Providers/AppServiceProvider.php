@@ -28,9 +28,9 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
         $user = request()->user();
         Inertia::share([
-            'settings' => Schema::hasTable('settings') ? \App\Models\Setting::fetchDict() : [],
+            'settings' => Schema::hasTable('settings') ? Setting::fetchDict() : [],
             'user' => $user,
-            'notifications' => $user?->notifications,
+            'notifications' => $user?->notifications ?? [],
         ]);
     }
 }

@@ -57,13 +57,7 @@ class UserController extends Controller
         ]);
         $user->update($data);
 
-        // Generate a password reset token
-        $token = Password::getRepository()->create($user);
-
         event(new Registered($user));
-
-        // Send the password reset notification with the token
-        $user->sendPasswordResetNotification($token);
 
         $user->loadEntities();
 
@@ -102,9 +96,13 @@ class UserController extends Controller
 
     public function clearPassword(Request $request, User $user)
     {
-        $user->password = null;
+        $user->update([
+            'password' => null,
+        ]);
 
         $user->save();
+
+        $user->resetPassword();
 
         $user->loadEntities();
 
