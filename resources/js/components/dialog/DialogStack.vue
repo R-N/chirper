@@ -21,7 +21,7 @@ class DialogStack extends Vue {
   get item() {
     if (this.items.length == 0) return null;
     let item = this.items[this.items.length - 1];
-    if (item.log || item.trace) console.error(item);
+    if (item.log || item.trace || item.showTrace) console.error(item);
     return item;
   }
   set item(value) {

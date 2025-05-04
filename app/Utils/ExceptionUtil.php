@@ -36,11 +36,11 @@ class ExceptionUtil
         } elseif (self::shouldShow($e)) {
             $data['show'] = true;
         }
-        if (property_exists($e, 'trace') && $e->trace) {
+        if (property_exists($e, 'showTrace') && $e->showTrace) {
             $data['file'] = $e->getFile();
             $data['line'] = $e->getLine();
-            if (is_int($e->trace)) {
-                $maxStack = $e->trace;
+            if (is_int($e->showTrace)) {
+                $maxStack = $e->showTrace;
             }
             $data['trace'] = collect($e->getTrace())->take($maxStack);
         }

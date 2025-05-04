@@ -4,16 +4,16 @@ namespace App\Exceptions\Traits;
 
 trait ShowTrace
 {
-    public bool $trace = true;
+    public bool $showTrace = true;
 
     public function shouldShowTrace()
     {
-        return $this->trace;
+        return $this->showTrace;
     }
 
-    public function setShowTrace($trace)
+    public function setShowTrace($showTrace)
     {
-        $this->trace = $trace;
+        $this->showTrace = $showTrace;
 
         return $this;
     }
