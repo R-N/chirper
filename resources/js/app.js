@@ -20,6 +20,7 @@ import "@mdi/font/css/materialdesignicons.css";
 //import 'vue3-dropzone/dist/vue3Dropzone.min.css';
 import App from "./App.vue";
 import "../css/app.css";
+import authService from "@/modules/user/auth/services/auth";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -49,13 +50,16 @@ createInertiaApp({
       let tabStore = useTabStore();
       tabStore.breadcrumbs = [];
     });
-    app.config.errorHandler = (error, vm, info) => {
-      if (error?.show || error?.response?.data?.show) {
+    app.config.errorHandler = (e, vm, info) => {
+      if (e?.message?.toLowerCase().includes("csrf")) {
+        authService.getCsrfToken();
+      }
+      if (e?.show || e?.response?.data?.show) {
         let tabStore = useTabStore();
-        tabStore.showError(error?.response?.data ?? error);
+        tabStore.showError(e?.response?.data ?? e);
         return true;
       }
-      console.error(error);
+      console.error(e);
       return false;
     };
     return app.mount(el);
