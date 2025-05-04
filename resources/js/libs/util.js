@@ -242,6 +242,7 @@ export const getData = (data, name = null) => {
     data?.items ??
     data?.value ??
     data?.values ??
+    data?.response ??
     data
   );
 };
@@ -263,4 +264,4 @@ export const bindMethod = (cls, obj, methodName) => {
   return method.bind(obj);
 };
 export const isFunction = (obj) => typeof obj === "function";
-export const checkCsrfError = (e) => getData(e)?.message?.toLowerCase().includes("csrf");
+export const checkCsrfError = (e) => getData(getData(e))?.message?.toLowerCase().includes("csrf");
