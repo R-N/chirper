@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
 use Laravel\Fortify\Contracts\LoginResponse;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
         $user = request()->user();
         Inertia::share([
-            'settings' => Setting::fetchDict(),
+            'settings' => Schema::hasTable('settings') ? \App\Models\Setting::fetchDict() : [],
             'user' => $user,
             'notifications' => $user?->notifications,
         ]);
