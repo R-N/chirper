@@ -9,6 +9,7 @@ import SyncCheckbox from "@/components/checkbox/SyncCheckbox.vue";
 import { getArrayText } from "@/libs/util.js";
 import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.vue";
 import { SettingFormMixin } from "../mixins/SettingForm.vue";
+import CrudForm from "@/components/form/CrudForm.vue";
 
 const BaseClass = SettingFormMixin(CrudFormBase);
 
@@ -18,7 +19,8 @@ const BaseClass = SettingFormMixin(CrudFormBase);
     EditableCellTextField,
     EditableCellSelect,
     SyncCheckbox,
-    ConfirmationIconButton
+    ConfirmationIconButton,
+    CrudForm
   },
   emits: ["submit"]
 })
@@ -32,6 +34,33 @@ class SettingForm extends BaseClass {
     value: "",
     options: ""
   });
+  get fields() {
+    return [
+      {
+        name: "key",
+        label: this.$t('form.key'),
+        type: "text",
+        required: true,
+      },
+      {
+        name: "type",
+        label: this.$t('form.type'),
+        type: "select",
+        required: true,
+        items: this.settingTypes,
+        props: {
+          itemTitle: null,
+          itemValue: null
+        }
+      },
+      {
+        name: "value",
+        label: this.$t('form.value'),
+        type: "text",
+        required: true,
+      },
+    ];
+  }
 }
 export { SettingForm };
 export default toNative(SettingForm);
@@ -56,58 +85,16 @@ export default toNative(SettingForm);
         :size="select ? 'small' : 'default'"
       />
     </div>
-    <EditableCellTextField
-      v-if="!select || select == 'key'"
-      name="key"
-      class="bigger-input"
-      :label="$t('form.key')"
-      :title="$t('form.key')"
-      :showTitle="!select"
-      v-model="formData.key"
-      :disabled="!interactable"
-      required
-      :error-messages="formData.errors.key"
-      :rules="rules.key"
-      :bypass="bypassEditableCell"
-      :value="formData.key"
-      :confirm-text-maker="(value) => setFieldConfirmText('key', data, value)"
-      :on-finish="(value) => setField('key', data, value)"
-    />
-    <EditableCellSelect
-      v-if="!select || select == 'type'"
-      class="bigger-input"
-      name="type"
-      type="type"
-      :label="$t('form.type')"
-      :title="$t('form.type')"
-      :showTitle="!select"
-      :items="settingTypes"
-      item-value="name"
-      item-title="name"
-      v-model="formData.type"
-      :disabled="!interactable"
-      :error-messages="formData.errors.type"
-      :bypass="bypassEditableCell"
-      :confirm-text-maker="(value) => setFieldConfirmText('type', data, value)"
-      :on-finish="(value) => setField('type', data, value)"
-      :return-object="true"
-    />
-    <EditableCellTextField
-      v-if="!select || select == 'value'"
-      name="value"
-      class="bigger-input"
-      :label="$t('form.value')"
-      :title="$t('form.value')"
-      :showTitle="!select"
-      v-model="formData.value"
-      :disabled="!interactable"
-      required
-      :error-messages="formData.errors.value"
-      :rules="rules.value"
-      :bypass="bypassEditableCell"
-      :value="formData.value"
-      :confirm-text-maker="(value) => setFieldConfirmText('value', data, value)"
-      :on-finish="(value) => setField('value', data, value)"
+    <CrudForm
+      :setFieldConfirmText="setFieldConfirmText"
+      :setField="setField"
+      :data="data"
+      :bypassEditableCell="bypassEditableCell"
+      :fields="fields"
+      :rules="rules"
+      :interactable="interactable"
+      :formData="formData"
+      :select="select"
     />
   </VForm>
 </template>

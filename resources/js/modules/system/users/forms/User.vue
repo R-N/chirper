@@ -8,6 +8,7 @@ import EditableCellSelect from "@/components/form/editable_cell/EditableCellSele
 import SyncCheckbox from "@/components/checkbox/SyncCheckbox.vue";
 import { getArrayText } from "@/libs/util.js";
 import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.vue";
+import CrudForm from "@/components/form/CrudForm.vue";
 
 @Component({
   name: "UserForm",
@@ -15,7 +16,8 @@ import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.v
     EditableCellTextField,
     EditableCellSelect,
     SyncCheckbox,
-    ConfirmationIconButton
+    ConfirmationIconButton,
+    CrudForm
   },
   emits: ["submit"]
 })
@@ -44,6 +46,53 @@ class UserForm extends CrudFormBase {
 
   getRolesText(val) {
     return getArrayText(val, (v) => v.name, false);
+  }
+  get fields() {
+    return [
+      {
+        name: "name",
+        label: this.$t('user.name'),
+        type: "text",
+        required: true,
+      },
+      {
+        name: "email",
+        label: this.$t('user.email'),
+        type: "text",
+        required: true,
+        props: {
+          type: 'email'
+        }
+      },
+      {
+        name: "roles",
+        label: this.$t('user.roles'),
+        type: "select",
+        required: true,
+        items: this.availableRoles,
+        props: {
+          multiple: true,
+          itemTitle: "name",
+          itemValue: "name",
+          returnObject: true
+        },
+        getValue: this.getRolesText
+      },
+      {
+        name: "permissions",
+        label: this.$t('user.permissions'),
+        type: "select",
+        required: true,
+        items: this.availablePermissions,
+        props: {
+          multiple: true,
+          itemTitle: "name",
+          itemValue: "name",
+          returnObject: true
+        },
+        getValue: this.getRolesText
+      },
+    ];
   }
 }
 export { UserForm };
@@ -114,92 +163,16 @@ export default toNative(UserForm);
         :text-enable="$t('user.force_verify')"
       />
     </div>
-    <EditableCellTextField
-      v-if="!select || select == 'name'"
-      name="name"
-      class="bigger-input"
-      :label="$t('user.name')"
-      :title="$t('user.name')"
-      :showTitle="!select"
-      v-model="formData.name"
-      :disabled="!interactable"
-      required
-      :error-messages="formData.errors.name"
-      :rules="rules.name"
-      :bypass="bypassEditableCell"
-      :value="formData.name"
-      :confirm-text-maker="(value) => setFieldConfirmText('name', data, value)"
-      :on-finish="(value) => setName(data, value)"
-    />
-    <EditableCellTextField
-      v-if="!select || select == 'email'"
-      name="email"
-      class="bigger-input"
-      :label="$t('user.email')"
-      :title="$t('user.email')"
-      :showTitle="!select"
-      v-model="formData.email"
-      :disabled="!interactable"
-      required
-      type="email"
-      :error-messages="formData.errors.email"
-      :rules="rules.email"
-      :bypass="bypassEditableCell"
-      :confirm-text-maker="(value) => setFieldConfirmText('email', data, value)"
-      :on-finish="(value) => setField('email', data, value)"
-    />
-    <EditableCellSelect
-      v-if="
-        (!select || select == 'roles') &&
-        (data?.roles?.length || hasAvailableRoles)
-      "
-      class="bigger-input"
-      name="roles"
-      type="roles"
-      :label="$t('user.roles')"
-      :title="$t('user.roles')"
-      :showTitle="!select"
-      :items="availableRoles"
-      item-value="name"
-      item-title="name"
-      v-model="formData.roles"
-      :disabled="!interactable"
-      multiple
-      :error-messages="formData.errors.roles"
-      :bypass="bypassEditableCell"
-      :confirm-text-maker="
-        (value) =>
-          setFieldConfirmText('roles', data, value, (v) => getRolesText(v))
-      "
-      :on-finish="(value) => setField('roles', data, value)"
-      :return-object="true"
-    />
-    <EditableCellSelect
-      v-if="
-        (!select || select == 'permissions') &&
-        (data?.permissions?.length || hasAvailablePermissions)
-      "
-      class="bigger-input"
-      name="permissions"
-      :label="$t('user.permissions')"
-      :title="$t('user.permissions')"
-      :showTitle="!select"
-      :items="availablePermissions"
-      item-value="name"
-      item-title="name"
-      v-model="formData.permissions"
-      :disabled="!interactable"
-      multiple
-      :error-messages="formData.errors.permissions"
-      :bypass="bypassEditableCell"
-      :confirm-text-maker="
-        (value) =>
-          setFieldConfirmText('permissions', data, value, (v) =>
-            getRolesText(v)
-          )
-      "
-      :on-finish="(value) => setField('permissions', data, value)"
-      :return-object="true"
+    <CrudForm
+      :setFieldConfirmText="setFieldConfirmText"
+      :setField="setField"
+      :data="data"
+      :bypassEditableCell="bypassEditableCell"
+      :fields="fields"
+      :rules="rules"
+      :interactable="interactable"
+      :formData="formData"
+      :select="select"
     />
   </VForm>
 </template>
