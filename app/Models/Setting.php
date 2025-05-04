@@ -20,7 +20,8 @@ class Setting extends Model
 
     protected $table = self::TABLE;
 
-    protected $fillable = ['key', 'type', 'value', 'options'];
+    public const FILLABLE = ['key', 'type', 'value', 'options'];
+    protected $fillable = self::FILLABLE;
 
     public const TYPES = ['int', 'bool', 'decimal', 'date', 'datetime', 'time', 'enum', 'string', 'array', 'object'];
 

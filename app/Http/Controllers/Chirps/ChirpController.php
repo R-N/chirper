@@ -62,9 +62,11 @@ class ChirpController extends Controller
      */
     public function store(Request $request)
     {
-        //
         $validated = $request->validate(
-            ArrayUtil::filterArray(Chirp::rules(), ['message'])
+            ArrayUtil::filterArray(
+                Chirp::rules(), 
+                Chirp::FILLABLE
+            )
         );
 
         // user() gets the User object (model)
@@ -108,7 +110,10 @@ class ChirpController extends Controller
         Gate::authorize('update', $chirp);
 
         $validated = $request->validate(
-            ArrayUtil::filterArray(Chirp::rules(), ['message'])
+            ArrayUtil::filterArray(
+                Chirp::rules(), 
+                Chirp::FILLABLE
+            )
         );
 
         $chirp->update($validated);

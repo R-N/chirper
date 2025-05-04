@@ -24,12 +24,10 @@ class SettingsController extends Controller
     {
         $validated = $request->validate(
             ArrayUtil::filterArray(
-                Setting::rules(), [
-                    'key', 'type', 'value', 'options',
-                ]
+                Setting::rules(), 
+                Setting::FILLABLE
             )
         );
-
         $setting = Setting::create($validated);
 
         return ResponseUtil::jsonRedirectResponse([
@@ -48,7 +46,10 @@ class SettingsController extends Controller
     public function update(Request $request, Setting $setting)
     {
         $validated = $request->validate(
-            ArrayUtil::filterArray(Setting::rules(), ['type', 'value'])
+            ArrayUtil::filterArray(
+                Setting::rules(), 
+                Setting::FILLABLE
+            )
         );
 
         $setting->update($validated);

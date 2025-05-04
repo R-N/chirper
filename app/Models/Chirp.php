@@ -28,9 +28,8 @@ class Chirp extends Model
     protected static array $relationshipEntities = ['user:id,name'];
 
     // this determines which fields may be mass set
-    protected $fillable = [
-        'message',
-    ];
+    public const FILLABLE = ['message'];
+    protected $fillable = self::FILLABLE;
 
     protected $dispatchesEvents = [
         'created' => ChirpCreated::class,
