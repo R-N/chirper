@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'item' => 'Chirp',
     'created' => 'Chirp berhasil diposting.',
     'updated' => 'Chirp berhasil diperbarui.',
     'deleted' => 'Chirp berhasil dihapus.',
