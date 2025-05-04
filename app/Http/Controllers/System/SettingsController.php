@@ -41,7 +41,7 @@ class SettingsController extends Controller
 
     public function update(Request $request, Setting $setting)
     {
-        $validated = Setting::validateRequest($request);
+        $validated = Setting::validateRequest($request, true);
 
         $setting->update($validated);
 

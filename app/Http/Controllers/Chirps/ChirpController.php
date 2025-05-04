@@ -104,7 +104,7 @@ class ChirpController extends Controller
     {
         Gate::authorize('update', $chirp);
 
-        $validated = Chirp::validateRequest($request);
+        $validated = Chirp::validateRequest($request, true);
 
         $chirp->update($validated);
         $chirp->loadEntities();
