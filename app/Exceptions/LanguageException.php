@@ -6,9 +6,13 @@ use App\Exceptions\Traits\Displayable;
 use App\Exceptions\Traits\HasErrorCode;
 use App\Exceptions\Traits\Redirects;
 use Exception;
+use JsonSerializable;
+use App\Enums\Traits\SerializableEnum;
 
-enum LanguageExceptionCode
+enum LanguageExceptionCode implements JsonSerializable
 {
+    use SerializableEnum;
+
     case NOT_FOUND;
 
     public function statusCode()

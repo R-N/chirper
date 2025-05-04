@@ -7,9 +7,13 @@ use App\Exceptions\Traits\HasErrorCode;
 use App\Exceptions\Traits\HasStatus;
 use App\Exceptions\Traits\Redirects;
 use Illuminate\Auth\AuthenticationException;
+use JsonSerializable;
+use App\Enums\Traits\SerializableEnum;
 
-enum AuthExceptionCode
+enum AuthExceptionCode implements JsonSerializable
 {
+    use SerializableEnum;
+    
     case BAD_REQUEST;
     case EMAIL_ALREADY_VERIFIED;
     case INVALID_TOKEN;

@@ -6,9 +6,13 @@ use App\Exceptions\Traits\Displayable;
 use App\Exceptions\Traits\HasErrorCode;
 use App\Exceptions\Traits\Redirects;
 use Exception;
+use JsonSerializable;
+use App\Enums\Traits\SerializableEnum;
 
-enum BackupExceptionCode
+enum BackupExceptionCode implements JsonSerializable
 {
+    use SerializableEnum;
+
     case FAILED;
     case NOT_FOUND;
     case DB_DUMP_NOT_FOUND;
