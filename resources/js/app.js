@@ -21,6 +21,7 @@ import "@mdi/font/css/materialdesignicons.css";
 import App from "./App.vue";
 import "../css/app.css";
 import authService from "@/modules/user/auth/services/auth";
+import { checkCsrfError } from "@/libs/util";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -51,7 +52,7 @@ createInertiaApp({
       tabStore.breadcrumbs = [];
     });
     app.config.errorHandler = (e, vm, info) => {
-      if (e?.message?.toLowerCase().includes("csrf")) {
+      if (checkCsrfError(e)) {
         authService.getCsrfToken();
       }
       if (e?.show || e?.response?.data?.show) {

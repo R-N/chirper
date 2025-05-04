@@ -5,6 +5,7 @@ import { MyComponent } from "@/components/MyComponent.vue";
 import authService from "@/modules/user/auth/services/auth";
 
 import { Constructor } from "./Constructor.vue";
+import { checkCsrfError } from "@/libs/util";
 
 export const WorkingMixin = <TBase extends Constructor>(Base: TBase) => {
   @Component({
@@ -67,7 +68,7 @@ export const WorkingMixin = <TBase extends Constructor>(Base: TBase) => {
       try {
         return await f();
       } catch (e) {
-        if (e?.message?.toLowerCase().includes("csrf")) {
+        if (checkCsrfError(e)) {
           await authService.getCsrfToken();
         } else {
           throw e;

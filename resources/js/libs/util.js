@@ -241,7 +241,8 @@ export const getData = (data, name = null) => {
     data?.item ??
     data?.items ??
     data?.value ??
-    data?.values
+    data?.values ??
+    data
   );
 };
 export const isInertiaForm = (obj) => {
@@ -262,3 +263,4 @@ export const bindMethod = (cls, obj, methodName) => {
   return method.bind(obj);
 };
 export const isFunction = (obj) => typeof obj === "function";
+export const checkCsrfError = (e) => getData(e)?.message?.toLowerCase().includes("csrf");
