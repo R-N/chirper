@@ -47,7 +47,7 @@ class BackupException extends Exception
     public function __construct(BackupExceptionCode $code, $data = true, $message = null, $title = null)
     {
         $this->setErrorCode($code);
-        parent::__construct($message || $this->getMessage($data));
+        parent::__construct($message || $this->getErrorMessage($data));
         $this->setTitle($title || $this->getTitle());
     }
 }

@@ -33,8 +33,8 @@ trait HasErrorCode
         if (property_exists($this, 'statusCode') && $this->statusCode) {
             return $this->statusCode;
         }
-        if (method_exists($this, 'getCode')) {
-            $errorCode = $this->getCode();
+        if (method_exists($this, 'getErrorCode')) {
+            $errorCode = $this->getErrorCode();
             if (method_exists($errorCode, 'getStatusCode')) {
                 return $errorCode->getStatusCode();
             }
@@ -55,8 +55,8 @@ trait HasErrorCode
 
             return $this->message;
         }
-        if (method_exists($this, 'getCode')) {
-            $errorCode = $this->getCode();
+        if (method_exists($this, 'getErrorCode')) {
+            $errorCode = $this->getErrorCode();
             if (method_exists($errorCode, 'getMessage')) {
                 $message = $errorCode->getMessage();
                 if (! is_array($data) || $data) {
@@ -85,8 +85,8 @@ trait HasErrorCode
 
             return $this->message;
         }
-        if (method_exists($this, 'getCode')) {
-            $errorCode = $this->getCode();
+        if (method_exists($this, 'getErrorCode')) {
+            $errorCode = $this->getErrorCode();
             if (method_exists($errorCode, 'getTitle')) {
                 $title = $errorCode->getTitle();
                 try {
