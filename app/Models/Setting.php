@@ -32,6 +32,19 @@ class Setting extends Model
         'options' => 'array',
     ];
 
+    // Add a static boot method to handle validation before creating
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Run validation before creating a new setting
+        static::creating(function ($setting) {
+            if (array_key_exists('value', $setting->getAttributes())) {
+                $setting->validateValue($setting->value);
+            }
+        });
+    }
+
     public static function fetchDict()
     {
         return Cacher::remember(self::TABLE, null, function () {
@@ -79,7 +92,7 @@ class Setting extends Model
 
     public function validateValue($value)
     {
-        $validated = Validator::make(
+        return Validator::make(
             ['value' => $value],
             ['value' => self::getValidationRule($this->type)] // assume this returns a string or array
         )->validate();
@@ -107,6 +120,7 @@ class Setting extends Model
     public static function set(string $key, mixed $value)
     {
         $setting = static::firstOrCreate(['key' => $key]);
+        $setting->validateValue($value);
         $setting->value = $value;
         $setting->save();
         Cacher::forget(self::TABLE, $key);
