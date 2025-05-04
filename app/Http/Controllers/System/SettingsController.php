@@ -22,7 +22,7 @@ class SettingsController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate(
+        $validated = $request->validate(
             ArrayUtil::filterArray(
                 Setting::rules(), [
                     'key', 'type', 'value', 'options',
@@ -30,12 +30,7 @@ class SettingsController extends Controller
             )
         );
 
-        $setting = Setting::create([
-            'key' => $data['key'],
-            'type' => $data['type'],
-            'value' => $data['value'],
-            'options' => $data['options'],
-        ]);
+        $setting = Setting::create($validated);
 
         return ResponseUtil::jsonRedirectResponse([
             'message' => __('settings.created'),
