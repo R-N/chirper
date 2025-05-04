@@ -6,6 +6,7 @@ import SyncCheckbox from "@/components/checkbox/SyncCheckbox.vue";
 import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.vue";
 import { WorkingComponent } from "../WorkingComponent.vue";
 import { selectFilled } from "@/libs/util";
+import EditableCellTextArea from "./editable_cell/EditableCellTextArea.vue";
 
 @Component({
   name: "CrudForm",
@@ -13,7 +14,8 @@ import { selectFilled } from "@/libs/util";
     EditableCellTextField,
     EditableCellSelect,
     SyncCheckbox,
-    ConfirmationIconButton
+    ConfirmationIconButton,
+    EditableCellTextArea
   },
   emits: ["submit"]
 })
@@ -44,6 +46,24 @@ export default toNative(CrudForm);
   <div v-for="field in fields">
     <EditableCellTextField
       v-if="field.type=='text' && (!select || select == field.name)"
+      :name="field.name"
+      class="bigger-input"
+      :label="field.label"
+      :title="field.label"
+      :showTitle="!select"
+      v-model="formData[field.name]"
+      :disabled="!_interactable"
+      :required="field.required"
+      :error-messages="formData.errors[field.name]"
+      :rules="rules[field.name]"
+      :bypass="bypassEditableCell"
+      :value="formData[field.name]"
+      :confirm-text-maker="(value) => setFieldConfirmText(field.name, data, value, field.getValue)"
+      :on-finish="(value) => setField(field.name, data, value)"
+      v-bind="field.props"
+    />
+    <EditableCellTextArea
+      v-if="field.type=='textarea' && (!select || select == field.name)"
       :name="field.name"
       class="bigger-input"
       :label="field.label"
