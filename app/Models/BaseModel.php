@@ -106,9 +106,11 @@ abstract class BaseModel extends Model
         );
 
         $query = QueryBuilder::for(static::class)
-            ->withEntities()
             ->allowedFilters($filterFields)
             ->allowedSorts($sortFields);
+        if (static::$hasRelationshipEntities){
+            $query = $query->withEntities();
+        }
         if (static::defaultSort()){
             $query = $query->defaultSort(static::defaultSort());
         }
