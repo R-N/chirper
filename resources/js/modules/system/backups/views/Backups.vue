@@ -35,7 +35,7 @@ class BackupView extends CrudViewBase {
   nameField = "id";
   client = backupService;
   uploadDialog = false;
-  formDialog = false;
+  formDialogShow = false;
 
   get itemName() {
     return this.$t("backup.item");
@@ -52,7 +52,7 @@ class BackupView extends CrudViewBase {
 
   showForm(chirp = null) {
     this.editing = chirp;
-    this.formDialog = true;
+    this.formDialogShow = true;
   }
   showUpload() {
     this.uploadDialog = true;
@@ -182,7 +182,7 @@ export default toNative(BackupView);
         :mimeTypes="['application/zip']"
       />
       <SimpleInputDialog
-        v-model="formDialog"
+        v-model="formDialogShow"
         :on-submit="createBackup"
         :title="$t('backup.create_title')"
         :label="$t('backup.create_label')"

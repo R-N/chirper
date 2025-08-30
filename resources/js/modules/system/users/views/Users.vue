@@ -54,7 +54,7 @@ class UserCrudView extends BaseClass {
 
   showForm(user = null) {
     this.editing = user;
-    this.formDialog = true;
+    this.formDialogShow = true;
   }
 }
 export { UserCrudView };
@@ -170,7 +170,7 @@ export default toNative(UserCrudView);
       </component>
       <UserFormDialog
         :data="editing"
-        v-model="formDialog"
+        v-model="formDialogShow"
         @submit="storeItem"
         :parent-busy="busy"
         :availableRoles="availableRoles"

@@ -59,7 +59,7 @@ class SettingCrudView extends BaseClass {
 
   showForm(setting = null) {
     this.editing = setting;
-    this.formDialog = true;
+    this.formDialogShow = true;
   }
 
   async bulkDelete() {
@@ -168,7 +168,7 @@ export default toNative(SettingCrudView);
       </component>
       <SettingFormDialog
         :data="editing"
-        v-model="formDialog"
+        v-model="formDialogShow"
         @submit="storeItem"
         :parent-busy="busy"
         :rules="rules"

@@ -55,7 +55,7 @@ class ChirpCrudView extends BaseClass {
 
   showForm(chirp = null) {
     this.editing = chirp;
-    this.formDialog = true;
+    this.formDialogShow = true;
   }
 
   async bulkDelete() {
@@ -158,7 +158,7 @@ export default toNative(ChirpCrudView);
       </component>
       <ChirpFormDialog
         :data="editing"
-        v-model="formDialog"
+        v-model="formDialogShow"
         @submit="storeItem"
         :parent-busy="busy"
         :rules="rules"

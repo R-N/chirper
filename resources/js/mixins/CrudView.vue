@@ -30,7 +30,7 @@ export const CrudViewMixin = <TBase extends Constructor>(Base: TBase) => {
     @Prop({ type: Object, default: {} }) __query;
     @Prop({ type: [Array], default: null }) __items;
 
-    formDialog = false;
+    formDialogShow = false;
     editing = null;
     search = "";
     _items = [];
