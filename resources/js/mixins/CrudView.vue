@@ -50,7 +50,7 @@ export const CrudViewMixin = <TBase extends Constructor>(Base: TBase) => {
     get query() {
       return { ...this._query, ...this.__query };
     }
-    get rules() {
+    get _rules() {
       return {};
     }
 

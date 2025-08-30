@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Vue, Component, toNative } from "vue-facing-decorator";
+import { Vue, Component, toNative, Ref } from "vue-facing-decorator";
 
 import dayjs from "dayjs";
 
@@ -19,12 +19,18 @@ import { parseLaravelRules } from "@/libs/validation";
 import { BaseMixin } from "@/mixins/Component.vue";
 import { WorkingMixin } from "@/mixins/Working.vue";
 import { CrudViewMixin } from "@/mixins/CrudView.vue";
+import { DeclarativeCrudView } from "@/views/DeclarativeCrudView.vue";
+import { Duration } from "@/components/text/Duration.vue";
+import { Span } from "@/components/text/Span.vue";
 
-const BaseClass = CrudViewMixin(WorkingMixin(BaseMixin(Vue)));
+const BaseClass = WorkingMixin(BaseMixin(Vue));
 
 @Component({
   name: "ChirpCrudView",
   components: {
+    Span,
+    Duration,
+    DeclarativeCrudView,
     ChirpFormDialog,
     CrudView,
     EditableCellTextArea,
@@ -34,136 +40,118 @@ const BaseClass = CrudViewMixin(WorkingMixin(BaseMixin(Vue)));
   }
 })
 class ChirpCrudView extends BaseClass {
+  @Ref("crud") crud : DeclarativeCrudView;
   nameField = "created_at";
   client = chirpService;
+  get formDialog() {
+    return {
+      component: ChirpFormDialog,
+      submit: (item) => this.crud?.storeItem(item),
+    };
+  };
 
+  get title(){
+    return this.$t('chirp.title');
+  }
   get itemName() {
     return this.$t("chirp.item");
-  }
-  get headers() {
-    let headers = [
-      { title: this.$t("crud.user"), value: "user.name" },
-      { title: this.$t("chirp.message"), value: "message" },
-      { title: this.$t("crud.created_at"), value: "created_at" },
-      { title: this.$t("crud.actions"), value: "actions" }
-    ];
-    return headers;
   }
   duration(time) {
     return dayjs(time).fromNow();
   }
+  // get rules() {
+  //   return parseLaravelRules(rules);
+  // }
+  rules=rules;
 
-  showForm(chirp = null) {
-    this.editing = chirp;
-    this.formDialogShow = true;
+  get fields(){
+    return [
+      {
+        component: Span,
+        value: "user.name",
+        title: this.$t("crud.user"),
+        table: true,
+        detail: true,
+        propsMap: {
+          text: "user.name"
+        }
+      },
+      {
+        component: EditableCellTextArea,
+        model: "message",
+        value: "message",
+        title: this.$t("chirp.message"),
+        table: true,
+        detail: true,
+        confirmTextMaker: (item, value) => this.crud?.setFieldConfirmText('message', item, value),
+        props: {
+          editable: true,
+          format: null,
+        }
+      },
+      {
+        component: Duration,
+        value: "created_at",
+        title: this.$t("crud.created_at"),
+        table: true,
+        detail: true,
+        propsMap: {
+          time: "created_at"
+        }
+      },
+    ];
+  }
+  get actions(){
+    return [
+      {
+        component: IconButton,
+        title: "Edit",
+        icon: "mdi-pencil",
+        text: this.$t('form.edit'),
+        onClick: (item) => this.crud?.showForm(item),
+        ask: false,
+      },
+      {
+        component: ConfirmationIconButton,
+        title: "Delete",
+        icon: "mdi-delete",
+        text: this.$t('form.delete'),
+        confirmTextMaker: (item) => this.crud?.deleteConfirmText(item),
+        onConfirm: (item) => this.crud?.delete2(item),
+        ask: true,
+      }
+    ];
   }
 
-  async bulkDelete() {
-    await this.waitBusy(async () => {
-      let res = await chirpService.bulk_destroy({ ids: this.selected });
-      bulkDeleteFromArray(this.items, this.selected);
-      this.selected.splice(0);
-    });
-  }
-
-  get rules() {
-    return parseLaravelRules(rules);
+  get bulkActions(){
+    return [
+      {
+        component: ConfirmationIconButton,
+        name: "delete",
+        icon: "mdi-delete",
+        text: this.$t('crud.delete_selected'),
+        action: async (selected, items) => {
+          let res = await this.client.bulk_destroy({ ids: selected });
+          bulkDeleteFromArray(items, selected);
+          selected.splice(0);
+        }
+      }
+    ];
   }
 }
 export { ChirpCrudView };
 export default toNative(ChirpCrudView);
 </script>
 <template>
-  <CrudView
-    :title="$t('chirp.title')"
-    :create="() => showForm()"
-    :fetch="fetch"
-    v-model:search="search"
-    :export-csv="exportCsv"
-    :export-xlsx="exportXlsx"
-    :export-pdf="exportPdf"
-    :selectable="true"
-    v-model:selecting="selecting"
-    :selected="selected.length"
-  >
-    <template v-slot:bulk-actions>
-      <ConfirmationIconButton
-        class="fill-height d-inline-flex"
-        icon="mdi-delete"
-        :text="$t('crud.delete_selected')"
-        :disabled="busy"
-        :confirmTextMaker="bulkConfirmText('delete')"
-        :on-confirm="bulkDelete"
-        size="default"
-      />
-    </template>
-    <template v-slot:default>
-      <component
-        :is="dataTableComponent"
-        class=""
-        :headers="headers"
-        :items="items"
-        item-key="id"
-        :search="search"
-        :loading="busy"
-        :items-length="itemCount"
-        v-model:items-per-page="itemsPerPage"
-        v-model:page="page"
-        @update:options="debouncedFetch"
-        v-model="selected"
-        :show-select="selecting"
-      >
-        <template v-slot:item.message="{ item }">
-          <EditableCellTextArea
-            name="message"
-            :confirm-text-maker="
-              (value) => setFieldConfirmText('message', item, value)
-            "
-            v-model="item.message"
-            :on-finish="(value) => setField('message', item, value)"
-            :disabled="busy"
-            :rules="rules.message"
-          />
-        </template>
-        <template v-slot:item.created_at="{ item }">
-          <small class="ml-2 text-sm text-gray-600">{{
-            duration(item.created_at)
-          }}</small>
-          <small
-            v-if="item.created_at !== item.updated_at"
-            class="text-sm text-gray-600"
-          >
-            &middot; {{ $t("crud.edited") }}</small
-          >
-        </template>
-        <template v-slot:item.user.name="{ item }">
-          <span class="text-gray-800">{{ item.user.name }}</span>
-        </template>
-        <template v-slot:item.actions="{ item }">
-          <IconButton
-            @click.stop="() => showForm(item)"
-            :disabled="busy"
-            icon="mdi-pencil"
-            :text="$t('form.edit')"
-          />
-          <ConfirmationIconButton
-            icon="mdi-delete"
-            :text="$t('form.delete')"
-            :confirmTextMaker="deleteConfirmText(item)"
-            :on-confirm="() => delete2(item)"
-            :ask="(ask) => justAsk(item, ask)"
-            :disabled="busy"
-          />
-        </template>
-      </component>
-      <ChirpFormDialog
-        :data="editing"
-        v-model="formDialogShow"
-        @submit="storeItem"
-        :parent-busy="busy"
-        :rules="rules"
-      />
-    </template>
-  </CrudView>
+  <DeclarativeCrudView
+    ref="crud"
+    :client="client"
+    :name-field="nameField"
+    :title="title"
+    :fields="fields"
+    :actions="actions"
+    :bulk-actions="bulkActions"
+    :form-dialog="formDialog"
+    :rules="rules"
+  />
 </template>
-<style scoped></style>

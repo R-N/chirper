@@ -266,3 +266,24 @@ export const bindMethod = (cls, obj, methodName) => {
 };
 export const isFunction = (obj) => typeof obj === "function";
 export const checkCsrfError = (e) => getData(getData(e))?.message?.toLowerCase().includes("csrf");
+export const getByPath = (obj, path) => {
+  return path.split('.').reduce((o, k) => (o ? o[k] : undefined), obj)
+}
+
+export const setByPath = (obj, path, value) => {
+  const keys = path.split('.');
+  const last = keys.pop();
+  const target = keys.reduce((o, k) => (o[k] ??= {}), obj);
+  target[last] = value;
+}
+
+export const combineCollection = (obj, arr, name) => {
+  return {
+    ...obj,
+    [Symbol.iterator]: function* () {
+      for (const a of arr){
+        yield a;
+      }
+    }
+  }
+}

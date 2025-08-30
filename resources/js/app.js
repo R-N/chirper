@@ -51,6 +51,16 @@ createInertiaApp({
       let tabStore = useTabStore();
       tabStore.breadcrumbs = [];
     });
+    app.config.warnHandler = (msg, instance, trace) => {
+      if (msg.includes('Data property "client" is already defined in Props')) {
+        return;
+      }else if (msg.includes('Data property "nameField" is already defined in Props')) {
+        return;
+      }else if (msg.includes('Invalid prop: type check failed for prop "rules"')) {
+        return;
+      }
+      console.warn(msg + trace);
+    }
     app.config.errorHandler = (e, vm, info) => {
       if (checkCsrfError(e)) {
         authService.getCsrfToken();
