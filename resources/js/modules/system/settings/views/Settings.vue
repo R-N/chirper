@@ -53,10 +53,10 @@ class SettingCrudView extends BaseClass {
   };
 
   get title(){
-    return this.$t('chirp.title');
+    return this.$t('settings.title');
   }
   get itemName() {
-    return this.$t("chirp.item");
+    return this.$t("settings.item");
   }
 
   get fields(){
