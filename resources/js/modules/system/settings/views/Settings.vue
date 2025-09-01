@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Vue, Component, toNative, Watch } from "vue-facing-decorator";
+import { Vue, Component, toNative, Watch, Ref } from "vue-facing-decorator";
 
 import dayjs from "dayjs";
 
@@ -22,12 +22,15 @@ import { CrudViewMixin } from "@/mixins/CrudView.vue";
 
 import { SettingFormMixin } from "../mixins/SettingForm.vue";
 import { SettingForm } from "../forms/Setting.vue";
+import { DeclarativeCrudView } from "@/views/DeclarativeCrudView.vue";
+import { Duration } from "@/components/text/Duration.vue";
 
-const BaseClass = SettingFormMixin(CrudViewMixin(WorkingMixin(BaseMixin(Vue))));
+const BaseClass = SettingFormMixin(WorkingMixin(BaseMixin(Vue)));
 
 @Component({
   name: "SettingCrudView",
   components: {
+    DeclarativeCrudView,
     SettingFormDialog,
     CrudView,
     EditableCellTextArea,
@@ -39,38 +42,94 @@ const BaseClass = SettingFormMixin(CrudViewMixin(WorkingMixin(BaseMixin(Vue))));
 })
 class SettingCrudView extends BaseClass {
   client = settingService;
+  @Ref("crud") crud : DeclarativeCrudView;
+  nameField = "created_at";
+  rules=rules;
+  get formDialog() {
+    return {
+      component: SettingFormDialog,
+      submit: (item) => this.crud?.storeItem(item),
+    };
+  };
 
+  get title(){
+    return this.$t('chirp.title');
+  }
   get itemName() {
-    return this.$t("settings.item");
+    return this.$t("chirp.item");
   }
-  get headers() {
-    let headers = [
-      { title: this.$t("form.key"), value: "key" },
-      { title: this.$t("form.type"), value: "type" },
-      { title: this.$t("form.value"), value: "value" },
-      { title: this.$t("crud.updated_at"), value: "updated_at" },
-      { title: this.$t("crud.actions"), value: "actions" }
+
+  get fields(){
+    return [
+      {
+        component: SettingForm,
+        value: "key",
+        title: this.$t("form.key"),
+        table: true,
+        detail: true
+      },
+      {
+        component: SettingForm,
+        value: "type",
+        title: this.$t("form.type"),
+        table: true,
+        detail: true
+      },
+      {
+        component: SettingForm,
+        value: "value",
+        title: this.$t("form.value"),
+        table: true,
+        detail: true
+      },
+      {
+        component: Duration,
+        value: "updated_at",
+        title: this.$t("crud.updated_at"),
+        table: true,
+        detail: true,
+        propsMap: {
+          time: "updated_at"
+        }
+      }
     ];
-    return headers;
   }
-  duration(time) {
-    return dayjs(time).fromNow();
+  get actions(){
+    return [
+      {
+        component: IconButton,
+        title: "Edit",
+        icon: "mdi-pencil",
+        text: this.$t('form.edit'),
+        onClick: (item) => this.crud?.showForm(item),
+        ask: false,
+      },
+      {
+        component: ConfirmationIconButton,
+        title: "Delete",
+        icon: "mdi-delete",
+        text: this.$t('form.delete'),
+        confirmTextMaker: (item) => this.crud?.deleteConfirmText(item),
+        onConfirm: (item) => this.crud?.delete2(item),
+        ask: true,
+      }
+    ];
   }
 
-  showForm(setting = null) {
-    this.editing = setting;
-    this.formDialogShow = true;
-  }
-
-  async bulkDelete() {
-    await this.waitBusy(async () => {
-      let res = await settingService.bulk_destroy({ ids: this.selected });
-      bulkDeleteFromArray(this.items, this.selected);
-      this.selected.splice(0);
-    });
-  }
-  get rules() {
-    return parseLaravelRules(rules);
+  get bulkActions(){
+    return [
+      {
+        component: ConfirmationIconButton,
+        name: "delete",
+        icon: "mdi-delete",
+        text: this.$t('crud.delete_selected'),
+        action: async (selected, items) => {
+          let res = await this.client.bulk_destroy({ ids: selected });
+          bulkDeleteFromArray(items, selected);
+          selected.splice(0);
+        }
+      }
+    ];
   }
 
   @Watch("items")
@@ -83,98 +142,15 @@ export { SettingCrudView };
 export default toNative(SettingCrudView);
 </script>
 <template>
-  <CrudView
-    :title="$t('settings.title')"
-    :create="() => showForm()"
-    :fetch="fetch"
-    v-model:search="search"
-    :export-csv="exportCsv"
-    :export-xlsx="exportXlsx"
-    :export-pdf="exportPdf"
-    :selectable="true"
-    v-model:selecting="selecting"
-    :selected="selected.length"
-  >
-    <template v-slot:default>
-      <component
-        :is="dataTableComponent"
-        class=""
-        :headers="headers"
-        :items="items"
-        item-key="id"
-        :search="search"
-        :loading="busy"
-        :items-length="itemCount"
-        v-model:items-per-page="itemsPerPage"
-        v-model:page="page"
-        @update:options="debouncedFetch"
-        v-model="selected"
-        :show-select="selecting"
-      >
-        <template v-slot:item.key="{ item }">
-          <SettingForm
-            :disabled="busy"
-            :bypass-editable-cell="false"
-            :data="item"
-            :rules="rules"
-            select="key"
-            @store="storeItem"
-          />
-        </template>
-        <template v-slot:item.type="{ item }">
-          <SettingForm
-            :disabled="busy"
-            :bypass-editable-cell="false"
-            :data="item"
-            :rules="rules"
-            select="type"
-            @store="storeItem"
-            :setting-types="settingTypes"
-          />
-        </template>
-        <template v-slot:item.value="{ item }">
-          <SettingForm
-            :disabled="busy"
-            :bypass-editable-cell="false"
-            :data="item"
-            :rules="rules"
-            select="value"
-            @store="storeItem"
-          />
-        </template>
-        <template v-slot:item.updated_at="{ item }">
-          <small class="ml-2 text-sm text-gray-600">{{
-            formatDate(item.updated_at)
-          }}</small>
-        </template>
-        <template v-slot:item.actions="{ item }">
-          <div class="d-flex flex-row">
-            <IconButton
-              @click.prevent.stop="() => showForm(item)"
-              :disabled="busy"
-              icon="mdi-pencil"
-              :text="$t('form.edit')"
-            />
-            <SettingForm
-              :disabled="busy"
-              :bypass-editable-cell="false"
-              :data="item"
-              :rules="rules"
-              select="delete"
-              @delete="deleteItem"
-            />
-          </div>
-        </template>
-      </component>
-      <SettingFormDialog
-        :data="editing"
-        v-model="formDialogShow"
-        @submit="storeItem"
-        :parent-busy="busy"
-        :rules="rules"
-        :setting-types="settingTypes"
-      />
-    </template>
-  </CrudView>
+  <DeclarativeCrudView
+    ref="crud"
+    :client="client"
+    :name-field="nameField"
+    :title="title"
+    :fields="fields"
+    :actions="actions"
+    :bulk-actions="bulkActions"
+    :form-dialog="formDialog"
+    :rules="rules"
+  />
 </template>
-<style scoped></style>

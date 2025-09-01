@@ -152,7 +152,7 @@ export default toNative(DeclarativeCrudView);
                 :bypass-editable-cell="false"
                 :data="item"
                 :rules="combineCollection(_rules, _rules[f.name ?? f.value])"
-                :select="f.name"
+                :select="f.value ?? f.name"
                 @store="storeItem"
                 v-model="item[f.value]"
                 v-bind="makeBindings(f, item)"

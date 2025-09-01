@@ -43,6 +43,8 @@ class ChirpCrudView extends BaseClass {
   @Ref("crud") crud : DeclarativeCrudView;
   nameField = "created_at";
   client = chirpService;
+  rules=rules;
+
   get formDialog() {
     return {
       component: ChirpFormDialog,
@@ -56,13 +58,6 @@ class ChirpCrudView extends BaseClass {
   get itemName() {
     return this.$t("chirp.item");
   }
-  duration(time) {
-    return dayjs(time).fromNow();
-  }
-  // get rules() {
-  //   return parseLaravelRules(rules);
-  // }
-  rules=rules;
 
   get fields(){
     return [
