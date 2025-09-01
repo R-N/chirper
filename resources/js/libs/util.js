@@ -287,3 +287,29 @@ export const combineCollection = (obj, arr, name) => {
     }
   }
 }
+
+export const makeBindings = (f, item) => {
+  const bindings = {}
+
+  Object.assign(bindings, f.props ?? {})
+
+  // Handle v-model separately
+  let model = f.model ?? f.value ?? f.name;
+  if (model) {
+    bindings["modelValue"] = getByPath(item, model)
+    if (f.model){
+      bindings["onUpdate:modelValue"] = (val) => {
+        setByPath(item, model, val)
+      }
+    }
+  }
+
+  // Map item attributes to arbitrary prop names
+  if (f.propsMap) {
+    for (const [propName, attrName] of Object.entries(f.propsMap)) {
+      bindings[propName] = getByPath(item, attrName)
+    }
+  }
+  console.log(bindings);
+  return bindings;
+}

@@ -13,7 +13,7 @@ export const SettingFormMixin = <TBase extends Constructor>(Base: TBase) => {
   })
   class SettingFormMixin extends Base {
     nameField = "key";
-    @Prop({ default: [] }) settingTypes;
+    @Prop({ default: ["int", "bool", "decimal", "date", "datetime", "time", "enum", "string", "array", "object"] }) settingTypes;
 
     formatDate(date) {
       return formatDate(date);

@@ -8,13 +8,14 @@ import EditableCellTextArea from "@/components/form/editable_cell/EditableCellTe
 import { VDataTable } from "vuetify/components";
 import IconButton from "@/components/button/IconButton.vue";
 import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.vue";
-import { getByPath, setByPath, combineCollection } from "@/libs/util";
+import { getByPath, setByPath, combineCollection, makeBindings } from "@/libs/util";
 import { parseLaravelRules } from "@/libs/validation";
 
 import { BaseMixin } from "@/mixins/Component.vue";
 import { WorkingMixin } from "@/mixins/Working.vue";
 import { CrudViewMixin } from "@/mixins/CrudView.vue";
 import { filterObject } from "@/libs/util";
+import GenericField, { GenericField } from "@/components/form/GenericField.vue";
 
 const BaseClass = CrudViewMixin(WorkingMixin(BaseMixin(Vue)));
 const emptyFunction = (x) => x;
@@ -25,7 +26,8 @@ const emptyFunction = (x) => x;
     CrudView,
     VDataTable,
     IconButton,
-    ConfirmationIconButton
+    ConfirmationIconButton,
+    GenericField
   }
 })
 class DeclarativeCrudView extends BaseClass {
@@ -41,7 +43,9 @@ class DeclarativeCrudView extends BaseClass {
   combineCollection = combineCollection;
 
   get headers() {
-    let headers = this.fields.map((f) => filterObject(f, ["title", "value"]));
+    let headers = this.fields
+      .filter((f) => f.table)
+      .map((f) => filterObject(f, ["title", "value"]));
     let actions = this.actions;
     if (actions){
       headers = [
@@ -68,28 +72,14 @@ class DeclarativeCrudView extends BaseClass {
     return parseLaravelRules(this.rules);
   }
 
-  makeBindings(f, item) {
-    const bindings = {}
-
-    Object.assign(bindings, f.props ?? {})
-
-    // Handle v-model separately
-    if (f.model) {
-      bindings["modelValue"] = getByPath(item, f.model)
-      bindings["onUpdate:modelValue"] = (val: any) => {
-        setByPath(item, f.model, val)
-      }
-    }
-
-    // Map item attributes to arbitrary prop names
-    if (f.propsMap) {
-      for (const [propName, attrName] of Object.entries(f.propsMap)) {
-        bindings[propName] = getByPath(item, attrName as string)
-      }
-    }
-
-    return bindings;
+  makeBindings(f, item){
+    return makeBindings(f, item);
   }
+
+  get self(){
+    return this;
+  }
+
 }
 export { DeclarativeCrudView };
 export default toNative(DeclarativeCrudView);
@@ -145,23 +135,11 @@ export default toNative(DeclarativeCrudView);
         <template v-slot:item="{ item }">
           <tr>
             <td v-for="(f, i) in fields" :key="f.value">
-              <component
-                :key="i"
-                :is="f.component"
-                :disabled="busy"
-                :bypass-editable-cell="false"
+              <GenericField
+                :field="f"
                 :data="item"
-                :rules="combineCollection(_rules, _rules[f.name ?? f.value])"
-                :select="f.value ?? f.name"
-                @store="storeItem"
-                v-model="item[f.value]"
-                v-bind="makeBindings(f, item)"
-                :confirmTextMaker="
-                  f.confirmTextMaker ? 
-                  (value) => f.confirmTextMaker(item, value) :
-                  (value) => setFieldConfirmText(f.value ?? f.name, item, value)
-                "
-                :parent-busy="busy"
+                :crud="self"
+                :rules="_rules"
               />
             </td>
             <td key="actions">
@@ -185,7 +163,7 @@ export default toNative(DeclarativeCrudView);
                 :data="item"
                 :rules="combineCollection(_rules, _rules[a.name])"
                 :select="a.name"
-                @store="storeItem"
+                @store="a.onStore ?? storeItem"
                 :parent-busy="busy"
               />
             </td>

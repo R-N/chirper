@@ -26,6 +26,7 @@ const BaseClass = SettingFormMixin(CrudFormBase);
 })
 class SettingForm extends BaseClass {
   @Prop({ default: true }) bypassEditableCell;
+  @Prop({ type: Boolean, default: true }) showTitle;
 
   client = settingService;
   formData = useForm({
@@ -41,14 +42,16 @@ class SettingForm extends BaseClass {
         label: this.$t('form.key'),
         type: "text",
         required: true,
+        model: "key"
       },
       {
         name: "type",
         label: this.$t('form.type'),
         type: "select",
         required: true,
-        items: this.settingTypes,
+        model: "type",
         props: {
+          items: this.settingTypes,
           itemTitle: null,
           itemValue: null
         }
@@ -58,6 +61,7 @@ class SettingForm extends BaseClass {
         label: this.$t('form.value'),
         type: "text",
         required: true,
+        model: "value"
       },
     ];
   }

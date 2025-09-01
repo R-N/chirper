@@ -58,6 +58,8 @@ createInertiaApp({
         return;
       }else if (msg.includes('Invalid prop: type check failed for prop "rules"')) {
         return;
+      }else if (msg.includes('Invalid prop: type check failed for prop "modelValue"')) {
+        return;
       }
       console.warn(msg + trace);
     }
@@ -70,7 +72,8 @@ createInertiaApp({
         tabStore.showError(e?.response?.data ?? e);
         return true;
       }
-      console.error(e);
+      throw e;
+      console.error(e + info);
       return false;
     };
     return app.mount(el);

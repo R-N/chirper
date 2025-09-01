@@ -66,21 +66,30 @@ class SettingCrudView extends BaseClass {
         value: "key",
         title: this.$t("form.key"),
         table: true,
-        detail: true
+        detail: true,
+        props: {
+          showTitle: false
+        }
       },
       {
         component: SettingForm,
         value: "type",
         title: this.$t("form.type"),
         table: true,
-        detail: true
+        detail: true,
+        props: {
+          showTitle: false
+        }
       },
       {
         component: SettingForm,
         value: "value",
         title: this.$t("form.value"),
         table: true,
-        detail: true
+        detail: true,
+        props: {
+          showTitle: false
+        }
       },
       {
         component: Duration,

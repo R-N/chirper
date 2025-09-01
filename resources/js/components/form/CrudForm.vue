@@ -7,10 +7,12 @@ import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.v
 import { WorkingComponent } from "../WorkingComponent.vue";
 import { selectFilled } from "@/libs/util";
 import EditableCellTextArea from "./editable_cell/EditableCellTextArea.vue";
+import { GenericField } from "./GenericField.vue";
 
 @Component({
   name: "CrudForm",
   components: {
+    GenericField,
     EditableCellTextField,
     EditableCellSelect,
     SyncCheckbox,
@@ -38,64 +40,26 @@ class CrudForm extends WorkingComponent {
   selectFilled(obj){
     return selectFilled(obj);
   }
+
+  get self(){
+    return this;
+  }
 }
 export { CrudForm };
 export default toNative(CrudForm);
 </script>
 <template>
   <div v-for="field in fields">
-    <EditableCellTextField
-      v-if="field.type=='text' && (!select || select == field.name)"
-      :name="field.name"
-      class="bigger-input"
-      :label="field.label"
-      :title="field.label"
-      :showTitle="!select"
-      v-model="formData[field.name]"
-      :disabled="!_interactable"
-      :required="field.required"
-      :error-messages="formData.errors[field.name]"
-      :rules="rules[field.name]"
-      :bypass="bypassEditableCell"
-      :value="formData[field.name]"
-      :confirm-text-maker="(value) => setFieldConfirmText(field.name, data, value, field.getValue)"
-      :on-finish="(value) => setField(field.name, data, value)"
-      v-bind="field.props"
-    />
-    <EditableCellTextArea
-      v-if="field.type=='textarea' && (!select || select == field.name)"
-      :name="field.name"
-      class="bigger-input"
-      :label="field.label"
-      :title="field.label"
-      :showTitle="!select"
-      v-model="formData[field.name]"
-      :disabled="!_interactable"
-      :required="field.required"
-      :error-messages="formData.errors[field.name]"
-      :rules="rules[field.name]"
-      :bypass="bypassEditableCell"
-      :value="formData[field.name]"
-      :confirm-text-maker="(value) => setFieldConfirmText(field.name, data, value, field.getValue)"
-      :on-finish="(value) => setField(field.name, data, value)"
-      v-bind="field.props"
-    />
-    <EditableCellSelect
-      v-if="field.type=='select' && (!select || select == field.name) && (selectFilled(data?.[field.name]) || (field.values || field.items)?.length)"
-      class="bigger-input"
-      :name="field.name"
-      :label="field.label"
-      :title="field.label"
-      :showTitle="!select"
-      :items="field.values || field.items"
-      v-model="formData[field.name]"
-      :disabled="!_interactable"
-      :required="field.required"
-      :error-messages="formData.errors[field.name]"
-      :bypass="bypassEditableCell"
-      :confirm-text-maker="(value) => setFieldConfirmText(field.name, data, value)"
-      :on-finish="(value) => setField(field.name, data, value)"
-      v-bind="field.props"
+    <GenericField
+      v-if="(!select || select == field.name)"
+      :key="field.name"
+      :field="field"
+      :data="data"
+      :crud="self"
+      :rules="rules"
+      :bypass-editable-cell="bypassEditableCell && !select"
+      :show-title="!select"
+      :form-data="formData"
     />
   </div>
 </template>

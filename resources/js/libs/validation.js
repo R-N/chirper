@@ -39,6 +39,8 @@ export const parseLaravelRules = (rules) => {
     }, {});
   }
 
+  if (typeof rules === "function") return rules;
+  if (Array.isArray(rules)) return rules;
   if (typeof rules === "string") rules = rules.split("|");
   rules = rules.map((r) => r.trim());
   const functions = [];
@@ -50,7 +52,7 @@ export const parseLaravelRules = (rules) => {
       const [name, param] = rule.split(":");
       if (ruleMapper[name]) {
         functions.push(
-          wrapOptional(ruleMapper[name](Number(param)), hasRequired)
+          wrapOptional(ruleMapper[name](param), hasRequired)
         );
       }
     } else {
