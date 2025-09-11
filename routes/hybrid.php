@@ -115,3 +115,19 @@ Route::middleware([
         Route::delete('/{setting}', [SettingsController::class, 'destroy'])->name('destroy');
     });
 });
+
+Route::any('{any}', function (\Illuminate\Http\Request $request) {
+    return [
+      'uri' => $request->getRequestUri(),
+      'path' => $request->path(),
+      'fullUrl' => $request->fullUrl(),
+    ];
+})->where('any', '.*');
+Route::get('/test-auth', function () {
+  return [
+      'auth_check' => Auth::check(),
+      'guard' => Auth::getDefaultDriver(),
+      'user' => Auth::user(),
+      'session' => session()->all(),
+  ];
+});

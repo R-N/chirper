@@ -34,7 +34,9 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
-        $request->session()->regenerate();
+        if ($request->hasSession()) {
+            $request->session()->regenerate();
+        }
 
         $user = Auth::user()->loadEntities();
 
@@ -58,8 +60,10 @@ class AuthenticatedSessionController extends Controller
         }
 
         Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
 
         return ResponseUtil::jsonRedirectResponse([
             'message' => __('auth.logout_success'),
