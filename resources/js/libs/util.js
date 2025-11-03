@@ -310,6 +310,5 @@ export const makeBindings = (f, item) => {
       bindings[propName] = getByPath(item, attrName)
     }
   }
-  console.log(bindings);
   return bindings;
 }

@@ -4,12 +4,16 @@ import vue from "@vitejs/plugin-vue";
 import vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 import vueDevTools from "vite-plugin-vue-devtools";
 import { execSync } from "child_process";
+import path from 'path'
+import { fileURLToPath, URL } from "url";
 //import babel from '@qubit-ltd/vite-plugin-babel';
 
 execSync("php artisan lang:export");
 execSync("php artisan validation:export");
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  root: __dirname,
+  // base: command === "build" ? "/chirper/" : "/",
   plugins: [
     laravel({
       input: "resources/js/app.js",
@@ -40,6 +44,14 @@ export default defineConfig({
     //babel(),
     vueDevTools()
   ],
+  resolve: {
+    alias: [
+      { find: '/@/', replacement: fileURLToPath(new URL('./resources/js', import.meta.url)) },
+      { find: '@', replacement: fileURLToPath(new URL('./resources/js', import.meta.url)) }
+      // { find: '/@/', replacement: '/resources/js' },
+      // { find: '@', replacement: '/resources/js' }
+    ],
+  },
   server: {
     host: "localhost",
     port: 5173,
@@ -51,4 +63,4 @@ export default defineConfig({
     minify: false,
     sourcemap: true
   }
-});
+}));
