@@ -18,9 +18,7 @@ const props = defineProps<{
   selecting?: boolean;
   selectable?: boolean;
   selected?: any;
-  parentBusy?: any;
 }>();
-
 const emit = defineEmits<{
   (e: "update:modelValue", value: any): void;
   (e: "update:search", value: any): void;

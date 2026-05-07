@@ -22,7 +22,6 @@ const props = defineProps<{
   actions?: any[];
   bulkActions?: any[];
   rules?: object;
-  parentBusy?: any;
   query?: any;
 }>();
 
@@ -167,7 +166,6 @@ defineExpose({
         size="default"
         :disabled="busy"
         v-bind="ba.props"
-        :parent-busy="busy"
       />
     </template>
     <template v-slot:default>
@@ -184,7 +182,7 @@ defineExpose({
         @update:options="debouncedFetch"
         v-model="selected"
         :show-select="selecting"
-        :parent-busy="busy"
+        
       >
         <template v-slot:item="{ item }">
           <tr>
@@ -218,7 +216,7 @@ defineExpose({
                 :rules="combineCollection(_rules, _rules[a.name])"
                 :select="a.name"
                 @store="a.onStore ?? storeItem"
-                :parent-busy="busy"
+                
               />
             </td>
           </tr>
@@ -231,7 +229,7 @@ defineExpose({
         :data="editing"
         v-model="formDialogShow"
         @submit="formDialog.submit"
-        :parent-busy="busy"
+        
         :rules="_rules"
         v-bind="formDialog.props"
       />

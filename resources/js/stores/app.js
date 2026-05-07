@@ -6,8 +6,6 @@ export const useAppStore = defineStore("app", {
   state: () => ({
     globalLogout: false,
     globalRefresh: false,
-    globalBusy: false,
-    authBusy: false,
 
     userPresent: true,
     serverReachable: true,

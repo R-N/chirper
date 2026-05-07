@@ -5,6 +5,7 @@ import { createI18n } from "@/plugins/i18n";
 
 import { createInertiaApp, router } from "@inertiajs/vue3";
 import { useTabStore } from "@/stores/tab";
+import { provideBusy } from "@/composables/useBusy";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { createApp, h } from "vue";
 import { createPinia } from "pinia";
@@ -41,6 +42,7 @@ createInertiaApp({
     let app = createApp({ render: () => h(App, { InertiaApp, props }) });
     //app.config.devtools = true;
     const pinia = createPinia().use(piniaPersist);
+    const busy = provideBusy();
     app = app
       .use(plugin)
       .use(ZiggyVue)
@@ -51,14 +53,8 @@ createInertiaApp({
       let tabStore = useTabStore();
       tabStore.breadcrumbs = [];
     });
-    router.on("start", () => {
-      let tabStore = useTabStore();
-      tabStore.routerBusy = true;
-    });
-    router.on("finish", () => {
-      let tabStore = useTabStore();
-      tabStore.routerBusy = false;
-    });
+    router.on("start", () => busy.start());
+    router.on("finish", () => busy.end());
     app.config.warnHandler = (msg, instance, trace) => {
       if (msg.includes('Data property "client" is already defined in Props')) {
         return;

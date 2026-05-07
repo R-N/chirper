@@ -4,9 +4,6 @@ import { router } from "@inertiajs/vue3";
 
 export const useTabStore = defineStore("tab", {
   state: () => ({
-    tabBusy: false,
-    routerBusy: false,
-
     routeValid: true,
     tabDialogs: [],
     breadcrumbs: []

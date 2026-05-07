@@ -1,71 +1,37 @@
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { useAuth } from "./useAuth";
+import { useBusy } from "./useBusy";
 import { checkCsrfError } from "@/libs/util";
 import authService from "@/modules/user/auth/services/auth";
 
-export function useWorking(props = {}) {
+export function useWorking(_props = {}) {
   const {
     appStore, tabStore, serverReachable, settings, visit,
     authStore, isLoggedIn, auth_token, user, userRoles, userRolesText, userName,
   } = useAuth();
 
-  const selfBusy = ref(false);
+  const busyState = useBusy();
 
-  const busy = computed(() => {
-    return (
-      selfBusy.value ||
-      props.parentBusy ||
-      tabStore.routerBusy ||
-      tabStore.tabBusy ||
-      appStore.authBusy ||
-      appStore.globalBusy
-    );
-  });
+  const selfBusy = ref(false);    // no-op, kept for backward compat
+  const globalBusy = ref(false);  // no-op, kept for backward compat
+  const authBusy = ref(false);    // no-op, kept for backward compat
+  const tabBusy = ref(false);     // no-op, kept for backward compat
 
-  function releaseBusy() {
-    selfBusy.value = false;
+  function releaseBusy() {}       // no-op, kept for backward compat
+
+  async function waitBusy(f, _busyRef = null, _releaseBusyFlag = true) {
+    return await busyState.run(f);
   }
-
-  const globalBusy = computed({
-    get: () => appStore.globalBusy,
-    set: (v) => { appStore.globalBusy = v; },
-  });
-
-  const authBusy = computed({
-    get: () => appStore.authBusy,
-    set: (v) => { appStore.authBusy = v; },
-  });
-
-  const tabBusy = computed({
-    get: () => tabStore.tabBusy,
-    set: (v) => { tabStore.tabBusy = v; },
-  });
 
   function showError(error) {
     tabStore.showError(error);
   }
 
-  async function waitBusy(f, busyRef = null, releaseBusyFlag = true) {
-    const target = busyRef || selfBusy;
-    target.value = true;
-    try {
-      return await f();
-    } catch (e) {
-      if (checkCsrfError(e)) {
-        await authService.getCsrfToken();
-      } else {
-        throw e;
-      }
-    } finally {
-      if (releaseBusyFlag) target.value = false;
-    }
-  }
-
   return {
     appStore, tabStore, serverReachable, settings, visit,
     authStore, isLoggedIn, auth_token, user, userRoles, userRolesText, userName,
+    busy: busyState.busy,
     selfBusy,
-    busy,
     releaseBusy,
     globalBusy,
     authBusy,

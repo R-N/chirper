@@ -10,11 +10,7 @@ import {
 } from "vuetify/components";
 import LoginView from "@/modules/user/auth/views/Login.vue";
 
-const props = defineProps<{
-  parentBusy?: any;
-}>();
-
-const { busy, tabStore, isLoggedIn, serverReachable } = useViewBase(props);
+const { busy, tabStore, isLoggedIn, serverReachable } = useViewBase({});
 
 const transitionDuration = {
   enter: 300,

@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { useAuth } from "@/composables/useAuth";
+import { useAppStore } from "@/stores/app";
+import { useBusy } from "@/composables/useBusy";
 
-const { appStore } = useAuth();
+const appStore = useAppStore();
+const busy = useBusy();
 
 const props = withDefaults(defineProps<{
   icon?: boolean;
@@ -11,14 +13,11 @@ const props = withDefaults(defineProps<{
   large: true,
 });
 
-async function refresh() {
-  appStore.setRouterBusy(true);
-  if (!appStore.globalBusy && !appStore.authBusy) {
+function refresh() {
+  if (!busy.value) {
     window.location.reload();
   } else {
-    appStore.setAuthBusy(false);
-    appStore.setGlobalBusy(false);
-    appStore.setGlobalRefresh(true);
+    appStore.globalRefresh = true;
   }
 }
 </script>

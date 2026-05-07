@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { Head, Link, router } from "@inertiajs/vue3";
+import { Head, Link } from "@inertiajs/vue3";
 import { VMain, VCol, VRow, VContainer, VApp } from "vuetify/components";
 import {
   VFadeTransition,
@@ -9,6 +9,7 @@ import {
   VExpandTransition
 } from "vuetify/components";
 import { useViewBase } from "@/composables/useViewBase";
+import { useBusy } from "@/composables/useBusy";
 
 import TopNavBar from "@/components/main/TopNavBar.vue";
 import SideNavDrawer from "@/components/main/SideNavDrawer.vue";
@@ -22,10 +23,10 @@ import MainView from "@/views/MainView.vue";
 
 const props = defineProps<{
   title?: string;
-  parentBusy?: any;
 }>();
 
-const { busy, serverReachable, tabStore, appStore, isLoggedIn } = useViewBase(props);
+const busyState = useBusy();
+const { serverReachable, tabStore, appStore, isLoggedIn } = useViewBase(props);
 
 const appName = import.meta.env.VITE_APP_NAME || "Chirper";
 const drawer = ref(false);
@@ -42,7 +43,7 @@ const breadcrumbs = computed(() => tabStore.breadcrumbs);
 
 watch(globalRefresh, (val) => {
   if (val) {
-    tabStore.routerBusy = true;
+    busyState.start();
     appStore.globalRefresh = false;
     window.location.reload();
   }

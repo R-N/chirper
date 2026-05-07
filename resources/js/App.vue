@@ -4,7 +4,6 @@ import { useViewBase } from "@/composables/useViewBase";
 defineProps<{
   InertiaApp?: object;
   props?: object;
-  parentBusy?: any;
 }>();
 
 useViewBase({});

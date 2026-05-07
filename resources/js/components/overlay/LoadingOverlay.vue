@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
-import { useWorking } from "@/composables/useWorking";
+import { useBusy } from "@/composables/useBusy";
 import RefreshButton from "@/components/general/RefreshButton.vue";
 import CenterLayout from "@/components/layout/CenterLayout.vue";
 
@@ -8,10 +8,9 @@ const props = defineProps({
   circleSizeRefresh: { default: 96 },
   circleSizeNormal: { default: 64 },
   mayRefreshWait: { default: 5 },
-  parentBusy: { default: false },
 });
 
-const { busy } = useWorking(props);
+const { busy } = useBusy();
 
 const mayRefresh = ref(false);
 const mayRefreshTimer = ref(null);
