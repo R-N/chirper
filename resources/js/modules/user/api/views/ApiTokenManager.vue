@@ -1,4 +1,5 @@
-<script lang="ts">
+<script setup lang="ts">
+import { ref, computed, onMounted } from "vue";
 import { useForm, router } from "@inertiajs/vue3";
 import ActionMessage from "@/components/auth/ActionMessage.vue";
 import ActionSection from "@/components/auth/ActionSection.vue";
@@ -18,107 +19,76 @@ import {
   VSnackbar
 } from "vuetify/components";
 import axios from "@/plugins/axios";
-import { Component, Prop, Vue, toNative, Ref } from "vue-facing-decorator";
 
-@Component({
-  components: {
-    ActionMessage,
-    ActionSection,
-    FormSection,
-    InputLabel,
-    VCard,
-    VCardTitle,
-    VCardText,
-    VCardActions,
-    VDialog,
-    VCheckbox,
-    VBtn,
-    VTextField,
-    VRow,
-    VCol,
-    VSnackbar
-  }
-})
-class ApiTokenManagerPage extends Vue {
-  @Prop({ type: Array }) tokens;
-  @Prop({ type: Array }) availablePermissions;
-  @Prop({ type: Array }) defaultPermissions;
+const props = defineProps<{
+  tokens: any[];
+  availablePermissions: string[];
+  defaultPermissions: string[];
+}>();
 
-  createApiTokenForm = useForm({
-    name: "",
-    permissions: []
+const createApiTokenForm = useForm({
+  name: "",
+  permissions: [] as string[]
+});
+
+const updateApiTokenForm = useForm({
+  permissions: [] as string[]
+});
+
+const deleteApiTokenForm = useForm({});
+
+const displayingToken = ref(false);
+const managingPermissionsFor = ref<any>(null);
+const apiTokenBeingDeleted = ref<any>(null);
+
+onMounted(() => {
+  createApiTokenForm.permissions = [...props.defaultPermissions];
+});
+
+async function createApiToken() {
+  createApiTokenForm.post(route("api-tokens.store"), {
+    preserveScroll: true,
+    onSuccess: () => {
+      displayingToken.value = true;
+      createApiTokenForm.reset();
+    }
   });
-
-  updateApiTokenForm = useForm({
-    permissions: []
-  });
-
-  deleteApiTokenForm = useForm({});
-
-  displayingToken = false;
-  managingPermissionsFor = null;
-  apiTokenBeingDeleted = null;
-
-  mounted() {
-    this.createApiTokenForm.permissions = this.defaultPermissions;
-  }
-
-  async createApiToken() {
-    this.createApiTokenForm.post(route("api-tokens.store"), {
-      preserveScroll: true,
-      onSuccess: () => {
-        this.displayingToken = true;
-        this.createApiTokenForm.reset();
-      }
-    });
-    // let res = await axios.post(route('api-tokens.store'), this.createApiTokenForm);
-    // console.log(res);
-    // this.displayingToken = true;
-    // this.createApiTokenForm.reset();
-  }
-
-  manageApiTokenPermissions(token) {
-    this.updateApiTokenForm.permissions = token.abilities;
-    this.managingPermissionsFor = token;
-  }
-
-  async updateApiToken() {
-    this.updateApiTokenForm.put(
-      route("api-tokens.update", this.managingPermissionsFor),
-      {
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => (this.managingPermissionsFor = null)
-      }
-    );
-    // let res = await axios.put(route('api-tokens.update'), this.updateApiTokenForm);
-    // this.managingPermissionsFor = null;
-  }
-
-  confirmApiTokenDeletion(token) {
-    this.apiTokenBeingDeleted = token;
-  }
-
-  async deleteApiToken() {
-    // deleteApiTokenForm.delete(route('api-tokens.destroy', apiTokenBeingDeleted.value), {
-    //     preserveScroll: true,
-    //     preserveState: true,
-    //     onSuccess: () => (apiTokenBeingDeleted.value = null),
-    // });
-    let res = await axios.delete(
-      route("api-tokens.destroy", this.apiTokenBeingDeleted.id),
-      {
-        data: this.deleteApiTokenForm
-      }
-    );
-    this.apiTokenBeingDeleted = null;
-    router.reload({ preserveScroll: true, preserveState: true });
-  }
-  get isManagingPermissions() {
-    return this.managingPermissionsFor != null;
-  }
 }
-export default toNative(ApiTokenManagerPage);
+
+function manageApiTokenPermissions(token: any) {
+  updateApiTokenForm.permissions = [...token.abilities];
+  managingPermissionsFor.value = token;
+}
+
+async function updateApiToken() {
+  updateApiTokenForm.put(
+    route("api-tokens.update", managingPermissionsFor.value),
+    {
+      preserveScroll: true,
+      preserveState: true,
+      onSuccess: () => (managingPermissionsFor.value = null)
+    }
+  );
+}
+
+function confirmApiTokenDeletion(token: any) {
+  apiTokenBeingDeleted.value = token;
+}
+
+async function deleteApiToken() {
+  let res = await axios.delete(
+    route("api-tokens.destroy", apiTokenBeingDeleted.value.id),
+    {
+      data: deleteApiTokenForm
+    }
+  );
+  apiTokenBeingDeleted.value = null;
+  router.reload({ preserveScroll: true, preserveState: true });
+}
+
+const isManagingPermissions = computed(() => {
+  return managingPermissionsFor.value != null;
+});
 </script>
 
 <template>

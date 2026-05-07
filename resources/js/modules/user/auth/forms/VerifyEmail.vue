@@ -1,50 +1,44 @@
-<script lang="ts">
-import { Component, Prop, Ref, toNative } from "vue-facing-decorator";
-import { WorkingComponent } from "@/components/WorkingComponent.vue";
-
+<script setup lang="ts">
+import { ref, computed } from "vue";
 import { useForm, router } from "@inertiajs/vue3";
 import { VTextField, VBtn, VCardText, VCardActions } from "vuetify/components";
 import authService from "@/modules/user/auth/services/auth.js";
 import CardTitle from "@/components/card/CardTitle.vue";
+import { useWorking } from "@/composables/useWorking";
+import { t } from "@/plugins/i18n";
 
-@Component({
-  name: "VerifyEmailForm",
-  components: {
-    CardTitle
-  }
-})
-class VerifyEmailForm extends WorkingComponent {
-  valid = true;
-  @Prop({ type: String }) status;
-  @Ref("form") formRef;
+const props = defineProps<{
+  status?: string;
+}>();
 
-  formData = useForm({
-    email: ""
-  });
+const { tabStore, busy, waitBusy, globalBusy, isLoggedIn } = useWorking(props);
 
-  get verificationLinkSent() {
-    return this.status === "verification-link-sent";
-  }
+const valid = ref(true);
+const formRef = ref<any>(null);
 
-  async submit() {
-    let res = await authService.verifyEmail(this.formData);
-    router.visit(res.redirect || "/login");
-  }
-  async send() {
-    this.formData?.clearErrors?.();
-    this.formRef.validate();
-    if (!this.valid) return;
-    await this.waitBusy(async () => {
-      let res = await authService.verifyEmail(this.formData);
-      this.tabStore.tabDialogs.push({
-        title: this.$t("auth.check_email"),
-        text: this.$t("verify_email.sent")
-      });
-    }, "globalBusy");
-  }
+const formData = useForm({
+  email: ""
+});
+
+const verificationLinkSent = computed(() => props.status === "verification-link-sent");
+
+async function submit() {
+  let res = await authService.verifyEmail(formData);
+  router.visit(res.redirect || "/login");
 }
-export { VerifyEmailForm };
-export default toNative(VerifyEmailForm);
+
+async function send() {
+  formData?.clearErrors?.();
+  formRef.value?.validate();
+  if (!valid.value) return;
+  await waitBusy(async () => {
+    let res = await authService.verifyEmail(formData);
+    tabStore.tabDialogs.push({
+      title: t("auth.check_email"),
+      text: t("verify_email.sent")
+    });
+  }, globalBusy);
+}
 </script>
 <template>
   <VForm

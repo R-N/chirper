@@ -1,14 +1,7 @@
-<script lang="ts">
-import { Vue, Component, Prop, toNative } from "vue-facing-decorator";
-
-@Component({
-  name: "ImageBackground"
-})
-class ImageBackground extends Vue {
-  @Prop({ type: String }) src;
-}
-export { ImageBackground };
-export default toNative(ImageBackground);
+<script setup lang="ts">
+defineProps({
+  src: { type: String },
+});
 </script>
 <template>
   <img class="bg" :src="src" v-if="src" />

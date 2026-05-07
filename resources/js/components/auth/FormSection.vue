@@ -1,5 +1,5 @@
-<script lang="ts">
-import { Component, Vue, toNative, Emit } from "vue-facing-decorator";
+<script setup lang="ts">
+import { computed, useSlots } from "vue";
 import SectionTitle from "./SectionTitle.vue";
 import {
   VContainer,
@@ -10,28 +10,17 @@ import {
   VCardActions
 } from "vuetify/components";
 
-@Component({
-  components: {
-    SectionTitle,
-    VContainer,
-    VRow,
-    VCol,
-    VCard,
-    VCardText,
-    VCardActions
-  },
-  emits: ["submitted"]
-})
-class FormSection extends Vue {
-  @Emit("submitted")
-  submitted() {}
+const emit = defineEmits<{
+  submitted: [];
+}>();
 
-  get hasActions() {
-    return !!this.$slots.actions;
-  }
+const slots = useSlots();
+
+const hasActions = computed(() => !!slots.actions);
+
+function submitted() {
+  emit("submitted");
 }
-
-export default toNative(FormSection);
 </script>
 
 <template>

@@ -1,52 +1,44 @@
-<script lang="ts">
-import { Component, Prop, toNative } from "vue-facing-decorator";
+<script setup lang="ts">
+import { computed } from "vue";
 import EditableCellTextField from "@/components/form/editable_cell/EditableCellTextField.vue";
 import EditableCellSelect from "@/components/form/editable_cell/EditableCellSelect.vue";
 import SyncCheckbox from "@/components/checkbox/SyncCheckbox.vue";
 import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.vue";
-import { WorkingComponent } from "../WorkingComponent.vue";
+import { useWorking } from "@/composables/useWorking";
 import { selectFilled } from "@/libs/util";
 import EditableCellTextArea from "./editable_cell/EditableCellTextArea.vue";
-import { GenericField } from "./GenericField.vue";
+import GenericField from "./GenericField.vue";
 
-@Component({
-  name: "CrudForm",
-  components: {
-    GenericField,
-    EditableCellTextField,
-    EditableCellSelect,
-    SyncCheckbox,
-    ConfirmationIconButton,
-    EditableCellTextArea
-  },
-  emits: ["submit"]
-})
-class CrudForm extends WorkingComponent {
-  @Prop({ type: Function, default: null }) setFieldConfirmText;
-  @Prop({ type: Function, default: null }) setField;
-  @Prop({ default: null }) data;
-  @Prop({ default: true }) bypassEditableCell;
-  @Prop({ default: [] }) fields;
-  @Prop({ default: {} }) rules;
-  @Prop({ default: true }) interactable;
-  @Prop({ default: false }) disabled;
-  @Prop({ default: {} }) formData;
-  @Prop({ type: String, default: null }) select;
+const props = defineProps({
+  setFieldConfirmText: { type: Function, default: null },
+  setField: { type: Function, default: null },
+  data: { default: null },
+  bypassEditableCell: { default: true },
+  fields: { default: () => [] },
+  rules: { default: () => ({}) },
+  interactable: { default: true },
+  disabled: { default: false },
+  formData: { default: () => ({}) },
+  select: { type: String, default: null },
+  parentBusy: { default: false },
+});
 
-  get _interactable(){
-    return this.interactable && !this.busy && !this.disabled;
-  }
+const emit = defineEmits(["submit"]);
 
-  selectFilled(obj){
-    return selectFilled(obj);
-  }
+const { busy } = useWorking(props);
 
-  get self(){
-    return this;
-  }
+const _interactable = computed(() => props.interactable && !busy.value && !props.disabled);
+
+function selectFilledHelper(obj) {
+  return selectFilled(obj);
 }
-export { CrudForm };
-export default toNative(CrudForm);
+
+// Expose properties that GenericField accesses via crud prop
+const crud = computed(() => ({
+  storeItem: null,
+  setFieldConfirmText: props.setFieldConfirmText,
+  setField: props.setField,
+}));
 </script>
 <template>
   <div v-for="field in fields">
@@ -55,7 +47,7 @@ export default toNative(CrudForm);
       :key="field.name"
       :field="field"
       :data="data"
-      :crud="self"
+      :crud="crud"
       :rules="rules"
       :bypass-editable-cell="bypassEditableCell && !select"
       :show-title="!select"

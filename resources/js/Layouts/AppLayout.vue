@@ -1,4 +1,5 @@
-<script lang="ts">
+<script setup lang="ts">
+import { ref, computed, watch } from "vue";
 import { Head, Link, router } from "@inertiajs/vue3";
 import { VMain, VCol, VRow, VContainer, VApp } from "vuetify/components";
 import {
@@ -7,8 +8,7 @@ import {
   VSlideXTransition,
   VExpandTransition
 } from "vuetify/components";
-import { Component, Prop, Vue, toNative, Watch } from "vue-facing-decorator";
-import { GuestLayout } from "@/layouts/GuestLayout.vue";
+import { useViewBase } from "@/composables/useViewBase";
 
 import TopNavBar from "@/components/main/TopNavBar.vue";
 import SideNavDrawer from "@/components/main/SideNavDrawer.vue";
@@ -20,49 +20,43 @@ import IdleOverlay from "@/components/overlay/IdleOverlay.vue";
 import ServerDownView from "@/modules/general/views/ServerDown.vue";
 import MainView from "@/views/MainView.vue";
 
-@Component({
-  components: {
-    TopNavBar,
-    SideNavDrawer,
-    ImageBackground,
-    LoadingOverlay,
-    DialogStack,
-    IdleOverlay,
-    ServerDownView,
-    MainView,
-    Head
-  }
-})
-class AppLayout extends GuestLayout {
-  appName = import.meta.env.VITE_APP_NAME || "Chirper";
-  drawer = false;
-  toggleDrawer(drawer) {
-    this.drawer = drawer;
-  }
-  get globalRefresh() {
-    return this.appStore.globalRefresh;
-  }
-  get globalLogout() {
-    return this.appStore.globalLogout;
-  }
-  @Watch("globalRefresh")
-  onGlobalRefreshFlagSet(val, oldVal) {
-    if (val) {
-      this.tabStore.routerBusy = true;
-      this.appStore.globalRefresh = false;
-      window.location.reload();
-    }
-  }
+const props = defineProps<{
+  title?: string;
+  parentBusy?: any;
+}>();
 
-  @Watch("globalLogout")
-  onGlobalLogoutFlagSet(val, oldVal) {
-    if (val) {
-      this.appStore.globalLogout = false;
-      // router.safePush({ name: "beranda" });
-    }
-  }
+const { busy, serverReachable, tabStore, appStore, isLoggedIn } = useViewBase(props);
+
+const appName = import.meta.env.VITE_APP_NAME || "Chirper";
+const drawer = ref(false);
+
+function toggleDrawer(val: boolean) {
+  drawer.value = val;
 }
-export default toNative(AppLayout);
+
+const globalRefresh = computed(() => appStore.globalRefresh);
+const globalLogout = computed(() => appStore.globalLogout);
+const showBackground = computed(() => serverReachable.value);
+const tabDialogs = computed(() => tabStore.tabDialogs);
+const breadcrumbs = computed(() => tabStore.breadcrumbs);
+
+watch(globalRefresh, (val) => {
+  if (val) {
+    tabStore.routerBusy = true;
+    appStore.globalRefresh = false;
+    window.location.reload();
+  }
+});
+
+watch(globalLogout, (val) => {
+  if (val) {
+    appStore.globalLogout = false;
+  }
+});
+
+async function popTabDialog() {
+  await tabStore.tabDialogs.pop();
+}
 </script>
 <template>
   <VApp class="d-flex">

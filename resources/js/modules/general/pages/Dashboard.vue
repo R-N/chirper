@@ -1,21 +1,10 @@
-<script lang="ts">
-import { Component, Prop, toNative } from "vue-facing-decorator";
-import { ViewBase } from "@/views/ViewBase.vue";
+<script setup lang="ts">
 import AppLayout from "@/layouts/AppLayout.vue";
 import Welcome from "@/modules/general/views/Welcome.vue";
+import { useViewBase } from "@/composables/useViewBase";
 
-@Component({
-  name: "DashboardPage",
-  components: {
-    AppLayout,
-    Welcome
-  }
-})
-class DashboardPage extends ViewBase {
-  mounted() {}
-}
-export { DashboardPage };
-export default toNative(DashboardPage);
+const props = defineProps({});
+const { } = useViewBase(props);
 </script>
 <template>
   <AppLayout title="Dashboard">

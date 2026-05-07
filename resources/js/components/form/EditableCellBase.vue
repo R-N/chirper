@@ -1,19 +1,65 @@
-<script lang="ts">
-import { Vue, Component, toNative } from "vue-facing-decorator";
-import EditableCell from "@/components/form/EditableCell.vue";
-import { WorkingComponent } from "@/components/WorkingComponent.vue";
+<script setup lang="ts">
+import { useWorking } from "@/composables/useWorking";
+import { useEditableCell } from "@/composables/useEditableCell";
 
-import { EditableCellMixin } from "@/mixins/EditableCell.vue";
+const props = defineProps<{
+  bypass?: boolean;
+  title?: string;
+  label?: string;
+  name?: string;
+  modelValue?: any;
+  confirmTextMaker?: string | Function;
+  disabled?: boolean;
+  onFinish?: Function;
+  errorMessages?: any;
+  emitForm?: boolean;
+  rules?: string | object | any[];
+  showTitle?: boolean;
+  parentBusy?: boolean;
+}>();
 
-const BaseClass = EditableCellMixin(WorkingComponent);
+const emit = defineEmits<{
+  (e: "update:modelValue", value: any, releaseBusy?: Function): void;
+  (e: "change", value: any, releaseBusy?: Function): void;
+  (e: "finish", value: any, releaseBusy?: Function): void;
+  (e: "reset"): void;
+}>();
 
-@Component({
-  name: "EditableCellBase",
-  components: {
-    EditableCell
-  }
-})
-class EditableCellBase extends BaseClass {}
-export { EditableCellBase };
-export default toNative(EditableCellBase);
+const { busy, releaseBusy, waitBusy, showError } = useWorking(props);
+
+const {
+  valueEdit,
+  value,
+  formData,
+  _label,
+  _rules,
+  valid,
+  getValue,
+  reset,
+  resetValidation,
+  validate,
+  prepopulate,
+  finish,
+  onUpdate,
+} = useEditableCell(props, emit, { waitBusy, releaseBusy });
+
+defineExpose({
+  valueEdit,
+  value,
+  formData,
+  _label,
+  _rules,
+  valid,
+  getValue,
+  reset,
+  resetValidation,
+  validate,
+  prepopulate,
+  finish,
+  onUpdate,
+  busy,
+  waitBusy,
+  releaseBusy,
+  showError,
+});
 </script>

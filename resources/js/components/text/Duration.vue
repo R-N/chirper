@@ -1,22 +1,14 @@
-<script lang="ts">
+<script setup lang="ts">
 import dayjs from "dayjs";
-import { Vue, Component, Prop, toNative } from "vue-facing-decorator"
 
-@Component({
-  name: "Duration",
-  components: {
-  }
-})
-class Duration  extends Vue {
-  @Prop({ type: [Number, Date, String] }) time;
-  @Prop({ type: [Number, Date, String] }) past;
+defineProps({
+  time: { type: [Number, Date, String] },
+  past: { type: [Number, Date, String] },
+});
 
-  duration(time) {
-    return dayjs(time).fromNow();
-  }
+function duration(time) {
+  return dayjs(time).fromNow();
 }
-export { Duration };
-export default toNative(Duration);
 </script>
 <template>
   <div class="inline-flex items-center">

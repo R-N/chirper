@@ -1,26 +1,21 @@
-<script lang="ts">
+<script setup lang="ts">
 import AppLayout from "@/layouts/AppLayout.vue";
-
-import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
 import BackupView from "../views/Backups.vue";
-import { ViewBase } from "@/views/ViewBase.vue";
+import { useViewBase } from "@/composables/useViewBase";
+import { t } from "@/plugins/i18n";
+import { onMounted } from "vue";
 
-@Component({
-  components: {
-    AppLayout,
-    BackupView
-  }
-})
-class BackupsPage extends ViewBase {
-  @Prop({ type: [Array, Object], default: null }) items;
-  async mounted() {
-    this.tabStore.breadcrumbs = [
-      { title: this.$t("navigation.system") },
-      { title: this.$t("navigation.backup") }
-    ];
-  }
-}
-export default toNative(BackupsPage);
+const props = defineProps<{
+  items?: any;
+}>();
+const { tabStore } = useViewBase(props);
+
+onMounted(async () => {
+  tabStore.breadcrumbs = [
+    { title: t("navigation.system") },
+    { title: t("navigation.backup") }
+  ];
+});
 </script>
 
 <template>

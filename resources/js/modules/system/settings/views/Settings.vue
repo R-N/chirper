@@ -1,154 +1,134 @@
-<script lang="ts">
-import { Vue, Component, toNative, Watch, Ref } from "vue-facing-decorator";
-
-import dayjs from "dayjs";
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from "vue";
 
 import SettingFormDialog from "../views/FormDialog.vue";
-import CrudView from "@/views/CrudView.vue";
-import { CrudViewBase } from "@/views/CrudViewBase.vue";
 import EditableCellTextArea from "@/components/form/editable_cell/EditableCellTextArea.vue";
 
 import settingService from "../services/setting";
-import { VDataTable } from "vuetify/components";
 import IconButton from "@/components/button/IconButton.vue";
 import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.vue";
 import { bulkDeleteFromArray, isObject, isObjectEmpty } from "@/libs/util";
 import rules from "@/validations-gen/settings.json";
 import { parseLaravelRules } from "@/libs/validation";
 
-import { BaseMixin } from "@/mixins/Component.vue";
-import { WorkingMixin } from "@/mixins/Working.vue";
-import { CrudViewMixin } from "@/mixins/CrudView.vue";
+import SettingForm from "../forms/Setting.vue";
+import DeclarativeCrudView from "@/views/DeclarativeCrudView.vue";
+import Duration from "@/components/text/Duration.vue";
+import { t } from "@/plugins/i18n";
 
-import { SettingFormMixin } from "../mixins/SettingForm.vue";
-import { SettingForm } from "../forms/Setting.vue";
-import { DeclarativeCrudView } from "@/views/DeclarativeCrudView.vue";
-import { Duration } from "@/components/text/Duration.vue";
+import { useWorking } from "@/composables/useWorking";
 
-const BaseClass = SettingFormMixin(WorkingMixin(BaseMixin(Vue)));
+const props = defineProps<{
+  parentBusy?: any;
+}>();
 
-@Component({
-  name: "SettingCrudView",
-  components: {
-    DeclarativeCrudView,
-    SettingFormDialog,
-    CrudView,
-    EditableCellTextArea,
-    VDataTable,
-    IconButton,
-    ConfirmationIconButton,
-    SettingForm
-  }
-})
-class SettingCrudView extends BaseClass {
-  client = settingService;
-  @Ref("crud") crud : DeclarativeCrudView;
-  nameField = "created_at";
-  rules=rules;
-  get formDialog() {
-    return {
-      component: SettingFormDialog,
-      submit: (item) => this.crud?.storeItem(item),
-    };
-  };
+const {
+  appStore,
+  busy,
+  waitBusy,
+  showError,
+} = useWorking(props);
 
-  get title(){
-    return this.$t('settings.title');
-  }
-  get itemName() {
-    return this.$t("settings.item");
-  }
+const client = settingService;
+const nameField = "key";
 
-  get fields(){
-    return [
-      {
-        component: SettingForm,
-        value: "key",
-        title: this.$t("form.key"),
-        table: true,
-        detail: true,
-        props: {
-          showTitle: false
-        }
-      },
-      {
-        component: SettingForm,
-        value: "type",
-        title: this.$t("form.type"),
-        table: true,
-        detail: true,
-        props: {
-          showTitle: false
-        }
-      },
-      {
-        component: SettingForm,
-        value: "value",
-        title: this.$t("form.value"),
-        table: true,
-        detail: true,
-        props: {
-          showTitle: false
-        }
-      },
-      {
-        component: Duration,
-        value: "updated_at",
-        title: this.$t("crud.updated_at"),
-        table: true,
-        detail: true,
-        propsMap: {
-          time: "updated_at"
-        }
-      }
-    ];
-  }
-  get actions(){
-    return [
-      {
-        component: IconButton,
-        title: "Edit",
-        icon: "mdi-pencil",
-        text: this.$t('form.edit'),
-        onClick: (item) => this.crud?.showForm(item),
-        ask: false,
-      },
-      {
-        component: ConfirmationIconButton,
-        title: "Delete",
-        icon: "mdi-delete",
-        text: this.$t('form.delete'),
-        confirmTextMaker: (item) => this.crud?.deleteConfirmText(item),
-        onConfirm: (item) => this.crud?.delete2(item),
-        ask: true,
-      }
-    ];
-  }
+const crud = ref<InstanceType<typeof DeclarativeCrudView> | null>(null);
 
-  get bulkActions(){
-    return [
-      {
-        component: ConfirmationIconButton,
-        name: "delete",
-        icon: "mdi-delete",
-        text: this.$t('crud.delete_selected'),
-        action: async (selected, items) => {
-          let res = await this.client.bulk_destroy({ ids: selected });
-          bulkDeleteFromArray(items, selected);
-          selected.splice(0);
-        }
-      }
-    ];
-  }
+const title = computed(() => t("settings.title"));
+const itemName = computed(() => t("settings.item"));
 
-  @Watch("items")
-  setSettings(settings) {
-    if (settings && isObject(settings) && !isObjectEmpty(settings))
-      this.appStore.updateSettings(settings);
-  }
-}
-export { SettingCrudView };
-export default toNative(SettingCrudView);
+const fields = computed(() => [
+  {
+    component: SettingForm,
+    value: "key",
+    title: t("form.key"),
+    table: true,
+    detail: true,
+    props: {
+      showTitle: false,
+    },
+  },
+  {
+    component: SettingForm,
+    value: "type",
+    title: t("form.type"),
+    table: true,
+    detail: true,
+    props: {
+      showTitle: false,
+    },
+  },
+  {
+    component: SettingForm,
+    value: "value",
+    title: t("form.value"),
+    table: true,
+    detail: true,
+    props: {
+      showTitle: false,
+    },
+  },
+  {
+    component: Duration,
+    value: "updated_at",
+    title: t("crud.updated_at"),
+    table: true,
+    detail: true,
+    propsMap: {
+      time: "updated_at",
+    },
+  },
+]);
+
+const actions = computed(() => [
+  {
+    component: IconButton,
+    title: "Edit",
+    icon: "mdi-pencil",
+    text: t("form.edit"),
+    onClick: (item: any) => crud.value?.showForm(item),
+    ask: false,
+  },
+  {
+    component: ConfirmationIconButton,
+    title: "Delete",
+    icon: "mdi-delete",
+    text: t("form.delete"),
+    confirmTextMaker: (item: any) => crud.value?.deleteConfirmText(item),
+    onConfirm: (item: any) => crud.value?.delete2(item),
+    ask: true,
+  },
+]);
+
+const bulkActions = computed(() => [
+  {
+    component: ConfirmationIconButton,
+    name: "delete",
+    icon: "mdi-delete",
+    text: t("crud.delete_selected"),
+    action: async (selected: any[], items: any[]) => {
+      await client.bulk_destroy({ ids: selected });
+      bulkDeleteFromArray(items, selected);
+      selected.splice(0);
+    },
+  },
+]);
+
+const formDialog = computed(() => ({
+  component: SettingFormDialog,
+  submit: (item: any) => crud.value?.storeItem(item),
+}));
+
+// Sync fetched settings to app store (replaces @Watch("items") from mixin)
+watch(
+  () => crud.value?.items,
+  (settings: any) => {
+    if (settings && isObject(settings) && !isObjectEmpty(settings)) {
+      appStore.updateSettings(settings);
+    }
+  },
+  { deep: true },
+);
 </script>
 <template>
   <DeclarativeCrudView

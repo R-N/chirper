@@ -1,5 +1,4 @@
-<script lang="ts">
-import { Vue, Component, Prop, toNative, Emit } from "vue-facing-decorator";
+<script setup lang="ts">
 import {
   VDialog,
   VCard,
@@ -10,38 +9,41 @@ import {
   VBtn
 } from "vuetify/components";
 
-@Component({
-  name: "DialogStack",
-  emits: ["dialogstackpop"]
-})
-class DialogStack extends Vue {
-  @Prop({ type: Array }) items;
-  @Prop({ type: String }) closeText;
+import { computed } from "vue";
 
-  get item() {
-    if (this.items.length == 0) return null;
-    let item = this.items[this.items.length - 1];
-    if (item.log || item.trace || item.showTrace) console.error(item);
-    return item;
-  }
-  set item(value) {
+defineOptions({ name: "DialogStack" });
+
+const props = defineProps<{
+  items: any[];
+  closeText?: string;
+}>();
+
+const emit = defineEmits<{
+  dialogstackpop: [item: any];
+}>();
+
+const item = computed({
+  get() {
+    if (props.items.length == 0) return null;
+    const it = props.items[props.items.length - 1];
+    if (it.log || it.trace || it.showTrace) console.error(it);
+    return it;
+  },
+  set(value) {
     if (!value) {
-      if (this.item.onDismiss) {
-        this.item.onDismiss();
+      if (item.value?.onDismiss) {
+        item.value.onDismiss();
       }
-      this.dialogStackPop();
+      dialogStackPop();
     }
   }
-  get model() {
-    return !!this.item;
-  }
-  @Emit("dialogstackpop")
-  dialogStackPop() {
-    return this.item;
-  }
+});
+
+const model = computed(() => !!item.value);
+
+function dialogStackPop() {
+  emit("dialogstackpop", item.value);
 }
-export { DialogStack };
-export default toNative(DialogStack);
 </script>
 <template>
   <VDialog v-model="model" persistent max-width="290" v-if="item">

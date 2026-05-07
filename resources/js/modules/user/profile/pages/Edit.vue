@@ -1,10 +1,9 @@
-<script lang="ts">
+<script setup lang="ts">
 import AppLayout from "@/layouts/AppLayout.vue";
 import DeleteUserForm from "../views/DeleteUserForm.vue";
 import UpdatePasswordForm from "../views/UpdatePasswordForm.vue";
 import UpdateProfileInformationForm from "../views/UpdateProfileInformationForm.vue";
 import { Head } from "@inertiajs/vue3";
-
 import {
   VContainer,
   VRow,
@@ -13,28 +12,11 @@ import {
   VCardTitle,
   VCardText
 } from "vuetify/components";
-import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
 
-@Component({
-  components: {
-    AppLayout,
-    DeleteUserForm,
-    UpdatePasswordForm,
-    UpdateProfileInformationForm,
-    Head,
-    VContainer,
-    VRow,
-    VCol,
-    VCard,
-    VCardTitle,
-    VCardText
-  }
-})
-class ProfileEditPage extends Vue {
-  @Prop({ type: Boolean }) mustVerifyEmail;
-  @Prop({ type: String }) status;
-}
-export default toNative(ProfileEditPage);
+defineProps<{
+  mustVerifyEmail?: boolean;
+  status?: string;
+}>();
 </script>
 
 <template>

@@ -1,22 +1,15 @@
-<script lang="ts">
-import { Component, Prop, toNative } from "vue-facing-decorator";
-import { ViewBase } from "@/views/ViewBase.vue";
+<script setup lang="ts">
 import CenterLayout from "@/components/layout/CenterLayout.vue";
+import { useViewBase } from "@/composables/useViewBase";
 
-@Component({
-  name: "NotFoundView",
-  components: {
-    CenterLayout
-  }
-})
-class NotFoundView extends ViewBase {}
-export { NotFoundView };
-export default toNative(NotFoundView);
+defineProps<{ pathMatch?: string }>();
+
+useViewBase();
 </script>
 <template>
   <CenterLayout>
     <h1>
-      404 {{ $t("navigation.not_found") }}: {{ this.$route.params.pathMatch }}
+      404 {{ $t("navigation.not_found") }}: {{ $route.params.pathMatch }}
     </h1>
   </CenterLayout>
 </template>

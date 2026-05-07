@@ -1,7 +1,7 @@
-<script lang="ts">
+<script setup lang="ts">
+import { computed } from "vue";
 import ApplicationLogo from "@/components/general/ApplicationLogo.vue";
 import { Head, Link } from "@inertiajs/vue3";
-import { Component, Prop, toNative } from "vue-facing-decorator";
 import { VApp, VMain, VContainer, VCard, VBtn } from "vuetify/components";
 import {
   VFadeTransition,
@@ -9,38 +9,26 @@ import {
   VSlideXTransition,
   VExpandTransition
 } from "vuetify/components";
-import { ViewBase } from "@/views/ViewBase.vue";
+import { useViewBase } from "@/composables/useViewBase";
 import ImageBackground from "@/components/general/ImageBackground.vue";
 import LoadingOverlay from "@/components/overlay/LoadingOverlay.vue";
 import DialogStack from "@/components/dialog/DialogStack.vue";
 import ServerDownView from "@/modules/general/views/ServerDown.vue";
 
-@Component({
-  components: {
-    Head,
-    ImageBackground,
-    LoadingOverlay,
-    DialogStack,
-    ServerDownView
-  }
-})
-class GuestLayout extends ViewBase {
-  @Prop({ type: String }) title;
-  get breadcrumbs() {
-    return this.tabStore.breadcrumbs;
-  }
-  get showBackground() {
-    return this.serverReachable;
-  }
-  get tabDialogs() {
-    return this.tabStore.tabDialogs;
-  }
-  async popTabDialog() {
-    await this.tabStore.tabDialogs.pop();
-  }
+const props = defineProps<{
+  title?: string;
+  parentBusy?: any;
+}>();
+
+const { busy, serverReachable, tabStore } = useViewBase(props);
+
+const breadcrumbs = computed(() => tabStore.breadcrumbs);
+const showBackground = computed(() => serverReachable.value);
+const tabDialogs = computed(() => tabStore.tabDialogs);
+
+async function popTabDialog() {
+  await tabStore.tabDialogs.pop();
 }
-export { GuestLayout };
-export default toNative(GuestLayout);
 </script>
 
 <template>

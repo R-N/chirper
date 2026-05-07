@@ -1,19 +1,10 @@
-<script lang="ts">
-import { Component, Prop, toNative } from "vue-facing-decorator";
-import { ViewBase } from "@/views/ViewBase.vue";
+<script setup lang="ts">
 import AppLayout from "@/layouts/AppLayout.vue";
 import NotFoundView from "../views/NotFound.vue";
+import { useViewBase } from "@/composables/useViewBase";
 
-@Component({
-  name: "NotFoundPage",
-  components: {
-    AppLayout,
-    NotFoundView
-  }
-})
-class NotFoundPage extends ViewBase {}
-export { NotFoundPage };
-export default toNative(NotFoundPage);
+const props = defineProps({});
+const { } = useViewBase(props);
 </script>
 <template>
   <AppLayout title="Dashboard">

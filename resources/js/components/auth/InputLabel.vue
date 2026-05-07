@@ -1,12 +1,7 @@
-<script lang="ts">
-import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
-
-@Component
-class InputLabel extends Vue {
-  @Prop({ type: String }) value;
-}
-
-export default toNative(InputLabel);
+<script setup lang="ts">
+defineProps<{
+  value?: string;
+}>();
 </script>
 
 <template>

@@ -1,37 +1,30 @@
-<script lang="ts">
-import { Vue, Component, Prop, toNative } from "vue-facing-decorator";
+<script setup lang="ts">
+import { useWorking } from "@/composables/useWorking";
 import ConfirmationSlot from "@/components/dialog/ConfirmationSlot.vue";
-import { WorkingComponent } from "@/components/WorkingComponent.vue";
 import IconButton from "@/components/button/IconButton.vue";
 
-@Component({
-  name: "ConfirmationIconButton",
-  components: {
-    ConfirmationSlot,
-    IconButton
-  }
-})
-class ConfirmationIconButton extends WorkingComponent {
-  @Prop({ default: "small" }) size;
-  @Prop({ type: String }) type;
-  @Prop({ type: String }) icon;
-  @Prop({ type: String }) text;
-  @Prop({ type: [String, Function] }) confirmTextMaker;
-  @Prop({ type: Function }) ask;
-  @Prop({ type: Function }) onConfirm;
-  @Prop({ default: false }) disabled;
-  @Prop({ default: null }) item;
+const props = defineProps({
+  size: { default: "small" },
+  type: { type: String },
+  icon: { type: String },
+  text: { type: String },
+  confirmTextMaker: { type: [String, Function] },
+  ask: { type: Function },
+  onConfirm: { type: Function },
+  disabled: { default: false },
+  item: { default: null },
+  parentBusy: { default: false },
+});
 
-  tryAsk(ask) {
-    if (this.ask) {
-      this.ask(ask);
-    } else {
-      ask();
-    }
+const { busy } = useWorking(props);
+
+function tryAsk(ask) {
+  if (props.ask) {
+    props.ask(ask);
+  } else {
+    ask();
   }
 }
-export { ConfirmationIconButton };
-export default toNative(ConfirmationIconButton);
 </script>
 <template>
   <ConfirmationSlot

@@ -1,61 +1,64 @@
-<script lang="ts">
-import {
-  Component,
-  Prop,
-  Watch,
-  Model,
-  Emit,
-  toNative
-} from "vue-facing-decorator";
-import { ViewBase } from "@/views/ViewBase.vue";
+<script setup lang="ts">
+import { computed, useSlots, Comment, Text } from "vue";
+import { useViewBase } from "@/composables/useViewBase";
 
 import MainCard from "@/components/card/MainCard.vue";
 import IconButton from "@/components/button/IconButton.vue";
 
-let modelEvent = "update:modelValue";
+const props = defineProps<{
+  title?: string;
+  createText?: string;
+  refreshText?: string;
+  create?: Function;
+  fetch?: Function;
+  search?: string | object;
+  exportCsv?: any;
+  exportXlsx?: any;
+  exportPdf?: any;
+  selecting?: boolean;
+  selectable?: boolean;
+  selected?: any;
+  parentBusy?: any;
+}>();
 
-@Component({
-  name: "CrudView",
-  components: {
-    MainCard,
-    IconButton
-  },
-  emits: [modelEvent]
-})
-class CrudView extends ViewBase {
-  @Prop({ type: String }) title;
-  @Prop({ type: String }) createText;
-  @Prop({ type: String }) refreshText;
-  @Prop({ type: Function }) create;
-  @Prop({ type: Function }) fetch;
-  @Model({ name: "search", type: [String, Object] }) mySearch;
-  @Prop({ default: null }) exportCsv;
-  @Prop({ default: null }) exportXlsx;
-  @Prop({ default: null }) exportPdf;
-  @Model({ name: "selecting", default: false }) mySelecting;
-  @Prop({ default: false }) selectable;
-  @Prop({ default: true }) selected;
-  _null = null;
+const emit = defineEmits<{
+  (e: "update:modelValue", value: any): void;
+  (e: "update:search", value: any): void;
+  (e: "update:selecting", value: any): void;
+}>();
 
-  @Emit(modelEvent)
-  emitModel(value) {
-    return value;
-  }
-  slotFilled(name) {
-    const slot = this.$slots[name];
-    if (!slot) return false;
+const { busy } = useViewBase(props);
 
-    const nodes = slot();
-    return nodes.some(
-      (vnode) =>
-        vnode.type !== Comment &&
-        vnode.type !== Text &&
-        vnode.type !== undefined
-    );
-  }
+const mySearch = computed({
+  get: () => props.search,
+  set: (v) => emit("update:search", v),
+});
+
+const mySelecting = computed({
+  get: () => props.selecting,
+  set: (v) => emit("update:selecting", v),
+});
+
+import { ref } from "vue";
+const _null = ref(null);
+
+function emitModel(value: any) {
+  emit("update:modelValue", value);
 }
-export { CrudView };
-export default toNative(CrudView);
+
+const slots = useSlots();
+function slotFilled(name: string) {
+  const slot = slots[name];
+  if (!slot) return false;
+
+  const nodes = slot();
+  return nodes.some(
+    (vnode: any) =>
+      vnode.type !== Comment &&
+      vnode.type !== Text &&
+      vnode.type !== undefined
+  );
+}
 </script>
 <template>
   <MainCard :title="title ?? $t('crud.title')">

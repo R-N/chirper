@@ -1,43 +1,38 @@
-<script lang="ts">
-import { Component, Prop, Ref, toNative } from "vue-facing-decorator";
-import { WorkingComponent } from "@/components/WorkingComponent.vue";
+<script setup lang="ts">
+import { ref } from "vue";
 import { useForm, router } from "@inertiajs/vue3";
 import { VTextField, VBtn, VCardText, VCardActions } from "vuetify/components";
 import authService from "@/modules/user/auth/services/auth.js";
-
 import CardTitle from "@/components/card/CardTitle.vue";
+import { useWorking } from "@/composables/useWorking";
+import { t } from "@/plugins/i18n";
 
-@Component({
-  name: "ForgotPasswordForm",
-  components: {
-    CardTitle
-  }
-})
-class ForgotPasswordForm extends WorkingComponent {
-  valid = true;
-  @Prop({ type: String }) status;
-  @Ref("form") formRef;
+const props = defineProps<{
+  status?: string;
+}>();
 
-  formData = useForm({
-    email: ""
-  });
+const { tabStore, busy, waitBusy, globalBusy } = useWorking(props);
 
-  async reset() {
-    this.formData?.clearErrors?.();
-    this.formRef.validate();
-    if (!this.valid) return;
+const valid = ref(true);
+const formRef = ref<any>(null);
 
-    await this.waitBusy(async () => {
-      let res = await authService.forgotPassword(this.formData);
-      this.tabStore.tabDialogs.push({
-        title: this.$t("auth.check_email"),
-        text: this.$t("password_reset.sent")
-      });
-    }, "globalBusy");
-  }
+const formData = useForm({
+  email: ""
+});
+
+async function reset() {
+  formData?.clearErrors?.();
+  formRef.value?.validate();
+  if (!valid.value) return;
+
+  await waitBusy(async () => {
+    let res = await authService.forgotPassword(formData);
+    tabStore.tabDialogs.push({
+      title: t("auth.check_email"),
+      text: t("password_reset.sent")
+    });
+  }, globalBusy);
 }
-export { ForgotPasswordForm };
-export default toNative(ForgotPasswordForm);
 </script>
 <template>
   <VForm

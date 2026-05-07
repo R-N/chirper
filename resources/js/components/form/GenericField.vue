@@ -1,93 +1,57 @@
-<script lang="ts">
-import { Component, Prop, toNative } from "vue-facing-decorator";
-import EditableCellTextField from "@/components/form/editable_cell/EditableCellTextField.vue";
-import EditableCellSelect from "@/components/form/editable_cell/EditableCellSelect.vue";
-import SyncCheckbox from "@/components/checkbox/SyncCheckbox.vue";
-import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.vue";
-import { WorkingComponent } from "../WorkingComponent.vue";
-import { selectFilled, makeBindings, combineCollection } from "@/libs/util";
-import EditableCellTextArea from "./editable_cell/EditableCellTextArea.vue";
+<script setup lang="ts">
+import { computed } from "vue";
+import { useCrudContext } from "@/composables/useCrudContext";
+import { resolveCellComponent } from "@/libs/fieldRegistry";
+import { useWorking } from "@/composables/useWorking";
+import { makeBindings, combineCollection } from "@/libs/util";
 
-export const COMPONENT_MAP = {
-  "text": EditableCellTextField,
-  "textarea": EditableCellTextArea,
-  "select": EditableCellSelect
-}
+const props = defineProps({
+  crud: { type: Object },
+  field: { type: Object },
+  data: { type: Object },
+  formData: { type: Object },
+  rules: { type: [Object, Array] },
+  showTitle: { type: Boolean },
+  bypassEditableCell: { type: Boolean },
+  parentBusy: { default: false },
+});
 
-@Component({
-  name: "GenericField",
-  components: {
-    EditableCellTextField,
-    EditableCellSelect,
-    SyncCheckbox,
-    ConfirmationIconButton,
-    EditableCellTextArea
-  },
-  emits: ["submit"]
-})
-class GenericField extends WorkingComponent {
-  @Prop({ type: Object }) crud;
-  @Prop({ type: Object }) field;
-  @Prop({ type: Object }) data;
-  @Prop({ type: Object }) formData;
-  @Prop({ type: [Object, Array] }) rules;
-  @Prop({ type: Boolean }) showTitle;
-  @Prop({ type: Boolean }) bypassEditableCell;
+const emit = defineEmits(["submit"]);
 
-  makeBindings(f=null, data=null){
-    return makeBindings(f ?? this.field, data ?? this.data);
-  }
+const { busy } = useWorking(props);
 
-  combineCollection(obj, arr){
-    return combineCollection(obj, arr);
-  }
+const crud = computed(() => {
+  try { return useCrudContext(); } catch { return props.crud; }
+});
 
-  get select(){
-    return this.field.select ?? this.field.value ?? this.field.name;
-  }
-  get _rules(){
-    return combineCollection(this.rules, this.rules[this.field.name ?? this.field.value]);
-  }
-  get model(){
-    return this.field.model ?? this.field.value ?? this.field.name;
-  }
-  get name(){
-    return this.field.name ?? this.field.value;
-  }
-  get disabled(){
-    return this.busy;
-  }
-  get store(){
-    return this.field.onStore || this.crud.storeItem;
-  }
-  get confirmTextMaker(){
-    return this.field.confirmTextMaker ? 
-      (value) => this.field.confirmTextMaker(this.data, value) :
-      (value) => this.crud.setFieldConfirmText(
-        this.field.value ?? this.field.name, 
-        this.data, value, 
-        this.field.getValue
+const select = computed(() => props.field.select ?? props.field.value ?? props.field.name);
+const _rules = computed(() => combineCollection(props.rules, props.rules[props.field.name ?? props.field.value]));
+const model = computed(() => props.field.model ?? props.field.value ?? props.field.name);
+const name = computed(() => props.field.name ?? props.field.value);
+const disabled = computed(() => busy.value);
+const store = computed(() => props.field.onStore || crud.value?.storeItem);
+const confirmTextMaker = computed(() =>
+  props.field.confirmTextMaker
+    ? (value) => props.field.confirmTextMaker(props.data, value)
+    : (value) => crud.value?.setFieldConfirmText(
+        props.field.value ?? props.field.name,
+        props.data, value,
+        props.field.getValue
       )
-  }
-  get value(){
-    return this.formData ? this.formData[this.name] : this.data?.[this.name];
-  }
-  get onFinish(){
-    return this.field.onFinish ?? ((value) => this.crud.setField(this.field.name, this.data, value));
-  }
-  selectFilled(obj){
-    return selectFilled(obj);
-  }
-  get component(){
-    if (this.field.component){
-      return this.field.component;
-    }else {
-      return COMPONENT_MAP[this.field.type];
-    }
-  }
+);
+const value = computed(() => props.formData ? props.formData[name.value] : props.data?.[name.value]);
+const onFinish = computed(() =>
+  props.field.onFinish ?? ((value) => crud.value?.setField(props.field.name, props.data, value))
+);
+const component = computed(() => {
+  if (props.field.component) return props.field.component;
+  if (props.field.type) return resolveCellComponent(props.field.type);
+  return resolveCellComponent("text");
+});
+
+function makeBindingsHelper(f = null, data = null) {
+  return makeBindings(f ?? props.field, data ?? props.data);
 }
-export { GenericField };
-export default toNative(GenericField);
 </script>
 <template>
   <component
@@ -97,7 +61,7 @@ export default toNative(GenericField);
     :rules="_rules"
     :select="select"
     @store="store"
-    v-bind="makeBindings(field, data || formData)"
+    v-bind="makeBindingsHelper(field, data || formData)"
     :confirmTextMaker="confirmTextMaker"
     :parent-busy="busy"
     :error-messages="formData?.errors[name]"

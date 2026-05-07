@@ -1,28 +1,23 @@
-<script lang="ts">
-import { Vue, Component, Prop, toNative } from "vue-facing-decorator";
+<script setup lang="ts">
+import { computed } from "vue";
 
-@Component({
-  name: "CenterLayout"
-})
-class CenterLayout extends Vue {
-  @Prop({ default: "" }) class;
-  @Prop({ default: true }) fillHeight;
-  @Prop({ default: false }) column;
-  baseClass = "d-flex justify-center align-center flex-grow-1";
+const props = defineProps({
+  class: { default: "" },
+  fillHeight: { default: true },
+  column: { default: false },
+});
 
-  get myClass() {
-    let _class = `${this.baseClass} ${this.class} flex-column`;
-    if (this.column) _class = `${_class} flex-column`;
-    if (this.fillHeight) _class = `${_class} fill-height`;
-    return _class;
-  }
-}
-export { CenterLayout };
-export default toNative(CenterLayout);
+const baseClass = "d-flex justify-center align-center flex-grow-1";
+
+const myClass = computed(() => {
+  let _class = `${baseClass} ${props.class} flex-column`;
+  if (props.column) _class = `${_class} flex-column`;
+  if (props.fillHeight) _class = `${_class} fill-height`;
+  return _class;
+});
 </script>
 <template>
   <VContainer align="center" justify="center" :class="myClass" fluid>
     <slot></slot>
   </VContainer>
 </template>
-<style scoped></style>

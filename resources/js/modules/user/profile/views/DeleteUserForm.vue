@@ -1,54 +1,39 @@
-<script lang="ts">
+<script setup lang="ts">
+import { ref, nextTick } from "vue";
+import { useForm, router } from "@inertiajs/vue3";
 import ActionSection from "@/components/auth/ActionSection.vue";
-import { useForm } from "@inertiajs/vue3";
-import { nextTick, ref } from "vue";
-
 import { VDialog, VTextField, VBtn } from "vuetify/components";
-import { Component, Prop, Vue, toNative, Ref } from "vue-facing-decorator";
 import profileService from "@/modules/user/profile/services/profile.js";
-import { router } from "@inertiajs/vue3";
 
-@Component({
-  components: {
-    ActionSection,
-    VDialog,
-    VTextField,
-    VBtn
-  }
-})
-class DeleteUserForm extends Vue {
-  confirmingUserDeletion = false;
-  @Ref("passwordInput") passwordInput;
+const confirmingUserDeletion = ref(false);
+const passwordInput = ref<any>(null);
 
-  formData = useForm({
-    password: ""
-  });
+const formData = useForm({
+  password: ""
+});
 
-  confirmUserDeletion() {
-    this.confirmingUserDeletion = true;
-    nextTick(() => this.passwordInput.focus());
-  }
+function confirmUserDeletion() {
+  confirmingUserDeletion.value = true;
+  nextTick(() => passwordInput.value?.focus());
+}
 
-  closeModal() {
-    this.confirmingUserDeletion = false;
+function closeModal() {
+  confirmingUserDeletion.value = false;
+  formData.clearErrors();
+  formData.reset();
+}
 
-    this.formData.clearErrors();
-    this.formData.reset();
-  }
-
-  async deleteUser() {
-    try {
-      let res = await profileService.deleteUser(this.formData);
-      this.closeModal();
-      router.visit(res.redirect || "/");
-    } catch (error) {
-      this.passwordInput.focus();
-    } finally {
-      this.formData.reset();
-    }
+async function deleteUser() {
+  try {
+    let res = await profileService.deleteUser(formData);
+    closeModal();
+    router.visit(res.redirect || "/");
+  } catch (error) {
+    passwordInput.value?.focus();
+  } finally {
+    formData.reset();
   }
 }
-export default toNative(DeleteUserForm);
 </script>
 
 <template>

@@ -1,22 +1,14 @@
-<script lang="ts">
-import { VApp } from "vuetify/components";
+<script setup lang="ts">
+import { useViewBase } from "@/composables/useViewBase";
 
-import { Component, Prop, toNative } from "vue-facing-decorator";
-import { ViewBase } from "@/views/ViewBase.vue";
+defineProps<{
+  InertiaApp?: object;
+  props?: object;
+  parentBusy?: any;
+}>();
 
-@Component({
-  name: "App",
-  components: {
-    //'LoginView': () => import('./views/LoginView.vue'),
-  }
-})
-class App extends ViewBase {
-  @Prop(Object) InertiaApp;
-  @Prop(Object) props;
-}
-export { App };
-export default toNative(App);
+useViewBase({});
 </script>
 <template>
-  <component :is="InertiaApp" v-bind="props" />
+  <component :is="$props.InertiaApp" v-bind="$props.props" />
 </template>

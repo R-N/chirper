@@ -1,98 +1,154 @@
-<script lang="ts">
-import {
-  Vue,
-  Component,
-  Prop,
-  Model,
-  Emit,
-  Ref,
-  toNative,
-  Setup
-} from "vue-facing-decorator";
-import { FormBase } from "@/components/form/FormBase.vue";
+<script setup lang="ts">
+import { ref, computed } from "vue";
 import { useForm } from "@inertiajs/vue3";
+import { useWorking } from "@/composables/useWorking";
+import { useFormBase } from "@/composables/useFormBase";
+import { t } from "@/plugins/i18n";
 
 import ConfirmationSlot from "@/components/dialog/ConfirmationSlot.vue";
-import IconButton from "../button/IconButton.vue";
+import IconButton from "@/components/button/IconButton.vue";
 
-@Component({
-  name: "EditableCell",
-  components: {
-    ConfirmationSlot,
-    IconButton
-  },
-  emits: ["edit", "finish"]
-})
-class EditableCell extends FormBase {
-  @Prop({ default: false }) bypass;
-  @Prop({ type: String }) title;
-  @Prop({ type: String }) editText;
-  @Prop({ type: String }) cancelText;
-  @Prop({ type: String }) saveText;
-  @Prop({ default: true }) showTitle;
+const props = defineProps<{
+  bypass?: boolean;
+  title?: string;
+  editText?: string;
+  cancelText?: string;
+  saveText?: string;
+  showTitle?: boolean;
+  confirmTextMaker?: string | Function;
+  changeDetector?: Function;
+  name?: string;
+  disabled?: boolean;
+  data?: object | null;
+  rules?: any[] | Function | object;
+  select?: string | null;
+  form?: object | Function;
+  onCancel?: Function;
+  onChange?: Function;
+  onReset?: Function;
+  onValidate?: Function;
+  onSubmit?: Function;
+  onEdit?: Function;
+  onFinish?: Function;
+  parentBusy?: boolean;
+}>();
 
-  @Prop({ type: [String, Function] }) confirmTextMaker;
-  @Prop({ type: Function }) changeDetector;
-  confirmDialog = false;
+const emit = defineEmits<{
+  (e: "cancel", value?: any): void;
+  (e: "reset", value?: any): void;
+  (e: "change", value?: any): void;
+  (e: "validate", value?: any): void;
+  (e: "submit", value?: any): void;
+  (e: "edit"): void;
+  (e: "finish", value?: any): void;
+}>();
 
-  editing = false;
-  @Model({ default: false }) edit;
-  @Prop({ type: String, default: "value" }) name;
+const { busy, releaseBusy, waitBusy, showError } = useWorking(props);
 
-  @Prop({ type: Function }) onEdit;
-  @Prop({ type: Function }) onFinish;
+const {
+  formData,
+  dynamicFormRef,
+  valid,
+  _valid,
+  item,
+  interactable,
+  getForm,
+  getValue,
+  prepopulate,
+  validate,
+  resetValidation,
+  reset,
+} = useFormBase(props, emit);
 
-  @Emit("edit")
-  emitEdit() {
-    return true;
+const editing = ref(false);
+
+async function beginEdit() {
+  if (props.onEdit) await props.onEdit();
+  else emit("edit");
+  editing.value = true;
+  reset();
+}
+
+async function cancelEdit() {
+  editing.value = false;
+  if (props.onCancel) await props.onCancel();
+  else emit("cancel");
+  reset();
+}
+
+async function onConfirm() {
+  if (props.onFinish) await props.onFinish();
+  else emit("finish");
+  editing.value = false;
+}
+
+async function finishEdit(ask = null) {
+  validate();
+  if (!valid.value) return;
+  if (props.changeDetector && !props.changeDetector()) {
+    await cancelEdit();
+    return;
   }
-  @Emit("finish")
-  emitFinish(value = null) {
-    return value;
+  if (!props.confirmTextMaker || !ask) {
+    await onConfirm();
+    return;
   }
+  await ask(onConfirm);
+}
 
-  async beginEdit() {
-    if (this.onEdit) await this.onEdit();
-    else this.emitEdit();
-    this.editing = true;
-    this.reset();
-  }
-
-  async cancelEdit() {
-    this.editing = false;
-    if (this.onCancel) await this.onCancel();
-    else this.emitCancel();
-    this.reset();
-  }
-
-  async finishEdit(ask = null) {
-    this.validate();
-    if (!this.valid) return;
-    if (this.changeDetector && !this.changeDetector()) {
-      await this.cancelEdit();
-      return;
-    }
-    if (!this.confirmTextMaker || !ask) {
-      await this.onConfirm();
-      return;
-    }
-    await ask(this.onConfirm);
-  }
-
-  async onConfirm() {
-    if (this.onFinish) await this.onFinish();
-    else this.emitFinish();
-    this.editing = false;
-  }
-  onEnter(e, ask = true) {
-    const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
-    if (e.key === "Enter" && !e.shiftKey && tag !== "textarea") {
-      this.finishEdit(ask);
-    }
+function onEnter(e, ask = true) {
+  const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+  if (e.key === "Enter" && !e.shiftKey && tag !== "textarea") {
+    finishEdit(ask);
   }
 }
-export { EditableCell };
-export default toNative(EditableCell);
+
+function close() {}
+
+async function submit() {
+  validate();
+  if (!valid.value) return;
+  return await waitBusy(async () => {
+    const form = getForm();
+    let ret = null;
+    if (props.onSubmit) {
+      ret = await props.onSubmit(getValue());
+    } else if (form && form.submit) {
+      ret = await form.submit();
+    } else {
+      ret = emit("submit", getValue());
+    }
+    close();
+    return ret;
+  });
+}
+
+defineExpose({
+  formData,
+  dynamicFormRef,
+  valid,
+  _valid,
+  item,
+  interactable,
+  getForm,
+  getValue,
+  prepopulate,
+  validate,
+  resetValidation,
+  reset,
+  submit,
+  close,
+  busy,
+  waitBusy,
+  releaseBusy,
+  showError,
+  editing,
+  beginEdit,
+  cancelEdit,
+  onConfirm,
+  finishEdit,
+  onEnter,
+});
 </script>
 <template>
   <ConfirmationSlot
@@ -131,13 +187,13 @@ export default toNative(EditableCell);
             @click.prevent.stop="() => finishEdit(ask)"
             :disabled="busy"
             icon="mdi-check"
-            :text="saveText ?? $t('form.save')"
+            :text="saveText ?? t('form.save')"
           />
           <IconButton
             @click.prevent.stop="cancelEdit"
             :disabled="busy"
             icon="mdi-cancel"
-            :text="cancelText ?? $t('form.cancel')"
+            :text="cancelText ?? t('form.cancel')"
           />
         </span>
         <span v-else>
@@ -145,7 +201,7 @@ export default toNative(EditableCell);
             @click.prevent.stop="beginEdit"
             :disabled="busy"
             icon="mdi-pencil"
-            :text="editText ?? $t('form.edit')"
+            :text="editText ?? t('form.edit')"
           />
         </span>
       </span>

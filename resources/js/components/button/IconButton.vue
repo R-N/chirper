@@ -1,28 +1,27 @@
-<script lang="ts">
-import { Vue, Component, Prop, Emit, toNative } from "vue-facing-decorator";
+<script setup lang="ts">
+import { useAuth } from "@/composables/useAuth";
 import ConfirmationSlot from "@/components/dialog/ConfirmationSlot.vue";
-import { MyComponent } from "@/components/MyComponent.vue";
 
-@Component({
-  name: "IconButton",
-  components: {
-    ConfirmationSlot
-  },
-  emits: ["click"]
-})
-class IconButton extends MyComponent {
-  @Prop({ default: "small" }) size;
-  @Prop({ type: String }) icon;
-  @Prop({ type: String }) text;
-  @Prop({ type: String }) type;
-  @Prop({ default: false }) disabled;
-  @Emit("click")
-  emitClick(event) {
-    return event;
-  }
+const { } = useAuth();
+
+const props = withDefaults(defineProps<{
+  size?: string;
+  icon?: string;
+  text?: string;
+  type?: string;
+  disabled?: boolean;
+}>(), {
+  size: "small",
+  disabled: false,
+});
+
+const emit = defineEmits<{
+  click: [event: Event];
+}>();
+
+function emitClick(event: Event) {
+  emit("click", event);
 }
-export { IconButton };
-export default toNative(IconButton);
 </script>
 <template>
   <VTooltip

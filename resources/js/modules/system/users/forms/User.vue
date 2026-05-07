@@ -1,102 +1,115 @@
-<script lang="ts">
-import { Component, Prop, Emit, Watch, toNative } from "vue-facing-decorator";
+<script setup lang="ts">
+import { computed, toRef } from "vue";
 import { useForm } from "@inertiajs/vue3";
 import userService from "../services/user";
-import { CrudFormBase } from "@/components/form/CrudFormBase.vue";
-import EditableCellTextField from "@/components/form/editable_cell/EditableCellTextField.vue";
-import EditableCellSelect from "@/components/form/editable_cell/EditableCellSelect.vue";
+import { useWorking } from "@/composables/useWorking";
+import { useFormBase } from "@/composables/useFormBase";
+import { useCrudForm } from "@/composables/useCrudForm";
+import { useCrud } from "@/composables/useCrud";
 import SyncCheckbox from "@/components/checkbox/SyncCheckbox.vue";
 import { getArrayText } from "@/libs/util.js";
 import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.vue";
 import CrudForm from "@/components/form/CrudForm.vue";
+import { t } from "@/plugins/i18n";
 
-@Component({
-  name: "UserForm",
-  components: {
-    EditableCellTextField,
-    EditableCellSelect,
-    SyncCheckbox,
-    ConfirmationIconButton,
-    CrudForm
-  },
-  emits: ["submit"]
-})
-class UserForm extends CrudFormBase {
-  @Prop({ default: [] }) availableRoles;
-  @Prop({ default: [] }) availablePermissions;
-  @Prop({ default: true }) bypassEditableCell;
+const props = defineProps<{
+  availableRoles?: any[];
+  availablePermissions?: any[];
+  bypassEditableCell?: boolean;
+  disabled?: boolean;
+  data?: any;
+  rules?: any;
+  select?: string;
+  form?: any;
+  onCancel?: Function;
+  onChange?: Function;
+  onReset?: Function;
+  onValidate?: Function;
+  onSubmit?: Function;
+  parentBusy?: boolean;
+}>();
 
-  client = userService;
-  formData = useForm({
-    email: "",
-    name: "",
-    roles: ["chirper"],
-    permissions: [],
-    enabled: true,
-    verified: false
+const emit = defineEmits<{
+  submit: [value: any];
+}>();
+
+const { busy, waitBusy, showError, releaseBusy } = useWorking(props);
+const formBase = useFormBase(props, emit);
+const { formData, valid, interactable, validate, getValue, reset, prepopulate, getForm } = formBase;
+
+const dataRef = toRef(props, "data");
+const crud = useCrud({ client: userService, waitBusy, nameField: "name" });
+
+const { submit: crudFormSubmit } = useCrudForm({
+  client: userService,
+  formData,
+  data: dataRef,
+});
+
+function close() {}
+
+async function submit() {
+  return await crudFormSubmit({
+    validate,
+    valid,
+    waitBusy,
+    getValue,
+    onSubmit: props.onSubmit,
+    emit,
+    close,
   });
-
-  get hasAvailableRoles() {
-    return this.availableRoles && this.availableRoles.length > 0;
-  }
-
-  get hasAvailablePermissions() {
-    return this.availablePermissions && this.availablePermissions.length > 0;
-  }
-
-  getRolesText(val) {
-    return getArrayText(val, (v) => v.name, false);
-  }
-  get fields() {
-    return [
-      {
-        name: "name",
-        label: this.$t('user.name'),
-        type: "text",
-        required: true,
-      },
-      {
-        name: "email",
-        label: this.$t('user.email'),
-        type: "text",
-        required: true,
-        props: {
-          type: 'email'
-        }
-      },
-      {
-        name: "roles",
-        label: this.$t('user.roles'),
-        type: "select",
-        required: true,
-        items: this.availableRoles,
-        props: {
-          multiple: true,
-          itemTitle: "name",
-          itemValue: "name",
-          returnObject: true
-        },
-        getValue: this.getRolesText
-      },
-      {
-        name: "permissions",
-        label: this.$t('user.permissions'),
-        type: "select",
-        required: true,
-        items: this.availablePermissions,
-        props: {
-          multiple: true,
-          itemTitle: "name",
-          itemValue: "name",
-          returnObject: true
-        },
-        getValue: this.getRolesText
-      },
-    ];
-  }
 }
-export { UserForm };
-export default toNative(UserForm);
+
+const hasAvailableRoles = computed(() => props.availableRoles && props.availableRoles.length > 0);
+const hasAvailablePermissions = computed(() => props.availablePermissions && props.availablePermissions.length > 0);
+
+function getRolesText(val: any[]) {
+  return getArrayText(val, (v) => v.name, false);
+}
+
+const fields = computed(() => [
+  {
+    name: "name",
+    label: t("user.name"),
+    type: "text",
+    required: true,
+  },
+  {
+    name: "email",
+    label: t("user.email"),
+    type: "text",
+    required: true,
+    props: { type: "email" },
+  },
+  {
+    name: "roles",
+    label: t("user.roles"),
+    type: "select",
+    required: true,
+    items: props.availableRoles,
+    props: {
+      multiple: true,
+      itemTitle: "name",
+      itemValue: "name",
+      returnObject: true,
+    },
+    getValue: getRolesText,
+  },
+  {
+    name: "permissions",
+    label: t("user.permissions"),
+    type: "select",
+    required: true,
+    items: props.availablePermissions,
+    props: {
+      multiple: true,
+      itemTitle: "name",
+      itemValue: "name",
+      returnObject: true,
+    },
+    getValue: getRolesText,
+  },
+]);
 </script>
 <template>
   <VForm
@@ -111,9 +124,9 @@ export default toNative(UserForm);
         v-if="(!select || select == 'clear_password') && data"
         icon="mdi-key-variant"
         :text="$t('user.clear_password')"
-        :confirmTextMaker="clearFieldConfirmText('password', data)"
-        :on-confirm="() => clearField('password', data)"
-        :ask="(ask) => justAsk(data, ask)"
+        :confirmTextMaker="crud.clearFieldConfirmText('password', data)"
+        :on-confirm="() => crud.clearField('password', data)"
+        :ask="(ask) => crud.justAsk(data, ask)"
         :disabled="busy"
         :size="select ? 'small' : 'default'"
       />
@@ -121,9 +134,9 @@ export default toNative(UserForm);
         v-if="(!select || select == 'delete') && data"
         icon="mdi-delete"
         :text="$t('form.delete')"
-        :confirmTextMaker="deleteConfirmText(data)"
-        :on-confirm="() => delete2(data)"
-        :ask="(ask) => justAsk(data, ask)"
+        :confirmTextMaker="crud.deleteConfirmText(data)"
+        :on-confirm="() => crud.delete2(data)"
+        :ask="(ask) => crud.justAsk(data, ask)"
         :disabled="busy"
         :size="select ? 'small' : 'default'"
       />
@@ -134,8 +147,8 @@ export default toNative(UserForm);
         :showLabel="!select"
         :text="$t('user.enabled')"
         v-model="formData.enabled"
-        :on-change="(value) => setEnabled(data, value)"
-        :confirm-text-maker="() => setEnabledConfirmText(data)"
+        :on-change="(value) => crud.setEnabled(data, value)"
+        :confirm-text-maker="() => crud.setEnabledConfirmText(data)"
         :disabled="busy"
         :text-enable="$t('crud.enable')"
         :text-disable="$t('crud.disable')"
@@ -147,14 +160,14 @@ export default toNative(UserForm);
         :showLabel="!select"
         :text="$t('user.verified')"
         v-model="formData.verified"
-        :on-change="(value) => setField('verified', data, value)"
+        :on-change="(value) => crud.setField('verified', data, value)"
         :confirm-text-maker="
           () =>
-            toggleFieldConfirmText(
+            crud.toggleFieldConfirmText(
               'verified',
               $t('user.unverifying'),
               $t('user.force_verify'),
-              item
+              data
             )
         "
         readonly
@@ -164,8 +177,8 @@ export default toNative(UserForm);
       />
     </div>
     <CrudForm
-      :setFieldConfirmText="setFieldConfirmText"
-      :setField="setField"
+      :setFieldConfirmText="crud.setFieldConfirmText"
+      :setField="crud.setField"
       :data="data"
       :bypassEditableCell="bypassEditableCell"
       :fields="fields"
@@ -176,4 +189,3 @@ export default toNative(UserForm);
     />
   </VForm>
 </template>
-<style scoped></style>

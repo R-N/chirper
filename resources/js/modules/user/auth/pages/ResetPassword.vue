@@ -1,56 +1,35 @@
-<script lang="ts">
-import { Head, useForm } from "@inertiajs/vue3";
+<script setup lang="ts">
+import { onMounted } from "vue";
+import { useForm, router } from "@inertiajs/vue3";
 
-import {
-  VCard,
-  VCardTitle,
-  VCardText,
-  VCardActions,
-  VTextField,
-  VBtn
-} from "vuetify/components";
-import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
 import authService from "@/modules/user/auth/services/auth.js";
-import { router } from "@inertiajs/vue3";
 import AuthLayout from "../layouts/Auth.vue";
 import GuestLayout from "@/layouts/GuestLayout.vue";
-import { ViewBase } from "@/views/ViewBase.vue";
+import { useViewBase } from "@/composables/useViewBase";
 
-@Component({
-  components: {
-    AuthLayout,
-    GuestLayout,
-    VCard,
-    VCardTitle,
-    VCardText,
-    VCardActions,
-    VTextField,
-    VBtn
-  }
-})
-class ResetPasswordPage extends ViewBase {
-  @Prop({ type: String }) email;
-  @Prop({ type: String }) token;
+const props = defineProps<{
+  email?: string;
+  token?: string;
+}>();
+const {} = useViewBase(props);
 
-  formData = useForm({
-    token: "",
-    email: "",
-    password: "",
-    password_confirmation: ""
-  });
+const formData = useForm({
+  token: "",
+  email: "",
+  password: "",
+  password_confirmation: ""
+});
 
-  mounted() {
-    this.formData.token = this.token;
-    this.formData.email = this.email;
-  }
+onMounted(() => {
+  formData.token = props.token ?? "";
+  formData.email = props.email ?? "";
+});
 
-  async submit() {
-    let res = await authService.resetPassword(this.formData);
-    this.formData.reset("password", "password_confirmation");
-    router.visit(res.redirect || "/login");
-  }
+async function submit() {
+  let res = await authService.resetPassword(formData);
+  formData.reset("password", "password_confirmation");
+  router.visit(res.redirect || "/login");
 }
-export default toNative(ResetPasswordPage);
 </script>
 
 <template>

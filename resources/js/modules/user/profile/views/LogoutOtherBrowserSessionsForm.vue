@@ -1,55 +1,42 @@
-<script lang="ts">
+<script setup lang="ts">
+import { ref } from "vue";
 import { useForm } from "@inertiajs/vue3";
 import ActionMessage from "@/components/auth/ActionMessage.vue";
 import ActionSection from "@/components/auth/ActionSection.vue";
-
 import { VDialog, VTextField, VBtn, VRow, VCol } from "vuetify/components";
-import { Component, Prop, Vue, toNative, Ref } from "vue-facing-decorator";
 import profileService from "@/modules/user/profile/services/profile.js";
-import { router } from "@inertiajs/vue3";
 
-@Component({
-  components: {
-    ActionMessage,
-    ActionSection,
-    VDialog,
-    VTextField,
-    VBtn,
-    VRow,
-    VCol
-  }
-})
-class LogoutOtherBrowserSessionsForm extends Vue {
-  @Prop({ type: Array }) sessions;
-  confirmingLogout = false;
-  @Ref("passwordInput") passwordInput;
-  formData = useForm({
-    password: ""
-  });
+const props = defineProps<{
+  sessions: any[];
+}>();
 
-  confirmLogout() {
-    this.confirmingLogout = true;
-    setTimeout(() => this.passwordInput.focus(), 250);
-  }
+const confirmingLogout = ref(false);
+const passwordInput = ref<any>(null);
 
-  async logoutOtherBrowserSessions() {
-    try {
-      let res = await profileService.logoutOtherBrowserSessions(this.formData);
-      this.closeModal();
-    } catch (error) {
-      this.passwordInput.focus();
-    } finally {
-      this.formData.reset();
-    }
-  }
+const formData = useForm({
+  password: ""
+});
 
-  closeModal() {
-    this.confirmingLogout = false;
+function confirmLogout() {
+  confirmingLogout.value = true;
+  setTimeout(() => passwordInput.value?.focus(), 250);
+}
 
-    this.formData.reset();
+async function logoutOtherBrowserSessions() {
+  try {
+    let res = await profileService.logoutOtherBrowserSessions(formData);
+    closeModal();
+  } catch (error) {
+    passwordInput.value?.focus();
+  } finally {
+    formData.reset();
   }
 }
-export default toNative(LogoutOtherBrowserSessionsForm);
+
+function closeModal() {
+  confirmingLogout.value = false;
+  formData.reset();
+}
 </script>
 
 <template>

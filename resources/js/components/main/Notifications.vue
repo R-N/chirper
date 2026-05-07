@@ -1,83 +1,73 @@
-<script lang="ts">
+<script setup lang="ts">
+import { ref, computed, onMounted } from "vue";
 import { Link, router } from "@inertiajs/vue3";
-import { Component, Prop, Model, toNative } from "vue-facing-decorator";
+import { useWorking } from "@/composables/useWorking";
 import notificationService from "@/services/notification.js";
 import IconButton from "@/components/button/IconButton.vue";
-import { WorkingComponent } from "../WorkingComponent.vue";
 import { deleteFromArray } from "@/libs/util";
 import { usePage } from "@inertiajs/vue3";
 
-@Component({
-  name: "Notifications",
-  components: {
-    IconButton
-  }
-})
-class Notifications extends WorkingComponent {
-  router = router;
-  selected = [];
-  notifications = [
-    // { data: { url: '#', title: 'Notif', message: 'Desc' }, id: 0, read_at: null },
-  ];
-  created() {
-    this.notifications =
-      usePage()?.props?.notifications ?? this.$page?.props?.notifications ?? [];
-    this.fetchNotifications();
-    const intervalId = setInterval(() => {
-      if (this.isLoggedIn) this.fetchNotifications();
-      else clearInterval(intervalId);
-    }, 30000);
-  }
-  get notificationCount() {
-    return this.notifications.length;
-  }
-  async fetchNotifications() {
-    this.notifications = notificationService.getData(
-      await notificationService.fetch()
-    );
-  }
-  async bulkMarkAsRead() {
-    const ids = this.unreadNotifs.map((n) => n.id);
-    await this.waitBusy(async () => {
-      await notificationService.bulk_mark_as_read(ids);
-      this.fetchNotifications();
-    });
-  }
-  async bulkDestroy() {
-    const ids = this.readNotifs.map((n) => n.id);
-    await this.waitBusy(async () => {
-      await notificationService.bulk_destroy(ids);
-      this.fetchNotifications();
-    });
-  }
-  async markAsRead(notif) {
-    await this.waitBusy(async () => {
-      await notificationService.mark_as_read(notif, {});
-      this.fetchNotifications();
-    });
-  }
-  async destroy(notif) {
-    await this.waitBusy(async () => {
-      await notificationService.destroy(notif);
-      deleteFromArray(this.notifications, notif);
-      this.fetchNotifications();
-    });
-  }
-  get readNotifs() {
-    return this.notifications.filter((notif) => notif.read_at !== null);
-  }
-  get unreadNotifs() {
-    return this.notifications.filter((notif) => notif.read_at == null);
-  }
-  get hasReadNotif() {
-    return this.readNotifs.length;
-  }
-  get hasUnreadNotif() {
-    return this.unreadNotifs.length;
-  }
+const props = defineProps({
+  parentBusy: { default: false },
+});
+
+const { busy, waitBusy, isLoggedIn } = useWorking(props);
+
+const selected = ref([]);
+const notifications = ref([]);
+
+const notificationCount = computed(() => notifications.value.length);
+const readNotifs = computed(() => notifications.value.filter((notif) => notif.read_at !== null));
+const unreadNotifs = computed(() => notifications.value.filter((notif) => notif.read_at == null));
+const hasReadNotif = computed(() => readNotifs.value.length);
+const hasUnreadNotif = computed(() => unreadNotifs.value.length);
+
+async function fetchNotifications() {
+  notifications.value = notificationService.getData(
+    await notificationService.fetch()
+  );
 }
-export { Notifications };
-export default toNative(Notifications);
+
+async function bulkMarkAsRead() {
+  const ids = unreadNotifs.value.map((n) => n.id);
+  await waitBusy(async () => {
+    await notificationService.bulk_mark_as_read(ids);
+    fetchNotifications();
+  });
+}
+
+async function bulkDestroy() {
+  const ids = readNotifs.value.map((n) => n.id);
+  await waitBusy(async () => {
+    await notificationService.bulk_destroy(ids);
+    fetchNotifications();
+  });
+}
+
+async function markAsRead(notif) {
+  await waitBusy(async () => {
+    await notificationService.mark_as_read(notif, {});
+    fetchNotifications();
+  });
+}
+
+async function destroy(notif) {
+  await waitBusy(async () => {
+    await notificationService.destroy(notif);
+    deleteFromArray(notifications.value, notif);
+    fetchNotifications();
+  });
+}
+
+onMounted(() => {
+  notifications.value =
+    usePage()?.props?.notifications ?? [];
+  fetchNotifications();
+  const intervalId = setInterval(() => {
+    if (isLoggedIn.value) fetchNotifications();
+    else clearInterval(intervalId);
+  }, 30000);
+});
 </script>
 <template>
   <VMenu bottom left close-on-click offset-y>

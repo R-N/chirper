@@ -1,18 +1,9 @@
-<script lang="ts">
-import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
-import { VAlert, VExpandTransition } from "vuetify/components";
+<script setup lang="ts">
+import { VExpandTransition } from "vuetify/components";
 
-@Component({
-  components: {
-    VAlert,
-    VExpandTransition
-  }
-})
-class ActionMessage extends Vue {
-  @Prop({ type: Boolean, required: true }) on;
-}
-
-export default toNative(ActionMessage);
+defineProps<{
+  on: boolean;
+}>();
 </script>
 
 <template>

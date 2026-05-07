@@ -1,93 +1,84 @@
-<script lang="ts">
-import { Vue, Component, Prop, Watch, toNative } from "vue-facing-decorator";
+<script setup lang="ts">
+import { ref, computed, watch, onBeforeUnmount } from "vue";
+import { useAuth } from "@/composables/useAuth";
 import SharedIdle from "@/components/general/SharedIdle.vue";
-import { MyComponent } from "@/components/MyComponent.vue";
 import authService from "@/modules/user/auth/services/auth";
 import CenterLayout from "@/components/layout/CenterLayout.vue";
 import { router } from "@inertiajs/vue3";
 
-@Component({
-  name: "IdleOverlay",
-  components: {
-    SharedIdle,
-    CenterLayout
-  }
-})
-class IdleOverlay extends MyComponent {
-  @Prop({ type: Number }) logoutWait;
-  @Prop({ type: Number }) idleWait;
+const { appStore, isLoggedIn } = useAuth();
 
-  logoutCountdown = 0;
-  logoutTimer = null;
+const props = defineProps<{
+  logoutWait?: number;
+  idleWait?: number;
+}>();
 
-  mounted() {}
+const logoutCountdown = ref(0);
+const logoutTimer = ref<number | null>(null);
 
-  get logoutCountdownMinutes() {
-    return ("0" + parseInt(this.logoutCountdown / 60)).slice(-2);
-  }
-  get logoutCountdownSeconds() {
-    return ("0" + parseInt(this.logoutCountdown % 60)).slice(-2);
-  }
-  get idle() {
-    return this.appStore.idle;
-  }
-  set idle(value) {
-    if (!value) this.stopCountdown();
-    else this.appStore.setIdle();
-  }
+const logoutCountdownMinutes = computed(() =>
+  ("0" + parseInt(String(logoutCountdown.value / 60))).slice(-2)
+);
+const logoutCountdownSeconds = computed(() =>
+  ("0" + parseInt(String(logoutCountdown.value % 60))).slice(-2)
+);
 
-  async logout() {
-    this.stopCountdown();
-    await authService.logout();
-    router.visit("/");
-  }
+const idle = computed({
+  get: () => appStore.idle,
+  set: (value) => {
+    if (!value) stopCountdown();
+    else appStore.setIdle();
+  },
+});
 
-  stopCountdown() {
-    if (this.logoutTimer) {
-      window.clearInterval(this.logoutTimer);
-      this.logoutTimer = null;
-      this.logoutCountdown = -1;
-    }
-  }
+async function logout() {
+  stopCountdown();
+  await authService.logout();
+  router.visit("/");
+}
 
-  startCountdown() {
-    this.stopCountdown();
-    this.logoutCountdown = this.logoutWait;
-    const comp = this;
-    this.logoutTimer = window.setInterval(function () {
-      comp.logoutCountdown--;
-    }, 1000);
-  }
-
-  @Watch("idle")
-  onIdle(val, oldVal) {
-    if (val != oldVal) {
-      if (val && this.isLoggedIn) {
-        this.startCountdown();
-      } else {
-        this.stopCountdown();
-      }
-    }
-  }
-  @Watch("logoutCountdown")
-  onLogoutCountdownTick(val, oldVal) {
-    if (oldVal > val && val == 0) {
-      if (this.isLoggedIn) this.logout();
-      else this.stopCountdown();
-    }
-  }
-  @Watch("isLoggedIn")
-  onAuthChanged(val, oldVal) {
-    if (val != oldVal && !val) {
-      this.stopCountdown();
-    }
-  }
-  beforeDestroy() {
-    this.stopCountdown();
+function stopCountdown() {
+  if (logoutTimer.value) {
+    window.clearInterval(logoutTimer.value as unknown as number);
+    logoutTimer.value = null;
+    logoutCountdown.value = -1;
   }
 }
-export { IdleOverlay };
-export default toNative(IdleOverlay);
+
+function startCountdown() {
+  stopCountdown();
+  logoutCountdown.value = props.logoutWait!;
+  logoutTimer.value = window.setInterval(() => {
+    logoutCountdown.value--;
+  }, 1000) as unknown as number;
+}
+
+watch(idle, (val, oldVal) => {
+  if (val != oldVal) {
+    if (val && isLoggedIn.value) {
+      startCountdown();
+    } else {
+      stopCountdown();
+    }
+  }
+});
+
+watch(logoutCountdown, (val, oldVal) => {
+  if (oldVal > val && val == 0) {
+    if (isLoggedIn.value) logout();
+    else stopCountdown();
+  }
+});
+
+watch(isLoggedIn, (val, oldVal) => {
+  if (val != oldVal && !val) {
+    stopCountdown();
+  }
+});
+
+onBeforeUnmount(() => {
+  stopCountdown();
+});
 </script>
 <template>
   <VOverlay v-model="idle" class="full-screen">

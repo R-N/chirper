@@ -1,43 +1,21 @@
-<script lang="ts">
-import AuthenticationCardLogo from "@/components/auth/AuthenticationCardLogo.vue";
-import { Component, Prop, toNative } from "vue-facing-decorator";
-import { ViewBase } from "@/views/ViewBase.vue";
+<script setup lang="ts">
+import { ref } from "vue";
+import { useViewBase } from "@/composables/useViewBase";
 
 import {
   VSlideXTransition,
-  VSlideXReverseTransition
 } from "vuetify/components";
 
 import LoginForm from "@/modules/user/auth/forms/Login.vue";
 import ForgotPasswordForm from "@/modules/user/auth/forms/ForgotPassword.vue";
 import ResendVerificationForm from "@/modules/user/auth/forms/VerifyEmail.vue";
-import { AuthLayout } from "../layouts/Auth.vue";
+import AuthLayout from "../layouts/Auth.vue";
 
-@Component({
-  name: "LoginView",
-  components: {
-    AuthenticationCardLogo,
-    LoginForm,
-    VSlideXTransition,
-    ForgotPasswordForm,
-    ResendVerificationForm,
-    AuthLayout
-  }
-})
-class LoginView extends ViewBase {
-  slide = 0;
+const props = defineProps<{ parentBusy?: any }>();
+useViewBase(props);
 
-  transitionDuration = {
-    enter: 300,
-    leave: 300
-  };
-  transitionDelay = {
-    enter: 300,
-    leave: 0
-  };
-}
-export { LoginView };
-export default toNative(LoginView);
+const slide = ref(0);
+const transitionDuration = { enter: 300, leave: 300 };
 </script>
 <template>
   <AuthLayout>
@@ -90,4 +68,3 @@ export default toNative(LoginView);
     </VSlideXTransition>
   </AuthLayout>
 </template>
-<style scoped></style>

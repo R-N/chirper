@@ -1,8 +1,8 @@
-<script lang="ts">
-import { router, useForm, usePage } from "@inertiajs/vue3";
+<script setup lang="ts">
+import { ref, computed, watch } from "vue";
+import { useForm, usePage } from "@inertiajs/vue3";
 import ActionSection from "@/components/auth/ActionSection.vue";
 import ConfirmsPassword from "@/components/auth/ConfirmsPassword.vue";
-
 import {
   VRow,
   VCol,
@@ -12,102 +12,81 @@ import {
   VCard,
   VCardText
 } from "vuetify/components";
-import {
-  Component,
-  Prop,
-  Vue,
-  toNative,
-  Ref,
-  Watch
-} from "vue-facing-decorator";
 import twoFactorAuthService from "@/modules/user/auth/services/twofactor.js";
-import profileService from "@/modules/user/profile/services/profile";
 
-@Component({
-  components: {
-    ActionSection,
-    ConfirmsPassword,
-    VRow,
-    VCol,
-    VTextField,
-    VBtn,
-    VAlert,
-    VCard,
-    VCardText
+const props = defineProps<{
+  requiresConfirmation?: boolean;
+}>();
+
+const page = usePage();
+const enabling = ref(false);
+const confirming = ref(false);
+const disabling = ref(false);
+const qrCode = ref<string | null>(null);
+const setupKey = ref<string | null>(null);
+const recoveryCodes = ref<string[]>([]);
+
+const confirmationForm = useForm({
+  code: ""
+});
+
+const twoFactorEnabled = computed(() => {
+  return !enabling.value && page.props.auth.user?.two_factor_enabled;
+});
+
+watch(twoFactorEnabled, (newValue) => {
+  if (!newValue) {
+    confirmationForm.reset();
+    confirmationForm.clearErrors();
   }
-})
-class TwoFactorAuthenticationForm extends Vue {
-  @Prop({ type: Boolean }) requiresConfirmation;
-  page = usePage();
-  enabling = false;
-  confirming = false;
-  disabling = false;
-  qrCode = null;
-  setupKey = null;
-  recoveryCodes = [];
-  confirmationForm = useForm({
-    code: ""
-  });
+});
 
-  get twoFactorEnabled() {
-    return !this.enabling && this.page.props.auth.user?.two_factor_enabled;
-  }
-
-  @Watch("twoFactorEnabled")
-  twoFactorEnabledWatcher(newValue, oldValue) {
-    if (!newValue) {
-      this.confirmationForm.reset();
-      this.confirmationForm.clearErrors();
-    }
-  }
-  async enableTwoFactorAuthentication() {
-    this.enabling = true;
-    try {
-      let res = await twoFactorAuthService.enableTwoFactorAuthentication();
-      this.qrCode = res.qrCode;
-      this.setupKey = res.setupKey;
-      this.recoveryCodes = res.recoveryCodes;
-    } finally {
-      this.enabling = false;
-      this.confirming = this.requiresConfirmation;
-    }
-  }
-
-  async showRecoveryCodes() {
-    let res = await twoFactorAuthService.showRecoveryCodes();
-    this.recoveryCodes = res;
-  }
-
-  async confirmTwoFactorAuthentication() {
-    try {
-      let res = await twoFactorAuthService.confirmTwoFactorAuthentication(
-        this.confirmationForm
-      );
-      this.confirming = false;
-      this.qrCode = null;
-      this.setupKey = null;
-    } catch (error) {
-      if (error.response?.status === 422) {
-        this.confirmationForm.errors = error.response.data.errors;
-      } else {
-        console.error("Unexpected error:", error);
-      }
-    }
-  }
-
-  async regenerateRecoveryCodes() {
-    let res = await twoFactorAuthService.regenerateRecoveryCodes();
-  }
-
-  async disableTwoFactorAuthentication() {
-    this.disabling = true;
-
-    let res = await twoFactorAuthService.disableTwoFactorAuthentication();
-    this.disabling = false;
-    this.confirming = false;
+async function enableTwoFactorAuthentication() {
+  enabling.value = true;
+  try {
+    let res = await twoFactorAuthService.enableTwoFactorAuthentication();
+    qrCode.value = res.qrCode;
+    setupKey.value = res.setupKey;
+    recoveryCodes.value = res.recoveryCodes;
+  } finally {
+    enabling.value = false;
+    confirming.value = props.requiresConfirmation ?? false;
   }
 }
-export default toNative(TwoFactorAuthenticationForm);
+
+async function showRecoveryCodes() {
+  let res = await twoFactorAuthService.showRecoveryCodes();
+  recoveryCodes.value = res;
+}
+
+async function confirmTwoFactorAuthentication() {
+  try {
+    let res = await twoFactorAuthService.confirmTwoFactorAuthentication(
+      confirmationForm
+    );
+    confirming.value = false;
+    qrCode.value = null;
+    setupKey.value = null;
+  } catch (error) {
+    if (error.response?.status === 422) {
+      confirmationForm.errors = error.response.data.errors;
+    } else {
+      console.error("Unexpected error:", error);
+    }
+  }
+}
+
+async function regenerateRecoveryCodes() {
+  let res = await twoFactorAuthService.regenerateRecoveryCodes();
+}
+
+async function disableTwoFactorAuthentication() {
+  disabling.value = true;
+
+  let res = await twoFactorAuthService.disableTwoFactorAuthentication();
+  disabling.value = false;
+  confirming.value = false;
+}
 </script>
 
 <template>

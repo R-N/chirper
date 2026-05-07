@@ -1,58 +1,45 @@
-<script lang="ts">
-import { Component, Prop, Watch, toNative } from "vue-facing-decorator";
-import { WorkingComponent } from "@/components/WorkingComponent.vue";
-
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from "vue";
+import { useWorking } from "@/composables/useWorking";
 import RefreshButton from "@/components/general/RefreshButton.vue";
 import CenterLayout from "@/components/layout/CenterLayout.vue";
 
-@Component({
-  name: "LoadingOverlay",
-  components: {
-    RefreshButton,
-    CenterLayout
-  }
-})
-class LoadingOverlay extends WorkingComponent {
-  @Prop({ default: 96 }) circleSizeRefresh;
-  @Prop({ default: 64 }) circleSizeNormal;
-  @Prop({ default: 5 }) mayRefreshWait;
+const props = defineProps({
+  circleSizeRefresh: { default: 96 },
+  circleSizeNormal: { default: 64 },
+  mayRefreshWait: { default: 5 },
+  parentBusy: { default: false },
+});
 
-  mayRefresh = false;
-  mayRefreshTimer = null;
+const { busy } = useWorking(props);
 
-  mounted() {
-    this.setTimer(this.busy);
-  }
+const mayRefresh = ref(false);
+const mayRefreshTimer = ref(null);
 
-  get mayRefreshWaitMillis() {
-    return this.mayRefreshWait * 1000;
-  }
-  get circleSize() {
-    return this.mayRefresh ? this.circleSizeRefresh : this.circleSizeNormal;
-  }
+const mayRefreshWaitMillis = computed(() => props.mayRefreshWait * 1000);
+const circleSize = computed(() => mayRefresh.value ? props.circleSizeRefresh : props.circleSizeNormal);
 
-  @Watch("busy")
-  onBusyChanged(val, oldVal) {
-    if (val != oldVal) {
-      this.setTimer(val);
-    }
-  }
-
-  setTimer(busy) {
-    if (this.mayRefreshTimer) window.clearTimeout(this.mayRefreshTimer);
-    if (busy) {
-      const comp = this;
-      this.mayRefreshTimer = window.setTimeout(function () {
-        comp.mayRefresh = true;
-      }, this.mayRefreshWaitMillis);
-    } else {
-      this.mayRefreshTimer = null;
-      this.mayRefresh = false;
-    }
+function setTimer(busyVal) {
+  if (mayRefreshTimer.value) window.clearTimeout(mayRefreshTimer.value);
+  if (busyVal) {
+    mayRefreshTimer.value = window.setTimeout(function () {
+      mayRefresh.value = true;
+    }, mayRefreshWaitMillis.value);
+  } else {
+    mayRefreshTimer.value = null;
+    mayRefresh.value = false;
   }
 }
-export { LoadingOverlay };
-export default toNative(LoadingOverlay);
+
+onMounted(() => {
+  setTimer(busy.value);
+});
+
+watch(() => busy.value, (val, oldVal) => {
+  if (val != oldVal) {
+    setTimer(val);
+  }
+});
 </script>
 <template>
   <VOverlay v-model="busy" class="full-screen">

@@ -1,22 +1,14 @@
-<script lang="ts">
-import { Vue, Component, Prop, toNative } from "vue-facing-decorator";
-
+<script setup lang="ts">
 import CardTitle from "@/components/card/CardTitle.vue";
 import CardToolbar from "@/components/card/CardToolbar.vue";
+import { useSlots } from "vue";
 
-@Component({
-  name: "MainCard",
-  components: {
-    CardTitle,
-    CardToolbar
-  }
-})
-class MainCard extends Vue {
-  @Prop({ default: "Title" }) title;
-  @Prop({ default: false }) noToolbar;
-}
-export { MainCard };
-export default toNative(MainCard);
+defineProps({
+  title: { default: "Title" },
+  noToolbar: { default: false },
+});
+
+const slots = useSlots();
 </script>
 <template>
   <VCard class="fill-width py-2 px-4">
@@ -33,9 +25,8 @@ export default toNative(MainCard);
       <slot name="content"></slot>
       <slot name="default"></slot>
     </VCardText>
-    <VCardActions v-if="$slots.actions">
+    <VCardActions v-if="slots.actions">
       <slot name="actions"></slot>
     </VCardActions>
   </VCard>
 </template>
-<style scoped></style>

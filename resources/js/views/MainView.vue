@@ -1,7 +1,6 @@
-<script lang="ts">
-import { Head, Link, router } from "@inertiajs/vue3";
-import { Component, toNative } from "vue-facing-decorator";
-import { ViewBase } from "@/views/ViewBase.vue";
+<script setup lang="ts">
+import { ref, computed } from "vue";
+import { useViewBase } from "@/composables/useViewBase";
 
 import {
   VFadeTransition,
@@ -11,32 +10,22 @@ import {
 } from "vuetify/components";
 import LoginView from "@/modules/user/auth/views/Login.vue";
 
-@Component({
-  name: "MainView",
-  components: {
-    LoginView,
-    VSlideYTransition,
-    VSlideXTransition,
-    VExpandTransition
-  }
-})
-class MainView extends ViewBase {
-  transitionDuration = {
-    enter: 300,
-    leave: 300
-  };
-  transitionDelay = {
-    enter: 300,
-    leave: 0
-  };
+const props = defineProps<{
+  parentBusy?: any;
+}>();
 
-  mounted() {}
-  get breadcrumbs() {
-    return this.tabStore.breadcrumbs;
-  }
-}
-export { MainView };
-export default toNative(MainView);
+const { busy, tabStore, isLoggedIn, serverReachable } = useViewBase(props);
+
+const transitionDuration = {
+  enter: 300,
+  leave: 300
+};
+const transitionDelay = {
+  enter: 300,
+  leave: 0
+};
+
+const breadcrumbs = computed(() => tabStore.breadcrumbs);
 </script>
 <template>
   <VExpandTransition appear class="fill-height">

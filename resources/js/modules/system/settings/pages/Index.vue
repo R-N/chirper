@@ -1,27 +1,22 @@
-<script lang="ts">
+<script setup lang="ts">
 import AppLayout from "@/layouts/AppLayout.vue";
+import SettingCrudView from "../views/Settings.vue";
+import { useViewBase } from "@/composables/useViewBase";
+import { t } from "@/plugins/i18n";
+import { onMounted } from "vue";
 
-import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
-import { SettingCrudView } from "../views/Settings.vue";
-import { ViewBase } from "@/views/ViewBase.vue";
+const props = defineProps<{
+  items?: any;
+  setting_types?: any[];
+}>();
+const { tabStore } = useViewBase(props);
 
-@Component({
-  components: {
-    AppLayout,
-    SettingCrudView
-  }
-})
-class SettingsPage extends ViewBase {
-  @Prop({ type: [Array, Object], default: null }) items;
-  @Prop({ type: Array, default: null }) setting_types;
-  mounted() {
-    this.tabStore.breadcrumbs = [
-      { title: this.$t("navigation.system") },
-      { title: this.$t("navigation.settings") }
-    ];
-  }
-}
-export default toNative(SettingsPage);
+onMounted(() => {
+  tabStore.breadcrumbs = [
+    { title: t("navigation.system") },
+    { title: t("navigation.settings") }
+  ];
+});
 </script>
 
 <template>

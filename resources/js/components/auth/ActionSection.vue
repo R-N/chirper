@@ -1,21 +1,6 @@
-<script lang="ts">
-import { Component, Vue, toNative } from "vue-facing-decorator";
+<script setup lang="ts">
 import SectionTitle from "./SectionTitle.vue";
 import { VContainer, VRow, VCol, VCard, VCardText } from "vuetify/components";
-
-@Component({
-  components: {
-    SectionTitle,
-    VContainer,
-    VRow,
-    VCol,
-    VCard,
-    VCardText
-  }
-})
-class ActionSection extends Vue {}
-
-export default toNative(ActionSection);
 </script>
 
 <template>

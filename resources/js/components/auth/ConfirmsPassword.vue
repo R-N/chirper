@@ -1,12 +1,4 @@
-<script lang="ts">
-import {
-  Component,
-  Vue,
-  Ref,
-  toNative,
-  Prop,
-  Emit
-} from "vue-facing-decorator";
+<script setup lang="ts">
 import {
   VDialog,
   VCard,
@@ -18,71 +10,61 @@ import {
 } from "vuetify/components";
 import axios from "@/plugins/axios";
 import { useForm } from "@inertiajs/vue3";
+import { ref, nextTick, useTemplateRef } from "vue";
 
-@Component({
-  components: {
-    VDialog,
-    VCard,
-    VCardTitle,
-    VCardText,
-    VCardActions,
-    VTextField,
-    VBtn
-  },
-  emits: ["confirmed"]
-})
-class ConfirmPassword extends Vue {
-  @Prop({ type: String }) title;
-  @Prop({ type: String }) content;
-  @Prop({ type: String }) button;
+defineProps<{
+  title?: string;
+  content?: string;
+  button?: string;
+}>();
 
-  confirmingPassword = false;
-  formData = useForm({
-    password: "",
-    error: "",
-    processing: false
-  });
-  @Ref("passwordInput") passwordInput;
+const emit = defineEmits<{
+  confirmed: [value: true];
+}>();
 
-  async startConfirmingPassword() {
-    const response = await axios.get(route("api.password.confirmation"));
-    if (response.data.confirmed) {
-      this.emitConfirmed();
-    } else {
-      this.confirmingPassword = true;
-      setTimeout(() => this.passwordInput?.focus(), 250);
-    }
-  }
+const confirmingPassword = ref(false);
+const formData = useForm({
+  password: "",
+  error: "",
+  processing: false
+});
+const passwordInput = useTemplateRef("passwordInput");
 
-  @Emit("confirmed")
-  emitConfirmed() {
-    return true;
-  }
-
-  async confirmPassword() {
-    this.formData.processing = true;
-    try {
-      await axios.post(route("api.password.confirm"), {
-        password: this.formData.password
-      });
-      this.formData.processing = false;
-      this.closeModal();
-      this.$nextTick(this.emitConfirmed);
-    } catch (error) {
-      this.formData.processing = false;
-      this.formData.error = error.response.data.errors.password[0];
-      this.passwordInput.focus();
-    }
-  }
-
-  closeModal() {
-    this.confirmingPassword = false;
-    this.formData.password = "";
-    this.formData.error = "";
+async function startConfirmingPassword() {
+  const response = await axios.get(route("api.password.confirmation"));
+  if (response.data.confirmed) {
+    emitConfirmed();
+  } else {
+    confirmingPassword.value = true;
+    setTimeout(() => passwordInput.value?.focus(), 250);
   }
 }
 
-export default toNative(ConfirmPassword);
+function emitConfirmed() {
+  emit("confirmed", true);
+}
+
+async function confirmPassword() {
+  formData.processing = true;
+  try {
+    await axios.post(route("api.password.confirm"), {
+      password: formData.password
+    });
+    formData.processing = false;
+    closeModal();
+    nextTick(emitConfirmed);
+  } catch (error: any) {
+    formData.processing = false;
+    formData.error = error.response.data.errors.password[0];
+    passwordInput.value!.focus();
+  }
+}
+
+function closeModal() {
+  confirmingPassword.value = false;
+  formData.password = "";
+  formData.error = "";
+}
 </script>
 
 <template>

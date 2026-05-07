@@ -1,57 +1,68 @@
-<script lang="ts">
-import { Component, Prop, Watch, toNative } from "vue-facing-decorator";
-import { ViewBase } from "@/views/ViewBase.vue";
+<script setup lang="ts">
+import { ref, computed, onMounted } from "vue";
 
 import MainCard from "@/components/card/MainCard.vue";
 import userService from "../services/user";
 import UserForm from "../forms/User.vue";
-import { UserFormMixin } from "../mixins/UserForm.vue";
+import rules from "@/validations-gen/users.json";
+import { parseLaravelRules } from "@/libs/validation";
+import { t } from "@/plugins/i18n";
 
-const BaseClass = UserFormMixin(ViewBase);
+import { useViewBase } from "@/composables/useViewBase";
 
-@Component({
-  name: "UserDetailView",
-  components: {
-    MainCard,
-    UserForm
-  }
-})
-class UserDetailView extends BaseClass {
-  client = userService;
-  @Prop({ type: Number }) item_id;
-  @Prop({ type: Object, default: null }) __item;
-  _item = null;
+const props = defineProps<{
+  parentBusy?: any;
+  item_id: number;
+  __item?: any;
+}>();
 
-  get item() {
-    if (this.__item) return this.__item;
-    else return this._item;
-  }
-  set item(value) {
-    if (this.__item) this.$emit("update:item", value);
-    else this._item = value;
-  }
+const emit = defineEmits<{
+  (e: "update:item", value: any): void;
+}>();
 
-  async created() {
-    await super.created?.();
-    await this.get();
-  }
+const {
+  busy,
+  waitBusy,
+  showError,
+} = useViewBase(props);
 
-  async get() {
-    await this.waitBusy(async () => {
-      const ret = await this.client.get({ id: this.item_id });
-      const data = this.client.getData(ret);
-      this.item = data;
-      return data;
-    });
-  }
+const _item = ref<any>(null);
 
-  get title() {
-    if (this.item) return `${this.$t("user.item")}: ${this.item.name}`;
-    return this.$t("user.item");
-  }
+const item = computed({
+  get() {
+    if (props.__item) return props.__item;
+    return _item.value;
+  },
+  set(value: any) {
+    if (props.__item) emit("update:item", value);
+    else _item.value = value;
+  },
+});
+
+const parsedRules = computed(() => parseLaravelRules(rules));
+
+const availableRoles = ref<any[]>([]);
+const availablePermissions = ref<any[]>([]);
+
+const title = computed(() => {
+  if (item.value) return `${t("user.item")}: ${item.value.name}`;
+  return t("user.item");
+});
+
+async function get() {
+  await waitBusy(async () => {
+    const ret = await userService.get({ id: props.item_id });
+    const data = userService.getData(ret);
+    item.value = data;
+    return data;
+  });
 }
-export { UserDetailView };
-export default toNative(UserDetailView);
+
+onMounted(async () => {
+  availableRoles.value = (await userService.get_roles()).roles;
+  availablePermissions.value = (await userService.get_permissions()).permissions;
+  await get();
+});
 </script>
 <template>
   <MainCard :title="title" no-toolbar="true">
@@ -63,7 +74,7 @@ export default toNative(UserDetailView);
         :available-roles="availableRoles"
         :available-permissions="availablePermissions"
         :data="item"
-        :rules="rules"
+        :rules="parsedRules"
         ref="form"
       />
     </template>

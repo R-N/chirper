@@ -1,64 +1,105 @@
-<script lang="ts">
-import { Component, toNative } from "vue-facing-decorator";
+<script setup lang="ts">
+import { ref, computed, onMounted } from "vue";
 
-import dayjs from "dayjs";
-
-import UserFormDialog from "../views/FormDialog.vue";
 import CrudView from "@/views/CrudView.vue";
-import { CrudViewBase } from "@/views/CrudViewBase.vue";
 import EditableCellTextField from "@/components/form/editable_cell/EditableCellTextField.vue";
-
-import userService from "../services/user";
 import { VDataTable } from "vuetify/components";
 import IconButton from "@/components/button/IconButton.vue";
 import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.vue";
 import SyncCheckbox from "@/components/checkbox/SyncCheckbox.vue";
 import EditableCellSelect from "@/components/form/editable_cell/EditableCellSelect.vue";
-import { UserFormMixin } from "../mixins/UserForm.vue";
 import UserForm from "../forms/User.vue";
+import UserFormDialog from "../views/FormDialog.vue";
 
-const BaseClass = UserFormMixin(CrudViewBase);
+import userService from "../services/user";
+import { getArrayText } from "@/libs/util.js";
+import rules from "@/validations-gen/users.json";
+import { parseLaravelRules } from "@/libs/validation";
+import { t } from "@/plugins/i18n";
 
-@Component({
-  name: "UserCrudView",
-  components: {
-    UserFormDialog,
-    CrudView,
-    EditableCellTextField,
-    VDataTable,
-    IconButton,
-    ConfirmationIconButton,
-    SyncCheckbox,
-    EditableCellSelect,
-    UserForm
-  }
-})
-class UserCrudView extends BaseClass {
-  client = userService;
-  editing = null;
+import { useWorking } from "@/composables/useWorking";
+import { useCrudView } from "@/composables/useCrudView";
 
-  get itemName() {
-    return this.$t("user.item");
-  }
-  get headers() {
-    let headers = [
-      { title: this.$t("user.name"), value: "name" },
-      { title: this.$t("user.roles"), value: "roles" },
-      { title: this.$t("user.email"), value: "email" },
-      { title: this.$t("user.verified"), value: "verified" },
-      { title: this.$t("user.enabled"), value: "enabled" },
-      { title: this.$t("crud.actions"), value: "actions" }
-    ];
-    return headers;
-  }
+const props = defineProps<{
+  parentBusy?: any;
+}>();
 
-  showForm(user = null) {
-    this.editing = user;
-    this.formDialogShow = true;
-  }
+const {
+  busy,
+  waitBusy,
+  showError,
+  visit,
+} = useWorking(props);
+
+const crudView = useCrudView({
+  client: userService,
+  waitBusy,
+  showError,
+  nameField: "name",
+});
+
+const {
+  formDialogShow,
+  editing,
+  search,
+  items,
+  selected,
+  page,
+  itemsPerPage,
+  itemCount,
+  selecting,
+  dataTableComponent,
+  debouncedFetch,
+  fetch,
+  create,
+  delete2,
+  deleteItem,
+  exportCsv,
+  exportXlsx,
+  exportPdf,
+  bulkConfirmText,
+  storeItem,
+  setFieldConfirmText,
+  setField,
+  justAsk,
+  deleteConfirmText,
+} = crudView;
+
+const availableRoles = ref<any[]>([]);
+const availablePermissions = ref<any[]>([]);
+
+const parsedRules = computed(() => parseLaravelRules(rules));
+
+const itemName = computed(() => t("user.item"));
+const headers = computed(() => [
+  { title: t("user.name"), value: "name" },
+  { title: t("user.roles"), value: "roles" },
+  { title: t("user.email"), value: "email" },
+  { title: t("user.verified"), value: "verified" },
+  { title: t("user.enabled"), value: "enabled" },
+  { title: t("crud.actions"), value: "actions" },
+]);
+
+function showForm(user: any = null) {
+  editing.value = user;
+  formDialogShow.value = true;
 }
-export { UserCrudView };
-export default toNative(UserCrudView);
+
+const hasAvailableRoles = computed(() => availableRoles.value && availableRoles.value.length > 0);
+const hasAvailablePermissions = computed(() => availablePermissions.value && availablePermissions.value.length > 0);
+
+function setRolesConfirmText(item: any, value: any) {
+  return setFieldConfirmText("roles", item, value);
+}
+
+function getRolesText(val: any) {
+  return getArrayText(val, (v: any) => v.name, false);
+}
+
+onMounted(async () => {
+  availableRoles.value = (await userService.get_roles()).roles;
+  availablePermissions.value = (await userService.get_permissions()).permissions;
+});
 </script>
 <template>
   <CrudView
@@ -89,7 +130,7 @@ export default toNative(UserCrudView);
             :disabled="busy"
             :bypass-editable-cell="false"
             :data="item"
-            :rules="rules"
+            :rules="parsedRules"
             select="name"
             @store="storeItem"
           />
@@ -99,7 +140,7 @@ export default toNative(UserCrudView);
             :disabled="busy"
             :bypass-editable-cell="false"
             :data="item"
-            :rules="rules"
+            :rules="parsedRules"
             select="email"
             @store="storeItem"
           />
@@ -109,7 +150,7 @@ export default toNative(UserCrudView);
             :disabled="busy"
             :bypass-editable-cell="false"
             :data="item"
-            :rules="rules"
+            :rules="parsedRules"
             select="roles"
             @store="storeItem"
             :availableRoles="availableRoles"
@@ -120,7 +161,7 @@ export default toNative(UserCrudView);
             :disabled="busy"
             :bypass-editable-cell="false"
             :data="item"
-            :rules="rules"
+            :rules="parsedRules"
             select="enabled"
             @store="storeItem"
           />
@@ -130,7 +171,7 @@ export default toNative(UserCrudView);
             :disabled="busy"
             :bypass-editable-cell="false"
             :data="item"
-            :rules="rules"
+            :rules="parsedRules"
             select="verified"
             @store="storeItem"
           />
@@ -153,7 +194,7 @@ export default toNative(UserCrudView);
               :disabled="busy"
               :bypass-editable-cell="false"
               :data="item"
-              :rules="rules"
+              :rules="parsedRules"
               select="clear_password"
               @store="storeItem"
             />
@@ -161,7 +202,7 @@ export default toNative(UserCrudView);
               :disabled="busy"
               :bypass-editable-cell="false"
               :data="item"
-              :rules="rules"
+              :rules="parsedRules"
               select="delete"
               @delete="deleteItem"
             />
@@ -175,7 +216,7 @@ export default toNative(UserCrudView);
         :parent-busy="busy"
         :availableRoles="availableRoles"
         :availablePermissions="availablePermissions"
-        :rules="rules"
+        :rules="parsedRules"
       />
     </template>
   </CrudView>

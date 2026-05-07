@@ -1,5 +1,6 @@
-<script lang="ts">
-import { Head, useForm } from "@inertiajs/vue3";
+<script setup lang="ts">
+import { ref } from "vue";
+import { useForm, router } from "@inertiajs/vue3";
 
 import {
   VCard,
@@ -8,39 +9,26 @@ import {
   VTextField,
   VBtn
 } from "vuetify/components";
-import { Component, Prop, Vue, Ref, toNative } from "vue-facing-decorator";
 import authService from "@/modules/user/auth/services/auth.js";
-import { router } from "@inertiajs/vue3";
 import AuthLayout from "../layouts/Auth.vue";
 import GuestLayout from "@/layouts/GuestLayout.vue";
-import { ViewBase } from "@/views/ViewBase.vue";
+import { useViewBase } from "@/composables/useViewBase";
 
-@Component({
-  components: {
-    AuthLayout,
-    GuestLayout,
-    VCard,
-    VCardText,
-    VCardTitle,
-    VTextField,
-    VBtn
-  }
-})
-class ConfirmPasswordPage extends ViewBase {
-  formData = useForm({
-    password: ""
-  });
+const props = defineProps({});
+const {} = useViewBase(props);
 
-  @Ref("passwordInput") passwordInput;
+const formData = useForm({
+  password: ""
+});
 
-  async submit() {
-    let res = await authService.confirmPassword(this.formData);
-    this.formData.reset();
-    this.passwordInput.value.focus();
-    router.visit(res.redirect || "/login");
-  }
+const passwordInput = ref<InstanceType<typeof VTextField> | null>(null);
+
+async function submit() {
+  let res = await authService.confirmPassword(formData);
+  formData.reset();
+  passwordInput.value?.focus();
+  router.visit(res.redirect || "/login");
 }
-export default toNative(ConfirmPasswordPage);
 </script>
 
 <template>

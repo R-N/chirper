@@ -1,61 +1,52 @@
-<script lang="ts">
-import {
-  Vue,
-  Component,
-  Prop,
-  toNative,
-  Emit,
-  Model
-} from "vue-facing-decorator";
+<script setup lang="ts">
+import { computed } from "vue";
+import { useWorking } from "@/composables/useWorking";
 import ConfirmationSlot from "@/components/dialog/ConfirmationSlot.vue";
-import { WorkingComponent } from "@/components/WorkingComponent.vue";
 
-@Component({
-  name: "SyncCheckbox",
-  components: {
-    ConfirmationSlot
-  },
-  emits: ["change"]
-})
-class SyncCheckbox extends WorkingComponent {
-  @Prop({ type: String }) name;
-  @Prop({ type: String }) label;
-  @Prop({ default: true }) showLabel;
-  @Prop({ type: String }) value;
-  @Prop({ type: [String, Function] }) confirmTextMaker;
-  @Prop({ default: false }) disabled;
-  @Prop({ type: String }) textEnable;
-  @Prop({ type: String }) textDisable;
-  @Prop({ default: true }) ask;
-  @Prop({ type: Function }) onChange;
-  @Model({ type: Boolean, default: false }) inputValue;
-  @Prop({ default: null }) errorMessages;
+const props = defineProps({
+  name: { type: String },
+  label: { type: String },
+  showLabel: { default: true },
+  value: { type: String },
+  confirmTextMaker: { type: [String, Function] },
+  disabled: { default: false },
+  textEnable: { type: String },
+  textDisable: { type: String },
+  ask: { default: true },
+  onChange: { type: Function },
+  modelValue: { type: Boolean, default: false },
+  errorMessages: { default: null },
+  parentBusy: { default: false },
+});
 
-  async tryAsk(ask) {
-    if (!this.disabled) {
-      if (this.ask) await ask();
-      else await this.change();
-    }
-  }
+const emit = defineEmits(["update:modelValue", "change"]);
 
-  get text() {
-    return this.inputValue ? this.textDisable : this.textEnable;
-  }
-  async change() {
-    if (this.onChange) {
-      await this.waitBusy(
-        async () => await this.onChange(!this.inputValue, this.releaseBusy)
-        // null, this.releaseBusy
-      );
-    } else {
-      // this.emitChange({ value: !this.inputValue, releaseBusy: this.releaseBusy });
-      this.$emit("update:modelValue", !this.inputValue, this.releaseBusy);
-      this.$emit("change", !this.inputValue, this.releaseBusy);
-    }
+const { busy, releaseBusy, waitBusy } = useWorking(props);
+
+const inputValue = computed({
+  get: () => props.modelValue,
+  set: (val) => emit("update:modelValue", val),
+});
+
+const text = computed(() => inputValue.value ? props.textDisable : props.textEnable);
+
+async function tryAsk(askFn) {
+  if (!props.disabled) {
+    if (props.ask) await askFn();
+    else await change();
   }
 }
-export { SyncCheckbox };
-export default toNative(SyncCheckbox);
+
+async function change() {
+  if (props.onChange) {
+    await waitBusy(
+      async () => await props.onChange(!inputValue.value, releaseBusy)
+    );
+  } else {
+    emit("update:modelValue", !inputValue.value, releaseBusy);
+    emit("change", !inputValue.value, releaseBusy);
+  }
+}
 </script>
 <template>
   <ConfirmationSlot

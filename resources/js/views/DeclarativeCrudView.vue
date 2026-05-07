@@ -1,88 +1,143 @@
-<script lang="ts">
-import { Vue, Component, toNative, Prop } from "vue-facing-decorator";
+<script setup lang="ts">
+import { computed } from "vue";
 
 import CrudView from "@/views/CrudView.vue";
-import { CrudViewBase } from "@/views/CrudViewBase.vue";
-import EditableCellTextArea from "@/components/form/editable_cell/EditableCellTextArea.vue";
-
-import { VDataTable } from "vuetify/components";
-import IconButton from "@/components/button/IconButton.vue";
-import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.vue";
-import { getByPath, setByPath, combineCollection, makeBindings } from "@/libs/util";
+import { combineCollection, makeBindings, filterObject } from "@/libs/util";
 import { parseLaravelRules } from "@/libs/validation";
+import { normalizeFields } from "@/libs/fieldSchema";
+import { resolveAction } from "@/libs/actionRegistry";
+import { provideCrudContext } from "@/composables/useCrudContext";
 
-import { BaseMixin } from "@/mixins/Component.vue";
-import { WorkingMixin } from "@/mixins/Working.vue";
-import { CrudViewMixin } from "@/mixins/CrudView.vue";
-import { filterObject } from "@/libs/util";
-import GenericField, { GenericField } from "@/components/form/GenericField.vue";
+import { useWorking } from "@/composables/useWorking";
+import { useCrudView } from "@/composables/useCrudView";
+import { t } from "@/plugins/i18n";
+import GenericField from "@/components/form/GenericField.vue";
 
-const BaseClass = CrudViewMixin(WorkingMixin(BaseMixin(Vue)));
-const emptyFunction = (x) => x;
+const props = defineProps<{
+  client?: object;
+  nameField?: string;
+  formDialog?: any;
+  title?: string;
+  fields?: any[];
+  actions?: any[];
+  bulkActions?: any[];
+  rules?: object;
+  parentBusy?: any;
+  query?: any;
+}>();
 
-@Component({
-  name: "DeclarativeCrudView",
-  components: {
-    CrudView,
-    VDataTable,
-    IconButton,
-    ConfirmationIconButton,
-    GenericField
+const {
+  busy,
+  waitBusy,
+  showError,
+} = useWorking(props);
+
+const crudView = useCrudView({
+  client: props.client,
+  waitBusy,
+  showError,
+  nameField: props.nameField,
+  __query: props.query,
+});
+
+const {
+  formDialogShow,
+  editing,
+  search,
+  items,
+  selected,
+  page,
+  itemsPerPage,
+  itemCount,
+  selecting,
+  dataTableComponent,
+  debouncedFetch,
+  exportCsv,
+  exportXlsx,
+  exportPdf,
+  bulkConfirmText,
+  storeItem,
+  fetch,
+  justAsk,
+  delete2,
+  deleteConfirmText,
+  setFieldConfirmText,
+  setField,
+} = crudView;
+
+const normalizedFields = computed(() => normalizeFields(props.fields || []));
+
+const headers = computed(() => {
+  let h = normalizedFields.value
+    .filter((f: any) => f.table)
+    .map((f: any) => filterObject(f, ["title", "value"]));
+  if (props.actions?.length) {
+    h = [...h, { title: t("crud.actions"), value: "actions" }];
   }
-})
-class DeclarativeCrudView extends BaseClass {
-  @Prop({ type: Object, default: null }) client;
-  @Prop({ type: String, default: "name" }) nameField;
-  @Prop({ type: Object, default: null }) formDialog;
-  @Prop({ type: String, default: "CRUD" }) title;
-  @Prop({ type: Array, default: [] }) fields;
-  @Prop({ type: Array, default: [] }) actions;
-  @Prop({ type: Array, default: [] }) bulkActions;
-  @Prop({ type: Object, default: {} }) rules;
+  return h;
+});
 
-  combineCollection = combineCollection;
-
-  get headers() {
-    let headers = this.fields
-      .filter((f) => f.table)
-      .map((f) => filterObject(f, ["title", "value"]));
-    let actions = this.actions;
-    if (actions){
-      headers = [
-        ...headers,
-        { title: this.$t("crud.actions"), value: "actions" }
-        // filterObject(actions, ["title", "value"])
-      ];
-    }
-    return headers;
-  }
-
-  showForm(data = null) {
-    this.editing = data;
-    this.formDialogShow = true;
-  }
-
-  async bulkAction(action) {
-    await this.waitBusy(async () => {
-      await action(this.selected, this.items);
-    });
-  }
-
-  get _rules() {
-    return parseLaravelRules(this.rules);
-  }
-
-  makeBindings(f, item){
-    return makeBindings(f, item);
-  }
-
-  get self(){
-    return this;
-  }
-
+function showForm(data: any = null) {
+  editing.value = data;
+  formDialogShow.value = true;
 }
-export { DeclarativeCrudView };
-export default toNative(DeclarativeCrudView);
+
+async function bulkAction(action: Function) {
+  await waitBusy(async () => {
+    await action(selected.value, items.value);
+  });
+}
+
+const _rules = computed(() => parseLaravelRules(props.rules));
+
+const self = {
+  storeItem,
+  delete2,
+  deleteConfirmText,
+  setFieldConfirmText,
+  setField,
+};
+
+provideCrudContext(self);
+
+function handleAction(actionDef: any, item: any) {
+  const resolved = resolveAction(actionDef);
+  switch (resolved.event) {
+    case "edit":
+      showForm(item);
+      break;
+    case "delete":
+      delete2(item);
+      break;
+    default:
+      if (actionDef.onClick) actionDef.onClick(item);
+      break;
+  }
+}
+
+function getActionConfirmTextMaker(actionDef: any, item: any) {
+  if (actionDef.confirmTextMaker) {
+    return (value: any) => actionDef.confirmTextMaker(item, value);
+  }
+  if (actionDef.event === "delete" || actionDef.type === "delete") {
+    return () => deleteConfirmText(item);
+  }
+  if (actionDef.name) {
+    return (value: any) => setFieldConfirmText(actionDef.name, item, value);
+  }
+  return undefined;
+}
+
+defineExpose({
+  items,
+  fetch,
+  storeItem,
+  showForm,
+  deleteConfirmText,
+  delete2,
+  setFieldConfirmText,
+  setField,
+});
 </script>
 <template>
   <CrudView
@@ -118,7 +173,6 @@ export default toNative(DeclarativeCrudView);
     <template v-slot:default>
       <component
         :is="dataTableComponent"
-        class=""
         :headers="headers"
         :items="items"
         item-key="id"
@@ -134,7 +188,7 @@ export default toNative(DeclarativeCrudView);
       >
         <template v-slot:item="{ item }">
           <tr>
-            <td v-for="(f, i) in fields" :key="f.value">
+            <td v-for="(f, i) in normalizedFields" :key="f.value">
               <GenericField
                 :field="f"
                 :data="item"
@@ -142,21 +196,21 @@ export default toNative(DeclarativeCrudView);
                 :rules="_rules"
               />
             </td>
-            <td key="actions">
+            <td v-if="actions?.length" key="actions">
               <component
                 v-for="(a, i) in actions"
                 :key="i"
-                :is="a.component"
-                :icon="a.icon"
+                :is="resolveAction(a).component"
+                :icon="resolveAction(a).icon ?? a.icon"
                 :text="a.text"
                 :ask="a.ask ? (ask) => justAsk(item, ask) : null"
-                :on-confirm="() => a.onConfirm ? a.onConfirm(item) : null"
-                @click.stop="() => a.onClick ? a.onClick(item) : null"
-                :confirmTextMaker="
-                  a.confirmTextMaker ? 
-                  (value) => a.confirmTextMaker(item, value) :
-                  (value) => setFieldConfirmText(a.name, item, value)
+                :on-confirm="
+                  a.onConfirm
+                    ? () => a.onConfirm(item)
+                    : (resolveAction(a).event === 'delete' ? () => delete2(item) : null)
                 "
+                @click.stop="handleAction(a, item)"
+                :confirmTextMaker="getActionConfirmTextMaker(a, item)"
                 :disabled="busy || a.disabled"
                 v-bind="makeBindings(a, item)"
                 :bypass-editable-cell="false"

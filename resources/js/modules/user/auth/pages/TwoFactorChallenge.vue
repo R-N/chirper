@@ -1,6 +1,7 @@
-<script lang="ts">
-import { nextTick } from "vue";
-import { Head, useForm } from "@inertiajs/vue3";
+<script setup lang="ts">
+import { ref, nextTick } from "vue";
+import { useForm, router } from "@inertiajs/vue3";
+
 import {
   VCard,
   VCardText,
@@ -11,59 +12,42 @@ import {
   VBtn,
   VSpacer
 } from "vuetify/components";
-import { Component, Prop, Vue, toNative, Ref } from "vue-facing-decorator";
 import authService from "@/modules/user/auth/services/auth.js";
-import { router } from "@inertiajs/vue3";
 import AuthLayout from "../layouts/Auth.vue";
 import GuestLayout from "@/layouts/GuestLayout.vue";
-import { ViewBase } from "@/views/ViewBase.vue";
+import { useViewBase } from "@/composables/useViewBase";
 
-@Component({
-  components: {
-    AuthLayout,
-    GuestLayout,
-    VCard,
-    VCardText,
-    VCardTitle,
-    VCardActions,
-    VTextField,
-    VLabel,
-    VBtn,
-    VSpacer,
-    Head
-  }
-})
-class TwoFactorChallengePage extends ViewBase {
-  recovery = false;
+const props = defineProps({});
+const {} = useViewBase(props);
 
-  formData = useForm({
-    code: "",
-    recovery_code: ""
-  });
+const recovery = ref(false);
 
-  @Ref("recoveryCodeInput") recoveryCodeInput;
-  @Ref("codeInput") codeInput;
+const formData = useForm({
+  code: "",
+  recovery_code: ""
+});
 
-  async toggleRecovery() {
-    this.recovery = !this.recovery;
+const recoveryCodeInput = ref<InstanceType<typeof VTextField> | null>(null);
+const codeInput = ref<InstanceType<typeof VTextField> | null>(null);
 
-    await nextTick();
+async function toggleRecovery() {
+  recovery.value = !recovery.value;
 
-    if (this.recovery) {
-      this.recoveryCodeInput.value.focus();
-      this.formData.code = "";
-    } else {
-      this.codeInput.value.focus();
-      this.formData.recovery_code = "";
-    }
-  }
+  await nextTick();
 
-  async submit() {
-    let res = await authService.twoFactorLogin(this.formData);
-    router.visit(res.redirect || "/dashboard");
+  if (recovery.value) {
+    recoveryCodeInput.value?.focus();
+    formData.code = "";
+  } else {
+    codeInput.value?.focus();
+    formData.recovery_code = "";
   }
 }
-export default toNative(TwoFactorChallengePage);
+
+async function submit() {
+  let res = await authService.twoFactorLogin(formData);
+  router.visit(res.redirect || "/dashboard");
+}
 </script>
 
 <template>

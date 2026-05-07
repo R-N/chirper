@@ -1,20 +1,9 @@
-<script lang="ts">
-import { Component, Prop, toNative } from "vue-facing-decorator";
-import { ViewBase } from "@/views/ViewBase.vue";
-
+<script setup lang="ts">
 import CenterLayout from "@/components/layout/CenterLayout.vue";
 import RefreshButton from "@/components/general/RefreshButton.vue";
+import { useViewBase } from "@/composables/useViewBase";
 
-@Component({
-  name: "ServerDownView",
-  components: {
-    RefreshButton,
-    CenterLayout
-  }
-})
-class ServerDownView extends ViewBase {}
-export { ServerDownView };
-export default toNative(ServerDownView);
+useViewBase();
 </script>
 <template>
   <CenterLayout column="true">

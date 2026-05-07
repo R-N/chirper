@@ -1,29 +1,71 @@
-<script lang="ts">
+<script setup lang="ts">
 import AppLayout from "@/layouts/AppLayout.vue";
+import Chirp from "@/modules/chirps/components/Chirp.vue";
+import { useForm } from "@inertiajs/vue3";
+import { useViewBase } from "@/composables/useViewBase";
+import { t } from "@/plugins/i18n";
+import { computed, onMounted } from "vue";
+import chirpService from "../services/chirp";
+import { findIndex, deleteFromArray } from "@/libs/util";
 
-import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
-import { ChirpCrudView } from "../views/Chirps.vue";
-import { ViewBase } from "@/views/ViewBase.vue";
+const props = defineProps<{
+  items: any;
+}>();
+const { tabStore } = useViewBase(props);
 
-@Component({
-  components: {
-    AppLayout,
-    ChirpCrudView
-  }
-})
-class ChirpsPage extends ViewBase {
-  @Prop({ type: [Array, Object], default: null }) items;
-  mounted() {
-    this.tabStore.breadcrumbs = [{ title: this.$t("navigation.chirps") }];
+const chirps = computed(() => props.items?.data ?? props.items ?? []);
+
+const formData = useForm({
+  message: ""
+});
+
+onMounted(() => {
+  tabStore.breadcrumbs = [{ title: t("navigation.chirps") }];
+});
+
+async function storeChirp() {
+  let res = await chirpService.store(formData);
+  const list = Array.isArray(props.items) ? props.items : props.items?.data;
+  if (list) list.unshift(res.chirp);
+  formData.reset();
+}
+
+function updateChirp(chirp: any) {
+  const list = Array.isArray(props.items) ? props.items : props.items?.data;
+  const index = findIndex(list, chirp);
+  if (index !== -1) {
+    list[index] = chirp;
   }
 }
-export default toNative(ChirpsPage);
+
+function destroyChirp(chirp: any) {
+  const list = Array.isArray(props.items) ? props.items : props.items?.data;
+  deleteFromArray(list, chirp);
+}
 </script>
 
 <template>
   <AppLayout :title="$t('chirp.title')">
-    <VContainer>
-      <ChirpCrudView />
+    <VContainer class="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
+      <form @submit.prevent.stop="storeChirp">
+        <VTextarea
+          v-model="formData.message"
+          :label="$t('chirp.placeholder')"
+          variant="outlined"
+        />
+        <VBtn class="mt-4" color="primary" type="submit">{{
+          $t("chirp.submit")
+        }}</VBtn>
+      </form>
+      <VCard class="mt-6">
+        <Chirp
+          v-for="chirp in chirps"
+          :key="chirp.id"
+          :chirp="chirp"
+          @destroy="destroyChirp"
+          @update="updateChirp"
+        />
+      </VCard>
     </VContainer>
   </AppLayout>
 </template>

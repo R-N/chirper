@@ -1,168 +1,210 @@
-<script lang="ts">
+<script setup lang="ts">
+import { ref, computed, watch, useTemplateRef } from "vue";
+import { useForm } from "@inertiajs/vue3";
 import { emptyArray } from "@/libs/util";
-
-import {
-  Component,
-  Prop,
-  Watch,
-  Model,
-  Ref,
-  toNative,
-  Setup
-} from "vue-facing-decorator";
-import { DialogBase } from "@/components/dialog/DialogBase.vue";
+import { t } from "@/plugins/i18n";
+import { useWorking } from "@/composables/useWorking";
+import { useFormBase } from "@/composables/useFormBase";
+import { useDialog } from "@/composables/useDialog";
 
 let defaultBackendUrl =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-import { useForm } from "@inertiajs/vue3";
 
-@Component({
-  name: "FileUploadDialog",
-  components: {}
-})
-class FileUploadDialog extends DialogBase {
-  @Prop({ type: Function }) preUpload;
-  @Prop({ type: Function }) onUpload;
-  @Prop({ type: Function }) postUpload;
+const props = defineProps<{
+  name?: string;
+  disabled?: boolean;
+  data?: object | null;
+  rules?: any[] | Function | object;
+  select?: string | null;
+  form?: object | Function;
+  onCancel?: Function;
+  onChange?: Function;
+  onReset?: Function;
+  onValidate?: Function;
+  onSubmit?: Function;
+  parentBusy?: boolean;
+  modelValue?: boolean | string | object | any[];
+  onShow?: Function;
+  preUpload?: Function;
+  onUpload?: Function;
+  postUpload?: Function;
+  title?: string;
+  text?: string;
+  dropText?: string;
+  browseText?: string;
+  dropUpload?: boolean;
+  acceptedFiles?: string;
+  mimeTypes?: string[];
+  errorMessages?: any;
+}>();
 
-  @Prop({ type: String }) title;
-  @Prop({ type: String }) text;
-  @Prop({ type: String, default: "file" }) name;
-  @Prop({ type: String }) dropText;
-  @Prop({ type: String }) browseText;
-  @Prop({ default: true }) dropUpload;
+const emit = defineEmits<{
+  (e: "cancel", value?: any, releaseBusy?: Function): void;
+  (e: "reset", value?: any): void;
+  (e: "change", value?: any): void;
+  (e: "validate", value?: any): void;
+  (e: "submit", value?: any): void;
+  (e: "update:modelValue", value?: any): void;
+  (e: "show", value?: any): void;
+}>();
 
-  @Prop({ default: "" }) acceptedFiles;
-  @Prop({ default: [] }) mimeTypes;
-  @Prop({ default: null }) errorMessages;
-  @Setup((props, ctx) => {
-    if (props.name) {
-      return useForm({
-        [props.name]: null
-      });
-    } else {
-      return useForm({
-        value: null
-      });
-    }
-  })
-  formData;
-  // @Prop({ default: true }) emitForm;
+const { busy, releaseBusy, waitBusy, showError, tabStore } = useWorking(props);
 
-  file = null;
-  files = [];
-  fromDrop = false;
-  immediateUpload = false;
+const {
+  valid,
+  _valid,
+  item,
+  getForm,
+  getValue,
+  prepopulate,
+  validate,
+  resetValidation,
+} = useFormBase(props, emit);
 
-  @Ref("myFileUpload") myFileUpload;
+const formData = props.name ? useForm({ [props.name]: null }) : useForm({ value: null });
 
-  get interactable() {
-    return this.busy || !this.myDialog;
-  }
+const file = ref<File | null>(null);
+const files = ref<File[]>([]);
+const fromDrop = ref(false);
+const immediateUpload = ref(false);
 
-  reset() {
-    super.reset?.();
-    this.file = null;
-    emptyArray(this.files);
-  }
-  async close() {
-    if (typeof this.myDialog == "boolean" || this.myDialog instanceof Boolean) {
-      this.myDialog = false;
-    } else if (
-      typeof this.myDialog == "string" ||
-      this.myDialog instanceof String
-    ) {
-      this.myDialog = "";
-    } else if (this.myDialog instanceof Object) {
-      this.myDialog = null;
-    } else if (this.myDialog instanceof Array) {
-      this.myDialog.pop();
-    }
-  }
-  get accept() {
-    return `${this.acceptedFiles},${this.mimeTypes.join(",")}`;
-  }
-  get dropzoneOptions() {
-    return {
-      url: defaultBackendUrl + "/upload/",
-      // params: this.dropzoneParams,
-      maxFilesize: 1,
-      clickable: false,
-      uploadMultiple: false,
-      autoProcessQueue: false,
-      acceptedFiles: this.acceptedFiles,
-      mimeTypes: this.mimeTypes
-    };
-  }
+const myFileUpload = useTemplateRef("myFileUpload");
 
-  @Watch("files")
-  async onFilesChanged(newFiles, oldFiles) {
-    if (newFiles.length > 0 && this.immediateUpload) {
-      this.onFileDropped(newFiles.shift());
-    }
-  }
-  onFileDropped(file) {
-    if (!this.file) this.file = file;
-    else this.files.push(file);
-    this.fromDrop = true;
-  }
-  onDialogFileDropped(file) {
-    this.myFileUpload.removeFile(file);
-    this.immediateUpload = this.dropUpload;
-    this.onFileDropped(file);
-  }
+function reset() {
+  resetValidation();
+  file.value = null;
+  emptyArray(files.value);
+}
 
-  @Watch("file")
-  async onFileChanged(file, old) {
-    if (this.fromDrop) {
-      if (file) {
-        if (!file.accepted) {
-          if (this.files.length == 0) {
-            this.fromDrop = false;
-            this.file = old;
-          } else {
-            this.file = this.files.shift();
-          }
-          this.tabStore.showError("File invalid");
-        } else if (this.immediateUpload) {
-          await this.uploadFile();
-          this.immediateUpload = false;
-        }
-      }
-    }
-  }
+const { myDialog, close: dialogClose } = useDialog(props, emit, { busy, reset, waitBusy, releaseBusy });
 
-  async uploadFile() {
-    this.formData.clearErrors();
-    const comp = this;
-    comp.busy = true;
-    if (comp.preUpload) comp.preUpload();
-    try {
-      if (!comp.file && comp.files.length) comp.file = comp.files.shift();
-      while (comp.file || comp.files.length) {
-        await comp.onUpload(comp.file);
-        if (comp.files.length) {
-          comp.file = comp.files.shift();
-        } else {
-          comp.file = null;
-        }
-      }
-      comp.close();
-    } catch (error) {
-      comp.files.unshift(comp.file);
-      comp.file = null;
-      if (error?.response?.data?.errors) {
-        this.formData.setError(error.response.data.errors);
-      }
-      throw error;
-    } finally {
-      if (comp.postUpload) comp.postUpload();
-      comp.busy = false;
-    }
+const interactable = computed(() => busy.value || !myDialog.value);
+
+async function close() {
+  if (typeof myDialog.value === "boolean" || myDialog.value instanceof Boolean) {
+    myDialog.value = false;
+  } else if (typeof myDialog.value === "string" || myDialog.value instanceof String) {
+    myDialog.value = "";
+  } else if (myDialog.value instanceof Object) {
+    myDialog.value = null;
+  } else if (myDialog.value instanceof Array) {
+    myDialog.value.pop();
   }
 }
-export { FileUploadDialog };
-export default toNative(FileUploadDialog);
+
+const accept = computed(() => `${props.acceptedFiles || ""},${(props.mimeTypes || []).join(",")}`);
+
+const dropzoneOptions = computed(() => ({
+  url: defaultBackendUrl + "/upload/",
+  maxFilesize: 1,
+  clickable: false,
+  uploadMultiple: false,
+  autoProcessQueue: false,
+  acceptedFiles: accept.value,
+  mimeTypes: props.mimeTypes || [],
+}));
+
+watch(files, async (newFiles, oldFiles) => {
+  if (newFiles.length > 0 && immediateUpload.value) {
+    onFileDropped(newFiles.shift()!);
+  }
+});
+
+function onFilesChanged(newFiles: File[]) {
+  if (newFiles?.length > 0 && immediateUpload.value) {
+    onFileDropped(newFiles.shift()!);
+  }
+}
+
+function onFileDropped(f: File) {
+  if (!file.value) file.value = f;
+  else files.value.push(f);
+  fromDrop.value = true;
+}
+
+function onDialogFileDropped(f: File) {
+  myFileUpload.value?.removeFile(f);
+  immediateUpload.value = props.dropUpload ?? true;
+  onFileDropped(f);
+}
+
+watch(file, async (newFile, old) => {
+  if (fromDrop.value) {
+    if (newFile) {
+      if (!(newFile as any).accepted) {
+        if (files.value.length === 0) {
+          fromDrop.value = false;
+          file.value = old as File | null;
+        } else {
+          file.value = files.value.shift()!;
+        }
+        tabStore.showError("File invalid");
+      } else if (immediateUpload.value) {
+        await uploadFile();
+        immediateUpload.value = false;
+      }
+    }
+  }
+});
+
+async function uploadFile() {
+  formData.clearErrors();
+  busy.value = true;
+  if (props.preUpload) props.preUpload();
+  try {
+    if (!file.value && files.value.length) file.value = files.value.shift()!;
+    while (file.value || files.value.length) {
+      await props.onUpload!(file.value!);
+      if (files.value.length) {
+        file.value = files.value.shift()!;
+      } else {
+        file.value = null;
+      }
+    }
+    close();
+  } catch (error: any) {
+    files.value.unshift(file.value!);
+    file.value = null;
+    if (error?.response?.data?.errors) {
+      formData.setError(error.response.data.errors);
+    }
+    throw error;
+  } finally {
+    if (props.postUpload) props.postUpload();
+    busy.value = false;
+  }
+}
+
+defineExpose({
+  formData,
+  valid,
+  _valid,
+  item,
+  interactable,
+  getForm,
+  getValue,
+  prepopulate,
+  validate,
+  resetValidation,
+  reset,
+  close,
+  busy,
+  waitBusy,
+  releaseBusy,
+  showError,
+  myDialog,
+  file,
+  files,
+  fromDrop,
+  immediateUpload,
+  myFileUpload,
+  accept,
+  dropzoneOptions,
+  uploadFile,
+  onFileDropped,
+  onFilesChanged,
+  onDialogFileDropped,
+});
 </script>
 <template>
   <VDialog v-model="myDialog" max-width="290" :persistent="busy">

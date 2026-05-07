@@ -1,4 +1,4 @@
-<script lang="ts">
+<script setup lang="ts">
 import ApplicationLogo from "@/components/general/ApplicationLogo.vue";
 import {
   VContainer,
@@ -11,23 +11,15 @@ import {
   VIcon,
   VCardActions
 } from "vuetify/components";
-import { Component, toNative } from "vue-facing-decorator";
-import { ViewBase } from "@/views/ViewBase.vue";
+import { useViewBase } from "@/composables/useViewBase";
 
-@Component({
-  components: {
-    ApplicationLogo
-  }
-})
-class WelcomeView extends ViewBase {
-  tryError() {
-    let err = new Error("Test error!!!");
-    err.show = true;
-    throw err;
-  }
+useViewBase();
+
+function tryError() {
+  let err = new Error("Test error!!!");
+  (err as any).show = true;
+  throw err;
 }
-export { WelcomeView };
-export default toNative(WelcomeView);
 </script>
 
 <template>

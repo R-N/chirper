@@ -1,7 +1,5 @@
-<script lang="ts">
-import { Component, Prop, toNative, Ref } from "vue-facing-decorator";
-import { WorkingComponent } from "@/components/WorkingComponent.vue";
-import CardTitle from "@/components/card/CardTitle.vue";
+<script setup lang="ts">
+import { ref } from "vue";
 import { Head, Link, useForm, router } from "@inertiajs/vue3";
 import {
   VTextField,
@@ -11,45 +9,36 @@ import {
   VCardActions
 } from "vuetify/components";
 import authService from "@/modules/user/auth/services/auth.js";
+import CardTitle from "@/components/card/CardTitle.vue";
+import { useWorking } from "@/composables/useWorking";
 
-@Component({
-  name: "LoginForm",
-  components: {
-    CardTitle,
-    Link,
-    VTextField,
-    VCheckbox,
-    VBtn,
-    VCardText,
-    VCardActions
-  }
-})
-class LoginForm extends WorkingComponent {
-  valid = true;
-  passwordVisible = false;
-  @Prop({ type: Boolean }) canResetPassword;
-  @Prop({ type: String }) status;
-  @Ref("form") formRef;
+const props = defineProps<{
+  canResetPassword?: boolean;
+  status?: string;
+}>();
 
-  formData = useForm({
-    email: "",
-    password: "",
-    remember: false
-  });
+const { busy, waitBusy, globalBusy } = useWorking(props);
 
-  async login() {
-    this.formData.clearErrors();
-    this.formRef.validate();
-    if (!this.valid) return;
-    await this.waitBusy(async () => {
-      let res = await authService.login(this.formData);
-      router.visit(res.redirect || "/dashboard");
-      this.formData.reset("password");
-    }, "globalBusy");
-  }
+const valid = ref(true);
+const passwordVisible = ref(false);
+const formRef = ref<any>(null);
+
+const formData = useForm({
+  email: "",
+  password: "",
+  remember: false
+});
+
+async function login() {
+  formData.clearErrors();
+  formRef.value?.validate();
+  if (!valid.value) return;
+  await waitBusy(async () => {
+    let res = await authService.login(formData);
+    router.visit(res.redirect || "/dashboard");
+    formData.reset("password");
+  }, globalBusy);
 }
-export { LoginForm };
-export default toNative(LoginForm);
 </script>
 <template>
   <VForm

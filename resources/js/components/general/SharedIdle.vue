@@ -1,59 +1,54 @@
-<script lang="ts">
-import {
-  Vue,
-  Component,
-  Prop,
-  Model,
-  Watch,
-  toNative
-} from "vue-facing-decorator";
-import { MyComponent } from "@/components/MyComponent.vue";
+<script setup lang="ts">
+import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue";
+import { useAuth } from "@/composables/useAuth";
 
-@Component({
-  name: "SharedIdle",
-  emits: ["update:modelValue", "update:idle", "change"]
-})
-class SharedIdle extends MyComponent {
-  @Prop({ type: Number }) idleWait;
-  @Model({ type: Boolean }) syncedIdle;
-  idleTimer = null;
+const { appStore } = useAuth();
 
-  get idleWaitMillis() {
-    return this.idleWait * 1000;
+const props = defineProps<{
+  idleWait?: number;
+  modelValue?: boolean;
+}>();
+
+const emit = defineEmits<{
+  "update:modelValue": [value: boolean];
+  "update:idle": [value: boolean];
+  change: [value: boolean];
+}>();
+
+const syncedIdle = computed({
+  get: () => props.modelValue,
+  set: (val) => emit("update:modelValue", val),
+});
+
+const idleTimer = ref<number | null>(null);
+
+const idleWaitMillis = computed(() => props.idleWait * 1000);
+
+const sharedUserPresent = computed(() => appStore.userPresent);
+
+watch(sharedUserPresent, (val, oldVal) => {
+  if (val != oldVal && val && syncedIdle.value) {
+    syncedIdle.value = false;
   }
+});
 
-  get sharedUserPresent() {
-    return this.appStore.userPresent;
-  }
-
-  @Watch("sharedUserPresent")
-  onSharedUserPresent(val, oldVal) {
-    if (val != oldVal && val && this.syncedIdle) {
-      this.syncedIdle = false;
+onMounted(() => {
+  idleTimer.value = window.setInterval(() => {
+    if (
+      appStore.getIdleTime() >= idleWaitMillis.value &&
+      !syncedIdle.value
+    ) {
+      syncedIdle.value = true;
     }
-  }
+  }, 1000) as unknown as number;
+});
 
-  mounted() {
-    const comp = this;
-    this.idleTimer = window.setInterval(() => {
-      if (
-        comp.appStore.getIdleTime() >= comp.idleWaitMillis &&
-        !comp.syncedIdle
-      ) {
-        comp.syncedIdle = true;
-      }
-    }, 1000);
+onBeforeUnmount(() => {
+  if (idleTimer.value) {
+    window.clearInterval(idleTimer.value as unknown as number);
+    idleTimer.value = null;
   }
-
-  beforeDestroy() {
-    if (this.idleTimer) {
-      window.clearInterval(this.idleTimer);
-      this.idleTimer = null;
-    }
-  }
-}
-export { SharedIdle };
-export default toNative(SharedIdle);
+});
 </script>
 <template>
   <div></div>

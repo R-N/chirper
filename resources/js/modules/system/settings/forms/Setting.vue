@@ -1,73 +1,91 @@
-<script lang="ts">
-import { Component, Prop, Emit, Watch, toNative } from "vue-facing-decorator";
+<script setup lang="ts">
+import { computed, toRef } from "vue";
 import { useForm } from "@inertiajs/vue3";
 import settingService from "../services/setting";
-import { CrudFormBase } from "@/components/form/CrudFormBase.vue";
-import EditableCellTextField from "@/components/form/editable_cell/EditableCellTextField.vue";
-import EditableCellSelect from "@/components/form/editable_cell/EditableCellSelect.vue";
-import SyncCheckbox from "@/components/checkbox/SyncCheckbox.vue";
-import { getArrayText } from "@/libs/util.js";
+import { useWorking } from "@/composables/useWorking";
+import { useFormBase } from "@/composables/useFormBase";
+import { useCrudForm } from "@/composables/useCrudForm";
+import { useCrud } from "@/composables/useCrud";
 import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.vue";
-import { SettingFormMixin } from "../mixins/SettingForm.vue";
 import CrudForm from "@/components/form/CrudForm.vue";
+import { t } from "@/plugins/i18n";
 
-const BaseClass = SettingFormMixin(CrudFormBase);
+const props = defineProps<{
+  bypassEditableCell?: boolean;
+  showTitle?: boolean;
+  disabled?: boolean;
+  data?: any;
+  rules?: any;
+  select?: string;
+  form?: any;
+  onCancel?: Function;
+  onChange?: Function;
+  onReset?: Function;
+  onValidate?: Function;
+  onSubmit?: Function;
+  parentBusy?: boolean;
+  settingTypes?: any[];
+}>();
 
-@Component({
-  name: "SettingForm",
-  components: {
-    EditableCellTextField,
-    EditableCellSelect,
-    SyncCheckbox,
-    ConfirmationIconButton,
-    CrudForm
-  },
-  emits: ["submit"]
-})
-class SettingForm extends BaseClass {
-  @Prop({ default: true }) bypassEditableCell;
-  @Prop({ type: Boolean, default: true }) showTitle;
+const emit = defineEmits<{
+  submit: [value: any];
+}>();
 
-  client = settingService;
-  formData = useForm({
-    key: "",
-    type: "",
-    value: "",
-    options: ""
+const { busy, waitBusy, showError, releaseBusy } = useWorking(props);
+const formBase = useFormBase(props, emit);
+const { formData, valid, interactable, validate, getValue, reset, prepopulate, getForm } = formBase;
+
+const dataRef = toRef(props, "data");
+const crud = useCrud({ client: settingService, waitBusy, nameField: "key" });
+
+const { submit: crudFormSubmit } = useCrudForm({
+  client: settingService,
+  formData,
+  data: dataRef,
+});
+
+function close() {}
+
+async function submit() {
+  return await crudFormSubmit({
+    validate,
+    valid,
+    waitBusy,
+    getValue,
+    onSubmit: props.onSubmit,
+    emit,
+    close,
   });
-  get fields() {
-    return [
-      {
-        name: "key",
-        label: this.$t('form.key'),
-        type: "text",
-        required: true,
-        model: "key"
-      },
-      {
-        name: "type",
-        label: this.$t('form.type'),
-        type: "select",
-        required: true,
-        model: "type",
-        props: {
-          items: this.settingTypes,
-          itemTitle: null,
-          itemValue: null
-        }
-      },
-      {
-        name: "value",
-        label: this.$t('form.value'),
-        type: "text",
-        required: true,
-        model: "value"
-      },
-    ];
-  }
 }
-export { SettingForm };
-export default toNative(SettingForm);
+
+const fields = computed(() => [
+  {
+    name: "key",
+    label: t("form.key"),
+    type: "text",
+    required: true,
+    model: "key",
+  },
+  {
+    name: "type",
+    label: t("form.type"),
+    type: "select",
+    required: true,
+    model: "type",
+    props: {
+      items: props.settingTypes,
+      itemTitle: null,
+      itemValue: null,
+    },
+  },
+  {
+    name: "value",
+    label: t("form.value"),
+    type: "text",
+    required: true,
+    model: "value",
+  },
+]);
 </script>
 <template>
   <VForm
@@ -82,16 +100,16 @@ export default toNative(SettingForm);
         v-if="(!select || select == 'delete') && data"
         icon="mdi-delete"
         :text="$t('form.delete')"
-        :confirmTextMaker="deleteConfirmText(data)"
-        :on-confirm="() => delete2(data)"
-        :ask="(ask) => justAsk(data, ask)"
+        :confirmTextMaker="crud.deleteConfirmText(data)"
+        :on-confirm="() => crud.delete2(data)"
+        :ask="(ask) => crud.justAsk(data, ask)"
         :disabled="busy"
         :size="select ? 'small' : 'default'"
       />
     </div>
     <CrudForm
-      :setFieldConfirmText="setFieldConfirmText"
-      :setField="setField"
+      :setFieldConfirmText="crud.setFieldConfirmText"
+      :setField="crud.setField"
       :data="data"
       :bypassEditableCell="bypassEditableCell"
       :fields="fields"
@@ -102,4 +120,3 @@ export default toNative(SettingForm);
     />
   </VForm>
 </template>
-<style scoped></style>

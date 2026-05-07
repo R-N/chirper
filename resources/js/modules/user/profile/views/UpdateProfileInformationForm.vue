@@ -1,8 +1,9 @@
-<script lang="ts">
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
+import { router, useForm } from "@inertiajs/vue3";
 import ActionMessage from "@/components/auth/ActionMessage.vue";
 import FormSection from "@/components/auth/FormSection.vue";
 import InputError from "@/components/form/InputError.vue";
-import { Link, router, useForm, usePage } from "@inertiajs/vue3";
 import {
   VTextField,
   VFileInput,
@@ -13,104 +14,83 @@ import {
   VRow,
   VCol
 } from "vuetify/components";
-
-import { Component, Prop, Vue, toNative, Ref } from "vue-facing-decorator";
 import profileService from "@/modules/user/profile/services/profile.js";
 
-@Component({
-  components: {
-    InputError,
-    ActionMessage,
-    FormSection,
-    VTextField,
-    VFileInput,
-    VBtn,
-    VCard,
-    VImg,
-    VAvatar,
-    VRow,
-    VCol
-  }
-})
-class UpdateProfileInformationForm extends Vue {
-  //   @Prop({ type: Boolean }) mustVerifyEmail;
-  //   @Prop({ type: String }) status;
-  @Prop({ type: Object }) user = null;
+const props = defineProps<{
+  user: any;
+}>();
 
-  formData = useForm({
-    _method: "PUT",
-    name: "",
-    email: "",
-    photo: null
-  });
+const photoInput = ref<any>(null);
+const verificationLinkSent = ref<boolean | null>(null);
+const photoPreview = ref<string | null>(null);
 
-  verificationLinkSent = null;
-  photoPreview = null;
-  @Ref("photoInput") photoInput;
+const formData = useForm({
+  _method: "PUT",
+  name: "",
+  email: "",
+  photo: null as File | null
+});
 
-  mounted() {
-    // this.user = usePage().props.auth.user;
-    this.formData.name = this.user.name;
-    this.formData.email = this.user.email;
+onMounted(() => {
+  formData.name = props.user.name;
+  formData.email = props.user.email;
+});
+
+async function updateProfileInformation() {
+  if (photoInput.value) {
+    formData.photo = photoInput.value.files[0];
   }
 
-  async updateProfileInformation() {
-    if (this.photoInput) {
-      this.formData.photo = this.photoInput.files[0];
-    }
-
-    try {
-      let res = await profileService.updateProfileInformation(
-        this.formData,
-        this.photoInput.files[0]
-      );
-      this.clearPhotoFileInput();
-      router.reload({ preserveScroll: true });
-    } catch (error) {
-      if (error.response?.status === 422) {
-        this.formData.errors = error.response.data.errors;
-      } else {
-        console.error("Unexpected error:", error);
-      }
-    }
-  }
-
-  sendEmailVerification() {
-    this.verificationLinkSent = true;
-  }
-
-  selectNewPhoto() {
-    this.photoInput.click();
-  }
-
-  async updatePhotoPreview() {
-    const photo = this.photoInput.files[0];
-
-    if (!photo) return;
-
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      this.photoPreview = e.target.result;
-    };
-
-    return await reader.readAsDataURL(photo);
-  }
-
-  async deletePhoto() {
-    let res = await profileService.deletePhoto();
-    this.photoPreview = null;
-    this.clearPhotoFileInput();
+  try {
+    let res = await profileService.updateProfileInformation(
+      formData,
+      photoInput.value.files[0]
+    );
+    clearPhotoFileInput();
     router.reload({ preserveScroll: true });
-  }
-
-  clearPhotoFileInput() {
-    if (this.photoInput?.value) {
-      this.photoInput.value = null;
+  } catch (error) {
+    if (error.response?.status === 422) {
+      formData.errors = error.response.data.errors;
+    } else {
+      console.error("Unexpected error:", error);
     }
   }
 }
-export default toNative(UpdateProfileInformationForm);
+
+function sendEmailVerification() {
+  verificationLinkSent.value = true;
+}
+
+function selectNewPhoto() {
+  photoInput.value.click();
+}
+
+async function updatePhotoPreview() {
+  const photo = photoInput.value.files[0];
+
+  if (!photo) return;
+
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    photoPreview.value = e.target.result;
+  };
+
+  return await reader.readAsDataURL(photo);
+}
+
+async function deletePhoto() {
+  let res = await profileService.deletePhoto();
+  photoPreview.value = null;
+  clearPhotoFileInput();
+  router.reload({ preserveScroll: true });
+}
+
+function clearPhotoFileInput() {
+  if (photoInput.value?.value) {
+    photoInput.value.value = null;
+  }
+}
 </script>
 
 <template>

@@ -1,26 +1,21 @@
-<script lang="ts">
+<script setup lang="ts">
 import AppLayout from "@/layouts/AppLayout.vue";
-
-import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
 import UserCrudView from "../views/Users.vue";
-import { ViewBase } from "@/views/ViewBase.vue";
+import { useViewBase } from "@/composables/useViewBase";
+import { t } from "@/plugins/i18n";
+import { onMounted } from "vue";
 
-@Component({
-  components: {
-    AppLayout,
-    UserCrudView
-  }
-})
-class UsersPage extends ViewBase {
-  @Prop({ type: [Array, Object], default: null }) items;
-  mounted() {
-    this.tabStore.breadcrumbs = [
-      { title: this.$t("navigation.system") },
-      { title: this.$t("navigation.users") }
-    ];
-  }
-}
-export default toNative(UsersPage);
+const props = defineProps<{
+  items?: any;
+}>();
+const { tabStore } = useViewBase(props);
+
+onMounted(() => {
+  tabStore.breadcrumbs = [
+    { title: t("navigation.system") },
+    { title: t("navigation.users") }
+  ];
+});
 </script>
 
 <template>

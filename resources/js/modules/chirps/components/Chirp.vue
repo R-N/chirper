@@ -1,8 +1,8 @@
-<script lang="ts">
+<script setup lang="ts">
+import { ref, computed, onMounted } from "vue";
+import { useForm } from "@inertiajs/vue3";
 import InputError from "@/components/form/InputError.vue";
 import dayjs from "dayjs";
-import { useForm } from "@inertiajs/vue3";
-
 import {
   VMenu,
   VTextarea,
@@ -11,67 +11,49 @@ import {
   VList,
   VListItem
 } from "vuetify/components";
-import { Component, Prop, Vue, toNative, Emit } from "vue-facing-decorator";
 import chirpService from "../services/chirp";
 
-@Component({
-  components: {
-    VMenu,
-    VTextarea,
-    VBtn,
-    VIcon,
-    VList,
-    VListItem,
-    InputError
-  },
-  emits: ["update", "destroy"]
-})
-class Chirp extends Vue {
-  @Prop({ type: Object }) chirp;
-  editing = false;
-  formData = useForm({
-    message: ""
-  });
+const props = defineProps<{
+  chirp: any;
+}>();
 
-  mounted() {
-    this.resetForm();
-  }
+const emit = defineEmits<{
+  update: [chirp: any];
+  destroy: [id: any];
+}>();
 
-  get createdAt() {
-    return dayjs(this.chirp.created_at).fromNow();
-  }
+const editing = ref(false);
 
-  resetForm(editing = false) {
-    this.editing = editing;
-    this.formData.reset();
-    this.formData.message = this.chirp.message;
-  }
+const formData = useForm({
+  message: ""
+});
 
-  async updateChirp() {
-    let res = await chirpService.update(this.chirp, this.formData);
-    Object.assign(this.chirp, res.chirp);
-    this.emitUpdate(res.chirp);
-    this.resetForm();
-    this.editing = false;
-  }
+onMounted(() => {
+  resetForm();
+});
 
-  @Emit("update")
-  emitUpdate(chirp) {
-    return chirp;
-  }
+const createdAt = computed(() => {
+  return dayjs(props.chirp.created_at).fromNow();
+});
 
-  async destroyChirp() {
-    // route('chirps.destroy', chirp.id);
-    let res = await chirpService.destroy(this.chirp);
-    this.emitDestroy(this.chirp);
-  }
-
-  @Emit("destroy")
-  emitDestroy(chirp) {
-    return chirp?.id ?? chirp;
-  }
+function resetForm(isEditing = false) {
+  editing.value = isEditing;
+  formData.reset();
+  formData.message = props.chirp.message;
 }
-export default toNative(Chirp);
+
+async function updateChirp() {
+  let res = await chirpService.update(props.chirp, formData);
+  Object.assign(props.chirp, res.chirp);
+  emit("update", res.chirp);
+  resetForm();
+  editing.value = false;
+}
+
+async function destroyChirp() {
+  let res = await chirpService.destroy(props.chirp);
+  emit("destroy", props.chirp?.id ?? props.chirp);
+}
 </script>
 
 <template>
@@ -81,7 +63,7 @@ export default toNative(Chirp);
     <div class="flex-1">
       <div class="flex justify-between items-center">
         <div>
-          <span class="text-gray-800">{{ chirp.user.name }}</span>
+          <span class="text-gray-800">{{ chirp.user?.name }}</span>
           <small class="ml-2 text-sm text-gray-600">{{ createdAt }}</small>
           <small
             v-if="chirp.created_at !== chirp.updated_at"
@@ -91,7 +73,7 @@ export default toNative(Chirp);
           >
         </div>
 
-        <VMenu v-if="chirp.user.id === $page.props.auth.user.id">
+        <VMenu v-if="chirp.user?.id === $page.props.auth.user.id">
           <template #activator="{ props }">
             <VBtn icon v-bind="props" variant="plain">
               <VIcon>mdi-dots-vertical</VIcon>

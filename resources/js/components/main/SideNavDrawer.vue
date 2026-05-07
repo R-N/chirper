@@ -1,4 +1,5 @@
-<script lang="ts">
+<script setup lang="ts">
+import { computed } from "vue";
 import {
   VList,
   VListItem,
@@ -11,67 +12,60 @@ import {
   VListSubheader,
   VListGroup
 } from "vuetify/components";
-import { Component, Prop, Model, toNative } from "vue-facing-decorator";
-import { MyComponent } from "@/components/MyComponent.vue";
+import { useAuth } from "@/composables/useAuth";
+import { t } from "@/plugins/i18n";
 
-@Component({
-  name: "SideNavDrawer",
-  components: {
-    VList,
-    VListItem,
-    VIcon,
-    VRow,
-    VCol,
-    VNavigationDrawer,
-    VListSubheader,
-    VListGroup,
-    VListItemAction,
-    VListItemTitle
-  },
-  emits: ["update:modelValue", "update:drawer", "change"]
-})
-class SideNavDrawer extends MyComponent {
-  @Model({ type: Boolean }) syncedDrawer;
-  get items() {
-    return [
-      { icon: "mdi-home", text: "Dashboard", href: route("dashboard") },
+const { } = useAuth();
+
+const props = defineProps<{
+  modelValue?: boolean;
+}>();
+
+const emit = defineEmits<{
+  "update:modelValue": [value: boolean];
+  "update:drawer": [value: boolean];
+  change: [value: boolean];
+}>();
+
+const syncedDrawer = computed({
+  get: () => props.modelValue,
+  set: (val) => emit("update:modelValue", val),
+});
+
+const items = computed(() => [
+  { icon: "mdi-home", text: "Dashboard", href: route("dashboard") },
+  {
+    icon: "mdi-chat",
+    text: t("navigation.chirper"),
+    model: false,
+    children: [
+      { text: t("navigation.chirps"), href: route("chirps.index") },
       {
-        icon: "mdi-chat",
-        // 'icon-alt': 'mdi-chevron-down',
-        text: this.$t("navigation.chirper"),
-        model: false,
-        children: [
-          { text: this.$t("navigation.chirps"), href: route("chirps.index") },
-          {
-            text: this.$t("navigation.chirps_crud"),
-            href: route("chirps.index2")
-          }
-        ]
+        text: t("navigation.chirps_crud"),
+        href: route("chirps.index2")
+      }
+    ]
+  },
+  {
+    icon: "mdi-wrench",
+    text: t("navigation.system"),
+    model: false,
+    children: [
+      {
+        text: t("navigation.users"),
+        href: route("system.users.index")
       },
       {
-        icon: "mdi-wrench",
-        text: this.$t("navigation.system"),
-        model: false,
-        children: [
-          {
-            text: this.$t("navigation.users"),
-            href: route("system.users.index")
-          },
-          {
-            text: this.$t("navigation.backup"),
-            href: route("system.backups.index")
-          },
-          {
-            text: this.$t("navigation.settings"),
-            href: route("system.settings.index")
-          }
-        ]
+        text: t("navigation.backup"),
+        href: route("system.backups.index")
+      },
+      {
+        text: t("navigation.settings"),
+        href: route("system.settings.index")
       }
-    ];
+    ]
   }
-}
-export { SideNavDrawer };
-export default toNative(SideNavDrawer);
+]);
 </script>
 <template>
   <VNavigationDrawer v-model="syncedDrawer" app>

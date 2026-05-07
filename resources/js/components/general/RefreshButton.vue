@@ -1,26 +1,26 @@
-<script lang="ts">
-import { Vue, Component, Prop, toNative } from "vue-facing-decorator";
-import { MyComponent } from "@/components/MyComponent.vue";
+<script setup lang="ts">
+import { useAuth } from "@/composables/useAuth";
 
-@Component({
-  name: "RefreshButton"
-})
-class RefreshButton extends MyComponent {
-  @Prop({ default: true }) icon;
-  @Prop({ default: true }) large;
-  async refresh() {
-    this.appStore.setRouterBusy(true);
-    if (!this.appStore.globalBusy && !this.appStore.authBusy) {
-      window.location.reload();
-    } else {
-      this.appStore.setAuthBusy(false);
-      this.appStore.setGlobalBusy(false);
-      this.appStore.setGlobalRefresh(true);
-    }
+const { appStore } = useAuth();
+
+const props = withDefaults(defineProps<{
+  icon?: boolean;
+  large?: boolean;
+}>(), {
+  icon: true,
+  large: true,
+});
+
+async function refresh() {
+  appStore.setRouterBusy(true);
+  if (!appStore.globalBusy && !appStore.authBusy) {
+    window.location.reload();
+  } else {
+    appStore.setAuthBusy(false);
+    appStore.setGlobalBusy(false);
+    appStore.setGlobalRefresh(true);
   }
 }
-export { RefreshButton };
-export default toNative(RefreshButton);
 </script>
 <template>
 	<VBtn :icon="icon" :large="large" @click.stop="refresh">

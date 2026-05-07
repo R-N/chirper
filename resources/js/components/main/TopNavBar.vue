@@ -1,5 +1,5 @@
-<script lang="ts">
-import ApplicationLogo from "@/components/general/ApplicationLogo.vue";
+<script setup lang="ts">
+import { ref, computed, watch } from "vue";
 import { Link, router } from "@inertiajs/vue3";
 import {
   VAppBar,
@@ -14,58 +14,50 @@ import {
   VSpacer,
   VBtnGroup
 } from "vuetify/components";
-import {
-  Component,
-  Prop,
-  Model,
-  Ref,
-  Watch,
-  toNative
-} from "vue-facing-decorator";
+import { useWorking } from "@/composables/useWorking";
 import authService from "@/modules/user/auth/services/auth.js";
 import profileService from "@/modules/user/profile/services/profile";
 import IconButton from "@/components/button/IconButton.vue";
-import { WorkingComponent } from "../WorkingComponent.vue";
 import Notifications from "./Notifications.vue";
+import ApplicationLogo from "@/components/general/ApplicationLogo.vue";
+import { VAppBarNavIcon, VCard, VCardItem, VCardTitle, VCardSubtitle, VCardActions, VSelect } from "vuetify/components";
 import { getI18n, locales } from "@/plugins/i18n";
 
-@Component({
-  name: "TopNavBar",
-  components: {
-    ApplicationLogo,
-    Link,
-    IconButton,
-    Notifications
-  },
-  emits: ["update:modelValue", "update:drawer", "change"]
-})
-class TopNavBar extends WorkingComponent {
-  @Prop({ type: String }) appName;
-  @Model({ type: Boolean }) syncedDrawer;
-  @Ref() notifications;
-  router = router;
-  locale = getI18n()?.global.locale ?? "en";
+const props = defineProps({
+  appName: { type: String },
+  modelValue: { type: Boolean },
+  drawer: { type: Boolean },
+  parentBusy: { default: false },
+});
 
-  async logout() {
-    let res = await authService.logout();
-    router.visit(res.redirect || "/");
-  }
-  async switchToTeam(team) {
-    let res = await authService.switchToTeam(team);
-  }
-  @Watch("locale")
-  onLocaleChanged(newLocale) {
-    this.setLocale(newLocale);
-  }
-  async setLocale(locale) {
-    profileService.setLocale({ locale: locale });
-  }
-  get locales() {
-    return locales ?? [];
-  }
+const emit = defineEmits(["update:modelValue", "update:drawer", "change"]);
+
+const { userName, userRolesText } = useWorking(props);
+
+const syncedDrawer = computed({
+  get: () => props.modelValue,
+  set: (val) => emit("update:modelValue", val),
+});
+
+const locale = ref(getI18n()?.global.locale ?? "en");
+const localesList = computed(() => locales ?? []);
+
+async function logout() {
+  let res = await authService.logout();
+  router.visit(res.redirect || "/");
 }
-export { TopNavBar };
-export default toNative(TopNavBar);
+
+async function switchToTeam(team) {
+  let res = await authService.switchToTeam(team);
+}
+
+async function setLocale(loc) {
+  profileService.setLocale({ locale: loc });
+}
+
+watch(locale, (newLocale) => {
+  setLocale(newLocale);
+});
 </script>
 <template>
   <VAppBar app color="primary" dark>
@@ -103,7 +95,7 @@ export default toNative(TopNavBar);
         </VListItem>
       </VList>
     </VMenu>
-    <Notifications :ref="notifications" />
+    <Notifications />
     <!-- User Profile Menu -->
     <VMenu bottom left close-on-click offset-y>
       <template #activator="{ props }">
@@ -137,7 +129,7 @@ export default toNative(TopNavBar);
               <VSelect
                 class="mt-2"
                 v-model="locale"
-                :items="locales"
+                :items="localesList"
                 :label="$t('profile.lang')"
                 hide-details
                 density="compact"

@@ -1,65 +1,107 @@
-<script lang="ts">
-import {
-  Vue,
-  Component,
-  Prop,
-  Emit,
-  Model,
-  toNative
-} from "vue-facing-decorator";
+<script setup lang="ts">
+import { useWorking } from "@/composables/useWorking";
+import { useEditableCell } from "@/composables/useEditableCell";
 import EditableCell from "@/components/form/EditableCell.vue";
-import { EditableCellBase } from "../EditableCellBase.vue";
 import { arraysEqualUnordered, getArrayText, isObject } from "@/libs/util.js";
 
-const defaultValue = () => {
-  return { "value": 0, "title": "" };
-};
-@Component({
-  name: "EditableCellSelect",
-  components: {
-    EditableCell
-  }
-})
-class EditableCellSelect extends EditableCellBase {
-  @Prop({ default: [] }) items;
-  @Prop({ default: "value" }) itemValue;
-  @Prop({ default: "title" }) itemTitle;
-  @Prop({ default: false }) multiple;
-  @Prop({ default: false }) returnObject;
-  @Model() model;
+const props = defineProps<{
+  items?: any[];
+  itemValue?: string;
+  itemTitle?: string;
+  multiple?: boolean;
+  returnObject?: boolean;
+  modelValue?: any;
+  bypass?: boolean;
+  title?: string;
+  label?: string;
+  name?: string;
+  confirmTextMaker?: string | Function;
+  disabled?: boolean;
+  onFinish?: Function;
+  errorMessages?: any;
+  emitForm?: boolean;
+  rules?: string | object | any[];
+  showTitle?: boolean;
+  parentBusy?: boolean;
+}>();
 
-  getValue2(val) {
-    if (!this.itemValue || !(isObject(val) || Array.isArray(val))) return val;
-    if (Array.isArray(val)) {
-      return val.map(this.getValue2);
-    } else {
-      return val[this.itemValue];
-    }
-  }
+const emit = defineEmits<{
+  (e: "update:modelValue", value: any, releaseBusy?: Function): void;
+  (e: "change", value: any, releaseBusy?: Function): void;
+  (e: "finish", value: any, releaseBusy?: Function): void;
+  (e: "reset"): void;
+}>();
 
-  getText(val, array = true, separator = ", ") {
-    if (!this.itemTitle || !(isObject(val) || Array.isArray(val))) return val;
-    if (!Array.isArray(val)) return val[this.itemTitle];
-    return getArrayText(val, (v) => v[this.itemTitle], array, separator);
-  }
+const { busy, releaseBusy, waitBusy, showError } = useWorking(props);
 
-  changed() {
-    if (Array.isArray(this.value)) {
-      return !arraysEqualUnordered(
-        this.getValue2(this.value),
-        this.getValue2(this.valueEdit)
-      );
-    } else {
-      return this.getValue2(this.value) != this.getValue2(this.valueEdit);
-    }
-  }
+const {
+  valueEdit,
+  value,
+  formData,
+  _label,
+  _rules,
+  valid,
+  getValue,
+  reset,
+  resetValidation,
+  validate,
+  prepopulate,
+  finish: baseFinish,
+  onUpdate,
+} = useEditableCell(props, emit, { waitBusy, releaseBusy });
 
-  async finish(getValue = null) {
-    return await super.finish(getValue ?? this.getValue2);
+function getValue2(val) {
+  if (!props.itemValue || !(isObject(val) || Array.isArray(val))) return val;
+  if (Array.isArray(val)) {
+    return val.map(getValue2);
+  } else {
+    return val[props.itemValue];
   }
 }
-export { EditableCellSelect };
-export default toNative(EditableCellSelect);
+
+function getText(val, array = true, separator = ", ") {
+  if (!props.itemTitle || !(isObject(val) || Array.isArray(val))) return val;
+  if (!Array.isArray(val)) return val[props.itemTitle];
+  return getArrayText(val, (v) => v[props.itemTitle], array, separator);
+}
+
+function changed() {
+  if (Array.isArray(value.value)) {
+    return !arraysEqualUnordered(
+      getValue2(value.value),
+      getValue2(valueEdit.value)
+    );
+  } else {
+    return getValue2(value.value) != getValue2(valueEdit.value);
+  }
+}
+
+async function finish(getValueFn = null) {
+  return await baseFinish(getValueFn ?? getValue2);
+}
+
+defineExpose({
+  valueEdit,
+  value,
+  formData,
+  _label,
+  _rules,
+  valid,
+  getValue,
+  reset,
+  resetValidation,
+  validate,
+  prepopulate,
+  finish,
+  onUpdate,
+  busy,
+  waitBusy,
+  releaseBusy,
+  showError,
+  getValue2,
+  getText,
+  changed,
+});
 </script>
 <template>
   <EditableCell

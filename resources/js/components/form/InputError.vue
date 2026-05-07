@@ -1,22 +1,11 @@
-<script lang="ts">
-import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
-import { VAlert, VExpandTransition } from "vuetify/components";
+<script setup lang="ts">
+import { computed } from "vue";
 
-@Component({
-  components: {
-    VAlert,
-    VExpandTransition
-  }
-})
-class InputError extends Vue {
-  @Prop({ type: String, default: "" }) message!: string;
+const props = defineProps({
+  message: { type: String, default: "" },
+});
 
-  get messageIsArray() {
-    return Array.isArray(this.message);
-  }
-}
-
-export default toNative(InputError);
+const messageIsArray = computed(() => Array.isArray(props.message));
 </script>
 
 <template>

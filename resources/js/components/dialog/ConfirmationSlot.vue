@@ -1,64 +1,50 @@
-<script lang="ts">
-import { Vue, Component, Prop, Emit, toNative } from "vue-facing-decorator";
-
+<script setup lang="ts">
+import { ref } from "vue";
+import { useWorking } from "@/composables/useWorking";
 import SimpleInputDialog from "@/components/dialog/SimpleInputDialog.vue";
-import { WorkingComponent } from "@/components/WorkingComponent.vue";
 
-@Component({
-  name: "ConfirmationSlot",
-  components: {
-    SimpleInputDialog
-  },
-  emits: ["confirm", "cancel"]
-})
-class ConfirmationSlot extends WorkingComponent {
-  @Prop({ type: [String, Function] }) confirmTextMaker;
-  @Prop({ type: Function }) onConfirm;
-  @Prop({ type: Function }) onCancel;
-  confirmText: String | Function = "";
-  confirmDialog = false;
+const props = defineProps({
+  confirmTextMaker: { type: [String, Function] },
+  onConfirm: { type: Function },
+  onCancel: { type: Function },
+  parentBusy: { default: false },
+});
 
-  @Emit("confirm")
-  emitConfirm() {
-    return true;
+const emit = defineEmits(["confirm", "cancel"]);
+
+const { busy, waitBusy } = useWorking(props);
+
+const confirmText = ref("");
+const confirmDialog = ref(false);
+
+async function confirm() {
+  if (props.onConfirm) {
+    await waitBusy(
+      async () => await props.onConfirm()
+    );
+  } else {
+    emit("confirm", true);
   }
-  @Emit("cancel")
-  emitCancel() {
-    return true;
-  }
+  confirmDialog.value = false;
+}
 
-  async confirm() {
-    if (this.onConfirm) {
-      await this.waitBusy(
-        async () => await this.onConfirm()
-        // null, this.releaseBusy
-      );
+function ask() {
+  if (!props.confirmTextMaker) {
+    confirm();
+  } else {
+    if (props.confirmTextMaker instanceof Function) {
+      confirmText.value = props.confirmTextMaker();
+    } else if (
+      typeof props.confirmTextMaker === "string" ||
+      props.confirmTextMaker instanceof String
+    ) {
+      confirmText.value = props.confirmTextMaker;
     } else {
-      this.emitConfirm();
+      confirmText.value = "";
     }
-    this.confirmDialog = false;
-    this.busy = false;
-  }
-  ask() {
-    if (!this.confirmTextMaker) {
-      this.confirm();
-    } else {
-      if (this.confirmTextMaker instanceof Function) {
-        this.confirmText = this.confirmTextMaker();
-      } else if (
-        typeof this.confirmTextMaker === "string" ||
-        this.confirmTextMaker instanceof String
-      ) {
-        this.confirmText = this.confirmTextMaker;
-      } else {
-        this.confirmText = "";
-      }
-      this.confirmDialog = true;
-    }
+    confirmDialog.value = true;
   }
 }
-export { ConfirmationSlot };
-export default toNative(ConfirmationSlot);
 </script>
 <template>
   <span>

@@ -1,56 +1,41 @@
-<script lang="ts">
+<script setup lang="ts">
+import { ref } from "vue";
+import { useForm, router } from "@inertiajs/vue3";
 import ActionMessage from "@/components/auth/ActionMessage.vue";
 import FormSection from "@/components/auth/FormSection.vue";
-import { useForm } from "@inertiajs/vue3";
-
 import { VTextField, VBtn, VRow, VCol } from "vuetify/components";
-import { Component, Prop, Vue, toNative, Ref } from "vue-facing-decorator";
 import profileService from "@/modules/user/profile/services/profile.js";
-import { router } from "@inertiajs/vue3";
 
-@Component({
-  components: {
-    ActionMessage,
-    FormSection,
-    VTextField,
-    VBtn,
-    VRow,
-    VCol
-  }
-})
-class UpdatePasswordForm extends Vue {
-  @Ref("passwordInput") passwordInput;
-  @Ref("currentPasswordInput") currentPasswordInput;
+const passwordInput = ref<any>(null);
+const currentPasswordInput = ref<any>(null);
 
-  formData = useForm({
-    current_password: "",
-    password: "",
-    password_confirmation: ""
-  });
+const formData = useForm({
+  current_password: "",
+  password: "",
+  password_confirmation: ""
+});
 
-  async updatePassword() {
-    try {
-      let res = await profileService.updatePassword(this.formData);
-      this.formData.reset();
-      router.visit(res.redirect || "/login");
-    } catch (error) {
-      if (error.response?.status === 422) {
-        this.formData.errors = error.response.data.errors;
-      } else {
-        console.error("Unexpected error:", error);
-      }
-      if (this.formData.errors.password) {
-        this.formData.reset("password", "password_confirmation");
-        this.passwordInput.focus();
-      }
-      if (this.formData.errors.current_password) {
-        this.formData.reset("current_password");
-        this.currentPasswordInput.focus();
-      }
+async function updatePassword() {
+  try {
+    let res = await profileService.updatePassword(formData);
+    formData.reset();
+    router.visit(res.redirect || "/login");
+  } catch (error) {
+    if (error.response?.status === 422) {
+      formData.errors = error.response.data.errors;
+    } else {
+      console.error("Unexpected error:", error);
+    }
+    if (formData.errors.password) {
+      formData.reset("password", "password_confirmation");
+      passwordInput.value?.focus();
+    }
+    if (formData.errors.current_password) {
+      formData.reset("current_password");
+      currentPasswordInput.value?.focus();
     }
   }
 }
-export default toNative(UpdatePasswordForm);
 </script>
 
 <template>

@@ -1,20 +1,10 @@
-<script lang="ts">
+<script setup lang="ts">
 import AuthenticationCardLogo from "@/components/auth/AuthenticationCardLogo.vue";
-import { Component, Prop, toNative } from "vue-facing-decorator";
-import { ViewBase } from "@/views/ViewBase.vue";
-
 import CenterLayout from "@/components/layout/CenterLayout.vue";
+import { useViewBase } from "@/composables/useViewBase";
 
-@Component({
-  name: "AuthLayout",
-  components: {
-    AuthenticationCardLogo,
-    CenterLayout
-  }
-})
-class AuthLayout extends ViewBase {}
-export { AuthLayout };
-export default toNative(AuthLayout);
+const props = defineProps({});
+const {} = useViewBase(props);
 </script>
 <template>
   <CenterLayout :column="true">

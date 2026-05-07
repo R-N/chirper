@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep *)",
+      "Bash(npx vite *)",
+      "Bash(npx vue-tsc *)",
+      "Bash(php artisan *)",
+      "Bash(rtk npm *)",
+      "Bash(php -v)"
+    ]
+  }
+}

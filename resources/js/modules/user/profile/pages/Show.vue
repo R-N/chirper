@@ -1,4 +1,4 @@
-<script lang="ts">
+<script setup lang="ts">
 import AppLayout from "@/layouts/AppLayout.vue";
 import DeleteUserForm from "../views/DeleteUserForm.vue";
 import LogoutOtherBrowserSessionsForm from "../views/LogoutOtherBrowserSessionsForm.vue";
@@ -7,24 +7,10 @@ import TwoFactorAuthenticationForm from "../views/TwoFactorAuthenticationForm.vu
 import UpdatePasswordForm from "../views/UpdatePasswordForm.vue";
 import UpdateProfileInformationForm from "../views/UpdateProfileInformationForm.vue";
 
-import { Component, Prop, Vue, toNative } from "vue-facing-decorator";
-
-@Component({
-  components: {
-    AppLayout,
-    DeleteUserForm,
-    LogoutOtherBrowserSessionsForm,
-    SectionBorder,
-    TwoFactorAuthenticationForm,
-    UpdatePasswordForm,
-    UpdateProfileInformationForm
-  }
-})
-class ProfileShowPage extends Vue {
-  @Prop({ type: Boolean }) confirmsTwoFactorAuthentication;
-  @Prop({ type: Array }) sessions;
-}
-export default toNative(ProfileShowPage);
+defineProps<{
+  confirmsTwoFactorAuthentication?: boolean;
+  sessions?: any[];
+}>();
 </script>
 
 <template>
