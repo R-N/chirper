@@ -26,12 +26,13 @@ export function createBusy() {
   return { busy, counter, run, start, end };
 }
 
+const globalState = createBusy();
+
 export function provideBusy() {
-  const state = createBusy();
-  provide(KEY, state);
-  return state;
+  provide(KEY, globalState);
+  return globalState;
 }
 
 export function useBusy() {
-  return inject(KEY);
+  return inject(KEY, globalState);
 }

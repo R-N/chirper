@@ -168,6 +168,12 @@ defineExpose({
         v-bind="ba.props"
       />
     </template>
+    <template v-slot:toolbar-left>
+      <slot name="toolbar-left" :busy="busy" />
+    </template>
+    <template v-slot:toolbar-right>
+      <slot name="toolbar-right" :busy="busy" />
+    </template>
     <template v-slot:default>
       <component
         :is="dataTableComponent"
