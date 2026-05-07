@@ -34,7 +34,7 @@ createInertiaApp({
   resolve: (name) =>
     resolvePageComponent(
       `./modules/${name}.vue`,
-      import.meta.glob("./modules/\*\*/pages/\*.vue")
+      import.meta.glob("./modules/**/pages/*.vue", { eager: true })
     ),
   async setup({ el, App: InertiaApp, props, plugin }) {
     await axios.init();
@@ -50,6 +50,14 @@ createInertiaApp({
     router.on("before", () => {
       let tabStore = useTabStore();
       tabStore.breadcrumbs = [];
+    });
+    router.on("start", () => {
+      let tabStore = useTabStore();
+      tabStore.routerBusy = true;
+    });
+    router.on("finish", () => {
+      let tabStore = useTabStore();
+      tabStore.routerBusy = false;
     });
     app.config.warnHandler = (msg, instance, trace) => {
       if (msg.includes('Data property "client" is already defined in Props')) {

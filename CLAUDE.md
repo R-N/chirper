@@ -51,7 +51,13 @@ Models use constants for `TABLE` and `FILLABLE`. Example: `app/Models/Chirp.php`
 
 Traits: `HasRelationshipEntities` (eager-loads relations), `Validable`.
 
-Controllers are thin — they delegate to `BaseModel::query2()` for listing and `BaseModel::rules()` for validation.
+Controllers extend `CrudController` (`app/Http/Controllers/CrudController.php`) — an abstract class providing `index`, `store`, `show`, `update`, `destroy`, `bulkDestroy`, `export`. Subclasses set `$modelClass`, `$resourcePagePath`, `$routeBase`, `$translationKey`, `$mayExport`, `$userOwned`. Thin — they delegate to `BaseModel::query2()` for listing and `BaseModel::rules()` for validation.
+
+`Validable` trait (`app/Models/Traits/Validable.php`) provides `validateRequest()` — filters `rules()` to FILLABLE fields, then drops `required` rules on updates.
+
+`HasRelationshipEntities` trait — models declare `static $relationshipEntities` array of relation names. Auto-eager-loads via `query2()` and `loadEntities()`.
+
+`ResponseUtil` — all controller actions use `jsonInertiaResponse()` or `jsonRedirectResponse()`. These dual-handle: return Inertia page for web requests, JSON response for API calls. Makes every route a hybrid web+API endpoint.
 
 ### Frontend: Module-based Inertia pages
 
@@ -86,12 +92,29 @@ Key views:
 
 Most CRUD pages use `DeclarativeCrudView` and declare fields/actions declaratively.
 
+`fieldRegistry.js` — maps field types (`text`, `textarea`, `select`, `currency`) to editable cell components. `resolveCellComponent(type)` returns the Vue component for inline editing. Register new types via `registerFieldType()`.
+
+`actionRegistry.js` — maps action types (`edit`, `delete`) to button components with icons/events. `resolveAction(actionDef)` merges preset defaults. Register new presets via `registerActionType()`.
+
+### Frontend: i18n
+
+Three-layer translation merge (see `resources/js/plugins/i18n.js`):
+1. `lang-gen/` — JSON files auto-generated from Laravel lang files by `php artisan lang:export`
+2. API-fetched translations — fetched from backend at init time via `route('api.lang.get')`
+3. `lang/` — static Vue-side translation JSON files
+
+`php artisan lang:export` and `php artisan validation:export` run automatically in `vite.config.js` on every dev/build start.
+
+### Frontend: API client & error handling
+
+`resources/js/plugins/axios.js` — creates an Axios instance with CSRF cookie handling (`/sanctum/csrf-cookie`), auth token injection (Bearer from authStore), and `withCredentials`. All requests auto-inject auth header.
+
+`app.js` error handler: catches CSRF errors → auto-refreshes token. Errors with `.show` or `.response.data.show` flag → trigger error dialog via `tabStore.showError()`. Unhandled errors re-throw.
+
 ### Frontend: Plugins & state
 
-- `resources/js/plugins/axios.js` — Axios with CSRF handling
-- `resources/js/plugins/i18n.js` — Vue I18n (lang exported from Laravel)
-- `resources/js/plugins/vuetify.js` — Vuetify with auto-import
-- `resources/js/stores/` — Pinia stores (auth, tab, app) with persistence
+- `resources/js/plugins/vuetify.js` — Vuetify with auto-import (labs enabled)
+- `resources/js/stores/` — Pinia stores (auth, tab, app) with persistence via `pinia-plugin-persistedstate`
 - `resources/js/libs/validation.js` — `parseLaravelRules()` translates backend rules to Vuetify rules
 - `resources/js/libs/util.js` — helpers (`getByPath`, `setByPath`, `combineCollection`, `makeBindings`)
 

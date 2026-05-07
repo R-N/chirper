@@ -12,6 +12,7 @@ import {
   VListSubheader,
   VListGroup
 } from "vuetify/components";
+import { router } from "@inertiajs/vue3";
 import { useAuth } from "@/composables/useAuth";
 import { t } from "@/plugins/i18n";
 
@@ -98,9 +99,8 @@ const items = computed(() => [
           <VListItem
             v-for="(child, i) in item.children"
             :key="i"
-            :href="child.href"
-            :to="child.to"
             link
+            @click="router.visit(child.href)"
           >
             <template v-slot:prepend v-if="child.icon">
               <VIcon>{{ child.icon }}</VIcon>
@@ -108,7 +108,7 @@ const items = computed(() => [
             <VListItemTitle>{{ child.text }}</VListItemTitle>
           </VListItem>
         </VListGroup>
-        <VListItem v-else :key="item.text" :href="item.href" :to="item.to" link>
+        <VListItem v-else :key="item.text" link @click="router.visit(item.href)">
           <template v-slot:prepend v-if="item.icon">
             <VIcon>{{ item.icon }}</VIcon>
           </template>

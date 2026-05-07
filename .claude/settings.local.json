@@ -6,7 +6,8 @@
       "Bash(npx vue-tsc *)",
       "Bash(php artisan *)",
       "Bash(rtk npm *)",
-      "Bash(php -v)"
+      "Bash(php -v)",
+      "Bash(npm run *)"
     ]
   }
 }

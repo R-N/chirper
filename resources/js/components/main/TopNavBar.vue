@@ -137,12 +137,12 @@ watch(locale, (newLocale) => {
                 @update:model-value="setLocale"
               />
             </VListItem>
-            <VListItem :href="route('profile.show')">{{
+            <VListItem @click="router.visit(route('profile.show'))">{{
               $t("navigation.profile")
             }}</VListItem>
             <VListItem
               v-if="$page.props.jetstream.hasApiFeatures"
-              :href="route('api-tokens.index')"
+              @click="router.visit(route('api-tokens.index'))"
               >{{ $t("navigation.api_tokens") }}</VListItem
             >
             <VListItem @click="logout">{{ $t("auth.logout") }}</VListItem>
