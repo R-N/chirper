@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
 import CrudView from "@/views/CrudView.vue";
 import { combineCollection, makeBindings, filterObject } from "@/libs/util";
@@ -12,6 +12,8 @@ import { useWorking } from "@/composables/useWorking";
 import { useCrudView } from "@/composables/useCrudView";
 import { t } from "@/plugins/i18n";
 import GenericField from "@/components/form/GenericField.vue";
+import DeclarativeFormView from "@/components/form/DeclarativeFormView.vue";
+import FormDialog from "@/components/form/FormDialog.vue";
 
 const props = defineProps<{
   client?: object;
@@ -88,6 +90,21 @@ async function bulkAction(action: Function) {
 }
 
 const _rules = computed(() => parseLaravelRules(props.rules));
+
+const declarativeFormRef = ref<InstanceType<typeof DeclarativeFormView> | null>(null);
+
+const isDeclarativeForm = computed(() =>
+  props.formDialog && !props.formDialog.component
+);
+
+const declarativeFormFields = computed(() =>
+  props.formDialog?.fields ?? normalizedFields.value.filter((f: any) => f.form !== false)
+);
+
+async function onDeclarativeFormSubmit() {
+  const result = await declarativeFormRef.value?.submit();
+  if (result !== undefined) fetch();
+}
 
 const self = {
   storeItem,
@@ -228,14 +245,37 @@ defineExpose({
           </tr>
         </template>
       </component>
+      <FormDialog
+        v-if="isDeclarativeForm"
+        :data="editing"
+        v-model="formDialogShow"
+        :title="formDialog.title ?? title"
+        :form="() => declarativeFormRef?.getForm?.()"
+        :on-submit="onDeclarativeFormSubmit"
+        :rules="_rules"
+        v-bind="formDialog.props"
+      >
+        <template v-slot:fields="{ interactable, data }">
+          <DeclarativeFormView
+            ref="declarativeFormRef"
+            :fields="declarativeFormFields"
+            :client="client"
+            :rules="_rules"
+            :data="data"
+            :name-field="nameField"
+            :disabled="!interactable"
+            embedded
+          />
+        </template>
+      </FormDialog>
       <component
-        v-if="formDialog"
+        v-else-if="formDialog"
         :is="formDialog.component"
         :component="formDialog.component"
         :data="editing"
         v-model="formDialogShow"
         @submit="formDialog.submit"
-        
+
         :rules="_rules"
         v-bind="formDialog.props"
       />

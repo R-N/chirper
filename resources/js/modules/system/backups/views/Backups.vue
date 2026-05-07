@@ -4,7 +4,6 @@ import FileSaver from "file-saver";
 
 import DeclarativeCrudView from "@/views/DeclarativeCrudView.vue";
 import FileUploadDialog from "@/components/dialog/FileUploadDialog.vue";
-import SimpleInputDialog from "@/components/dialog/SimpleInputDialog.vue";
 import IconButton from "@/components/button/IconButton.vue";
 import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.vue";
 import FormatSize from "@/components/text/FormatSize.vue";
@@ -79,17 +78,17 @@ async function uploadBackup(file: any) {
 }
 
 const formDialog = computed(() => ({
-  component: SimpleInputDialog,
-  submit: async (name: string) => {
-    await backupService.create({ id: name || "" });
-    crud.value?.fetch();
-  },
-  props: {
-    title: t("backup.create_title"),
-    label: t("backup.create_label"),
-    name: "id",
-    noInput: true,
-  },
+  title: t("backup.create_title"),
+  fields: [
+    {
+      type: "text",
+      name: "id",
+      value: "id",
+      label: t("backup.create_label"),
+      table: false,
+      form: true,
+    },
+  ],
 }));
 </script>
 <template>

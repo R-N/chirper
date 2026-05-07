@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { computed } from "vue";
 
-import ChirpFormDialog from "@/modules/chirps/views/FormDialog.vue";
 import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.vue";
 
 import chirpService from "../services/chirp";
@@ -15,8 +14,6 @@ import { t } from "@/plugins/i18n";
 
 const client = chirpService;
 const nameField = "created_at";
-
-const crud = ref<InstanceType<typeof DeclarativeCrudView> | null>(null);
 
 const title = computed(() => t("chirp.title"));
 
@@ -76,13 +73,22 @@ const bulkActions = computed(() => [
 ]);
 
 const formDialog = computed(() => ({
-  component: ChirpFormDialog,
-  submit: (item: any) => crud.value?.storeItem(item),
+  title: t("chirp.item"),
+  fields: [
+    {
+      type: "textarea",
+      name: "message",
+      value: "message",
+      label: t("chirp.message"),
+      required: true,
+      table: false,
+      form: true,
+    },
+  ],
 }));
 </script>
 <template>
   <DeclarativeCrudView
-    ref="crud"
     :client="client"
     :name-field="nameField"
     :title="title"

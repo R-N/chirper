@@ -32,6 +32,7 @@ function emitClick(event: Event) {
     <template #activator="{ props }">
       <VBtn
         icon
+        variant="plain"
         class="d-inline-flex"
         v-bind="props"
         :disabled="disabled"

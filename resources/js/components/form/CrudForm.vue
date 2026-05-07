@@ -41,18 +41,20 @@ const crud = computed(() => ({
 }));
 </script>
 <template>
-  <div v-for="field in fields">
-    <GenericField
-      v-if="(!select || select == field.name)"
-      :key="field.name"
-      :field="field"
-      :data="data"
-      :crud="crud"
-      :rules="rules"
-      :bypass-editable-cell="bypassEditableCell && !select"
-      :show-title="!select"
-      :form-data="formData"
-    />
+  <div class="d-flex flex-column ga-3">
+    <template v-for="field in fields" :key="field.name">
+      <div v-if="!select || select == field.name">
+        <GenericField
+          :field="field"
+          :data="data"
+          :crud="crud"
+          :rules="rules"
+          :bypass-editable-cell="bypassEditableCell && !select"
+          :show-title="!select"
+          :form-data="formData"
+        />
+      </div>
+    </template>
   </div>
 </template>
 <style scoped></style>

@@ -157,55 +157,65 @@ defineExpose({
     :on-confirm="onConfirm"
     class="d-flex flex-column flex-grow-1"
   >
-    <div
-      class="d-flex align-left justify-space-between"
-      v-if="title && showTitle && !bypass"
-    >
-      <span class="font-weight-bold">{{ title }}</span>
-    </div>
-    <div
-      class="d-flex align-center justify-space-between"
-      @keydown.enter="(e) => onEnter(e, ask)"
-    >
-      <span class="flex-grow-1">
-        <slot
-          v-if="bypass || (editing && !(disabled || busy))"
-          name="editing"
-          :readonly="disabled || busy || !editing"
-          :disabled="disabled || busy || !editing"
-          :editing="editing"
-          :bypass="bypass"
-        ></slot>
-        <slot v-else name="default"></slot>
-      </span>
-      <span
-        class="flex-grow-0 flex-shrink-0"
-        v-if="!(disabled || busy) && !bypass"
+    <slot
+      v-if="bypass"
+      name="editing"
+      :readonly="false"
+      :disabled="false"
+      :editing="false"
+      :bypass="true"
+    ></slot>
+    <template v-else>
+      <div
+        class="d-flex align-left justify-space-between"
+        v-if="title && showTitle"
       >
-        <span v-if="editing">
-          <IconButton
-            @click.prevent.stop="() => finishEdit(ask)"
-            :disabled="busy"
-            icon="mdi-check"
-            :text="saveText ?? t('form.save')"
-          />
-          <IconButton
-            @click.prevent.stop="cancelEdit"
-            :disabled="busy"
-            icon="mdi-cancel"
-            :text="cancelText ?? t('form.cancel')"
-          />
+        <span class="font-weight-bold">{{ title }}</span>
+      </div>
+      <div
+        class="d-flex align-center justify-space-between"
+        @keydown.enter="(e) => onEnter(e, ask)"
+      >
+        <span class="flex-grow-1">
+          <slot
+            v-if="editing && !(disabled || busy)"
+            name="editing"
+            :readonly="disabled || busy || !editing"
+            :disabled="disabled || busy || !editing"
+            :editing="editing"
+            :bypass="false"
+          ></slot>
+          <slot v-else name="default"></slot>
         </span>
-        <span v-else>
-          <IconButton
-            @click.prevent.stop="beginEdit"
-            :disabled="busy"
-            icon="mdi-pencil"
-            :text="editText ?? t('form.edit')"
-          />
+        <span
+          class="flex-grow-0 flex-shrink-0"
+          v-if="!(disabled || busy)"
+        >
+          <span v-if="editing">
+            <IconButton
+              @click.prevent.stop="() => finishEdit(ask)"
+              :disabled="busy"
+              icon="mdi-check"
+              :text="saveText ?? t('form.save')"
+            />
+            <IconButton
+              @click.prevent.stop="cancelEdit"
+              :disabled="busy"
+              icon="mdi-cancel"
+              :text="cancelText ?? t('form.cancel')"
+            />
+          </span>
+          <span v-else>
+            <IconButton
+              @click.prevent.stop="beginEdit"
+              :disabled="busy"
+              icon="mdi-pencil"
+              :text="editText ?? t('form.edit')"
+            />
+          </span>
         </span>
-      </span>
-    </div>
+      </div>
+    </template>
   </ConfirmationSlot>
 </template>
 <style scoped></style>

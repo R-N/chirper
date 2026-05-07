@@ -20,7 +20,7 @@ const props = defineProps<{
   onShow?: Function;
   cancelText?: string;
   confirmText?: string;
-  maxWidth?: number;
+  maxWidth?: number | string;
   title?: string;
 }>();
 
@@ -94,7 +94,7 @@ defineExpose({
 });
 </script>
 <template>
-  <VDialog v-model="myDialog" :max-width="maxWidth" :persistent="busy">
+  <VDialog v-model="myDialog" :max-width="maxWidth ?? 400" :persistent="busy">
     <VCard class="pa-2">
       <VCardTitle class="pb-1">{{ title ?? $t("form.form") }}</VCardTitle>
       <VCardText>

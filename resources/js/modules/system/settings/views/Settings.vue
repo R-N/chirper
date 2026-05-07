@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
 
-import SettingFormDialog from "../views/FormDialog.vue";
 import EditableCellTextArea from "@/components/form/editable_cell/EditableCellTextArea.vue";
 
 import settingService from "../services/setting";
@@ -115,8 +114,39 @@ const bulkActions = computed(() => [
 ]);
 
 const formDialog = computed(() => ({
-  component: SettingFormDialog,
-  submit: (item: any) => crud.value?.storeItem(item),
+  title: t("settings.item"),
+  fields: [
+    {
+      type: "text",
+      name: "key",
+      value: "key",
+      label: t("form.key"),
+      required: true,
+      table: false,
+      form: true,
+    },
+    {
+      type: "select",
+      name: "type",
+      value: "type",
+      label: t("form.type"),
+      required: true,
+      table: false,
+      form: true,
+      props: {
+        items: ["int", "bool", "decimal", "date", "datetime", "time", "enum", "string", "array", "object"],
+      },
+    },
+    {
+      type: "text",
+      name: "value",
+      value: "value",
+      label: t("form.value"),
+      required: true,
+      table: false,
+      form: true,
+    },
+  ],
 }));
 
 // Sync fetched settings to app store (replaces @Watch("items") from mixin)
