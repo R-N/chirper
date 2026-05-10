@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import EditableCellTextField from "@/components/form/editable_cell/EditableCellTextField.vue";
-import EditableCellSelect from "@/components/form/editable_cell/EditableCellSelect.vue";
-import SyncCheckbox from "@/components/checkbox/SyncCheckbox.vue";
-import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.vue";
 import { useWorking } from "@/composables/useWorking";
 import { selectFilled } from "@/libs/util";
-import EditableCellTextArea from "./editable_cell/EditableCellTextArea.vue";
 import GenericField from "./GenericField.vue";
 
 const props = defineProps({

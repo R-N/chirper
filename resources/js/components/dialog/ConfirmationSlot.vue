@@ -56,7 +56,7 @@ function ask() {
       :on-cancel="onCancel"
       :title="$t('form.confirmation')"
       :text="confirmText"
-      no-input="true"
+      :no-input="true"
       :parent-busy="busy"
     />
   </span>

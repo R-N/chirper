@@ -76,25 +76,45 @@ All Vue components use `<script setup>` with Composition API. Reusable logic liv
 
 - `useBase()` — appStore, tabStore, settings, user, auth_token from page props
 - `useAuth()` — authStore, isLoggedIn, userRoles, userName (calls useBase internally)
-- `useWorking(props)` — busy state, waitBusy(), showError(), releaseBusy() (calls useAuth internally)
+- `useWorking(props)` — busy state, waitBusy(), showError() (calls useAuth internally)
+- `useBusy()` — busy counter (global singleton via provide/inject). `run(fn)` is safe (try/finally). `start()/end()` lack safety — prefer `run()`.
 - `useViewBase(props)` — useWorking + clearBreadcrumbs on mount
 - `useFormBase(props, emit)` — formData, valid, validate(), reset(), submit(), getForm()
 - `useDialog(props, emit, deps)` — myDialog computed, close()
-- `useEditableCell(props, emit, deps)` — value editing, finish(), validate()
-- `useCrud({ client, waitBusy, nameField })` — fetch(), create(), delete2(), setField(), etc.
+- `useCrud({ client, waitBusy, nameField })` — fetch(), create(), delete2(), setField(), setFieldConfirmText(), toggleField(), etc.
 - `useCrudView({ client, waitBusy, ... })` — useCrud + table state (pagination, search, export, selection)
 - `useCrudForm({ client, formData, data })` — submit() with store/update logic
+- `useCrudContext()` — provide/inject for CRUD context. `GenericField` uses this as primary source, falls back to `props.crud`.
 - `useModel(name, props, emit)` — writable computed for v-model
 
 Key views:
 - `CrudView` — toolbar UI (create button, refresh, search, export toggles, bulk actions)
-- `DeclarativeCrudView` — config-driven table. Takes `fields`, `actions`, `bulkActions`, `rules` props. Uses `GenericField` for each cell.
+- `DeclarativeCrudView` — config-driven table. Takes `fields`, `actions`, `bulkActions`, `rules` props. Renders `<GenericField>` per cell, `<FormDialog>` for create/edit.
 
 Most CRUD pages use `DeclarativeCrudView` and declare fields/actions declaratively.
 
-`fieldRegistry.js` — maps field types (`text`, `textarea`, `select`, `currency`) to editable cell components. `resolveCellComponent(type)` returns the Vue component for inline editing. Register new types via `registerFieldType()`.
+### Frontend: Field system
 
-`actionRegistry.js` — maps action types (`edit`, `delete`) to button components with icons/events. `resolveAction(actionDef)` merges preset defaults. Register new presets via `registerActionType()`.
+**Field definitions** — normalised by `normalizeField()` in `fieldSchema.js`. Sets defaults: `type: "text"`, `table: true`, `editable: false`, `form: true`. Spreads remaining field properties via `...field`, so `component`, `getValue`, `onFinish`, etc. all pass through.
+
+**GenericField** (`components/form/GenericField.vue`) — central component for rendering fields. Three template branches:
+
+1. **Custom component** (`v-if="isCustomComponent"`) — when `field.component` is set. Renders the component directly with `:value`, `:on-finish`, `:bypass`, `:data`. No GenericField editing chrome. Used for `SyncCheckboxField`, `Duration`, etc.
+2. **Bypass mode** (`v-else-if="isBypass"`) — form/modal mode. Renders thin Field component with `model-value` / `@update:model-value`. No edit buttons.
+3. **Table mode** (`v-else`) — display/edit toggle with pencil/check/cancel IconButtons wrapped in `ConfirmationSlot`. Uses `editing`/`editValue` refs for inline editing state.
+
+`isBypass` = `props.bypassEditableCell || props.field.bypassEditableCell || !!props.field.component`. `CrudForm` sets `bypassEditableCell: true` by default, so fields inside forms use branch 2.
+
+**Field components** (`components/form/field/`) — thin wrappers around Vuetify inputs. Use `modelValue` / `update:modelValue` v-model contract:
+- `FieldText.vue` — VTextField (variant: "underlined", density: "compact")
+- `FieldSelect.vue` — VSelect
+- `FieldTextArea.vue` — VTextarea
+
+`fieldRegistry.js` maps type strings to these components. `resolveCellComponent(type)` returns the Vue component. Register new types via `registerFieldType()`.
+
+**`makeBindings(f, item)`** — only spreads `f.props` onto the component bindings. Top-level field properties like `items`, `multiple`, `itemTitle` must go inside `props`, not at field root level.
+
+**`CrudForm`** (`components/form/CrudForm.vue`) — iterates an array of field definitions, renders a `<GenericField>` per field with `bypassEditableCell` and `:show-title`. Used inside form dialogs.
 
 ### Frontend: i18n
 
@@ -107,16 +127,17 @@ Three-layer translation merge (see `resources/js/plugins/i18n.js`):
 
 ### Frontend: API client & error handling
 
-`resources/js/plugins/axios.js` — creates an Axios instance with CSRF cookie handling (`/sanctum/csrf-cookie`), auth token injection (Bearer from authStore), and `withCredentials`. All requests auto-inject auth header.
+`resources/js/plugins/axios.js` — Axios instance with CSRF cookie handling (`/sanctum/csrf-cookie`), Bearer token injection from authStore, response interceptor that catches 401/403 (clears auth, redirects to `/login`) and 419 (refreshes CSRF cookie once, retries queued requests). `withCredentials` enabled on all requests.
 
-`app.js` error handler: catches CSRF errors → auto-refreshes token. Errors with `.show` or `.response.data.show` flag → trigger error dialog via `tabStore.showError()`. Unhandled errors re-throw.
+`app.js` error handler: shared `handleError()` used by both `app.config.errorHandler` (Vue lifecycle/event errors) and `window.unhandledrejection` listener (Promise rejections). Catches CSRF errors → auto-refreshes token. Errors with `.show` or `.response.data.show` flag → trigger error dialog via `tabStore.showError()`. Unrecognized errors logged with `console.error`, returned `false` to let Vue fall back to default.
 
 ### Frontend: Plugins & state
 
-- `resources/js/plugins/vuetify.js` — Vuetify with auto-import (labs enabled)
+- `resources/js/plugins/vuetify.js` — Vuetify with auto-import (labs enabled). VBtn defaults: `variant: "elevated"`. IconButton overrides with `variant="plain"`.
 - `resources/js/stores/` — Pinia stores (auth, tab, app) with persistence via `pinia-plugin-persistedstate`
 - `resources/js/libs/validation.js` — `parseLaravelRules()` translates backend rules to Vuetify rules
-- `resources/js/libs/util.js` — helpers (`getByPath`, `setByPath`, `combineCollection`, `makeBindings`)
+- `resources/js/libs/util.js` — helpers (`getByPath`, `setByPath`, `combineCollection`, `makeBindings`, `filterObject`, `getData`)
+- `resources/js/libs/actionRegistry.js` — maps action types (`edit`, `delete`) to button components with icons/events
 
 ### Path aliases
 
@@ -126,145 +147,10 @@ Three-layer translation merge (see `resources/js/plugins/i18n.js`):
 
 - **Declarative CRUD**: Define `columns()` on model, `fields`/`actions` on frontend → full CRUD with filtering, sorting, search, export, inline editing, bulk actions.
 - **Validation**: Backend rules in `columns()` → auto-extracted for requests. Frontend `parseLaravelRules()` mirrors them for Vuetify form validation.
-- **Auth**: Laravel Fortify + Sanctum. `auth:sanctum` + `jetstream.auth_session` middleware on protected routes.
+- **Auth**: Laravel Fortify + Sanctum. `auth:sanctum` + `jetstream.auth_session` middleware on protected routes. Session timeout: 300s idle + 300s logout countdown (SharedIdle + IdleOverlay). Expired sessions caught by axios 401/403/419 interceptor (redirects to `/login`, refreshes CSRF if recoverable). Loading overlay has 30s timeout fallback showing "Session may have expired".
 - **Permissions**: Spatie `laravel-permission` package. Role/permission middleware on system routes.
 - **Exports**: Excel (maatwebsite/excel), PDF (dompdf), CSV — controller `export()` method uses `BaseModel::collection()`.
 
 <!-- rtk-instructions v2 -->
-# RTK (Rust Token Killer) - Token-Optimized Commands
-
-## Golden Rule
-
-**Always prefix commands with `rtk`**. If RTK has a dedicated filter, it uses it. If not, it passes through unchanged. This means RTK is always safe to use.
-
-**Important**: Even in command chains with `&&`, use `rtk`:
-```bash
-# ❌ Wrong
-git add . && git commit -m "msg" && git push
-
-# ✅ Correct
-rtk git add . && rtk git commit -m "msg" && rtk git push
-```
-
-## RTK Commands by Workflow
-
-### Build & Compile (80-90% savings)
-```bash
-rtk cargo build         # Cargo build output
-rtk cargo check         # Cargo check output
-rtk cargo clippy        # Clippy warnings grouped by file (80%)
-rtk tsc                 # TypeScript errors grouped by file/code (83%)
-rtk lint                # ESLint/Biome violations grouped (84%)
-rtk prettier --check    # Files needing format only (70%)
-rtk next build          # Next.js build with route metrics (87%)
-```
-
-### Test (60-99% savings)
-```bash
-rtk cargo test          # Cargo test failures only (90%)
-rtk go test             # Go test failures only (90%)
-rtk jest                # Jest failures only (99.5%)
-rtk vitest              # Vitest failures only (99.5%)
-rtk playwright test     # Playwright failures only (94%)
-rtk pytest              # Python test failures only (90%)
-rtk rake test           # Ruby test failures only (90%)
-rtk rspec               # RSpec test failures only (60%)
-rtk test <cmd>          # Generic test wrapper - failures only
-```
-
-### Git (59-80% savings)
-```bash
-rtk git status          # Compact status
-rtk git log             # Compact log (works with all git flags)
-rtk git diff            # Compact diff (80%)
-rtk git show            # Compact show (80%)
-rtk git add             # Ultra-compact confirmations (59%)
-rtk git commit          # Ultra-compact confirmations (59%)
-rtk git push            # Ultra-compact confirmations
-rtk git pull            # Ultra-compact confirmations
-rtk git branch          # Compact branch list
-rtk git fetch           # Compact fetch
-rtk git stash           # Compact stash
-rtk git worktree        # Compact worktree
-```
-
-Note: Git passthrough works for ALL subcommands, even those not explicitly listed.
-
-### GitHub (26-87% savings)
-```bash
-rtk gh pr view <num>    # Compact PR view (87%)
-rtk gh pr checks        # Compact PR checks (79%)
-rtk gh run list         # Compact workflow runs (82%)
-rtk gh issue list       # Compact issue list (80%)
-rtk gh api              # Compact API responses (26%)
-```
-
-### JavaScript/TypeScript Tooling (70-90% savings)
-```bash
-rtk pnpm list           # Compact dependency tree (70%)
-rtk pnpm outdated       # Compact outdated packages (80%)
-rtk pnpm install        # Compact install output (90%)
-rtk npm run <script>    # Compact npm script output
-rtk npx <cmd>           # Compact npx command output
-rtk prisma              # Prisma without ASCII art (88%)
-```
-
-### Files & Search (60-75% savings)
-```bash
-rtk ls <path>           # Tree format, compact (65%)
-rtk read <file>         # Code reading with filtering (60%)
-rtk grep <pattern>      # Search grouped by file (75%)
-rtk find <pattern>      # Find grouped by directory (70%)
-```
-
-### Analysis & Debug (70-90% savings)
-```bash
-rtk err <cmd>           # Filter errors only from any command
-rtk log <file>          # Deduplicated logs with counts
-rtk json <file>         # JSON structure without values
-rtk deps                # Dependency overview
-rtk env                 # Environment variables compact
-rtk summary <cmd>       # Smart summary of command output
-rtk diff                # Ultra-compact diffs
-```
-
-### Infrastructure (85% savings)
-```bash
-rtk docker ps           # Compact container list
-rtk docker images       # Compact image list
-rtk docker logs <c>     # Deduplicated logs
-rtk kubectl get         # Compact resource list
-rtk kubectl logs        # Deduplicated pod logs
-```
-
-### Network (65-70% savings)
-```bash
-rtk curl <url>          # Compact HTTP responses (70%)
-rtk wget <url>          # Compact download output (65%)
-```
-
-### Meta Commands
-```bash
-rtk gain                # View token savings statistics
-rtk gain --history      # View command history with savings
-rtk discover            # Analyze Claude Code sessions for missed RTK usage
-rtk proxy <cmd>         # Run command without filtering (for debugging)
-rtk init                # Add RTK instructions to CLAUDE.md
-rtk init --global       # Add RTK to ~/.claude/CLAUDE.md
-```
-
-## Token Savings Overview
-
-| Category | Commands | Typical Savings |
-|----------|----------|-----------------|
-| Tests | vitest, playwright, cargo test | 90-99% |
-| Build | next, tsc, lint, prettier | 70-87% |
-| Git | status, log, diff, add, commit | 59-80% |
-| GitHub | gh pr, gh run, gh issue | 26-87% |
-| Package Managers | pnpm, npm, npx | 70-90% |
-| Files | ls, read, grep, find | 60-75% |
-| Infrastructure | docker, kubectl | 85% |
-| Network | curl, wget | 65-70% |
-
-Overall average: **60-90% token reduction** on common development operations.
+RTK is installed globally (`~/.claude/CLAUDE.md`). Always prefix shell commands with `rtk`. If RTK has a dedicated filter it uses it; if not it passes through unchanged. Even in command chains: `rtk git add . && rtk git commit -m "msg"`.
 <!-- /rtk-instructions -->

@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
 
-import EditableCellTextArea from "@/components/form/editable_cell/EditableCellTextArea.vue";
-
 import settingService from "../services/setting";
 import IconButton from "@/components/button/IconButton.vue";
 import ConfirmationIconButton from "@/components/button/ConfirmationIconButton.vue";
@@ -10,7 +8,6 @@ import { bulkDeleteFromArray, isObject, isObjectEmpty } from "@/libs/util";
 import rules from "@/validations-gen/settings.json";
 import { parseLaravelRules } from "@/libs/validation";
 
-import SettingForm from "../forms/Setting.vue";
 import DeclarativeCrudView from "@/views/DeclarativeCrudView.vue";
 import Duration from "@/components/text/Duration.vue";
 import { t } from "@/plugins/i18n";
@@ -38,34 +35,28 @@ const itemName = computed(() => t("settings.item"));
 
 const fields = computed(() => [
   {
-    component: SettingForm,
+    type: "text",
+    name: "key",
     value: "key",
     title: t("form.key"),
     table: true,
     detail: true,
-    props: {
-      showTitle: false,
-    },
   },
   {
-    component: SettingForm,
+    type: "text",
+    name: "type",
     value: "type",
     title: t("form.type"),
     table: true,
     detail: true,
-    props: {
-      showTitle: false,
-    },
   },
   {
-    component: SettingForm,
+    type: "text",
+    name: "value",
     value: "value",
     title: t("form.value"),
     table: true,
     detail: true,
-    props: {
-      showTitle: false,
-    },
   },
   {
     component: Duration,

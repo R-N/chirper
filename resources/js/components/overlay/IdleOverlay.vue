@@ -33,8 +33,13 @@ const idle = computed({
 
 async function logout() {
   stopCountdown();
-  await authService.logout();
-  router.visit("/");
+  try {
+    await authService.logout();
+  } catch {
+    const { useAuthStore } = await import("@/stores/auth");
+    useAuthStore().logout();
+  }
+  router.visit("/login");
 }
 
 function stopCountdown() {

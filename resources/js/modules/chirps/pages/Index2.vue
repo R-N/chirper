@@ -26,7 +26,7 @@ onMounted(() => {
 async function storeChirp() {
   let res = await chirpService.store(formData);
   const list = Array.isArray(props.items) ? props.items : props.items?.data;
-  if (list) list.unshift(res.chirp);
+  if (list) list.unshift(res.item);
   formData.reset();
 }
 

@@ -57,6 +57,66 @@ const injectAuth = (config) => {
   return config;
 };
 
+function clearAuthAndRedirect() {
+  try {
+    const authStore = useAuthStore();
+    authStore.logout();
+  } catch {
+    localStorage.removeItem("auth_token");
+  }
+  window.location.href = "/login";
+}
+
+let isRefreshingCsrf = false;
+let pendingRequests = [];
+
+const handleSessionExpiry = (error) => {
+  const status = error?.response?.status;
+
+  // 401: session fully expired, no recovery possible
+  // 403: forbidden (e.g. auth_session middleware rejects expired session)
+  if (status === 401 || status === 403) {
+    clearAuthAndRedirect();
+    return Promise.reject(error);
+  }
+
+  // 419: CSRF token mismatch — try to refresh once
+  if (status === 419) {
+    if (isRefreshingCsrf) {
+      // Queue this request to retry after CSRF refresh completes
+      return new Promise((resolve, reject) => {
+        pendingRequests.push({ resolve, reject, error });
+      });
+    }
+
+    isRefreshingCsrf = true;
+
+    return axios
+      .get("/sanctum/csrf-cookie", { __bypassInterceptor: true })
+      .then(() => {
+        // Retry all queued requests
+        pendingRequests.forEach(({ resolve, reject, error: err }) => {
+          axios.request(err.config).then(resolve).catch(reject);
+        });
+        pendingRequests = [];
+        // Retry the original request
+        return axios.request(error.config);
+      })
+      .catch(() => {
+        // CSRF refresh failed — session is dead
+        pendingRequests.forEach(({ reject, error: err }) => reject(err));
+        pendingRequests = [];
+        clearAuthAndRedirect();
+        return Promise.reject(error);
+      })
+      .finally(() => {
+        isRefreshingCsrf = false;
+      });
+  }
+
+  return Promise.reject(error);
+};
+
 const createApi = () => {
   const api = axios.create({
     baseURL: axios.defaults.baseURL,
@@ -73,10 +133,18 @@ const createApi = () => {
     api.init();
   }
   api.interceptors.request.use(injectAuth);
+  api.interceptors.response.use(
+    (response) => response,
+    handleSessionExpiry
+  );
   return api;
 };
 
 axios.interceptors.request.use(injectAuth);
+axios.interceptors.response.use(
+  (response) => response,
+  handleSessionExpiry
+);
 const api = createApi();
 
 export { api, createApi };

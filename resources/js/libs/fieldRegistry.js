@@ -1,14 +1,13 @@
 import { markRaw } from "vue";
-import EditableCellTextField from "@/components/form/editable_cell/EditableCellTextField.vue";
-import EditableCellTextArea from "@/components/form/editable_cell/EditableCellTextArea.vue";
-import EditableCellSelect from "@/components/form/editable_cell/EditableCellSelect.vue";
-import EditableCurrencyField from "@/components/form/editable_cell/EditableCurrencyField.vue";
+import FieldText from "@/components/form/field/FieldText.vue";
+import FieldTextArea from "@/components/form/field/FieldTextArea.vue";
+import FieldSelect from "@/components/form/field/FieldSelect.vue";
 
 const registry = {
-  text: { cell: markRaw(EditableCellTextField) },
-  textarea: { cell: markRaw(EditableCellTextArea) },
-  select: { cell: markRaw(EditableCellSelect) },
-  currency: { cell: markRaw(EditableCurrencyField) },
+  text: { cell: markRaw(FieldText) },
+  textarea: { cell: markRaw(FieldTextArea) },
+  select: { cell: markRaw(FieldSelect) },
+  currency: { cell: markRaw(FieldText) },
 };
 
 export function resolveCellComponent(type) {

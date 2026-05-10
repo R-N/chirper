@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useCrudContext } from "@/composables/useCrudContext";
 import { resolveCellComponent } from "@/libs/fieldRegistry";
 import { useWorking } from "@/composables/useWorking";
 import { makeBindings, combineCollection } from "@/libs/util";
+import ConfirmationSlot from "@/components/dialog/ConfirmationSlot.vue";
+import IconButton from "@/components/button/IconButton.vue";
+import { t } from "@/plugins/i18n";
 
 const props = defineProps({
   crud: { type: Object },
@@ -16,64 +19,192 @@ const props = defineProps({
   parentBusy: { default: false },
 });
 
-const emit = defineEmits(["submit"]);
-
 const { busy } = useWorking(props);
 
 const crud = computed(() => {
   try { return useCrudContext(); } catch { return props.crud; }
 });
 
-const select = computed(() => props.field.select ?? props.field.value ?? props.field.name);
-const _rules = computed(() => combineCollection(props.rules, props.rules[props.field.name ?? props.field.value]));
-const model = computed(() => props.field.model ?? props.field.value ?? props.field.name);
 const name = computed(() => props.field.name ?? props.field.value);
+const _rules = computed(() => combineCollection(props.rules, props.rules[name.value]));
 const disabled = computed(() => busy.value);
-const store = computed(() => props.field.onStore || crud.value?.storeItem);
-const confirmTextMaker = computed(() =>
-  props.field.confirmTextMaker
-    ? (value) => props.field.confirmTextMaker(props.data, value)
-    : (value) => crud.value?.setFieldConfirmText(
-        props.field.value ?? props.field.name,
-        props.data, value,
-        props.field.getValue
-      )
+const isBypass = computed(() => props.bypassEditableCell || props.field.bypassEditableCell || !!props.field.component);
+const isCustomComponent = computed(() => !!props.field.component);
+const showTitle_ = computed(() => props.field.showTitle ?? props.showTitle ?? false);
+
+const currentValue = computed(() =>
+  props.formData ? props.formData[name.value] : props.data?.[name.value]
 );
-const value = computed(() => props.formData ? props.formData[name.value] : props.data?.[name.value]);
+
+const displayValue = computed(() => {
+  const val = currentValue.value;
+  if (props.field.getValue) return props.field.getValue(val);
+  return val;
+});
+
 const onFinish = computed(() =>
-  props.field.onFinish ?? ((value) => crud.value?.setField(props.field.name, props.data, value))
+  props.field.onFinish ?? ((value: any) => crud.value?.setField(name.value, props.data, value))
 );
+
 const component = computed(() => {
   if (props.field.component) return props.field.component;
   if (props.field.type) return resolveCellComponent(props.field.type);
   return resolveCellComponent("text");
 });
 
-function makeBindingsHelper(f = null, data = null) {
+// Editing state for table mode
+const editing = ref(false);
+const editValue = ref<any>(null);
+
+function startEdit() {
+  editValue.value = currentValue.value;
+  editing.value = true;
+}
+
+function cancelEdit() {
+  editing.value = false;
+}
+
+function changed() {
+  return editValue.value !== currentValue.value;
+}
+
+function doSave() {
+  onFinish.value(editValue.value);
+  editing.value = false;
+}
+
+function confirmTextMaker(value: any) {
+  if (props.field.confirmTextMaker) return props.field.confirmTextMaker(props.data, value);
+  return crud.value?.setFieldConfirmText?.(name.value, props.data, value);
+}
+
+function finishEdit(askFn: any = null) {
+  if (!changed()) {
+    cancelEdit();
+    return;
+  }
+  if (askFn) {
+    askFn();
+  } else {
+    doSave();
+  }
+}
+
+function onEnter(e: KeyboardEvent, ask: any) {
+  const tag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+  if (e.key === "Enter" && !e.shiftKey && tag !== "textarea") {
+    finishEdit(ask);
+  }
+}
+
+function updateValue(val: any) {
+  if (props.formData && name.value in props.formData) {
+    props.formData[name.value] = val;
+  }
+}
+
+function makeBindingsHelper(f: any = null, data: any = null) {
   return makeBindings(f ?? props.field, data ?? props.data);
 }
 </script>
 <template>
+  <!-- Custom component: pass old-style props, no GenericField editing chrome -->
   <component
+    v-if="isCustomComponent"
     :is="component"
     :disabled="disabled"
     :data="data"
     :rules="_rules"
-    :select="select"
-    @store="store"
-    v-bind="makeBindingsHelper(field, data || formData)"
-    :confirmTextMaker="confirmTextMaker"
     :parent-busy="busy"
     :error-messages="formData?.errors[name]"
     :required="field.required"
-    :show-title="field.showTitle ?? showTitle"
-    :bypass="bypassEditableCell || field.bypassEditableCell"
-    :name="field.name"
-    class="bigger-input"
+    :show-title="showTitle_"
+    :bypass="isBypass"
+    :name="name"
     :label="field.label"
     :title="field.label"
-    :value="value"
+    :value="currentValue"
     :on-finish="onFinish"
+    v-bind="makeBindingsHelper(field, data || formData)"
+    class="bigger-input"
   />
+
+  <!-- Bypass mode (form): thin Field component, no editing chrome -->
+  <component
+    v-else-if="isBypass"
+    :is="component"
+    :model-value="currentValue"
+    @update:model-value="(val: any) => updateValue(val)"
+    :label="field.label"
+    :name="name"
+    :disabled="disabled"
+    :required="field.required"
+    :rules="_rules"
+    :error-messages="formData?.errors[name]"
+    v-bind="makeBindingsHelper(field, data || formData)"
+    class="bigger-input"
+  />
+
+  <!-- Table mode: editing chrome with display/edit states -->
+  <ConfirmationSlot
+    v-else
+    style="width: 100%"
+    :confirm-text-maker="() => confirmTextMaker(editValue)"
+    :on-confirm="doSave"
+    :on-cancel="cancelEdit"
+    v-slot="{ ask }"
+  >
+    <div v-if="showTitle_" class="d-flex">
+      <span class="font-weight-bold">{{ field.title ?? field.label }}</span>
+    </div>
+    <div
+      class="d-flex align-center justify-space-between"
+      @keydown.enter="(e: KeyboardEvent) => onEnter(e, ask)"
+    >
+      <!-- Edit mode: field input -->
+      <span v-if="editing" class="flex-grow-1">
+        <component
+          :is="component"
+          :model-value="editValue"
+          @update:model-value="(val: any) => (editValue = val)"
+          :label="showTitle_ ? undefined : field.label"
+          :name="name"
+          :disabled="disabled"
+          :required="field.required"
+          :rules="_rules"
+          :error-messages="formData?.errors?.[name]"
+          v-bind="makeBindingsHelper(field, data || formData)"
+          class="bigger-input"
+        />
+      </span>
+      <!-- Display mode: text -->
+      <span v-else class="flex-grow-1 bigger-input">{{ displayValue }}</span>
+      <!-- Edit/save/cancel buttons -->
+      <span v-if="!disabled" class="flex-grow-0 flex-shrink-0">
+        <template v-if="editing">
+          <IconButton
+            @click.prevent.stop="finishEdit(ask)"
+            :disabled="disabled"
+            icon="mdi-check"
+            :text="t('form.save')"
+          />
+          <IconButton
+            @click.prevent.stop="cancelEdit"
+            :disabled="disabled"
+            icon="mdi-cancel"
+            :text="t('form.cancel')"
+          />
+        </template>
+        <IconButton
+          v-else
+          @click.prevent.stop="startEdit"
+          :disabled="disabled"
+          icon="mdi-pencil"
+          :text="t('form.edit')"
+        />
+      </span>
+    </div>
+  </ConfirmationSlot>
 </template>
 <style scoped></style>

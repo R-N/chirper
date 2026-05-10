@@ -67,19 +67,30 @@ createInertiaApp({
       }
       console.warn(msg + trace);
     }
-    app.config.errorHandler = (e, vm, info) => {
+    function handleError(e) {
       if (checkCsrfError(e)) {
         authService.getCsrfToken();
+        return true;
       }
       if (e?.show || e?.response?.data?.show) {
         let tabStore = useTabStore();
         tabStore.showError(e?.response?.data ?? e);
         return true;
       }
-      throw e;
-      console.error(e + info);
+      console.error(e);
       return false;
+    }
+
+    app.config.errorHandler = (e, vm, info) => {
+      return handleError(e);
     };
+
+    window.addEventListener("unhandledrejection", (event) => {
+      if (handleError(event.reason)) {
+        event.preventDefault();
+      }
+    });
+
     return app.mount(el);
   },
   progress: {
