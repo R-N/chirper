@@ -103,7 +103,7 @@ const actions = computed(() => [
     icon: "mdi-magnify",
     text: t("form.details"),
     event: "details",
-    onClick: (item: any) => router.visit("/system/users/" + item.id),
+    onClick: (item: any) => router.visit(route("system.users.show", item.id)),
   },
   { type: "edit", text: t("form.edit") },
   {

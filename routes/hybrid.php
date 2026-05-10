@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Chirps\ChirpController;
+use App\Http\Controllers\System\ActivityController;
 use App\Http\Controllers\System\BackupController;
 use App\Http\Controllers\System\LanguageController;
 use App\Http\Controllers\System\SettingsController;
@@ -105,6 +106,11 @@ Route::middleware([
         Route::put('/{user}/roles', [UserController::class, 'setRoles'])->name('set-roles');
         Route::put('/{user}/permissions', [UserController::class, 'setPermissions'])->name('set-permissions');
         Route::get('/export', [UserController::class, 'export'])->name('export');
+    });
+
+    Route::prefix('system/activity')->as('system.activity.')->group(function () {
+        Route::get('/', [ActivityController::class, 'index'])->name('index');
+        Route::get('/{activity}', [ActivityController::class, 'show'])->name('show');
     });
 
     Route::prefix('system/settings')->as('system.settings.')->group(function () {

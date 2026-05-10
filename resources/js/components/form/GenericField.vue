@@ -181,7 +181,7 @@ function makeBindingsHelper(f: any = null, data: any = null) {
       <!-- Display mode: text -->
       <span v-else class="flex-grow-1 bigger-input">{{ displayValue }}</span>
       <!-- Edit/save/cancel buttons -->
-      <span v-if="!disabled" class="flex-grow-0 flex-shrink-0">
+      <span v-if="!disabled && field.editable" class="flex-grow-0 flex-shrink-0">
         <template v-if="editing">
           <IconButton
             @click.prevent.stop="finishEdit(ask)"

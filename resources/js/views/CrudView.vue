@@ -80,6 +80,7 @@ function slotFilled(name: string) {
         />
       </VBtnToggle>
       <IconButton
+        v-if="create"
         @click="create"
         :disabled="busy"
         icon="mdi-plus"
@@ -125,9 +126,10 @@ function slotFilled(name: string) {
     </template>
     <template v-slot:toolbar-right>
       <slot name="toolbar-right" :busy="busy"></slot>
+      <slot name="filters" :busy="busy" :fetch="fetch"></slot>
       <VTextField
         v-if="!(typeof mySearch === 'undefined' || mySearch === null)"
-        class="pt-0 mt-0"
+        class="pt-0 mt-0 search-field"
         v-model="mySearch"
         append-icon="mdi-magnify"
         label="Search"
@@ -144,3 +146,8 @@ function slotFilled(name: string) {
     </template>
   </MainCard>
 </template>
+<style scoped>
+.search-field {
+  width: 14rem;
+}
+</style>

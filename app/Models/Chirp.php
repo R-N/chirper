@@ -6,10 +6,11 @@ use App\Events\ChirpCreated;
 use App\Models\Traits\HasRelationshipEntities;
 use App\Models\Traits\Validable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Chirp extends BaseModel
 {
-    use HasRelationshipEntities, Validable;
+    use HasRelationshipEntities, Validable, LogsActivity;
 
     public const TABLE = 'chirps';
     public const FILLABLE = ['message'];
@@ -21,6 +22,13 @@ class Chirp extends BaseModel
     ];
 
     protected static array $relationshipEntities = ['user:id,name'];
+
+    public function getActivitylogOptions(): \Spatie\Activitylog\LogOptions
+    {
+        return \Spatie\Activitylog\LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty();
+    }
 
     public static function columns(): array
     {

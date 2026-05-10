@@ -30,6 +30,7 @@ export const ruleMapper = {
 };
 
 export const parseLaravelRules = (rules) => {
+  if (!rules) return [];
   if (isObject(rules)) {
     return Object.keys(rules).reduce((acc, key) => {
       const ruleString = rules[key];

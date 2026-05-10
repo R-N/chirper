@@ -1,0 +1,10 @@
+{
+  "title": "Activity Log",
+  "detail": "Activity Detail",
+  "event": "Event",
+  "causer": "Caused By",
+  "subject": "Subject",
+  "when": "When",
+  "date_from": "From",
+  "date_to": "To"
+}

@@ -9,6 +9,7 @@ use App\Utils\ExportUtil;
 use App\Utils\ResponseUtil;
 use App\Utils\ValidationUtil;
 use Illuminate\Http\Request;
+use Spatie\Activitylog\Facades\Activity;
 
 class BackupController extends Controller
 {
@@ -36,6 +37,10 @@ class BackupController extends Controller
         );
         Backup::create();
 
+        activity()
+            ->causedBy(auth()->user())
+            ->log('backup_created');
+
         return ResponseUtil::jsonRedirectResponse([
             'message' => __('backup.created'),
         ], route('system.backups.index'), 201);
@@ -57,6 +62,11 @@ class BackupController extends Controller
     {
         $backup->delete();
 
+        activity()
+            ->causedBy(auth()->user())
+            ->withProperties(['file' => $backup->id])
+            ->log('backup_deleted');
+
         return ResponseUtil::jsonRedirectResponse([
             'message' => __('backup.deleted', ['backup_id' => $backup->id]),
         ], route('system.backups.index'));
@@ -75,6 +85,11 @@ class BackupController extends Controller
         $oldName = $backup->id;
         $backup->rename($newName);
 
+        activity()
+            ->causedBy(auth()->user())
+            ->withProperties(['old_name' => $oldName, 'new_name' => $newName])
+            ->log('backup_renamed');
+
         return ResponseUtil::jsonRedirectResponse([
             'message' => __('backup.renamed', [
                 'old_name' => $oldName,
@@ -91,6 +106,11 @@ class BackupController extends Controller
         $file = $request->file('file');
         $backup = Backup::save($file);
 
+        activity()
+            ->causedBy(auth()->user())
+            ->withProperties(['file' => $backup->id, 'original_name' => $file->getClientOriginalName()])
+            ->log('backup_uploaded');
+
         return ResponseUtil::jsonRedirectResponse([
             'message' => __('backup.uploaded'),
             'backup' => $backup,
@@ -100,6 +120,11 @@ class BackupController extends Controller
     public function restore(Request $request, Backup $backup)
     {
         $backup->restore();
+
+        activity()
+            ->causedBy(auth()->user())
+            ->withProperties(['file' => $backup->id])
+            ->log('backup_restored');
 
         return ResponseUtil::jsonRedirectResponse([
             'message' => __('backup.restored'),

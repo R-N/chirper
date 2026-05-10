@@ -20,7 +20,7 @@ export function useCrudView({
   nameField = "name",
   __query = {},
   __items = null,
-  _query = {},
+  _query = ref({}),
   _rules = {},
   headers = [],
 }) {
@@ -38,7 +38,7 @@ export function useCrudView({
 
   const serverside = computed(() => !!itemsPerPage.value);
 
-  const query = computed(() => ({ ..._query, ...(__query || {}) }));
+  const query = computed(() => ({ ..._query.value, ...(__query || {}) }));
 
   const items = computed({
     get() {

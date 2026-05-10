@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 import CrudView from "@/views/CrudView.vue";
 import { combineCollection, makeBindings, filterObject } from "@/libs/util";
@@ -14,6 +14,7 @@ import { t } from "@/plugins/i18n";
 import GenericField from "@/components/form/GenericField.vue";
 import DeclarativeFormView from "@/components/form/DeclarativeFormView.vue";
 import FormDialog from "@/components/form/FormDialog.vue";
+import axios from "axios";
 
 const props = defineProps<{
   client?: object;
@@ -25,6 +26,8 @@ const props = defineProps<{
   bulkActions?: any[];
   rules?: object;
   query?: any;
+  noCreate?: boolean;
+  filterFields?: any[];
 }>();
 
 const {
@@ -106,6 +109,40 @@ async function onDeclarativeFormSubmit() {
   if (result !== undefined) fetch();
 }
 
+const filterValues = ref<Record<string, any>>({});
+
+const autocompleteItems = ref<Record<string, any[]>>({});
+const autocompleteLoading = ref<Record<string, boolean>>({});
+
+onMounted(async () => {
+  for (const ff of props.filterFields || []) {
+    if (ff.type === "autocomplete" && ff.endpoint) {
+      autocompleteLoading.value[ff.name] = true;
+      try {
+        const res = await axios.get(ff.endpoint, { params: { per_page: 100 } });
+        let data = res.data?.items?.data ?? res.data?.data ?? res.data?.items ?? res.data;
+        if (data && !Array.isArray(data) && data.data) data = data.data;
+        autocompleteItems.value[ff.name] = Array.isArray(data) ? data : [];
+      } catch {
+        autocompleteItems.value[ff.name] = [];
+      } finally {
+        autocompleteLoading.value[ff.name] = false;
+      }
+    }
+  }
+});
+
+function onFilterChange() {
+  const params: Record<string, any> = {};
+  for (const [key, val] of Object.entries(filterValues.value)) {
+    if (val !== undefined && val !== null && val !== "") {
+      params[`filter[${key}]`] = val;
+    }
+  }
+  crudView._query.value = params;
+  crudView.debouncedFetch();
+}
+
 const self = {
   storeItem,
   delete2,
@@ -158,13 +195,13 @@ defineExpose({
 <template>
   <CrudView
     :title="title"
-    :create="() => showForm()"
+    :create="noCreate ? null : () => showForm()"
     :fetch="fetch"
     v-model:search="search"
     :export-csv="exportCsv"
     :export-xlsx="exportXlsx"
     :export-pdf="exportPdf"
-    :selectable="true"
+    :selectable="!!bulkActions?.length"
     v-model:selecting="selecting"
     :selected="selected.length"
     :rules="_rules"
@@ -184,6 +221,58 @@ defineExpose({
         :disabled="busy"
         v-bind="ba.props"
       />
+    </template>
+    <template v-slot:filters v-if="filterFields?.length">
+      <template v-for="ff in filterFields" :key="ff.name">
+        <VAutocomplete
+          v-if="ff.type === 'autocomplete'"
+          :model-value="filterValues[ff.name]"
+          @update:model-value="(v: any) => { filterValues[ff.name] = v; onFilterChange(); }"
+          :label="ff.label"
+          :items="autocompleteItems[ff.name] ?? ff.values ?? []"
+          :item-title="ff.itemTitle ?? 'name'"
+          :item-value="ff.itemValue ?? 'id'"
+          :clearable="true"
+          :loading="autocompleteLoading[ff.name]"
+          density="compact"
+          variant="underlined"
+          hide-details
+          class="mr-3 filter-field"
+        />
+        <VSelect
+          v-else-if="ff.values?.length"
+          :model-value="filterValues[ff.name]"
+          @update:model-value="(v: any) => { filterValues[ff.name] = v; onFilterChange(); }"
+          :label="ff.label"
+          :items="ff.values ?? []"
+          :clearable="true"
+          density="compact"
+          variant="underlined"
+          hide-details
+          class="mr-3 filter-field"
+        />
+        <VTextField
+          v-else-if="ff.type === 'date'"
+          :model-value="filterValues[ff.name]"
+          @update:model-value="(v: any) => { filterValues[ff.name] = v; onFilterChange(); }"
+          :label="ff.label"
+          type="date"
+          density="compact"
+          variant="underlined"
+          hide-details
+          class="mr-3 filter-field filter-date"
+        />
+        <VTextField
+          v-else
+          :model-value="filterValues[ff.name]"
+          @update:model-value="(v: any) => { filterValues[ff.name] = v; onFilterChange(); }"
+          :label="ff.label"
+          density="compact"
+          variant="underlined"
+          hide-details
+          class="mr-3 filter-field"
+        />
+      </template>
     </template>
     <template v-slot:toolbar-left>
       <slot name="toolbar-left" :busy="busy" />
@@ -205,7 +294,7 @@ defineExpose({
         @update:options="debouncedFetch"
         v-model="selected"
         :show-select="selecting"
-        
+
       >
         <template v-slot:item="{ item }">
           <tr>
@@ -239,7 +328,7 @@ defineExpose({
                 :rules="combineCollection(_rules, _rules[a.name])"
                 :select="a.name"
                 @store="a.onStore ?? storeItem"
-                
+
               />
             </td>
           </tr>
@@ -282,4 +371,11 @@ defineExpose({
     </template>
   </CrudView>
 </template>
-<style scoped></style>
+<style scoped>
+.filter-field {
+  min-width: 10rem;
+}
+.filter-date {
+  min-width: 8rem;
+}
+</style>

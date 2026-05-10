@@ -1,0 +1,10 @@
+{
+  "title": "Log Aktivitas",
+  "detail": "Detail Aktivitas",
+  "event": "Peristiwa",
+  "causer": "Disebabkan Oleh",
+  "subject": "Subjek",
+  "when": "Waktu",
+  "date_from": "Dari",
+  "date_to": "Sampai"
+}

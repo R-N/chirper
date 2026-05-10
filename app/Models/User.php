@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Password;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\Traits\CausesActivity;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -35,8 +37,18 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasRoles;
     use Notifiable;
     use TwoFactorAuthenticatable;
+    use CausesActivity;
+    use LogsActivity;
 
     protected static array $relationshipEntities = ['roles', 'permissions'];
+
+    public function getActivitylogOptions(): \Spatie\Activitylog\LogOptions
+    {
+        return \Spatie\Activitylog\LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->logExcept(['password']);
+    }
 
     /**
      * The attributes that are mass assignable.

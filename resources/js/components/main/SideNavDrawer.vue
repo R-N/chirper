@@ -63,6 +63,10 @@ const items = computed(() => [
       {
         text: t("navigation.settings"),
         href: route("system.settings.index")
+      },
+      {
+        text: t("navigation.activity_log"),
+        href: route("system.activity.index")
       }
     ]
   }

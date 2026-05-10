@@ -6,10 +6,11 @@ use App\Support\Cacher;
 use App\Support\Decimal;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Setting extends BaseModel
 {
-    use Traits\Validable;
+    use Traits\Validable, LogsActivity;
 
     public const TABLE = 'settings';
 
@@ -17,6 +18,13 @@ class Setting extends BaseModel
 
     public const FILLABLE = ['key', 'type', 'value', 'options'];
     protected $fillable = self::FILLABLE;
+
+    public function getActivitylogOptions(): \Spatie\Activitylog\LogOptions
+    {
+        return \Spatie\Activitylog\LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty();
+    }
 
     public const TYPES = ['int', 'bool', 'decimal', 'date', 'datetime', 'time', 'enum', 'string', 'array', 'object'];
 
