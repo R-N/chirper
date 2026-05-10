@@ -5,6 +5,7 @@ import { useAuth } from "@/composables/useAuth";
 import RefreshButton from "@/components/general/RefreshButton.vue";
 import CenterLayout from "@/components/layout/CenterLayout.vue";
 import authService from "@/modules/user/auth/services/auth";
+import { route } from "../../../../vendor/tightenco/ziggy/src/js/index.js";
 
 const props = defineProps({
   circleSizeRefresh: { default: 96 },
@@ -48,7 +49,7 @@ function setTimers(busyVal) {
 
 async function handleLogout() {
   try { await authService.logout(); } catch {}
-  window.location.href = "/login";
+  window.location.href = route("login");
 }
 
 onMounted(() => {

@@ -3,15 +3,12 @@ import CrudService from "@/services/crud";
 
 class SettingService extends CrudService {
   constructor() {
-    super(
-      "Setting",
-      "/api/system/settings",
-      ["index", "store", "show", "update", "destroy"],
-      ["key", "type", "value", "options"],
-      [],
-      true,
-      false
-    );
+    super({
+      name: "Setting",
+      endpoint: "/api/system/settings",
+      methods: ["get", "post", "patch", "delete"],
+      fields: ["key", "type", "value", "options"],
+    });
   }
 }
 

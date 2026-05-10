@@ -16,6 +16,18 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    private function normalizeRelationInput(Request $request, string $field): void
+    {
+        if ($request->has($field)) {
+            $values = $request->input($field);
+            if (is_array($values)) {
+                $request->merge([
+                    $field => array_map(fn($v) => is_string($v) ? $v : ($v['name'] ?? $v), $values),
+                ]);
+            }
+        }
+    }
+
     public function index(Request $request)
     {
         if ($request->query('export_type')) {
@@ -40,6 +52,9 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        $this->normalizeRelationInput($request, 'roles');
+        $this->normalizeRelationInput($request, 'permissions');
+
         $data = $request->validate(
             ArrayUtil::filterArray(
                 User::rules(), [
@@ -69,17 +84,21 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $data = $request->validate(
-            ValidationUtil::filterRules(
-                ArrayUtil::filterArray(
-                    User::rules(), [
-                        'name', 'email',
-                        'roles', 'roles.*',
-                        'permissions', 'permissions.*',
-                    ]
-                ), ['required']
-            )
+        $this->normalizeRelationInput($request, 'roles');
+        $this->normalizeRelationInput($request, 'permissions');
+
+        $rules = ValidationUtil::filterRules(
+            ArrayUtil::filterArray(
+                User::rules(), [
+                    'name', 'email',
+                    'roles', 'roles.*',
+                    'permissions', 'permissions.*',
+                ]
+            ), ['required']
         );
+        $rules = ValidationUtil::ignoreUniqueId($rules, $user->id);
+
+        $data = $request->validate($rules);
 
         $user->update($data);
 
@@ -161,6 +180,8 @@ class UserController extends Controller
 
     public function setRoles(Request $request, User $user)
     {
+        $this->normalizeRelationInput($request, 'roles');
+
         $data = $request->validate(
             ArrayUtil::filterArray(
                 User::rules(), ['roles', 'roles.*']
@@ -182,6 +203,8 @@ class UserController extends Controller
 
     public function setPermissions(Request $request, User $user)
     {
+        $this->normalizeRelationInput($request, 'permissions');
+
         $data = $request->validate(
             ArrayUtil::filterArray(
                 User::rules(), ['permissions', 'permissions.*']

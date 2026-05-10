@@ -1,18 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import { useForm } from "@inertiajs/vue3";
-
+import { computed } from "vue";
 import FormDialog from "@/components/form/FormDialog.vue";
 import settingService from "../services/setting";
-import { VTextField } from "vuetify/components";
 import SettingForm from "../forms/Setting.vue";
 import { t } from "@/plugins/i18n";
 import { formatDate } from "@/libs/util.js";
-
-import { useWorking } from "@/composables/useWorking";
-import { useFormBase } from "@/composables/useFormBase";
-import { useDialog } from "@/composables/useDialog";
-import { useCrudForm } from "@/composables/useCrudForm";
+import { useCrudFormDialog } from "@/composables/useCrudFormDialog";
 
 const props = defineProps<{
   parentBusy?: any;
@@ -43,49 +36,17 @@ const emit = defineEmits<{
 
 const {
   busy,
-  waitBusy,
-  releaseBusy,
-  showError,
-} = useWorking(props);
-
-const formData = useForm({});
-
-const formBase = useFormBase(props, emit);
-
-const {
+  formData,
   valid,
+  interactable,
+  myDialog,
+  close,
   getForm,
   getValue,
   validate,
-  resetValidation,
   reset,
-  prepopulate,
-  interactable,
-  dynamicFormRef,
-} = formBase;
-
-const dialog = useDialog(props, emit, { busy, reset, waitBusy, releaseBusy });
-const { myDialog, close } = dialog;
-
-const crudForm = useCrudForm({
-  client: settingService,
-  formData,
-  data: computed(() => props.data),
-});
-
-async function submit() {
-  validate();
-  if (!valid.value) return;
-  await crudForm.submit({
-    validate,
-    valid,
-    waitBusy,
-    getValue,
-    onSubmit: props.onSubmit,
-    emit,
-    close,
-  });
-}
+  submit,
+} = useCrudFormDialog(props, emit, { client: settingService });
 
 const settingTypesVal = computed(() => props.settingTypes ?? ["int", "bool", "decimal", "date", "datetime", "time", "enum", "string", "array", "object"]);
 

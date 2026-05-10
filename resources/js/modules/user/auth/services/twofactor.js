@@ -3,7 +3,7 @@ import BaseService from "@/services/base";
 
 class TwoFactorAuthService extends BaseService {
   constructor(axios) {
-    super(axios);
+    super({ axios });
   }
   async enableTwoFactorAuthentication() {
     let res = await this.post(route("api.two-factor.enable"));

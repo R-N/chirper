@@ -5,7 +5,7 @@ import { createI18n } from "@/plugins/i18n";
 
 import { createInertiaApp, router } from "@inertiajs/vue3";
 import { useTabStore } from "@/stores/tab";
-import { provideBusy } from "@/composables/useBusy";
+import { createBusy } from "@/composables/useBusy";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { createApp, h } from "vue";
 import { createPinia } from "pinia";
@@ -42,7 +42,7 @@ createInertiaApp({
     let app = createApp({ render: () => h(App, { InertiaApp, props }) });
     //app.config.devtools = true;
     const pinia = createPinia().use(piniaPersist);
-    const busy = provideBusy();
+    const busy = createBusy();
     app = app
       .use(plugin)
       .use(ZiggyVue)

@@ -11,21 +11,20 @@ import {
 import { t } from "@/plugins/i18n";
 
 class BaseService {
-  constructor(
-    axios = null,
-    endpoint = null,
-    methods = null,
-    name = null,
-    files = null,
-    updateMethod = null
-  ) {
+  constructor({
+    axios,
+    endpoint = "/",
+    methods = [],
+    name,
+    files = ["file"],
+    updateMethod = "patch",
+  } = {}) {
     this.axios = axios || _axios;
     this.name = name;
-    if (!files) files = ["file"];
     this.files = files;
-    this._endpoint = endpoint || "/";
-    this.methods = methods || [];
-    this.updateMethod = updateMethod || "patch";
+    this._endpoint = endpoint;
+    this.methods = methods;
+    this.updateMethod = updateMethod;
 
     this.bindMethods([
       "get",
@@ -156,8 +155,6 @@ class BaseService {
   }
 
   async call(endpoint, form = {}, method = "put", filter = true, obj = null) {
-    // this.checkMethod(method);
-
     // get obj id but store the actual obj
     const obj0 = obj;
     obj = obj?.id ?? obj;
@@ -200,6 +197,8 @@ class BaseService {
       };
       method = "delete";
     }
+
+    this.checkMethod(method);
 
     // choose function based on method
     // needs to be done before files because

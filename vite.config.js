@@ -10,6 +10,7 @@ import { fileURLToPath, URL } from "url";
 
 execSync("php artisan lang:export");
 execSync("php artisan validation:export");
+execSync("php artisan columns:export");
 
 export default defineConfig(({ command }) => ({
   root: __dirname,

@@ -4,7 +4,7 @@ import BaseService from "@/services/base";
 
 class AuthService extends BaseService {
   constructor(axios) {
-    super(axios);
+    super({ axios });
   }
 
   async getCsrfToken() {

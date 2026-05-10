@@ -29,9 +29,10 @@ rtk vendor/bin/pint --test        # Dry-run PHP code style
 php artisan migrate
 php artisan migrate:rollback
 
-# Export frontend lang/validation files (runs automatically in vite.config.js)
+# Export frontend lang/validation/columns files (runs automatically in vite.config.js)
 php artisan lang:export
 php artisan validation:export
+php artisan columns:export
 ```
 
 ## Architecture
@@ -42,14 +43,20 @@ php artisan validation:export
 
 ### Backend: BaseModel pattern
 
-All models extend `BaseModel` (`app/Models/BaseModel.php`). Models define a `columns()` method returning field metadata (label, type, filter, sort, search, rules). This single definition drives:
+Models define a `columns()` method returning field metadata (label, type, filter, sort, search, rules). This single definition drives:
 - `query2()` — auto-generates Spatie QueryBuilder filters/sorts from columns
 - `rules()` — auto-generates validation rules from columns
 - `collection()` / `toExportArray()` — export with human-readable headers
 
+The columns-driven logic lives in the `HasColumnDefinitions` trait (`app/Models/Traits/HasColumnDefinitions.php`). `BaseModel` uses it. Models that can't extend BaseModel (e.g., `User` which extends `Authenticatable`) use the trait directly.
+
+All models use `columns()`: `Chirp` (extends BaseModel), `Setting` (extends BaseModel), `User` (uses trait, extends Authenticatable).
+
+Custom filter support in `columns()`: set `filter: 'custom'` with `filter_class` (FQCN) and optional `filter_column`. Sort on a different column via `sort_column`. Example in `User::columns()` for `verified` using `NotNullFilter` on `email_verified_at`.
+
 Models use constants for `TABLE` and `FILLABLE`. Example: `app/Models/Chirp.php`.
 
-Traits: `HasRelationshipEntities` (eager-loads relations), `Validable`.
+Traits: `HasColumnDefinitions` (columns-driven query/rules/export), `HasRelationshipEntities` (eager-loads relations), `Validable`.
 
 Controllers extend `CrudController` (`app/Http/Controllers/CrudController.php`) — an abstract class providing `index`, `store`, `show`, `update`, `destroy`, `bulkDestroy`, `export`. Subclasses set `$modelClass`, `$resourcePagePath`, `$routeBase`, `$translationKey`, `$mayExport`, `$userOwned`. Thin — they delegate to `BaseModel::query2()` for listing and `BaseModel::rules()` for validation.
 
@@ -84,6 +91,7 @@ All Vue components use `<script setup>` with Composition API. Reusable logic liv
 - `useCrud({ client, waitBusy, nameField })` — fetch(), create(), delete2(), setField(), setFieldConfirmText(), toggleField(), etc.
 - `useCrudView({ client, waitBusy, ... })` — useCrud + table state (pagination, search, export, selection)
 - `useCrudForm({ client, formData, data })` — submit() with store/update logic
+- `useCrudFormDialog(props, emit, { client, initialFormData })` — bundles useWorking + useFormBase + useDialog + useCrudForm for form dialog boilerplate. Modules use this instead of wiring 4 composables manually.
 - `useCrudContext()` — provide/inject for CRUD context. `GenericField` uses this as primary source, falls back to `props.crud`.
 - `useModel(name, props, emit)` — writable computed for v-model
 
@@ -138,6 +146,31 @@ Three-layer translation merge (see `resources/js/plugins/i18n.js`):
 - `resources/js/libs/validation.js` — `parseLaravelRules()` translates backend rules to Vuetify rules
 - `resources/js/libs/util.js` — helpers (`getByPath`, `setByPath`, `combineCollection`, `makeBindings`, `filterObject`, `getData`)
 - `resources/js/libs/actionRegistry.js` — maps action types (`edit`, `delete`) to button components with icons/events
+- `resources/js/types/` — TypeScript type definitions. `generated/` contains auto-generated field consts/types from `php artisan columns:export`. Import via `@/types` for `CHIRP_FIELDS`, `USER_FIELDS`, `SETTING_FIELDS`, `FieldOverrides`, and `CrudFields<T>` utility type.
+
+### Frontend: Service layer
+
+Services extend `CrudService` (`resources/js/services/crud.js`) or `BaseService` (`resources/js/services/base.js`). Constructors take a single options object:
+
+```js
+class UserService extends CrudService {
+  constructor() {
+    super({
+      name: "User",
+      endpoint: "/api/system/users",
+      methods: ["get", "post", "patch", "delete", "put"],
+      fields: ["email", "name", "verified", "enabled", "roles", "permissions"],
+      setters: [...],  // auto-generates set_{field}() methods
+      getters: [...],  // auto-generates get_{field}() methods
+      actions: [...],  // custom action methods (e.g. clear_password)
+    });
+  }
+}
+```
+
+`BaseService.call()` validates the resolved HTTP method against `methods` via `checkMethod()`. Method lists use HTTP names (get/post/put/patch/delete), not aliases.
+
+`__call`/`_call` indirection exists for declarative method dispatch — `createSetters()` builds methods from config strings (e.g., `{field: "enabled", method: "put"}`). Kept intentionally.
 
 ### Path aliases
 

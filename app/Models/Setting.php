@@ -2,22 +2,14 @@
 
 namespace App\Models;
 
-use App\Filters\GlobalSearch;
 use App\Support\Cacher;
 use App\Support\Decimal;
-use App\Utils\ExportUtil;
-use App\Utils\QueryUtil;
-use App\Utils\ValidationUtil;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Validator;
-use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\QueryBuilder;
-use App\Models\Traits\Validable;
 
-class Setting extends Model
+class Setting extends BaseModel
 {
-    use Validable;
+    use Traits\Validable;
 
     public const TABLE = 'settings';
 
@@ -32,12 +24,56 @@ class Setting extends Model
         'options' => 'array',
     ];
 
-    // Add a static boot method to handle validation before creating
+    public static function columns()
+    {
+        return [
+            'key' => [
+                'label' => 'Key',
+                'type' => 'string',
+                'filter' => 'partial',
+                'sort' => true,
+                'search' => true,
+                'rules' => 'required|string|max:255',
+            ],
+            'type' => [
+                'label' => 'Type',
+                'type' => 'string',
+                'filter' => 'partial',
+                'search' => true,
+                'rules' => 'string|max:255|in:'.implode(',', self::TYPES),
+            ],
+            'value' => [
+                'label' => 'Value',
+                'type' => 'string',
+                'filter' => 'partial',
+                'search' => true,
+                'rules' => 'nullable|string',
+            ],
+            'options' => [
+                'label' => 'Options',
+                'type' => 'json',
+                'rules' => 'nullable',
+            ],
+            'updated_at' => [
+                'label' => 'Last Modified',
+                'type' => 'datetime',
+                'filter' => 'partial',
+                'sort' => true,
+                'search' => true,
+                'rules' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
+            ],
+        ];
+    }
+
+    public static function defaultSort()
+    {
+        return ['key'];
+    }
+
     protected static function boot()
     {
         parent::boot();
 
-        // Run validation before creating a new setting
         static::creating(function ($setting) {
             if (array_key_exists('value', $setting->getAttributes())) {
                 $setting->validateValue($setting->value);
@@ -65,7 +101,7 @@ class Setting extends Model
             'date' => Carbon::parse($raw)->startOfDay(),
             'datetime' => Carbon::parse($raw),
             'time' => Carbon::createFromFormat('H:i:s', $raw),
-            'enum' => $raw, // assume you’ll validate externally
+            'enum' => $raw,
             'string' => (string) $raw,
             'array' => json_decode($raw, true),
             'object' => json_decode($raw, true),
@@ -94,7 +130,7 @@ class Setting extends Model
     {
         return Validator::make(
             ['value' => $value],
-            ['value' => self::getValidationRule($this->type)] // assume this returns a string or array
+            ['value' => self::getValidationRule($this->type)]
         )->validate();
     }
 
@@ -102,8 +138,6 @@ class Setting extends Model
     {
         if (array_key_exists('value', $attributes)) {
             $this->validateValue($attributes['value']);
-
-            // $attributes['value'] = self::toDatabase($attributes['value']);
         }
 
         Cacher::forgetAll(self::TABLE);
@@ -113,8 +147,7 @@ class Setting extends Model
 
     public static function get(string $key)
     {
-        return Cacher::remember(self::TABLE, $key, fn () => static::where('key', $key)->first()?->value
-        );
+        return Cacher::remember(self::TABLE, $key, fn () => static::where('key', $key)->first()?->value);
     }
 
     public static function set(string $key, mixed $value)
@@ -126,68 +159,5 @@ class Setting extends Model
         Cacher::forget(self::TABLE, $key);
 
         return $setting;
-    }
-
-    public static function query2($raw = false)
-    {
-        $validated = request()->validate(
-            ValidationUtil::buildQueryRules('settings', Setting::rules(), [
-                'key', 'type',
-            ])
-        );
-        $items = QueryBuilder::for(Setting::class)
-            ->allowedFilters([
-                AllowedFilter::custom('search', new GlobalSearch([
-                    'key', 'type', 'value', 'updated_at',
-                ])),
-                AllowedFilter::exact('id'),
-                AllowedFilter::partial('key'),
-                AllowedFilter::partial('type'),
-                AllowedFilter::partial('value'),
-                AllowedFilter::partial('updated_at'),
-            ])
-            ->allowedSorts([
-                'key',
-                'updated_at',
-            ])
-            ->defaultSort([
-                'key',
-            ]);
-        if ($raw) {
-            return $items;
-        }
-        $items = QueryUtil::paginateQuery($items);
-
-        return $items;
-    }
-
-    public static function collection($filter = null)
-    {
-        $items = self::query2(true)
-            ->get()
-            ->map(fn ($item) => [
-                'Key' => $item->key,
-                'Type' => $item->type,
-                'Value' => $item->value,
-                'Options' => $item->options,
-                'Last Modified' => $item->updated_at,
-            ]);
-        $items = ExportUtil::filter($items, $filter);
-
-        return $items;
-    }
-
-    public static function rules()
-    {
-        $rules = [
-            'key' => 'required|string|max:255',
-            'type' => 'string|max:255|in:'.implode(',', self::TYPES),
-            'value' => 'nullable|string',
-            'options' => 'nullable',
-            'updated_at' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
-        ];
-        $rules = ValidationUtil::duplicateRules($rules);
-
-        return $rules;
     }
 }

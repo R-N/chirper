@@ -11,7 +11,7 @@ import { t } from "@/plugins/i18n";
 import BaseService from "./base";
 
 class CrudService extends BaseService {
-  constructor(
+  constructor({
     name,
     endpoint,
     methods = [],
@@ -21,9 +21,9 @@ class CrudService extends BaseService {
     getters = false,
     actions = [],
     updateMethod = "patch",
-    axios = null
-  ) {
-    super(axios, endpoint, methods, name, files, updateMethod);
+    axios,
+  } = {}) {
+    super({ axios, endpoint, methods, name, files, updateMethod });
     this.fields = fields;
 
     this.createSetters(setters);

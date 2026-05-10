@@ -1,15 +1,8 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { useForm } from "@inertiajs/vue3";
-
 import FormDialog from "@/components/form/FormDialog.vue";
 import chirpService from "../services/chirp";
 import { VTextField } from "vuetify/components";
-
-import { useWorking } from "@/composables/useWorking";
-import { useFormBase } from "@/composables/useFormBase";
-import { useDialog } from "@/composables/useDialog";
-import { useCrudForm } from "@/composables/useCrudForm";
+import { useCrudFormDialog } from "@/composables/useCrudFormDialog";
 
 const props = defineProps<{
   parentBusy?: any;
@@ -37,51 +30,20 @@ const emit = defineEmits<{
 
 const {
   busy,
-  waitBusy,
-  releaseBusy,
-  showError,
-} = useWorking(props);
-
-const formData = useForm({
-  message: "",
-});
-
-const formBase = useFormBase(props, emit);
-
-const {
+  formData,
   valid,
+  interactable,
+  myDialog,
+  close,
   getForm,
   getValue,
   validate,
-  resetValidation,
   reset,
-  prepopulate,
-  interactable,
-  dynamicFormRef,
-} = formBase;
-
-const dialog = useDialog(props, emit, { busy, reset, waitBusy, releaseBusy });
-const { myDialog, close } = dialog;
-
-const crudForm = useCrudForm({
+  submit,
+} = useCrudFormDialog(props, emit, {
   client: chirpService,
-  formData,
-  data: computed(() => props.data),
+  initialFormData: { message: "" },
 });
-
-async function submit() {
-  validate();
-  if (!valid.value) return;
-  await crudForm.submit({
-    validate,
-    valid,
-    waitBusy,
-    getValue,
-    onSubmit: props.onSubmit,
-    emit,
-    close,
-  });
-}
 </script>
 <template>
   <FormDialog

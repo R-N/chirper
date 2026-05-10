@@ -2,14 +2,9 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Filters\GlobalSearch;
 use App\Filters\NotNullFilter;
+use App\Models\Traits\HasColumnDefinitions;
 use App\Models\Traits\HasRelationshipEntities;
-use App\Sorts\RelationshipField;
-use App\Utils\ExportUtil;
-use App\Utils\QueryUtil;
-use App\Utils\ValidationUtil;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -21,9 +16,6 @@ use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasPermissions;
 use Spatie\Permission\Traits\HasRoles;
-use Spatie\QueryBuilder\AllowedFilter;
-use Spatie\QueryBuilder\AllowedSort;
-use Spatie\QueryBuilder\QueryBuilder;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -38,6 +30,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasProfilePhoto;
 
     use HasRelationshipEntities;
+    use HasColumnDefinitions;
 
     use HasRoles;
     use Notifiable;
@@ -94,6 +87,102 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public static function columns()
+    {
+        return [
+            'id' => [
+                'label' => 'ID',
+                'type' => 'number',
+                'filter' => 'exact',
+                'sort' => true,
+            ],
+            'name' => [
+                'label' => 'Name',
+                'type' => 'string',
+                'filter' => 'partial',
+                'sort' => true,
+                'search' => true,
+                'rules' => 'required|string|max:255',
+            ],
+            'email' => [
+                'label' => 'Email',
+                'type' => 'string',
+                'filter' => 'partial',
+                'sort' => true,
+                'search' => true,
+                'rules' => 'required|string|email|max:255|unique:users,email',
+            ],
+            'enabled' => [
+                'label' => 'Enabled',
+                'type' => 'bool',
+                'filter' => 'exact',
+                'sort' => true,
+                'rules' => 'boolean',
+            ],
+            'verified' => [
+                'label' => 'Verified',
+                'type' => 'bool',
+                'filter' => 'custom',
+                'filter_class' => NotNullFilter::class,
+                'filter_column' => 'email_verified_at',
+                'sort' => true,
+                'sort_column' => 'email_verified_at',
+                'rules' => 'boolean',
+            ],
+            'roles.name' => [
+                'label' => 'Roles',
+                'type' => 'string',
+                'filter' => 'partial',
+                'sort' => 'custom:roles.name',
+                'search' => 'roles->name',
+                'rules' => 'string|max:255|exists:roles,name',
+            ],
+            'permissions.name' => [
+                'label' => 'Permissions',
+                'type' => 'string',
+                'filter' => 'partial',
+                'sort' => 'custom:permissions.name',
+                'search' => 'permissions->name',
+                'rules' => 'string|max:255|exists:permissions,name',
+            ],
+            'roles' => [
+                'rules' => 'array',
+            ],
+            'roles.*' => [
+                'rules' => 'string|max:255|exists:roles,name',
+            ],
+            'permissions' => [
+                'rules' => 'array',
+            ],
+            'permissions.*' => [
+                'rules' => 'string|max:255|exists:permissions,name',
+            ],
+            'password' => [
+                'rules' => 'nullable|string|min:8|max:255|regex:/[A-Z]/|regex:/[a-z]/|regex:/[0-9]/|regex:/[@$!%*?&#]/|confirmed',
+            ],
+            'profile_photo_path' => [
+                'rules' => 'nullable|string|max:2048|regex:/^(?!.*\.\.)(?!.*\/\/)(?!\/)[a-zA-Z0-9\/_\-\.]+(?<!\/)$/',
+            ],
+            'locale' => [
+                'rules' => 'nullable|string|max:10',
+            ],
+            'email_verified_at' => [
+                'rules' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
+            ],
+            'created_at' => [
+                'rules' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
+            ],
+            'modified_at' => [
+                'rules' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
+            ],
+        ];
+    }
+
+    public static function defaultSort()
+    {
+        return ['name'];
     }
 
     public function getVerifiedAttribute()
@@ -161,9 +250,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function resetPassword()
     {
-        // Generate a password reset token
         $token = Password::getRepository()->create($this);
-        // Send the password reset notification with the token
         $this->sendPasswordResetNotification($token);
     }
 
@@ -177,85 +264,5 @@ class User extends Authenticatable implements MustVerifyEmail
         $newToken = $this->createToken('auth_token', ['*']);
 
         return $newToken;
-    }
-
-    public static function query2($raw = false)
-    {
-        $validated = request()->validate(
-            ValidationUtil::buildQueryRules('chirps', User::rules(), [
-                'id', 'email', 'name',
-                'enabled', 'verified',
-                'roles.name', 'permissions.name',
-            ])
-        );
-        $items = QueryBuilder::for(User::class)
-            ->withEntities()
-            ->allowedFilters([
-                AllowedFilter::custom('search', new GlobalSearch([
-                    'email', 'name', 'roles->name', 'permissions->name',
-                ])),
-                AllowedFilter::exact('id'),
-                AllowedFilter::partial('email'),
-                AllowedFilter::partial('name'),
-                AllowedFilter::partial('roles.name'),
-                AllowedFilter::partial('permissions.name'),
-                AllowedFilter::exact('enabled'),
-                AllowedFilter::custom('verified', new NotNullFilter('email_verified_at')),
-            ])
-            ->allowedSorts([
-                'id', 'email', 'name', 'enabled', 'email_verified_at',
-                AllowedSort::custom('roles.name', new RelationshipField(['roles->name'])),
-                AllowedSort::custom('permissions.name', new RelationshipField(['permissions->name'])),
-            ])
-            ->defaultSort('name');
-        if ($raw) {
-            return $items;
-        }
-        $items = QueryUtil::paginateQuery($items);
-
-        return $items;
-    }
-
-    public static function collection($filter = null)
-    {
-        $items = self::query2(true)
-            ->get()
-            ->map(fn ($item) => [
-                'ID' => $item->id,
-                'Name' => $item->name,
-                'Email' => $item->email,
-                'Enabled' => $item->enabled,
-                'Verified' => $item->verified,
-                'Roles' => implode(', ', $item->roles?->map(fn ($r) => $r->name)->all()),
-                'Permissions' => implode(', ', $item->permissions?->map(fn ($p) => $p->name)->all()),
-            ]);
-        $items = ExportUtil::filter($items, $filter);
-
-        return $items;
-    }
-
-    public static function rules()
-    {
-        $rules = [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email',
-            'password' => 'nullable|string|min:8|max:255|regex:/[A-Z]/|regex:/[a-z]/|regex:/[0-9]/|regex:/[@$!%*?&#]/|confirmed',
-            'profile_photo_path' => 'nullable|string|max:2048|regex:/^(?!.*\.\.)(?!.*\/\/)(?!\/)[a-zA-Z0-9\/_\-\.]+(?<!\/)$/',
-            'locale' => 'nullable|string|max:10',
-            'enabled' => 'boolean',
-            'verified' => 'boolean',
-            'email_verified_at' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
-            'created_at' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
-            'modified_at' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
-            'roles' => 'array',
-            'roles.*' => 'string|max:255|exists:roles,name',
-            'roles.name' => 'string|max:255|exists:roles,name',
-            'permissions' => 'array',
-            'permissions.*' => 'string|max:255|exists:permissions,name',
-            'permissions.name' => 'string|max:255|exists:permissions,name',
-        ];
-        $rules = ValidationUtil::duplicateRules($rules);
-
-        return $rules;
     }
 }

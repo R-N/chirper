@@ -8,7 +8,7 @@ export function useDialog(props, emit, { busy, reset, waitBusy, releaseBusy }) {
     set(value) {
       if (value == props.modelValue) return;
       reset?.();
-      busy.value = false;
+      releaseBusy?.();
       emit("change", value);
       emit("update:modelValue", value);
     },
@@ -41,7 +41,7 @@ export function useDialog(props, emit, { busy, reset, waitBusy, releaseBusy }) {
       console.log(myDialog.value);
     }
     reset?.();
-    busy.value = false;
+    releaseBusy?.();
   }
 
   return {

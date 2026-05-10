@@ -3,13 +3,12 @@ import CrudService from "@/services/crud";
 
 class UserService extends CrudService {
   constructor() {
-    super(
-      "User",
-      "/api/system/users",
-      ["index", "store", "update", "destroy"],
-      ["email", "name", "verified", "enabled", "roles", "permissions"],
-      [],
-      [
+    super({
+      name: "User",
+      endpoint: "/api/system/users",
+      methods: ["get", "post", "patch", "delete", "put"],
+      fields: ["email", "name", "verified", "enabled", "roles", "permissions"],
+      setters: [
         "email",
         "name",
         {
@@ -33,7 +32,7 @@ class UserService extends CrudService {
           endpoint: "api.system.users.set-permissions"
         }
       ],
-      [
+      getters: [
         {
           field: "roles",
           endpoint: "api.system.users.get-available-roles"
@@ -43,7 +42,7 @@ class UserService extends CrudService {
           endpoint: "api.system.users.get-available-permissions"
         }
       ],
-      [
+      actions: [
         {
           method: "delete",
           action: "clear_password",
@@ -51,7 +50,7 @@ class UserService extends CrudService {
           obj: true
         }
       ]
-    );
+    });
   }
 }
 

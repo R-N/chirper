@@ -2,8 +2,8 @@ import { ref, computed, watch, onMounted, useTemplateRef, useSlots } from "vue";
 import { useForm } from "@inertiajs/vue3";
 import { isFunction } from "@/libs/util";
 
-export function useFormBase(props, emit) {
-  const formData = useForm({});
+export function useFormBase(props, emit, { formData: existingFormData } = {}) {
+  const formData = existingFormData || useForm({});
 
   const refName = props.name ? `${props.name}Form` : "form";
   const dynamicFormRef = useTemplateRef(refName);

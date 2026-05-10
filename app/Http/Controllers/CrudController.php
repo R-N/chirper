@@ -73,7 +73,7 @@ abstract class CrudController extends Controller
     public function update(Request $request, $id)
     {
         $item = $this->modelClass::findOrFail($id);
-        $validated = $this->modelClass::validateRequest($request, true);
+        $validated = $this->modelClass::validateRequest($request, true, $id);
         $item->update($validated);
         $item->save();
         if ($this->hasRelationshipEntities){

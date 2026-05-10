@@ -34,6 +34,20 @@ class ValidationUtil
         return $newRules;
     }
 
+    public static function ignoreUniqueId($rules, $id)
+    {
+        foreach ($rules as $field => &$rule) {
+            if (is_string($rule)) {
+                $rule = preg_replace(
+                    '/unique:(\w+),(\w+)(?![,\w])/',
+                    'unique:$1,$2,' . $id,
+                    $rule
+                );
+            }
+        }
+        return $rules;
+    }
+
     public static function filterRules($rules, $toRemove = [
         'required', 'confirmed', 'exists', 'unique',
     ], $inclusive = false)

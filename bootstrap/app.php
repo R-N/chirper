@@ -31,6 +31,11 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (Throwable $e, Request $request) {
+            // Let Laravel handle ValidationException natively (redirect back with errors)
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
+                return null;
+            }
+
             ExceptionUtil::shouldShow($e);
             $data = ExceptionUtil::toArray($e);
             $statusCode = ExceptionUtil::getStatusCode($e);

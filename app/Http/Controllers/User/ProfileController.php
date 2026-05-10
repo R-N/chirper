@@ -62,6 +62,10 @@ class ProfileController extends Controller
         $user = $request->user();
         $user->fill($request->validated());
 
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
         $user->save();
         $user->loadEntities();
 
@@ -81,21 +85,15 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
-        // 🔥 If using token-based auth, revoke tokens
-        $tokens = $user->tokens();
-        if ($tokens) {
-            $tokens->delete();
-        }
 
         Auth::guard('web')->logout();
-
-        $user->delete();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        $user->delete();
+
         return ResponseUtil::jsonRedirectResponse([
             'message' => __('profile.deleted'),
-        ], route('login'));
+        ], route('welcome'));
     }
 }

@@ -27,6 +27,7 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{
   submit: [value: any];
   cancel: [value: any];
+  validate: [value: any];
 }>();
 
 const { busy, waitBusy } = useWorking();

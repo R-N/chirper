@@ -1,16 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import { useForm } from "@inertiajs/vue3";
-
+import { computed } from "vue";
 import FormDialog from "@/components/form/FormDialog.vue";
 import userService from "../services/user";
 import UserForm from "../forms/User.vue";
 import { t } from "@/plugins/i18n";
-
-import { useWorking } from "@/composables/useWorking";
-import { useFormBase } from "@/composables/useFormBase";
-import { useDialog } from "@/composables/useDialog";
-import { useCrudForm } from "@/composables/useCrudForm";
+import { useCrudFormDialog } from "@/composables/useCrudFormDialog";
 
 const props = defineProps<{
   parentBusy?: any;
@@ -40,52 +34,20 @@ const emit = defineEmits<{
 
 const {
   busy,
-  waitBusy,
-  releaseBusy,
-  showError,
-} = useWorking(props);
-
-const formData = useForm({});
-
-const formBase = useFormBase(props, emit);
-
-const {
+  formData,
   valid,
+  interactable,
+  myDialog,
+  close,
   getForm,
   getValue,
   validate,
-  resetValidation,
   reset,
-  prepopulate,
-  interactable,
-  dynamicFormRef,
-} = formBase;
-
-const dialog = useDialog(props, emit, { busy, reset, waitBusy, releaseBusy });
-const { myDialog, close } = dialog;
-
-const crudForm = useCrudForm({
-  client: userService,
-  formData,
-  data: computed(() => props.data),
-});
-
-async function submit() {
-  validate();
-  if (!valid.value) return;
-  await crudForm.submit({
-    validate,
-    valid,
-    waitBusy,
-    getValue,
-    onSubmit: props.onSubmit,
-    emit,
-    close,
-  });
-}
+  submit,
+} = useCrudFormDialog(props, emit, { client: userService });
 
 const title = computed(() => {
-  if (props.data) return `${t("user.item")}: ${props.data.key}`;
+  if (props.data) return `${t("user.item")}: ${props.data.name}`;
   return t("user.item");
 });
 
@@ -111,6 +73,7 @@ function getForm2() {
         :available-roles="availableRoles"
         :available-permissions="availablePermissions"
         :data="data"
+        :rules="rules"
         ref="form"
         @submit="(...args) => emit('submit', ...args)"
       />

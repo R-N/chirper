@@ -21,9 +21,9 @@ const props = defineProps({
 
 const { busy } = useWorking(props);
 
-const crud = computed(() => {
-  try { return useCrudContext(); } catch { return props.crud; }
-});
+let injectedCrud = null;
+try { injectedCrud = useCrudContext(); } catch { /* no provider — fall back to props */ }
+const crud = computed(() => injectedCrud || props.crud);
 
 const name = computed(() => props.field.name ?? props.field.value);
 const _rules = computed(() => combineCollection(props.rules, props.rules[name.value]));
@@ -99,7 +99,7 @@ function onEnter(e: KeyboardEvent, ask: any) {
 }
 
 function updateValue(val: any) {
-  if (props.formData && name.value in props.formData) {
+  if (props.formData) {
     props.formData[name.value] = val;
   }
 }

@@ -6,13 +6,16 @@ use App\Utils\ValidationUtil;
 
 trait Validable
 {
-    public static function validateRequest($request=null, $update=false){
+    public static function validateRequest($request=null, $update=false, $id=null){
         $rules = ArrayUtil::filterArray(
-            self::rules(), 
+            self::rules(),
             self::FILLABLE
         );
         if ($update){
             $rules = ValidationUtil::filterRules($rules, ['required']);
+            if ($id) {
+                $rules = ValidationUtil::ignoreUniqueId($rules, $id);
+            }
         }
         return ($request ?? request())->validate($rules);
     }

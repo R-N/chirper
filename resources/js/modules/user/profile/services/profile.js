@@ -5,7 +5,7 @@ import BaseService from "@/services/base";
 
 class ProfileService extends BaseService {
   constructor(axios) {
-    super(axios);
+    super({ axios });
   }
 
   async deleteUser(form) {

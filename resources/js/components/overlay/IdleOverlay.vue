@@ -5,6 +5,7 @@ import SharedIdle from "@/components/general/SharedIdle.vue";
 import authService from "@/modules/user/auth/services/auth";
 import CenterLayout from "@/components/layout/CenterLayout.vue";
 import { router } from "@inertiajs/vue3";
+import { route } from "../../../../vendor/tightenco/ziggy/src/js/index.js";
 
 const { appStore, isLoggedIn } = useAuth();
 
@@ -39,7 +40,7 @@ async function logout() {
     const { useAuthStore } = await import("@/stores/auth");
     useAuthStore().logout();
   }
-  router.visit("/login");
+  router.visit(route("login"));
 }
 
 function stopCountdown() {

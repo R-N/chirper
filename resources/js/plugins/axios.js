@@ -1,6 +1,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useAuthStore } from "@/stores/auth";
+import { route } from "../../../vendor/tightenco/ziggy/src/js/index.js";
 
 axios.defaults.withCredentials = true;
 axios.defaults.withXSRFToken = true;
@@ -64,7 +65,7 @@ function clearAuthAndRedirect() {
   } catch {
     localStorage.removeItem("auth_token");
   }
-  window.location.href = "/login";
+  window.location.href = route("login");
 }
 
 let isRefreshingCsrf = false;

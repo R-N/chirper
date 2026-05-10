@@ -3,13 +3,13 @@ import CrudService from "@/services/crud";
 
 class BackupService extends CrudService {
   constructor() {
-    super(
-      "Backup",
-      "/api/system/backups",
-      ["index", "create", "get", "put", "patch", "delete"],
-      ["id"],
-      ["file"]
-    );
+    super({
+      name: "Backup",
+      endpoint: "/api/system/backups",
+      methods: ["get", "post", "put", "patch", "delete"],
+      fields: ["id"],
+      files: ["file"],
+    });
   }
 }
 

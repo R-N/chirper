@@ -278,6 +278,12 @@ export const setByPath = (obj, path, value) => {
 }
 
 export const combineCollection = (obj, arr, name) => {
+  if (!arr || typeof arr[Symbol.iterator] !== 'function') {
+    if (!Array.isArray(obj) && typeof obj === 'object' && Object.keys(obj).length === 0) {
+      return [];
+    }
+    return obj;
+  }
   return {
     ...obj,
     [Symbol.iterator]: function* () {

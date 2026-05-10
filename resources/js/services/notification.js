@@ -3,15 +3,14 @@ import CrudService from "@/services/crud";
 
 class NotificationService extends CrudService {
   constructor() {
-    super(
-      "Notification",
-      "/api/notifications",
-      ["index", "patch", "destroy"],
-      ["id", "data", "message"],
-      [],
-      false,
-      false,
-      [
+    super({
+      name: "Notification",
+      endpoint: "/api/notifications",
+      methods: ["get", "post", "patch", "delete"],
+      fields: ["id", "data", "message"],
+      setters: false,
+      getters: false,
+      actions: [
         {
           method: "patch",
           action: "mark_as_read",
@@ -27,7 +26,7 @@ class NotificationService extends CrudService {
           endpoint: "api.notifications.bulk.destroy"
         }
       ]
-    );
+    });
   }
 }
 

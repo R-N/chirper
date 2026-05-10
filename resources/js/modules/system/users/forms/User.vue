@@ -110,6 +110,16 @@ const fields = computed(() => [
     getValue: getRolesText,
   },
 ]);
+
+defineExpose({
+  submit,
+  validate,
+  reset,
+  getForm,
+  getValue,
+  busy,
+  formData,
+});
 </script>
 <template>
   <VForm
