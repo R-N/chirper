@@ -35,8 +35,9 @@ async function login() {
   if (!valid.value) return;
   await waitBusy(async () => {
     let res = await authService.login(formData);
-    router.visit(res.redirect || "/dashboard");
     formData.reset("password");
+    valid.value = true;
+    router.visit(res.redirect || "/dashboard");
   }, globalBusy);
 }
 </script>

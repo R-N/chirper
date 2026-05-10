@@ -186,7 +186,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'created_at' => [
                 'rules' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
             ],
-            'modified_at' => [
+            'updated_at' => [
                 'rules' => 'string|max:50|date_format:Y-m-d\TH:i:s\Z',
             ],
         ];

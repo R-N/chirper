@@ -95,7 +95,6 @@ class BackupController extends Controller
                 'old_name' => $oldName,
                 'new_name' => $newName,
             ]),
-            'message' => "Backup {$oldName} renamed to {$newName}.",
             'backup' => $backup,
         ], route('system.backups.index'));
     }

@@ -29,6 +29,9 @@ rtk vendor/bin/pint --test        # Dry-run PHP code style
 php artisan migrate
 php artisan migrate:rollback
 
+# Custom artisan commands
+php artisan make:admin-user {email?} {password?} {name?}  # Interactive if args omitted
+
 # Export frontend lang/validation/columns files (runs automatically in vite.config.js)
 php artisan lang:export
 php artisan validation:export
@@ -39,7 +42,10 @@ php artisan columns:export
 
 **Stack**: Laravel 11 + Vue 3 + Inertia.js + Vuetify 3 + TypeScript. SQLite default, MySQL supported.
 
-**Routing**: Split into `routes/web.php` (guest/auth pages), `routes/hybrid.php` (all CRUD endpoints + API). `hybrid.php` handles both web Inertia responses and API calls.
+**Routing**: Three route files:
+- `routes/web.php` — guest/auth pages (Inertia), plus all CRUD endpoints for authenticated users
+- `routes/api.php` — API-only routes (notifications CRUD, settings types, user roles/permissions, token refresh, validation rules, lang, debug). Includes `hybrid.php`.
+- `routes/hybrid.php` — shared CRUD endpoints included by both web.php and api.php. Handles both Inertia responses and JSON via `ResponseUtil`.
 
 ### Backend: BaseModel pattern
 
@@ -62,20 +68,49 @@ Controllers extend `CrudController` (`app/Http/Controllers/CrudController.php`) 
 
 `Validable` trait (`app/Models/Traits/Validable.php`) provides `validateRequest()` — filters `rules()` to FILLABLE fields, then drops `required` rules on updates.
 
-`HasRelationshipEntities` trait — models declare `static $relationshipEntities` array of relation names. Auto-eager-loads via `query2()` and `loadEntities()`.
+### Backend: Utils
 
-`ResponseUtil` — all controller actions use `jsonInertiaResponse()` or `jsonRedirectResponse()`. These dual-handle: return Inertia page for web requests, JSON response for API calls. Makes every route a hybrid web+API endpoint.
+Utility classes in `app/Utils/`:
+- `ResponseUtil` — `jsonInertiaResponse()`, `jsonRedirectResponse()`, `jsonStayResponse()` for dual web/API responses
+- `ExceptionUtil` — `shouldShow()`, `toArray()`, `getStatusCode()` for exception rendering in `bootstrap/app.php`
+- `ExportUtil` — export helpers (Excel, PDF, CSV)
+- `ValidationUtil` — validation helper methods
+- `ArrayUtil`, `QueryUtil` — array/query manipulation helpers
+
+### Backend: Events & Listeners
+
+Registered in `EventServiceProvider`:
+- `Registered` → `SetUserDefaults` — assigns 'chirper' role, calls `resetPassword()` on new user
+- `ChirpCreated` → `SendChirpCreatedNotifications` — sends `NewChirp` notification
+
+Listeners are **not queued** (no `ShouldQueue` interface).
+
+### Backend: Scheduled tasks
+
+`routes/console.php` schedules `activitylog:clean` daily.
+
+### Backend: Inertia shared props
+
+`AppServiceProvider::boot()` shares globally to all Inertia pages: `settings` (from `Setting::fetchDict()`), `user`, `notifications`.
+
+### Backend: Custom login
+
+`CustomLoginResponse` bound as singleton in `AppServiceProvider` — customizes post-login redirect.
 
 ### Frontend: Module-based Inertia pages
 
 Inertia resolves pages via `resources/js/modules/{name}.vue` using a glob on `modules/**/pages/*.vue`. Module naming follows the route/controller structure:
 
-- `modules/user/auth/pages/` — Login, Register, etc.
+- `modules/guest/pages/` — Welcome, PrivacyPolicy, TermsOfService
+- `modules/general/pages/` — Dashboard, NotFound
+- `modules/user/auth/pages/` — Login, Register, ForgotPassword, ResetPassword, VerifyEmail, TwoFactorChallenge, ConfirmPassword
 - `modules/user/profile/pages/` — Profile edit/show
-- `modules/chirps/pages/` — Chirp CRUD
-- `modules/system/users/pages/` — User management
+- `modules/user/api/pages/` — API token management
+- `modules/chirps/pages/` — Chirp CRUD (Index, Index2, Chirp)
+- `modules/system/users/pages/` — User management (Index, Show)
 - `modules/system/backups/pages/` — Backup management
 - `modules/system/settings/pages/` — Settings
+- `modules/system/activity/pages/` — Activity log (Index, Show)
 
 ### Frontend: Composition API with composables
 
@@ -135,7 +170,7 @@ Three-layer translation merge (see `resources/js/plugins/i18n.js`):
 
 ### Frontend: API client & error handling
 
-`resources/js/plugins/axios.js` — Axios instance with CSRF cookie handling (`/sanctum/csrf-cookie`), Bearer token injection from authStore, response interceptor that catches 401/403 (clears auth, redirects to `/login`) and 419 (refreshes CSRF cookie once, retries queued requests). `withCredentials` enabled on all requests.
+`resources/js/plugins/axios.js` — exports default `api` instance + `createApi()` factory. CSRF cookie handling via `/sanctum/csrf-cookie`. Bearer token injection from authStore. Response interceptor: 401/403 → clear auth + redirect to login; 419 → refresh CSRF once, queue+retry pending requests. `withCredentials` enabled. Base URL from `VITE_API_BASE_URL` env var.
 
 `app.js` error handler: shared `handleError()` used by both `app.config.errorHandler` (Vue lifecycle/event errors) and `window.unhandledrejection` listener (Promise rejections). Catches CSRF errors → auto-refreshes token. Errors with `.show` or `.response.data.show` flag → trigger error dialog via `tabStore.showError()`. Unrecognized errors logged with `console.error`, returned `false` to let Vue fall back to default.
 
@@ -180,9 +215,12 @@ class UserService extends CrudService {
 
 - **Declarative CRUD**: Define `columns()` on model, `fields`/`actions` on frontend → full CRUD with filtering, sorting, search, export, inline editing, bulk actions.
 - **Validation**: Backend rules in `columns()` → auto-extracted for requests. Frontend `parseLaravelRules()` mirrors them for Vuetify form validation.
-- **Auth**: Laravel Fortify + Sanctum. `auth:sanctum` + `jetstream.auth_session` middleware on protected routes. Session timeout: 300s idle + 300s logout countdown (SharedIdle + IdleOverlay). Expired sessions caught by axios 401/403/419 interceptor (redirects to `/login`, refreshes CSRF if recoverable). Loading overlay has 30s timeout fallback showing "Session may have expired".
+- **Auth**: Laravel Fortify + Sanctum. `auth:sanctum` + `jetstream.auth_session` middleware on protected routes. Session: database driver, 120 min lifetime. `EnsureTokenIsNotExpired` middleware on API routes. Session timeout: 300s idle + 300s logout countdown (SharedIdle + IdleOverlay). Expired sessions caught by axios 401/403/419 interceptor (redirects to `/login`, refreshes CSRF if recoverable). Loading overlay has 30s timeout fallback showing "Session may have expired".
+- **Testing**: PHPUnit with SQLite in-memory DB, sync queue, array cache/session. Standard `tests/Unit` and `tests/Feature` suites.
 - **Permissions**: Spatie `laravel-permission` package. Role/permission middleware on system routes.
 - **Exports**: Excel (maatwebsite/excel), PDF (dompdf), CSV — controller `export()` method uses `BaseModel::collection()`.
+- **Activity log**: Spatie `laravel-activitylog`. Cleaned daily via scheduled command. Pages at `system/activity`.
+- **Backups**: Spatie `laravel-backup`. Managed at `system/backups`.
 
 <!-- rtk-instructions v2 -->
 RTK is installed globally (`~/.claude/CLAUDE.md`). Always prefix shell commands with `rtk`. If RTK has a dedicated filter it uses it; if not it passes through unchanged. Even in command chains: `rtk git add . && rtk git commit -m "msg"`.

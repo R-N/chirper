@@ -17,7 +17,7 @@ export const USER_FIELDS = {
   "locale": { name: "locale", rules: "nullable|string|max:10" as const },
   "email_verified_at": { name: "email_verified_at", rules: "string|max:50|date_format:Y-m-d\\TH:i:s\\Z" as const },
   "created_at": { name: "created_at", rules: "string|max:50|date_format:Y-m-d\\TH:i:s\\Z" as const },
-  "modified_at": { name: "modified_at", rules: "string|max:50|date_format:Y-m-d\\TH:i:s\\Z" as const }
+  "updated_at": { name: "updated_at", rules: "string|max:50|date_format:Y-m-d\\TH:i:s\\Z" as const }
 } as const;
 
 export type UserFieldName = keyof typeof USER_FIELDS;

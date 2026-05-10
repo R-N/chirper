@@ -53,8 +53,16 @@ createInertiaApp({
       let tabStore = useTabStore();
       tabStore.breadcrumbs = [];
     });
-    router.on("start", () => busy.start());
-    router.on("finish", () => busy.end());
+    router.on("start", () => {
+      let tabStore = useTabStore();
+      tabStore.routerBusy = true;
+      busy.start();
+    });
+    router.on("finish", () => {
+      let tabStore = useTabStore();
+      tabStore.routerBusy = false;
+      busy.end();
+    });
     app.config.warnHandler = (msg, instance, trace) => {
       if (msg.includes('Data property "client" is already defined in Props')) {
         return;

@@ -10,8 +10,8 @@ use App\Utils\ResponseUtil;
 use App\Utils\ValidationUtil;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -241,7 +241,6 @@ class UserController extends Controller
 
     public function getAvailableRoles()
     {
-        Log::info('HELLO');
         $allowedRoles = ['chirper'];
         $roles = Role::whereIn('name', $allowedRoles)->get();
 
@@ -252,8 +251,7 @@ class UserController extends Controller
 
     public function getAvailablePermissions()
     {
-        $allowedPermissions = [];
-        $permissions = Role::whereIn('name', $allowedPermissions)->get();
+        $permissions = Permission::all();
 
         return response()->json([
             'permissions' => $permissions,
