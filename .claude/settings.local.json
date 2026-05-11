@@ -8,7 +8,8 @@
       "Bash(rtk npm *)",
       "Bash(php -v)",
       "Bash(npm run *)",
-      "Bash(Start-Sleep 5)"
+      "Bash(Start-Sleep 5)",
+      "Bash(rtk php *)"
     ]
   }
 }

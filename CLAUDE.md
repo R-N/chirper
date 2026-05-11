@@ -40,6 +40,31 @@ php artisan columns:export
 # Database seeding
 php artisan db:seed                    # All seeders
 php artisan db:seed --class=RolePermissionSeeder  # Roles & permissions only
+
+# Permissions (Spatie)
+rtk php artisan permission:create-role "admin"      # Create a role
+rtk php artisan permission:create-permission "edit"  # Create a permission
+rtk php artisan permission:cache-reset                # Clear cached permissions
+rtk php artisan permission:show                       # List roles/permissions table
+
+# Backups (Spatie)
+rtk php artisan backup:run          # Run backup now
+rtk php artisan backup:list          # List all backups
+rtk php artisan backup:monitor       # Check backup health
+rtk php artisan backup:clean          # Remove old backups per config
+
+# Activity log (Spatie)
+rtk php artisan activitylog:clean     # Purge old activity records (runs daily via schedule)
+
+# Cache, config, routes
+rtk php artisan config:cache   # Cache config for production
+rtk php artisan route:cache    # Cache routes
+rtk php artisan view:cache     # Compile Blade views
+rtk php artisan optimize       # Bootstrap/config/metadata cache
+
+# Schedule
+rtk php artisan schedule:list   # Show scheduled tasks
+rtk php artisan schedule:run    # Run due tasks (cron calls this)
 ```
 
 ## Architecture
@@ -71,6 +96,16 @@ Traits: `HasColumnDefinitions` (columns-driven query/rules/export), `HasRelation
 Controllers extend `CrudController` (`app/Http/Controllers/CrudController.php`) — an abstract class providing `index`, `store`, `show`, `update`, `destroy`, `bulkDestroy`, `export`. Subclasses set `$modelClass`, `$resourcePagePath`, `$routeBase`, `$translationKey`, `$mayExport`, `$userOwned`. Thin — they delegate to `BaseModel::query2()` for listing and `BaseModel::rules()` for validation.
 
 `Validable` trait (`app/Models/Traits/Validable.php`) provides `validateRequest()` — filters `rules()` to FILLABLE fields, then drops `required` rules on updates.
+
+### Backend: Dual-response pattern (hybrid routes)
+
+Routes in `routes/hybrid.php` serve both web (Inertia) and API (JSON) clients. Controllers use `ResponseUtil`:
+- `jsonInertiaResponse($data, $view)` — returns Inertia render for web, JSON for API
+- `jsonRedirectResponse($data, $route, $status)` — redirect for web, `{redirect: url}` in JSON for API
+- `jsonStayResponse($data, $status)` — returns JSON without redirect (for modals/dialogs)
+- Request detects JSON via `$request->wantsJson()` or `$request->expectsJson()`
+
+This allows a single endpoint to power both SPA page loads and pure API calls.
 
 ### Backend: Middleware
 
@@ -109,20 +144,33 @@ Listeners are **not queued** (no `ShouldQueue` interface).
 
 `CustomLoginResponse` bound as singleton in `AppServiceProvider` — customizes post-login redirect.
 
-### Frontend: Module-based Inertia pages
+### Frontend: Routing — SPA vs Inertia mode
 
-Inertia resolves pages via `resources/js/modules/{name}.vue` using a glob on `modules/**/pages/*.vue`. Module naming follows the route/controller structure:
+App supports two frontend modes via `VITE_APP_MODE` (`.env`):
 
-- `modules/guest/pages/` — Welcome, PrivacyPolicy, TermsOfService
-- `modules/general/pages/` — Dashboard, NotFound
-- `modules/user/auth/pages/` — Login, Register, ForgotPassword, ResetPassword, VerifyEmail, TwoFactorChallenge, ConfirmPassword
-- `modules/user/profile/pages/` — Profile edit/show
-- `modules/user/api/pages/` — API token management
-- `modules/chirps/pages/` — Chirp CRUD (Index, Index2, Chirp)
-- `modules/system/users/pages/` — User management (Index, Show)
-- `modules/system/backups/pages/` — Backup management
-- `modules/system/settings/pages/` — Settings
-- `modules/system/activity/pages/` — Activity log (Index, Show)
+| Mode | Behavior |
+|------|----------|
+| `inertia` (default) | Traditional Inertia.js — server returns full page component for each visit. `<Link>` uses Inertia visits. |
+| `spa` | Vue Router handles navigation client-side. Laravel serves a single HTML shell at `/{any}` catch-all. `<Link>` renders Vue RouterLink. |
+
+Mode switch lives in `resources/js/plugins/inertia.js`:
+- `IS_SPA_MODE` — boolean flag
+- `Link` component — InertiaLink vs RouterLink adapter
+- `router` — Inertia router vs Vue Router shim with `visit()`, `get()` etc.
+- `vueRouter` — only created in SPA mode, with guards from `router/guards.js`
+
+**Route definitions** (`resources/js/router/index.js`):
+- Guest routes have `meta: { guest: true }`
+- Authenticated routes have breadcrumb metadata
+- SPA fallback in `routes/web.php` (last route) — `Route::view('/{any}', 'app')->where('any', '.*')`
+
+**Guards** (`router/guards.js`):
+- Guest route + logged in → redirect to dashboard
+- Protected route + not logged in → redirect to login with `redirect` query
+- After each navigation, breadcrumbs set from `route.meta.breadcrumbs`
+- `routerBusy` flag toggled on navigation start/end (used by loading overlays)
+
+**Critical navigation rule**: Always use `route('name')` helper from Ziggy for hrefs. Hardcoded paths (`'/'`, `'/register'`) bypass router and cause 403 errors in SPA mode. The `route()` helper resolves to the correct base path and works in both modes.
 
 ### Frontend: Composition API with composables
 
@@ -220,26 +268,86 @@ class UserService extends CrudService {
 
 `__call`/`_call` indirection exists for declarative method dispatch — `createSetters()` builds methods from config strings (e.g., `{field: "enabled", method: "put"}`). Kept intentionally.
 
-### Path aliases
+**Endpoint resolution**: `endpoint()` in `BaseService` supports named routes (string without `/`) and path strings. Falls back to direct path if `route()` helper unavailable.
 
-`@` and `/@/` both resolve to `resources/js/`.
+**File upload handling**: `checkFiles()` wraps form data; for multipart uploads with PUT/PATCH, sends POST with `_method` spoof header since Laravel doesn't process multipart bodies on PUT.
+
+**Auto error binding**: `call()` detects form objects with `clearErrors`/`setErrors`/`reset` and wires them automatically from API error responses.
 
 ### Frontend: Additional services
 
-- `notification.js` — extends `CrudService` for notifications
+- `notification.js` — extends `CrudService` for notifications CRUD
 - `activity.js` — extends `CrudService` for activity log
+
+### Path aliases
+
+`@` and `/@/` both resolve to `resources/js/`.
 
 ## Key patterns
 
 - **Declarative CRUD**: Define `columns()` on model, `fields`/`actions` on frontend → full CRUD with filtering, sorting, search, export, inline editing, bulk actions.
 - **Validation**: Backend rules in `columns()` → auto-extracted for requests. Frontend `parseLaravelRules()` mirrors them for Vuetify form validation.
 - **Auth**: Laravel Fortify + Sanctum. `auth:sanctum` + `jetstream.auth_session` middleware on protected routes. Session: database driver, 120 min lifetime. `EnsureTokenIsNotExpired` middleware on API routes. Session timeout: 300s idle + 300s logout countdown (SharedIdle + IdleOverlay). Expired sessions caught by axios 401/403/419 interceptor (redirects to `/login`, refreshes CSRF if recoverable). Loading overlay has 30s timeout fallback showing "Session may have expired".
-- **Testing**: PHPUnit with SQLite in-memory DB, sync queue, array cache/session. Standard `tests/Unit` and `tests/Feature` suites.
-- **Permissions**: Spatie `laravel-permission` package. Role/permission middleware on system routes.
+- **Testing**: PHPUnit with SQLite in-memory DB (`:memory:`), sync queue, array cache/session (`phpunit.xml`). Standard `tests/Unit` and `tests/Feature` suites. Feature tests use `$this->actingAs($user)` and standard Laravel HTTP testing methods.
+- **Permissions**: Spatie `laravel-permission` package. Role/permission middleware on system routes. Cache reset via `permission:cache-reset`.
 - **Exports**: Excel (maatwebsite/excel), PDF (dompdf), CSV — controller `export()` method uses `BaseModel::collection()`.
 - **Activity log**: Spatie `laravel-activitylog`. Cleaned daily via scheduled command. Pages at `system/activity`.
 - **Backups**: Spatie `laravel-backup`. Managed at `system/backups`.
 
-<!-- rtk-instructions v2 -->
-RTK is installed globally (`~/.claude/CLAUDE.md`). Always prefix shell commands with `rtk`. If RTK has a dedicated filter it uses it; if not it passes through unchanged. Even in command chains: `rtk git add . && rtk git commit -m "msg"`.
 <!-- /rtk-instructions -->
+
+## Environment & configuration
+
+**Key env vars** (`.env.example`):
+- `VITE_API_BASE_URL` — Backend API URL for axios (frontend)
+- `VITE_APP_MODE` — `inertia` (default) or `spa` — switches frontend routing mode
+- `APP_URL` — application base URL
+- `SESSION_DRIVER=database` — sessions stored in DB (allows invalidation)
+- `SANCTUM_STATEFUL_DOMAINS` — domains that receive session auth instead of tokens
+
+**App configuration** (`config/app.php`):
+- `'spa_mode'` — derived from `VITE_APP_MODE` via `env()`
+- Locale settings: `APP_LOCALE`, `APP_FALLBACK_LOCALE`
+- Timezone: `APP_TIMEZONE=UTC`
+
+**Frontend build**: `vite.config.js` auto-runs `php artisan lang:export`, `validation:export`, `columns:export` on every dev/build start. This keeps TypeScript types and Vue i18n JSON in sync with backend models/validation.
+
+## Critical file locations
+
+| Path | Purpose |
+|------|---------|
+| `bootstrap/app.php` | Middleware stack, exception handler registration |
+| `routes/web.php` | Guest + authenticated Inertia routes |
+| `routes/api.php` | API-only endpoints (notifications, settings, lang, validation, debug) |
+| `routes/hybrid.php` | Shared CRUD endpoints for both web and API |
+| `routes/console.php` | Scheduled tasks |
+| `app/Models/Traits/HasColumnDefinitions.php` | Core columns-driven query/rules/export logic |
+| `app/Models/BaseModel.php` | Base model using HasColumnDefinitions |
+| `app/Http/Controllers/CrudController.php` | Abstract CRUD controller (index/store/show/update/destroy/bulkDestroy/export) |
+| `app/Utils/ResponseUtil.php` | Dual-response helpers (jsonInertiaResponse, jsonRedirectResponse) |
+| `app/Http/Middleware/` | Custom middleware: SetUserLocale, InjectSettingsIntoResponse, EnsureTokenIsNotExpired, HandleInertiaRequests |
+| `resources/js/plugins/inertia.js` | Inertia/SPA mode switch, Link component, router adapter |
+| `resources/js/router/index.js` | Vue Router route definitions (SPA mode) |
+| `resources/js/router/guards.js` | Navigation guards (auth redirects, breadcrumbs) |
+| `resources/js/plugins/axios.js` | Axios instance with CSRF, auth injection, session expiry handling |
+| `resources/js/composables/` | Reusable Vue logic (useCrud, useCrudView, useCrudForm, useDialog, useBusy, useAuth, useBase, etc.) |
+| `resources/js/services/` | Service layer: `base.js`, `crud.js`, plus domain services |
+| `resources/js/stores/` | Pinia stores: `auth.js`, `tab.js`, `app.js` |
+| `resources/js/libs/` | Utilities: `util.js`, `validation.js`, `actionRegistry.js`, `fieldSchema.js`, `fieldRegistry.js` |
+| `resources/js/views/` | Reusable view components: `CrudView.vue`, `DeclarativeCrudView.vue` |
+| `resources/js/components/form/` | Form components: `GenericField.vue`, `CrudForm.vue`, `field/*.vue` |
+| `resources/js/modules/` | Page components organized by feature |
+
+## Debugging & common pitfalls
+
+**403 on navigation** — Likely hardcoded `href="/..."` bypassing router. Use `route('name')` instead. Check `resources/js/plugins/inertia.js` — `Link` component and `route()` helper handle both modes.
+
+**CSRF 419 errors** — Axios auto-refreshes once. If it loops, check Sanctum CSRF cookie endpoint (`/sanctum/csrf-cookie`) is reachable and `SANCTUM_STATEFUL_DOMAINS` matches your domain.
+
+**Session expiry** — 401/403 triggers `clearAuthAndRedirect()` to login. If overlays hang 30s, session likely fully expired.
+
+**SPA mode catch-all** — `routes/web.php` line 48 `Route::view('/{any}', 'app')->where('any', '.*')` MUST be last. Any routes defined after are unreachable.
+
+**columns() mismatch** — Backend `columns()` keys must match frontend field `value`/`name` props. `php artisan columns:export` generates TypeScript consts in `resources/js/types/generated/` — use these to avoid typos.
+
+**Auth redirect loops** — SPA guard redirects logged-in users from guest routes to `dashboard`. Ensure guest pages have `meta: { guest: true }` in `router/index.js`.
