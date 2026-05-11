@@ -123,20 +123,22 @@ const actions = computed(() => [
 ]);
 </script>
 <template>
-  <DeclarativeCrudView
-    :client="client"
-    :name-field="nameField"
-    :title="title"
-    :fields="fields"
-    :actions="actions"
-    :form-dialog="null"
-    :rules="{}"
-    :no-create="true"
-    :filter-fields="filterFields"
-  />
+  <div>
+    <DeclarativeCrudView
+      :client="client"
+      :name-field="nameField"
+      :title="title"
+      :fields="fields"
+      :actions="actions"
+      :form-dialog="null"
+      :rules="{}"
+      :no-create="true"
+      :filter-fields="filterFields"
+    />
 
-  <ActivityDetailModal
-    v-model="detailOpen"
-    :item="detailItem"
-  />
+    <ActivityDetailModal
+      v-model="detailOpen"
+      :item="detailItem"
+    />
+  </div>
 </template>

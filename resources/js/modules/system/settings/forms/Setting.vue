@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, toRef } from "vue";
-import { useForm } from "@inertiajs/vue3";
+import { useForm } from "@/plugins/inertia";
 import settingService from "../services/setting";
 import { useWorking } from "@/composables/useWorking";
 import { useFormBase } from "@/composables/useFormBase";

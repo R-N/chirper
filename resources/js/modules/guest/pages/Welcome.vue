@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link } from "@inertiajs/vue3";
+import { Head, Link } from "@/plugins/inertia";
 import GuestLayout from "@/layouts/GuestLayout.vue";
 
 defineProps({

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, useForm, router } from "@inertiajs/vue3";
+import { Link, useForm, router } from "@/plugins/inertia";
 
 import authService from "@/modules/user/auth/services/auth.js";
 import AuthLayout from "../layouts/Auth.vue";

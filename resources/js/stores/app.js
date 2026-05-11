@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { isObject, deepAssign } from "@/libs/util.js";
-import { router } from "@inertiajs/vue3";
+import { router } from "@/plugins/inertia";
 
 export const useAppStore = defineStore("app", {
   state: () => ({

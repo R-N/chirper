@@ -12,7 +12,7 @@ import {
   VListSubheader,
   VListGroup
 } from "vuetify/components";
-import { router } from "@inertiajs/vue3";
+import { router } from "@/plugins/inertia";
 import { useAuth } from "@/composables/useAuth";
 import { t } from "@/plugins/i18n";
 

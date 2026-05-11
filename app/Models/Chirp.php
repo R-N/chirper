@@ -5,12 +5,13 @@ namespace App\Models;
 use App\Events\ChirpCreated;
 use App\Models\Traits\HasRelationshipEntities;
 use App\Models\Traits\Validable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class Chirp extends BaseModel
 {
-    use HasRelationshipEntities, Validable, LogsActivity;
+    use HasFactory, HasRelationshipEntities, Validable, LogsActivity;
 
     public const TABLE = 'chirps';
     public const FILLABLE = ['message'];

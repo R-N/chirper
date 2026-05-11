@@ -3,7 +3,7 @@ import AppLayout from "@/layouts/AppLayout.vue";
 import DeleteUserForm from "../views/DeleteUserForm.vue";
 import UpdatePasswordForm from "../views/UpdatePasswordForm.vue";
 import UpdateProfileInformationForm from "../views/UpdateProfileInformationForm.vue";
-import { Head } from "@inertiajs/vue3";
+import { Head } from "@/plugins/inertia";
 import {
   VContainer,
   VRow,

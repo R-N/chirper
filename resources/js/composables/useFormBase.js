@@ -1,5 +1,5 @@
 import { ref, computed, watch, onMounted, useTemplateRef, useSlots } from "vue";
-import { useForm } from "@inertiajs/vue3";
+import { useForm } from "@/plugins/inertia";
 import { isFunction } from "@/libs/util";
 
 export function useFormBase(props, emit, { formData: existingFormData } = {}) {

@@ -36,6 +36,10 @@ php artisan make:admin-user {email?} {password?} {name?}  # Interactive if args 
 php artisan lang:export
 php artisan validation:export
 php artisan columns:export
+
+# Database seeding
+php artisan db:seed                    # All seeders
+php artisan db:seed --class=RolePermissionSeeder  # Roles & permissions only
 ```
 
 ## Architecture
@@ -56,7 +60,7 @@ Models define a `columns()` method returning field metadata (label, type, filter
 
 The columns-driven logic lives in the `HasColumnDefinitions` trait (`app/Models/Traits/HasColumnDefinitions.php`). `BaseModel` uses it. Models that can't extend BaseModel (e.g., `User` which extends `Authenticatable`) use the trait directly.
 
-All models use `columns()`: `Chirp` (extends BaseModel), `Setting` (extends BaseModel), `User` (uses trait, extends Authenticatable).
+All models use `columns()`: `Chirp` (extends BaseModel), `Setting` (extends BaseModel), `User` (uses trait, extends Authenticatable). `Activity` extends Spatie's `SpatieActivity` for activity log.
 
 Custom filter support in `columns()`: set `filter: 'custom'` with `filter_class` (FQCN) and optional `filter_column`. Sort on a different column via `sort_column`. Example in `User::columns()` for `verified` using `NotNullFilter` on `email_verified_at`.
 
@@ -67,6 +71,14 @@ Traits: `HasColumnDefinitions` (columns-driven query/rules/export), `HasRelation
 Controllers extend `CrudController` (`app/Http/Controllers/CrudController.php`) — an abstract class providing `index`, `store`, `show`, `update`, `destroy`, `bulkDestroy`, `export`. Subclasses set `$modelClass`, `$resourcePagePath`, `$routeBase`, `$translationKey`, `$mayExport`, `$userOwned`. Thin — they delegate to `BaseModel::query2()` for listing and `BaseModel::rules()` for validation.
 
 `Validable` trait (`app/Models/Traits/Validable.php`) provides `validateRequest()` — filters `rules()` to FILLABLE fields, then drops `required` rules on updates.
+
+### Backend: Middleware
+
+Custom middleware in `app/Http/Middleware/`:
+- `SetUserLocale` — sets app locale from user preference or session fallback
+- `InjectSettingsIntoResponse` — appends `Setting::fetchDict()` to all JSON responses
+- `EnsureTokenIsNotExpired` — validates API token expiry on API routes
+- `HandleInertiaRequests` — Inertia middleware (shared props via `share()` method)
 
 ### Backend: Utils
 
@@ -129,6 +141,7 @@ All Vue components use `<script setup>` with Composition API. Reusable logic liv
 - `useCrudFormDialog(props, emit, { client, initialFormData })` — bundles useWorking + useFormBase + useDialog + useCrudForm for form dialog boilerplate. Modules use this instead of wiring 4 composables manually.
 - `useCrudContext()` — provide/inject for CRUD context. `GenericField` uses this as primary source, falls back to `props.crud`.
 - `useModel(name, props, emit)` — writable computed for v-model
+- `useClearBreadcrumbs()` — clears breadcrumb state on mount
 
 Key views:
 - `CrudView` — toolbar UI (create button, refresh, search, export toggles, bulk actions)
@@ -210,6 +223,11 @@ class UserService extends CrudService {
 ### Path aliases
 
 `@` and `/@/` both resolve to `resources/js/`.
+
+### Frontend: Additional services
+
+- `notification.js` — extends `CrudService` for notifications
+- `activity.js` — extends `CrudService` for activity log
 
 ## Key patterns
 

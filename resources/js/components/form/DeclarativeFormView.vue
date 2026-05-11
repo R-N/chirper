@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { useForm } from "@inertiajs/vue3";
+import { useForm } from "@/plugins/inertia";
 
 import CrudForm from "@/components/form/CrudForm.vue";
 import { useWorking } from "@/composables/useWorking";

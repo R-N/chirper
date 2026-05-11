@@ -1,5 +1,5 @@
 <script setup>
-import { Head } from "@inertiajs/vue3";
+import { Head } from "@/plugins/inertia";
 import AuthenticationCardLogo from "@/components/auth/AuthenticationCardLogo.vue";
 import { VContainer, VCard, VCardText } from "vuetify/components";
 import GuestLayout from "@/layouts/GuestLayout.vue";

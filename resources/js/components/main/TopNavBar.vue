@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { Link, router } from "@inertiajs/vue3";
+import { Link, router } from "@/plugins/inertia";
 import {
   VAppBar,
   VToolbarTitle,

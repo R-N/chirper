@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { Head, Link } from "@/plugins/inertia";
-import { VMain, VCol, VRow, VContainer, VApp } from "vuetify/components";
-import {
-  VFadeTransition,
-  VSlideYTransition,
-  VSlideXTransition,
-  VExpandTransition
-} from "vuetify/components";
 import { useViewBase } from "@/composables/useViewBase";
 import { useBusy } from "@/composables/useBusy";
+
+import { VApp, VMain, VContainer } from "vuetify/components";
+import { VExpandTransition, VSlideYTransition } from "vuetify/components";
 
 import TopNavBar from "@/components/main/TopNavBar.vue";
 import SideNavDrawer from "@/components/main/SideNavDrawer.vue";
@@ -17,23 +12,16 @@ import ImageBackground from "@/components/general/ImageBackground.vue";
 import LoadingOverlay from "@/components/overlay/LoadingOverlay.vue";
 import DialogStack from "@/components/dialog/DialogStack.vue";
 import IdleOverlay from "@/components/overlay/IdleOverlay.vue";
-
 import ServerDownView from "@/modules/general/views/ServerDown.vue";
 import MainView from "@/views/MainView.vue";
 
-const props = defineProps<{
-  title?: string;
-}>();
-
-const busyState = useBusy();
-const { serverReachable, tabStore, appStore, isLoggedIn } = useViewBase(props);
+import { RouterView } from "vue-router";
 
 const appName = import.meta.env.VITE_APP_NAME || "Chirper";
 const drawer = ref(false);
 
-function toggleDrawer(val: boolean) {
-  drawer.value = val;
-}
+const busyState = useBusy();
+const { serverReachable, tabStore, appStore, isLoggedIn } = useViewBase({});
 
 const globalRefresh = computed(() => appStore.globalRefresh);
 const globalLogout = computed(() => appStore.globalLogout);
@@ -61,9 +49,8 @@ async function popTabDialog() {
 </script>
 <template>
   <VApp class="d-flex">
-    <Head :title="title" />
     <VExpandTransition appear mode="out-in">
-      <TopNavBar appear v-model="drawer" v-if="isLoggedIn" />
+      <TopNavBar appear v-model="drawer" v-if="isLoggedIn" :app-name="appName" />
     </VExpandTransition>
     <SideNavDrawer :appname="appName" v-model="drawer" v-if="isLoggedIn" />
     <ImageBackground v-if="showBackground"></ImageBackground>
@@ -71,7 +58,9 @@ async function popTabDialog() {
       <VExpandTransition appear>
         <ServerDownView appear v-if="!serverReachable" key="down" />
         <MainView v-else key="main">
-          <slot appear />
+          <VContainer>
+            <RouterView />
+          </VContainer>
         </MainView>
       </VExpandTransition>
     </VMain>

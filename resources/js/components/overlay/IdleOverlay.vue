@@ -4,7 +4,7 @@ import { useAuth } from "@/composables/useAuth";
 import SharedIdle from "@/components/general/SharedIdle.vue";
 import authService from "@/modules/user/auth/services/auth";
 import CenterLayout from "@/components/layout/CenterLayout.vue";
-import { router } from "@inertiajs/vue3";
+import { router } from "@/plugins/inertia";
 import { route } from "../../../../vendor/tightenco/ziggy/src/js/index.js";
 
 const { appStore, isLoggedIn } = useAuth();

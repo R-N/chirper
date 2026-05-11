@@ -41,6 +41,8 @@ return [
 
     'debug' => (bool) env('APP_DEBUG', false),
 
+    'spa_mode' => env('VITE_APP_MODE', 'inertia') === 'spa',
+
     /*
     |--------------------------------------------------------------------------
     | Application URL

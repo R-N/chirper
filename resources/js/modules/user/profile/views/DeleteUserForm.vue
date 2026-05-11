@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, nextTick } from "vue";
-import { useForm, router } from "@inertiajs/vue3";
+import { useForm, router } from "@/plugins/inertia";
 import ActionSection from "@/components/auth/ActionSection.vue";
 import { VDialog, VTextField, VBtn } from "vuetify/components";
 import profileService from "@/modules/user/profile/services/profile.js";

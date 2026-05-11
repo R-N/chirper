@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useForm, router } from "@inertiajs/vue3";
+import { useForm, router } from "@/plugins/inertia";
 import { VTextField, VBtn, VCardText, VCardActions } from "vuetify/components";
 import authService from "@/modules/user/auth/services/auth.js";
 import CardTitle from "@/components/card/CardTitle.vue";

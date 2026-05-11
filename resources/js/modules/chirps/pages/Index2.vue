@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from "@/layouts/AppLayout.vue";
 import Chirp from "@/modules/chirps/components/Chirp.vue";
-import { useForm } from "@inertiajs/vue3";
+import { useForm } from "@/plugins/inertia";
 import { useViewBase } from "@/composables/useViewBase";
 import { t } from "@/plugins/i18n";
 import { computed, onMounted } from "vue";

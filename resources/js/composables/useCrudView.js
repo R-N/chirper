@@ -1,5 +1,5 @@
 import { ref, computed, onMounted, getCurrentInstance } from "vue";
-import { useForm } from "@inertiajs/vue3";
+import { useForm } from "@/plugins/inertia";
 import debounce from "lodash/debounce";
 import { VDataTable, VDataTableServer } from "vuetify/components";
 import FileSaver from "file-saver";

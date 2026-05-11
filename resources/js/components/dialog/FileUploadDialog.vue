@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, useTemplateRef } from "vue";
-import { useForm } from "@inertiajs/vue3";
+import { useForm } from "@/plugins/inertia";
 import { emptyArray } from "@/libs/util";
 import { t } from "@/plugins/i18n";
 import { useWorking } from "@/composables/useWorking";

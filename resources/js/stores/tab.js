@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { isObject } from "@/libs/util.js";
-import { router } from "@inertiajs/vue3";
+import { router } from "@/plugins/inertia";
 
 export const useTabStore = defineStore("tab", {
   state: () => ({

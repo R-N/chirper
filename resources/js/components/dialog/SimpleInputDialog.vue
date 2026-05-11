@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { useForm } from "@inertiajs/vue3";
+import { useForm } from "@/plugins/inertia";
 import { isObject, getData } from "@/libs/util";
 import { t } from "@/plugins/i18n";
 import FormDialog from "@/components/form/FormDialog.vue";

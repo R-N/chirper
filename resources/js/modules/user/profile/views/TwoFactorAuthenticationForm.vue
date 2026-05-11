@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { useForm, usePage } from "@inertiajs/vue3";
+import { useForm, usePage } from "@/plugins/inertia";
 import ActionSection from "@/components/auth/ActionSection.vue";
 import ConfirmsPassword from "@/components/auth/ConfirmsPassword.vue";
 import {

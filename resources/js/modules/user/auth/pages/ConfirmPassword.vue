@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useForm, router } from "@inertiajs/vue3";
+import { useForm, router } from "@/plugins/inertia";
 
 import {
   VCard,

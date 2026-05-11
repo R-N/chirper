@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import ApplicationLogo from "@/components/general/ApplicationLogo.vue";
-import { Head, Link } from "@inertiajs/vue3";
+import { Head, Link } from "@/plugins/inertia";
 import { VApp, VMain, VContainer, VCard, VBtn } from "vuetify/components";
 import {
   VFadeTransition,

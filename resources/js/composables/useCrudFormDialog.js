@@ -1,5 +1,5 @@
 import { computed } from "vue";
-import { useForm } from "@inertiajs/vue3";
+import { useForm } from "@/plugins/inertia";
 import { useWorking } from "@/composables/useWorking";
 import { useFormBase } from "@/composables/useFormBase";
 import { useDialog } from "@/composables/useDialog";

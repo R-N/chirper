@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\System\BootstrapController;
 use App\Http\Controllers\System\DebugController;
 use App\Http\Controllers\System\LanguageController;
 use App\Http\Controllers\System\SettingsController;
@@ -16,6 +17,8 @@ Route::as('api.')->group(function () {
         config('jetstream.auth_session'),
         'verified',
     ])->group(function () {
+
+        Route::get('/bootstrap', [BootstrapController::class, 'index'])->name('bootstrap');
 
         Route::get('/user', function (Request $request) {
             return $request->user();

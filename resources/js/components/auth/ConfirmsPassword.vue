@@ -9,7 +9,7 @@ import {
   VBtn
 } from "vuetify/components";
 import axios from "@/plugins/axios";
-import { useForm } from "@inertiajs/vue3";
+import { useForm } from "@/plugins/inertia";
 import { ref, nextTick, useTemplateRef } from "vue";
 
 defineProps<{

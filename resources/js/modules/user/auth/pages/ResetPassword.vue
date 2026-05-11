@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { useForm, router } from "@inertiajs/vue3";
+import { useForm, router } from "@/plugins/inertia";
 
 import authService from "@/modules/user/auth/services/auth.js";
 import AuthLayout from "../layouts/Auth.vue";

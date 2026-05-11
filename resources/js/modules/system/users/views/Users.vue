@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { router } from "@inertiajs/vue3";
+import { router } from "@/plugins/inertia";
 
 import DeclarativeCrudView from "@/views/DeclarativeCrudView.vue";
 import IconButton from "@/components/button/IconButton.vue";

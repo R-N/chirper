@@ -6,7 +6,7 @@ export function useAuth() {
   const { appStore, tabStore, serverReachable, settings, user: pageUser, auth_token: pageAuthToken, visit } = useBase();
   const authStore = useAuthStore();
 
-  // Sync page props to authStore (was created() in AuthMixin)
+  // Sync page props to authStore (Inertia mode)
   if (pageUser.value) {
     authStore.updateUser(pageUser.value);
   }

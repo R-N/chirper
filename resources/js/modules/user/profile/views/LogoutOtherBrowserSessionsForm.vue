@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useForm } from "@inertiajs/vue3";
+import { useForm } from "@/plugins/inertia";
 import ActionMessage from "@/components/auth/ActionMessage.vue";
 import ActionSection from "@/components/auth/ActionSection.vue";
 import { VDialog, VTextField, VBtn, VRow, VCol } from "vuetify/components";

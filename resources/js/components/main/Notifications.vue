@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { Link, router } from "@inertiajs/vue3";
+import { Link, router } from "@/plugins/inertia";
 import { useWorking } from "@/composables/useWorking";
 import notificationService from "@/services/notification.js";
 import IconButton from "@/components/button/IconButton.vue";
 import { deleteFromArray } from "@/libs/util";
-import { usePage } from "@inertiajs/vue3";
+import { usePage } from "@/plugins/inertia";
 
 const props = defineProps({
   parentBusy: { default: false },

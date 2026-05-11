@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { useForm, router } from "@inertiajs/vue3";
+import { useForm, router } from "@/plugins/inertia";
 import ActionMessage from "@/components/auth/ActionMessage.vue";
 import ActionSection from "@/components/auth/ActionSection.vue";
 import FormSection from "@/components/auth/FormSection.vue";

@@ -41,3 +41,9 @@ Route::middleware([
 });
 
 require __DIR__.'/hybrid.php';
+
+// SPA mode: catch-all fallback — must be LAST
+// Vue Router handles routing client-side, Laravel just serves the HTML shell
+if (config('app.spa_mode')) {
+    Route::view('/{any}', 'app')->where('any', '.*');
+}
