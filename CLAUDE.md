@@ -111,6 +111,24 @@ Routes in `routes/hybrid.php` serve both web (Inertia) and API (JSON) clients. C
 
 This allows a single endpoint to power both SPA page loads and pure API calls.
 
+### Backend: Custom filters
+
+Custom Spatie QueryBuilder filter classes in `app/Filters/`:
+- `GlobalSearch` — cross-model search via `model->searchableFields()` or fallback to `getFillable()`. Supports nested relations (e.g., `user->name` resolves to `orWhereHas('user', …)`).
+- `NotNullFilter` — `whereNotNull`/`whereNull` on a column. Used by `User::columns()` for `verified` field filtering on `email_verified_at`.
+- `DateFromFilter` / `DateToFilter` — date range filters on `created_at`.
+
+### Backend: Exception system
+
+Custom exception classes in `app/Exceptions/` use PHP 8.1 enums for error codes and traits for behavior. Pattern:
+
+1. **Exception code enum** (e.g., `AuthExceptionCode`) — cases map to `statusCode()`, `getMessage()` returning translation keys. Implements `JsonSerializable` via `SerializableEnum`.
+2. **Exception class** (e.g., `AuthException`) — extends a Laravel exception, uses traits: `Displayable` (show flag, `toArray()`), `HasErrorCode` (status code/title/message from enum), `HasStatus`, `Redirects`.
+
+Traits in `app/Exceptions/Traits/`: `Displayable`, `HasErrorCode`, `HasStatus`, `HasStatusCode`, `HasTitle`, `Redirects`, `ShowTrace`.
+
+`ExceptionUtil` in `bootstrap/app.php` handles these traits — `shouldShow()` auto-sets `show = true` on auth, validation, throttle, and HTTP exceptions. Exceptions carry `show` (triggers error dialog), `redirect` (triggers redirect response), or `showTrace` (includes file/line/trace) properties.
+
 ### Backend: Middleware
 
 Custom middleware in `app/Http/Middleware/`:
@@ -119,10 +137,16 @@ Custom middleware in `app/Http/Middleware/`:
 - `EnsureTokenIsNotExpired` — validates API token expiry on API routes
 - `HandleInertiaRequests` — Inertia middleware (shared props via `share()` method)
 
+### Backend: Support classes
+
+`app/Support/Cacher.php` — prefix-keyed cache layer. `Cacher` (static facade) and `CacherInstance` (instance) provide `remember()`, `get()`, `put()`, `forget()`, `forgetAll()`. Tracks keys in a list so `forgetAll()` can flush everything under a prefix. Used by `Setting::fetchDict()` and `Setting::get()`/`::set()`.
+
+`app/Support/Decimal.php` — cents-stored decimal value object (`POW=2`, `MUL=100`). Methods: `fromFloat()`, `toFloat()`, `fromDatabase()`, `toDatabase()`. Arithmetic: `__add`, `__sub`, `__mul`, `__div`. Comparison: `__eq`, `__neq`, `__lt`, `__lte`, `__gt`, `__gte`. Used by `Setting::getValueAttribute()` for `type: 'decimal'`.
+
 ### Backend: Utils
 
 Utility classes in `app/Utils/`:
-- `ResponseUtil` — `jsonInertiaResponse()`, `jsonRedirectResponse()`, `jsonStayResponse()` for dual web/API responses
+- `ResponseUtil` — `jsonInertiaResponse()`, `jsonRedirectResponse()`, `jsonStayResponse()`, `jsonRefreshResponse()`, `jsonBackResponse()` for dual web/API responses. All detect JSON vs web via `$request->wantsJson()` / `expectsJson()`.
 - `ExceptionUtil` — `shouldShow()`, `toArray()`, `getStatusCode()` for exception rendering in `bootstrap/app.php`. Exceptions can carry `show` (triggers error dialog), `redirect` (triggers redirect response), or `showTrace` (includes file/line/trace in output) properties to control rendering behavior. `shouldShow()` auto-sets `show = true` on auth, validation, throttle, and HTTP exceptions.
 - `ExportUtil` — export helpers (Excel, PDF, CSV)
 - `ValidationUtil` — validation helper methods
@@ -153,6 +177,40 @@ Listeners are **not queued** (no `ShouldQueue` interface).
 ### Backend: Custom login
 
 `CustomLoginResponse` bound as singleton in `AppServiceProvider`. On login, creates a Sanctum personal access token (`auth_token`) and returns it along with the user (via `loadEntities()`) through `ResponseUtil::jsonRedirectResponse()`, redirecting to dashboard.
+
+### Backend: Auth actions (Fortify)
+
+Fortify action classes in `app/Actions/Fortify/`:
+- `CreateNewUser.php` — user creation with role assignment
+- `UpdateUserProfileInformation.php` — profile update (validates email uniqueness)
+- `UpdateUserPassword.php` — password update (validates current password)
+- `ResetUserPassword.php` — password reset logic
+
+`FortifyServiceProvider` registers these, sets Inertia views for login/two-factor/register/reset-password/forgot-password/verify-email/confirm-password, and configures login rate limiter (5 attempts/min).
+
+### Backend: Model-specific behaviors
+
+**User** (`app/Models/User.php`) — extends `Authenticatable`, implements `MustVerifyEmail`. Uses traits: `HasApiTokens`, `HasProfilePhoto`, `TwoFactorAuthenticatable`, `HasRoles`, `HasPermissions`, `CausesActivity`, `LogsActivity`. Key methods:
+- `chirps()` — HasMany relation
+- `createWithRoles($attrs)` — factory method: creates user, syncs roles/permissions
+- `update($attrs)` — override: syncs roles/permissions, handles email change (resets verification, sends notification)
+- `setVerified($bool)` — sets/clears `email_verified_at`
+- `resetPassword()` — creates token and sends `PasswordReset` notification
+- `refreshToken()` — deletes old Sanctum token, creates new `auth_token`
+- `$appends = ['profile_photo_url', 'verified']` — `verified` accessor checks `email_verified_at`
+
+**Setting** (`app/Models/Setting.php`) — key-value store with typed values. Uses `Cacher` for caching, `LogsActivity` trait.
+- `TYPES` = `['int', 'bool', 'decimal', 'date', 'datetime', 'time', 'enum', 'string', 'array', 'object']`
+- `getValueAttribute()` — accessor casting raw value to PHP type based on `type` column (uses `Decimal` for decimal, `Carbon` for dates)
+- `validateValue($value)` — validates value against type-specific rule (`getValidationRule()`)
+- `update()` — override: validates value, calls `Cacher::forgetAll('settings')`, then parent::update()
+- `fetchDict()` — cached `Setting::all()->mapWithKeys()` via `Cacher::remember()`. Shared globally to all Inertia pages via `AppServiceProvider::boot()`, injected into JSON responses via `InjectSettingsIntoResponse` middleware.
+- `get($key)` / `set($key, $value)` — static convenience methods with caching
+
+**Chirp** (`app/Models/Chirp.php`) — extends BaseModel. Key details:
+- `$dispatchesEvents = ['created' => ChirpCreated::class]` — this is how the `ChirpCreated` event fires (Laravel auto-dispatches on model events, not manual `::dispatch()`)
+- `$relationshipEntities = ['user:id,name']` — eager-loads user relation in listings
+- `user()` — BelongsTo relation
 
 ### Frontend: Routing — SPA vs Inertia mode
 
@@ -229,8 +287,11 @@ Most CRUD pages use `DeclarativeCrudView` and declare fields/actions declarative
 - `FieldText.vue` — VTextField (variant: "underlined", density: "compact")
 - `FieldSelect.vue` — VSelect
 - `FieldTextArea.vue` — VTextarea
+- `FieldNumber.vue` — VTextField type="number"
+- `FieldCheckbox.vue` — VCheckbox
+- `FieldDate.vue` — VTextField type="date"
 
-`fieldRegistry.js` maps type strings to these components. `resolveCellComponent(type)` returns the Vue component. Register new types via `registerFieldType()`.
+`fieldRegistry.js` maps 13 types: `text`/`string` → FieldText, `textarea` → FieldTextArea, `select` → FieldSelect, `number`/`integer` → FieldNumber, `bool`/`boolean` → FieldCheckbox, `date`/`datetime` → FieldDate, `currency` → FieldText, `json` → FieldTextArea, `relational` → FieldText. `resolveCellComponent(type)` returns the Vue component. Register new types via `registerFieldType(type, components)`.
 
 **`makeBindings(f, item)`** — only spreads `f.props` onto the component bindings. Top-level field properties like `items`, `multiple`, `itemTitle` must go inside `props`, not at field root level.
 
@@ -256,7 +317,7 @@ Three-layer translation merge (see `resources/js/plugins/i18n.js`):
 - `resources/js/plugins/vuetify.js` — Vuetify with auto-import (labs enabled). VBtn defaults: `variant: "elevated"`. IconButton overrides with `variant="plain"`.
 - `resources/js/stores/` — Pinia stores (auth, tab, app) with persistence via `pinia-plugin-persistedstate`
 - `resources/js/libs/validation.js` — `parseLaravelRules()` translates backend rules to Vuetify rules
-- `resources/js/libs/util.js` — helpers (`getByPath`, `setByPath`, `combineCollection`, `makeBindings`, `filterObject`, `getData`)
+- `resources/js/libs/util.js` — 40+ helpers: `getByPath`, `setByPath`, `combineCollection`, `makeBindings`, `filterObject`, `getData`, `selectFilled`, `isObject`, `daysBetween`, `deepAssign`, `deepMerge`, `jsonToFormData`, `arraysEqual`, `formatDate`, `checkCsrfError`, `isInertiaForm`, etc.
 - `resources/js/libs/actionRegistry.js` — maps action types (`edit`, `delete`) to button components with icons/events
 - `resources/js/types/` — TypeScript type definitions. `generated/` contains auto-generated field consts/types from `php artisan columns:export`. Import via `@/types` for `CHIRP_FIELDS`, `USER_FIELDS`, `SETTING_FIELDS`, `FieldOverrides`, and `CrudFields<T>` utility type.
 
@@ -321,12 +382,20 @@ class UserService extends CrudService {
 - `SESSION_DRIVER=database` — sessions stored in DB (allows invalidation)
 - `SANCTUM_STATEFUL_DOMAINS` — domains that receive session auth instead of tokens
 
+**Fortify** (`config/fortify.php`): features enabled — registration, resetPasswords, emailVerification, updateProfileInformation, updatePasswords, twoFactorAuthentication (with confirmation). Login rate limit: 5 attempts/min. Username: email.
+
+**Permission** (`config/permission.php`): 24h cache, team permissions disabled, wildcard permissions disabled.
+
 **App configuration** (`config/app.php`):
 - `'spa_mode'` — derived from `VITE_APP_MODE` via `env()`
 - Locale settings: `APP_LOCALE`, `APP_FALLBACK_LOCALE`
 - Timezone: `APP_TIMEZONE=UTC`
 
-**Frontend build**: `vite.config.js` auto-runs `php artisan lang:export`, `validation:export`, `columns:export` on every dev/build start. This keeps TypeScript types and Vue i18n JSON in sync with backend models/validation.
+**Frontend build**: `vite.config.js` — dev server on `localhost:5173` (HMR `localhost`). Build: `minify: false`, `sourcemap: true`. Plugins: `laravel`, `vue` (with `transformAssetUrls` + babel `decorators` parser plugin), `vuetify` (auto-import with `labs: true`), `vueDevTools`. Aliases: `@` and `/@/` → `resources/js`. Auto-runs `php artisan lang:export`, `validation:export`, `columns:export` on every dev/build start. This keeps TypeScript types and Vue i18n JSON in sync with backend models/validation.
+
+**Sanctum**: API tokens never expire (`expiration: null` in `config/sanctum.php`). Middleware: `api`, `authenticate_session`, `encrypt_cookies`, `validate_csrf_token`.
+
+**Session**: Database driver, table `sessions`, 120 min lifetime. Timeout handled on frontend: 300s idle + 300s logout countdown (SharedIdle + IdleOverlay components).
 
 ## Critical file locations
 
@@ -339,8 +408,15 @@ class UserService extends CrudService {
 | `routes/console.php` | Scheduled tasks |
 | `app/Models/Traits/HasColumnDefinitions.php` | Core columns-driven query/rules/export logic |
 | `app/Models/BaseModel.php` | Base model using HasColumnDefinitions |
+| `app/Models/Setting.php` | Key-value typed settings with Cacher integration |
+| `app/Models/User.php` | User model with roles, permissions, 2FA, profile photo |
+| `app/Support/Cacher.php` | Prefix-keyed cache layer with key tracking |
+| `app/Support/Decimal.php` | Cents-stored decimal value object |
+| `app/Exceptions/` | Exception classes with enum error codes + traits |
+| `app/Filters/` | Custom Spatie filters: GlobalSearch, NotNullFilter, DateFrom/To |
+| `app/Actions/Fortify/` | Fortify auth action classes (CreateNewUser, etc.) |
 | `app/Http/Controllers/CrudController.php` | Abstract CRUD controller (index/store/show/update/destroy/bulkDestroy/export) |
-| `app/Utils/ResponseUtil.php` | Dual-response helpers (jsonInertiaResponse, jsonRedirectResponse) |
+| `app/Utils/ResponseUtil.php` | Dual-response helpers (jsonInertiaResponse, jsonRedirectResponse, etc.) |
 | `app/Helpers/helper.php` | Global helper file (autoloaded via composer `files` array, currently empty) |
 | `app/Http/Middleware/` | Custom middleware: SetUserLocale, InjectSettingsIntoResponse, EnsureTokenIsNotExpired, HandleInertiaRequests |
 | `resources/js/app.js` | Entry point: Inertia init or SPA init with bootstrap |
