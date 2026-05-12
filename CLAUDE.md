@@ -73,7 +73,7 @@ rtk php artisan schedule:run    # Run due tasks (cron calls this)
 
 **Routing**: Three route files:
 - `routes/web.php` — guest/auth pages (Inertia), plus all CRUD endpoints for authenticated users
-- `routes/api.php` — API-only routes (notifications CRUD, settings types, user roles/permissions, token refresh, validation rules, lang, debug). Includes `hybrid.php`.
+- `routes/api.php` — API-only routes (notifications CRUD, settings types, user roles/permissions, token refresh, validation rules, lang, debug, bootstrap). Includes `hybrid.php`.
 - `routes/hybrid.php` — shared CRUD endpoints included by both web.php and api.php. Handles both Inertia responses and JSON via `ResponseUtil`.
 
 ### Backend: BaseModel pattern
@@ -90,6 +90,10 @@ All models use `columns()`: `Chirp` (extends BaseModel), `Setting` (extends Base
 Custom filter support in `columns()`: set `filter: 'custom'` with `filter_class` (FQCN) and optional `filter_column`. Sort on a different column via `sort_column`. Example in `User::columns()` for `verified` using `NotNullFilter` on `email_verified_at`.
 
 Models use constants for `TABLE` and `FILLABLE`. Example: `app/Models/Chirp.php`.
+
+`HasRelationshipEntities` trait: models define static `$relationshipEntities` array (e.g., `User` has `['roles', 'permissions']`). `query2()` auto-calls `withEntities()` if the trait is present. Also provides `loadEntities()` for eager-loading after fetch.
+
+`defaultSort()` — optional method on models. `query2()` applies it via Spatie QueryBuilder when defined (e.g., `User::defaultSort()` returns `['name']`).
 
 Traits: `HasColumnDefinitions` (columns-driven query/rules/export), `HasRelationshipEntities` (eager-loads relations), `Validable`.
 
@@ -119,7 +123,7 @@ Custom middleware in `app/Http/Middleware/`:
 
 Utility classes in `app/Utils/`:
 - `ResponseUtil` — `jsonInertiaResponse()`, `jsonRedirectResponse()`, `jsonStayResponse()` for dual web/API responses
-- `ExceptionUtil` — `shouldShow()`, `toArray()`, `getStatusCode()` for exception rendering in `bootstrap/app.php`
+- `ExceptionUtil` — `shouldShow()`, `toArray()`, `getStatusCode()` for exception rendering in `bootstrap/app.php`. Exceptions can carry `show` (triggers error dialog), `redirect` (triggers redirect response), or `showTrace` (includes file/line/trace in output) properties to control rendering behavior. `shouldShow()` auto-sets `show = true` on auth, validation, throttle, and HTTP exceptions.
 - `ExportUtil` — export helpers (Excel, PDF, CSV)
 - `ValidationUtil` — validation helper methods
 - `ArrayUtil`, `QueryUtil` — array/query manipulation helpers
@@ -136,13 +140,19 @@ Listeners are **not queued** (no `ShouldQueue` interface).
 
 `routes/console.php` schedules `activitylog:clean` daily.
 
+### Backend: Bootstrap endpoint (SPA mode)
+
+`GET /api/bootstrap` (`BootstrapController`) returns initial app state for SPA mode: `user`, `settings`, `notifications`, `ziggy`. Called by `resources/js/router/bootstrap.js` on app init to hydrate `spaPageProps` before mount.
+
 ### Backend: Inertia shared props
 
-`AppServiceProvider::boot()` shares globally to all Inertia pages: `settings` (from `Setting::fetchDict()`), `user`, `notifications`.
+`AppServiceProvider::boot()` shares globally to all Inertia pages: `settings` (from `Setting::fetchDict()`), `user`, `notifications`. Uses `Schema::hasTable('settings')` guard to avoid errors when settings table doesn't exist (e.g., pre-migration).
+
+`HandleInertiaRequests::share()` additionally injects `ziggy` (route definitions) on every Inertia response.
 
 ### Backend: Custom login
 
-`CustomLoginResponse` bound as singleton in `AppServiceProvider` — customizes post-login redirect.
+`CustomLoginResponse` bound as singleton in `AppServiceProvider`. On login, creates a Sanctum personal access token (`auth_token`) and returns it along with the user (via `loadEntities()`) through `ResponseUtil::jsonRedirectResponse()`, redirecting to dashboard.
 
 ### Frontend: Routing — SPA vs Inertia mode
 
@@ -158,6 +168,12 @@ Mode switch lives in `resources/js/plugins/inertia.js`:
 - `Link` component — InertiaLink vs RouterLink adapter
 - `router` — Inertia router vs Vue Router shim with `visit()`, `get()` etc.
 - `vueRouter` — only created in SPA mode, with guards from `router/guards.js`
+- `visit(url)` — mode-agnostic navigation helper (uses Inertia router or Vue Router depending on mode)
+- `useForm` — Inertia's `useForm` in Inertia mode; reactive SPA shim with `errors`, `processing`, `reset()`, `clearErrors()` in SPA mode
+
+**SPA init flow** (`app.js`): create app → install Pinia → `axios.init()` → install Vuetify/i18n/Ziggy/Vue Router → provide `$page` global → `bootstrap()` fetches `/api/bootstrap` → mount.
+
+**Inertia page resolution** (`app.js`): `resolvePageComponent` resolves `./modules/${name}.vue` against eager glob `./modules/**/pages/*.vue`. Inertia page components live in `resources/js/modules/**/pages/*.vue`.
 
 **Route definitions** (`resources/js/router/index.js`):
 - Guest routes have `meta: { guest: true }`
@@ -325,10 +341,13 @@ class UserService extends CrudService {
 | `app/Models/BaseModel.php` | Base model using HasColumnDefinitions |
 | `app/Http/Controllers/CrudController.php` | Abstract CRUD controller (index/store/show/update/destroy/bulkDestroy/export) |
 | `app/Utils/ResponseUtil.php` | Dual-response helpers (jsonInertiaResponse, jsonRedirectResponse) |
+| `app/Helpers/helper.php` | Global helper file (autoloaded via composer `files` array, currently empty) |
 | `app/Http/Middleware/` | Custom middleware: SetUserLocale, InjectSettingsIntoResponse, EnsureTokenIsNotExpired, HandleInertiaRequests |
+| `resources/js/app.js` | Entry point: Inertia init or SPA init with bootstrap |
 | `resources/js/plugins/inertia.js` | Inertia/SPA mode switch, Link component, router adapter |
 | `resources/js/router/index.js` | Vue Router route definitions (SPA mode) |
 | `resources/js/router/guards.js` | Navigation guards (auth redirects, breadcrumbs) |
+| `resources/js/router/bootstrap.js` | SPA mode: fetches `/api/bootstrap` to hydrate initial state |
 | `resources/js/plugins/axios.js` | Axios instance with CSRF, auth injection, session expiry handling |
 | `resources/js/composables/` | Reusable Vue logic (useCrud, useCrudView, useCrudForm, useDialog, useBusy, useAuth, useBase, etc.) |
 | `resources/js/services/` | Service layer: `base.js`, `crud.js`, plus domain services |
