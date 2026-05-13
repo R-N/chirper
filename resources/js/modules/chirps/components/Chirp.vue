@@ -9,7 +9,8 @@ import {
   VBtn,
   VIcon,
   VList,
-  VListItem
+  VListItem,
+  VImg,
 } from "vuetify/components";
 import chirpService from "../services/chirp";
 
@@ -20,6 +21,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   update: [chirp: any];
   destroy: [id: any];
+  "view-media": [payload: { src: string; caption: string }];
 }>();
 
 const editing = ref(false);
@@ -110,6 +112,16 @@ async function destroyChirp() {
       </form>
 
       <p v-else class="mt-4 text-lg text-gray-900">{{ chirp.message }}</p>
+      <VImg
+        v-if="chirp.photo_url"
+        :src="chirp.photo_url"
+        max-height="200"
+        cover
+        rounded
+        class="mt-3 chirp-photo"
+        style="cursor: pointer;"
+        @click="emit('view-media', { src: chirp.photo_url, caption: chirp.message })"
+      />
     </div>
   </div>
 </template>

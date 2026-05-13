@@ -7,7 +7,8 @@ class ChirpService extends CrudService {
       name: "Chirp",
       endpoint: "/api/chirps",
       methods: ["get", "post", "patch", "delete"],
-      fields: ["message"],
+      fields: ["message", "photo"],
+      files: ["photo"],
       actions: [
         {
           action: "bulk_destroy",

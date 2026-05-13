@@ -10,6 +10,7 @@ import rules from "@/validations-gen/chirps.json";
 import DeclarativeCrudView from "@/views/DeclarativeCrudView.vue";
 import Span from "@/components/text/Span.vue";
 import Duration from "@/components/text/Duration.vue";
+import PhotoCell from "@/components/media/PhotoCell.vue";
 import { t } from "@/plugins/i18n";
 
 const client = chirpService;
@@ -40,6 +41,14 @@ const fields = computed(() => [
       editable: true,
       format: null,
     },
+  },
+  {
+    component: PhotoCell,
+    value: "photo",
+    title: t("chirp.photo"),
+    table: true,
+    detail: true,
+    editable: false,
   },
   {
     component: Duration,
@@ -83,6 +92,15 @@ const formDialog = computed(() => ({
       required: true,
       table: false,
       form: true,
+    },
+    {
+      type: "photo",
+      name: "photo",
+      value: "photo",
+      label: t("chirp.photo"),
+      table: false,
+      form: true,
+      rules: [],
     },
   ],
 }));

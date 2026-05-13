@@ -7,6 +7,7 @@ use App\Models\Traits\HasRelationshipEntities;
 use App\Models\Traits\Validable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class Chirp extends BaseModel
@@ -14,13 +15,15 @@ class Chirp extends BaseModel
     use HasFactory, HasRelationshipEntities, Validable, LogsActivity;
 
     public const TABLE = 'chirps';
-    public const FILLABLE = ['message'];
+    public const FILLABLE = ['message', 'photo'];
     protected $table = self::TABLE;
     protected $fillable = self::FILLABLE;
 
     protected $dispatchesEvents = [
         'created' => ChirpCreated::class,
     ];
+
+    protected $appends = ['photo_url'];
 
     protected static array $relationshipEntities = ['user:id,name'];
 
@@ -49,6 +52,13 @@ class Chirp extends BaseModel
                 'search' => true,
                 'rules' => 'required|string|max:255',
             ],
+            'photo' => [
+                'label' => 'Photo',
+                'type' => 'string',
+                'table' => true,
+                'editable' => false,
+                'rules' => 'nullable',
+            ],
             'user.name' => [
                 'label' => 'User Name',
                 'type' => 'relational',
@@ -71,5 +81,27 @@ class Chirp extends BaseModel
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getPhotoUrlAttribute(): ?string
+    {
+        if (!$this->photo) {
+            return null;
+        }
+        return Storage::disk('public')->url($this->photo);
+    }
+
+    public function deletePhoto(): void
+    {
+        if ($this->photo) {
+            Storage::disk('public')->delete($this->photo);
+        }
+    }
+
+    protected static function booted(): void
+    {
+        static::deleted(function ($chirp) {
+            $chirp->deletePhoto();
+        });
     }
 }

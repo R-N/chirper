@@ -9,7 +9,14 @@
       "Bash(php -v)",
       "Bash(npm run *)",
       "Bash(Start-Sleep 5)",
-      "Bash(rtk php *)"
+      "Bash(rtk php *)",
+      "Bash(curl -s -w \"\\\\nHTTP: %{http_code}\" \"http://localhost:8083/chirper/storage/chirps/test\")",
+      "Bash(curl -s -w \"\\\\nHTTP: %{http_code}\" \"http://localhost:8083/chirper/storage/simple\")",
+      "Bash(curl -s \"http://localhost:8083/chirper/storage/simple\")",
+      "Bash(curl -s \"http://localhost:8083/chirper/storage/chirps/test\")",
+      "Bash(findstr \"storage\")",
+      "Bash(curl -s -w \"\\\\nHTTP: %{http_code}\" \"http://localhost:8083/chirper/files/chirps/F1x3m2TAlmNIMsZUGIAF3SXMKxNNQ6tM7fDouCAK.jpg\")",
+      "Bash(curl *)"
     ]
   }
 }

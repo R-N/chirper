@@ -6,9 +6,16 @@
         Options -MultiViews -Indexes
     </IfModule>
 
-    # Protect Laravel core
-    RewriteCond %{REQUEST_URI} ^/(app|bootstrap|config|database|resources|routes|storage|tests|vendor)
-    RewriteRule ^.*$ - [F,L]
+    # Route /storage/ to public upload directory so Apache can serve files directly.
+    # Runs once (REDIRECT_STATUS prevents loop). Non-existent files fall through to Laravel.
+    RewriteCond %{ENV:REDIRECT_STATUS} ^$
+    RewriteRule ^storage/(.*)$ storage/app/public/$1 [L]
+
+    # Protect Laravel core directories.
+    # Pattern matches stripped path (per-directory context), not REQUEST_URI.
+    # Skipped after internal rewrite (REDIRECT_STATUS set).
+    RewriteCond %{ENV:REDIRECT_STATUS} ^$
+    RewriteRule ^(app|bootstrap|config|database|resources|routes|tests|vendor)(/|$) - [F,L]
 
     # Allow public assets
     RewriteCond %{REQUEST_URI} ^/public

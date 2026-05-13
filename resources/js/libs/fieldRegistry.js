@@ -5,6 +5,8 @@ import FieldSelect from "@/components/form/field/FieldSelect.vue";
 import FieldNumber from "@/components/form/field/FieldNumber.vue";
 import FieldCheckbox from "@/components/form/field/FieldCheckbox.vue";
 import FieldDate from "@/components/form/field/FieldDate.vue";
+import PhotoField from "@/components/media/PhotoField.vue";
+import PhotoCell from "@/components/media/PhotoCell.vue";
 
 const registry = {
   text: { cell: markRaw(FieldText) },
@@ -20,6 +22,8 @@ const registry = {
   datetime: { cell: markRaw(FieldDate) },
   json: { cell: markRaw(FieldTextArea) },
   relational: { cell: markRaw(FieldText) },
+  photo: { cell: markRaw(PhotoField) },
+  photocell: { cell: markRaw(PhotoCell) },
 };
 
 export function resolveCellComponent(type) {

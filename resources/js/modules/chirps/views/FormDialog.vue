@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FormDialog from "@/components/form/FormDialog.vue";
 import chirpService from "../services/chirp";
-import { VTextField } from "vuetify/components";
+import { VTextField, VFileInput } from "vuetify/components";
 import { useCrudFormDialog } from "@/composables/useCrudFormDialog";
 
 const props = defineProps<{
@@ -42,7 +42,7 @@ const {
   submit,
 } = useCrudFormDialog(props, emit, {
   client: chirpService,
-  initialFormData: { message: "" },
+  initialFormData: { message: "", photo: null },
 });
 </script>
 <template>
@@ -73,6 +73,18 @@ const {
           required
           :error-messages="formData.errors.message"
           :rules="rules?.message"
+        />
+        <VFileInput
+          accept="image/*"
+          :label="$t('chirp.photo')"
+          :model-value="formData.photo ? [formData.photo] : []"
+          @update:model-value="(files: any) => formData.photo = files?.[0] ?? null"
+          :disabled="!interactable"
+          density="compact"
+          variant="underlined"
+          prepend-inner-icon="mdi-camera"
+          clearable
+          :error-messages="formData.errors.photo"
         />
       </VForm>
     </template>

@@ -42,6 +42,14 @@ Route::middleware([
 
 require __DIR__.'/hybrid.php';
 
+// Serve uploaded files from storage disk.
+// PHP built-in server doesn't follow symlinks. Apache may also block /storage/ URIs.
+Route::get('storage/{filepath}', function (string $filepath) {
+    $real = storage_path('app/public/' . $filepath);
+    abort_unless(file_exists($real), 404);
+    return response()->file($real);
+})->where('filepath', '.*')->name('storage.serve');
+
 // SPA mode: catch-all fallback — must be LAST
 // Vue Router handles routing client-side, Laravel just serves the HTML shell
 if (config('app.spa_mode')) {
