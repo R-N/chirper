@@ -25,6 +25,14 @@ rtk php artisan test              # Failures only
 # Linting
 rtk vendor/bin/pint --test        # Dry-run PHP code style
 
+# Cache & config (Windows shortcut: run `clear.bat` to clear all at once)
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+php artisan event:clear
+php artisan optimize:clear
+
 # Database
 php artisan migrate
 php artisan migrate:rollback
@@ -71,10 +79,11 @@ rtk php artisan schedule:run    # Run due tasks (cron calls this)
 
 **Stack**: Laravel 11 + Vue 3 + Inertia.js + Vuetify 3 + TypeScript. SQLite default, MySQL supported.
 
-**Routing**: Three route files:
-- `routes/web.php` — guest/auth pages (Inertia), plus all CRUD endpoints for authenticated users
+**Routing**: Four route files:
+- `routes/web.php` — guest/auth pages (Inertia), SPA catch-all, and a `storage/{filepath}` route for serving uploaded files (PHP built-in server doesn't follow symlinks)
 - `routes/api.php` — API-only routes (notifications CRUD, settings types, user roles/permissions, token refresh, validation rules, lang, debug, bootstrap). Includes `hybrid.php`.
 - `routes/hybrid.php` — shared CRUD endpoints included by both web.php and api.php. Handles both Inertia responses and JSON via `ResponseUtil`.
+- `routes/console.php` — scheduled tasks
 
 ### Backend: BaseModel pattern
 
@@ -172,7 +181,7 @@ Listeners are **not queued** (no `ShouldQueue` interface).
 
 `AppServiceProvider::boot()` shares globally to all Inertia pages: `settings` (from `Setting::fetchDict()`), `user`, `notifications`. Uses `Schema::hasTable('settings')` guard to avoid errors when settings table doesn't exist (e.g., pre-migration).
 
-`HandleInertiaRequests::share()` additionally injects `ziggy` (route definitions) on every Inertia response.
+`HandleInertiaRequests::share()` only injects `ziggy` (route definitions). Auth and Jetstream props are commented out — `user`, `settings`, `notifications` are shared via `AppServiceProvider::boot()` instead.
 
 ### Backend: Custom login
 
@@ -231,7 +240,7 @@ Mode switch lives in `resources/js/plugins/inertia.js`:
 
 **SPA init flow** (`app.js`): create app → install Pinia → `axios.init()` → install Vuetify/i18n/Ziggy/Vue Router → provide `$page` global → `bootstrap()` fetches `/api/bootstrap` → mount.
 
-**Inertia page resolution** (`app.js`): `resolvePageComponent` resolves `./modules/${name}.vue` against eager glob `./modules/**/pages/*.vue`. Inertia page components live in `resources/js/modules/**/pages/*.vue`.
+**Inertia page resolution** (`app.js`): `resolvePageComponent` resolves `./modules/${name}.vue` against eager glob `./modules/**/pages/*.vue`. Page component names map to paths: `chirps/Index` → `resources/js/modules/chirps/pages/Index.vue`. Inertia page components live in `resources/js/modules/**/pages/*.vue`.
 
 **Route definitions** (`resources/js/router/index.js`):
 - Guest routes have `meta: { guest: true }`
@@ -395,6 +404,8 @@ class UserService extends CrudService {
 
 **Sanctum**: API tokens never expire (`expiration: null` in `config/sanctum.php`). Middleware: `api`, `authenticate_session`, `encrypt_cookies`, `validate_csrf_token`.
 
+**CSRF**: `validateCsrfTokens` middleware is **commented out** in `bootstrap/app.php`. CSRF protection relies entirely on the axios response interceptor handling 419 responses — it refreshes the CSRF token once via `/sanctum/csrf-cookie` and retries queued requests. If the refresh fails, the session is cleared and user redirected to login. Missing CSRF cookie triggers a page reload in `axios.js:initXsrf()`.
+
 **Session**: Database driver, table `sessions`, 120 min lifetime. Timeout handled on frontend: 300s idle + 300s logout countdown (SharedIdle + IdleOverlay components).
 
 ## Critical file locations
@@ -402,10 +413,11 @@ class UserService extends CrudService {
 | Path | Purpose |
 |------|---------|
 | `bootstrap/app.php` | Middleware stack, exception handler registration |
-| `routes/web.php` | Guest + authenticated Inertia routes |
+| `routes/web.php` | Guest + authenticated Inertia routes, storage file serving, SPA catch-all |
 | `routes/api.php` | API-only endpoints (notifications, settings, lang, validation, debug) |
 | `routes/hybrid.php` | Shared CRUD endpoints for both web and API |
 | `routes/console.php` | Scheduled tasks |
+| `clear.bat` | Windows shortcut: clears all Laravel caches at once |
 | `app/Models/Traits/HasColumnDefinitions.php` | Core columns-driven query/rules/export logic |
 | `app/Models/BaseModel.php` | Base model using HasColumnDefinitions |
 | `app/Models/Setting.php` | Key-value typed settings with Cacher integration |
@@ -441,8 +453,10 @@ class UserService extends CrudService {
 
 **Session expiry** — 401/403 triggers `clearAuthAndRedirect()` to login. If overlays hang 30s, session likely fully expired.
 
-**SPA mode catch-all** — `routes/web.php` line 48 `Route::view('/{any}', 'app')->where('any', '.*')` MUST be last. Any routes defined after are unreachable.
+**SPA mode catch-all** — `routes/web.php` `Route::view('/{any}', 'app')->where('any', '.*')` MUST be last (guarded by `config('app.spa_mode')`). The `storage/{filepath}` route is defined before it. Any routes defined after the catch-all are unreachable.
 
 **columns() mismatch** — Backend `columns()` keys must match frontend field `value`/`name` props. `php artisan columns:export` generates TypeScript consts in `resources/js/types/generated/` — use these to avoid typos.
 
 **Auth redirect loops** — SPA guard redirects logged-in users from guest routes to `dashboard`. Ensure guest pages have `meta: { guest: true }` in `router/index.js`.
+
+**Uploaded file 404s** — The `storage/{filepath}` route in `routes/web.php` serves files from `storage/app/public/` directly. PHP built-in server doesn't follow the `public/storage` symlink, and Apache may block `/storage/` URIs. This route is the fallback for both cases.
