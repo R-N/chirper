@@ -5,6 +5,7 @@ import { createI18n } from "@/plugins/i18n";
 
 import { createInertiaApp, router } from "@inertiajs/vue3";
 import { useTabStore } from "@/stores/tab";
+import { useAppStore } from "@/stores/app";
 import { createBusy } from "@/composables/useBusy";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { createApp, h, reactive } from "vue";
@@ -87,6 +88,15 @@ async function createPluginsAsync() {
 }
 
 // ─── Inertia mode ───
+function resetBusyFlags() {
+  const appStore = useAppStore();
+  const tabStore = useTabStore();
+  appStore.globalBusy = false;
+  appStore.authBusy = false;
+  tabStore.tabBusy = false;
+  tabStore.routerBusy = false;
+}
+
 if (!IS_SPA_MODE) {
   createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -106,6 +116,7 @@ if (!IS_SPA_MODE) {
         .use(pinia)
         .use(vuetify)
         .use(i18n);
+      resetBusyFlags();
       router.on("before", () => {
         let tabStore = useTabStore();
         tabStore.breadcrumbs = [];
@@ -139,6 +150,7 @@ else {
 
     // Install pinia FIRST — axios interceptors need stores
     app.use(pinia);
+    resetBusyFlags();
 
     await axios.init();
 

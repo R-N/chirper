@@ -189,37 +189,15 @@ Listeners are **not queued** (no `ShouldQueue` interface).
 
 ### Backend: Auth actions (Fortify)
 
-Fortify action classes in `app/Actions/Fortify/`:
-- `CreateNewUser.php` — user creation with role assignment
-- `UpdateUserProfileInformation.php` — profile update (validates email uniqueness)
-- `UpdateUserPassword.php` — password update (validates current password)
-- `ResetUserPassword.php` — password reset logic
-
-`FortifyServiceProvider` registers these, sets Inertia views for login/two-factor/register/reset-password/forgot-password/verify-email/confirm-password, and configures login rate limiter (5 attempts/min).
+Fortify action classes in `app/Actions/Fortify/`: `CreateNewUser`, `UpdateUserProfileInformation`, `UpdateUserPassword`, `ResetUserPassword`. Registered by `FortifyServiceProvider` with login rate limiter (5 attempts/min).
 
 ### Backend: Model-specific behaviors
 
-**User** (`app/Models/User.php`) — extends `Authenticatable`, implements `MustVerifyEmail`. Uses traits: `HasApiTokens`, `HasProfilePhoto`, `TwoFactorAuthenticatable`, `HasRoles`, `HasPermissions`, `CausesActivity`, `LogsActivity`. Key methods:
-- `chirps()` — HasMany relation
-- `createWithRoles($attrs)` — factory method: creates user, syncs roles/permissions
-- `update($attrs)` — override: syncs roles/permissions, handles email change (resets verification, sends notification)
-- `setVerified($bool)` — sets/clears `email_verified_at`
-- `resetPassword()` — creates token and sends `PasswordReset` notification
-- `refreshToken()` — deletes old Sanctum token, creates new `auth_token`
-- `$appends = ['profile_photo_url', 'verified']` — `verified` accessor checks `email_verified_at`
+**User** (`app/Models/User.php`) — extends `Authenticatable`, uses trait directly instead of BaseModel. `$appends = ['profile_photo_url', 'verified']`. `update()` override syncs roles/permissions and handles email change (resets verification). `refreshToken()` deletes old Sanctum token, creates new `auth_token`.
 
-**Setting** (`app/Models/Setting.php`) — key-value store with typed values. Uses `Cacher` for caching, `LogsActivity` trait.
-- `TYPES` = `['int', 'bool', 'decimal', 'date', 'datetime', 'time', 'enum', 'string', 'array', 'object']`
-- `getValueAttribute()` — accessor casting raw value to PHP type based on `type` column (uses `Decimal` for decimal, `Carbon` for dates)
-- `validateValue($value)` — validates value against type-specific rule (`getValidationRule()`)
-- `update()` — override: validates value, calls `Cacher::forgetAll('settings')`, then parent::update()
-- `fetchDict()` — cached `Setting::all()->mapWithKeys()` via `Cacher::remember()`. Shared globally to all Inertia pages via `AppServiceProvider::boot()`, injected into JSON responses via `InjectSettingsIntoResponse` middleware.
-- `get($key)` / `set($key, $value)` — static convenience methods with caching
+**Setting** (`app/Models/Setting.php`) — key-value store with typed values (`TYPES` array). `getValueAttribute()` casts raw value based on `type` column (uses `Decimal` for decimal, `Carbon` for dates). All reads cached via `Cacher`. `update()` override validates then flushes cache.
 
-**Chirp** (`app/Models/Chirp.php`) — extends BaseModel. Key details:
-- `$dispatchesEvents = ['created' => ChirpCreated::class]` — this is how the `ChirpCreated` event fires (Laravel auto-dispatches on model events, not manual `::dispatch()`)
-- `$relationshipEntities = ['user:id,name']` — eager-loads user relation in listings
-- `user()` — BelongsTo relation
+**Chirp** (`app/Models/Chirp.php`) — extends BaseModel. `$dispatchesEvents = ['created' => ChirpCreated::class]` — Laravel auto-dispatches on model events, not manual `::dispatch()`.
 
 ### Frontend: Routing — SPA vs Inertia mode
 
@@ -257,54 +235,31 @@ Mode switch lives in `resources/js/plugins/inertia.js`:
 
 ### Frontend: Composition API with composables
 
-All Vue components use `<script setup>` with Composition API. Reusable logic lives in composables (`resources/js/composables/`):
+All Vue components use `<script setup>` with Composition API. Composables in `resources/js/composables/` build on each other in layers:
 
-- `useBase()` — appStore, tabStore, settings, user, auth_token from page props
-- `useAuth()` — authStore, isLoggedIn, userRoles, userName (calls useBase internally)
-- `useWorking(props)` — busy state, waitBusy(), showError() (calls useAuth internally)
-- `useBusy()` — busy counter (global singleton via provide/inject). `run(fn)` is safe (try/finally). `start()/end()` lack safety — prefer `run()`.
-- `useViewBase(props)` — useWorking + clearBreadcrumbs on mount
-- `useFormBase(props, emit)` — formData, valid, validate(), reset(), submit(), getForm()
-- `useDialog(props, emit, deps)` — myDialog computed, close()
-- `useCrud({ client, waitBusy, nameField })` — fetch(), create(), delete2(), setField(), setFieldConfirmText(), toggleField(), etc.
-- `useCrudView({ client, waitBusy, ... })` — useCrud + table state (pagination, search, export, selection)
-- `useCrudForm({ client, formData, data })` — submit() with store/update logic
-- `useCrudFormDialog(props, emit, { client, initialFormData })` — bundles useWorking + useFormBase + useDialog + useCrudForm for form dialog boilerplate. Modules use this instead of wiring 4 composables manually.
-- `useCrudContext()` — provide/inject for CRUD context. `GenericField` uses this as primary source, falls back to `props.crud`.
-- `useModel(name, props, emit)` — writable computed for v-model
-- `useClearBreadcrumbs()` — clears breadcrumb state on mount
+- **Base**: `useBase()` → `useAuth()` → `useWorking()` → `useViewBase()` — each wraps the previous
+- **Forms**: `useFormBase()` + `useDialog()` → `useCrudForm()` → `useCrudFormDialog()` — bundles 4 composables for form dialog boilerplate
+- **CRUD**: `useCrud()` (fetch/create/delete/setField/toggleField) → `useCrudView()` (adds table state: pagination, search, export, selection)
+- **Context**: `useCrudContext()` — provide/inject for CRUD context, used by `GenericField`
 
-Key views:
-- `CrudView` — toolbar UI (create button, refresh, search, export toggles, bulk actions)
-- `DeclarativeCrudView` — config-driven table. Takes `fields`, `actions`, `bulkActions`, `rules` props. Renders `<GenericField>` per cell, `<FormDialog>` for create/edit.
+`useBusy()` — global singleton busy counter via provide/inject. Prefer `run(fn)` over `start()/end()` (try/finally safety).
 
-Most CRUD pages use `DeclarativeCrudView` and declare fields/actions declaratively.
+Most CRUD pages use `DeclarativeCrudView` — config-driven table taking `fields`, `actions`, `bulkActions`, `rules` props. Renders `<GenericField>` per cell, `<FormDialog>` for create/edit.
 
 ### Frontend: Field system
 
-**Field definitions** — normalised by `normalizeField()` in `fieldSchema.js`. Sets defaults: `type: "text"`, `table: true`, `editable: false`, `form: true`. Spreads remaining field properties via `...field`, so `component`, `getValue`, `onFinish`, etc. all pass through.
+**Field definitions** — normalised by `normalizeField()` in `fieldSchema.js`. Defaults: `type: "text"`, `table: true`, `editable: false`, `form: true`. Extra props pass through via spread.
 
-**GenericField** (`components/form/GenericField.vue`) — central component for rendering fields. Three template branches:
+**GenericField** (`components/form/GenericField.vue`) — three rendering branches:
+1. **Custom component** — `field.component` set → renders component directly, no edit chrome
+2. **Bypass mode** — form/modal, renders thin Field component with v-model. `CrudForm` sets `bypassEditableCell: true`
+3. **Table mode** — inline edit with pencil/check/cancel buttons + `ConfirmationSlot`
 
-1. **Custom component** (`v-if="isCustomComponent"`) — when `field.component` is set. Renders the component directly with `:value`, `:on-finish`, `:bypass`, `:data`. No GenericField editing chrome. Used for `SyncCheckboxField`, `Duration`, etc.
-2. **Bypass mode** (`v-else-if="isBypass"`) — form/modal mode. Renders thin Field component with `model-value` / `@update:model-value`. No edit buttons.
-3. **Table mode** (`v-else`) — display/edit toggle with pencil/check/cancel IconButtons wrapped in `ConfirmationSlot`. Uses `editing`/`editValue` refs for inline editing state.
+**`makeBindings(f, item)`** — only spreads `f.props`. Properties like `items`, `multiple`, `itemTitle` must go inside `props`, not at field root level.
 
-`isBypass` = `props.bypassEditableCell || props.field.bypassEditableCell || !!props.field.component`. `CrudForm` sets `bypassEditableCell: true` by default, so fields inside forms use branch 2.
+**`fieldRegistry.js`** maps types to components: `text`/`string`, `textarea`, `select`, `number`/`integer`, `bool`/`boolean`, `date`/`datetime`, `currency`, `json`, `relational`. Register new types via `registerFieldType(type, components)`.
 
-**Field components** (`components/form/field/`) — thin wrappers around Vuetify inputs. Use `modelValue` / `update:modelValue` v-model contract:
-- `FieldText.vue` — VTextField (variant: "underlined", density: "compact")
-- `FieldSelect.vue` — VSelect
-- `FieldTextArea.vue` — VTextarea
-- `FieldNumber.vue` — VTextField type="number"
-- `FieldCheckbox.vue` — VCheckbox
-- `FieldDate.vue` — VTextField type="date"
-
-`fieldRegistry.js` maps 13 types: `text`/`string` → FieldText, `textarea` → FieldTextArea, `select` → FieldSelect, `number`/`integer` → FieldNumber, `bool`/`boolean` → FieldCheckbox, `date`/`datetime` → FieldDate, `currency` → FieldText, `json` → FieldTextArea, `relational` → FieldText. `resolveCellComponent(type)` returns the Vue component. Register new types via `registerFieldType(type, components)`.
-
-**`makeBindings(f, item)`** — only spreads `f.props` onto the component bindings. Top-level field properties like `items`, `multiple`, `itemTitle` must go inside `props`, not at field root level.
-
-**`CrudForm`** (`components/form/CrudForm.vue`) — iterates an array of field definitions, renders a `<GenericField>` per field with `bypassEditableCell` and `:show-title`. Used inside form dialogs.
+**`CrudForm`** — iterates field definitions, renders `<GenericField>` per field with `bypassEditableCell` and `:show-title`.
 
 ### Frontend: i18n
 
@@ -360,27 +315,12 @@ class UserService extends CrudService {
 
 **Auto error binding**: `call()` detects form objects with `clearErrors`/`setErrors`/`reset` and wires them automatically from API error responses.
 
-### Frontend: Additional services
-
-- `notification.js` — extends `CrudService` for notifications CRUD
-- `activity.js` — extends `CrudService` for activity log
+Domain services: `notification.js`, `activity.js` — extend `CrudService`.
 
 ### Path aliases
 
 `@` and `/@/` both resolve to `resources/js/`.
 
-## Key patterns
-
-- **Declarative CRUD**: Define `columns()` on model, `fields`/`actions` on frontend → full CRUD with filtering, sorting, search, export, inline editing, bulk actions.
-- **Validation**: Backend rules in `columns()` → auto-extracted for requests. Frontend `parseLaravelRules()` mirrors them for Vuetify form validation.
-- **Auth**: Laravel Fortify + Sanctum. `auth:sanctum` + `jetstream.auth_session` middleware on protected routes. Session: database driver, 120 min lifetime. `EnsureTokenIsNotExpired` middleware on API routes. Session timeout: 300s idle + 300s logout countdown (SharedIdle + IdleOverlay). Expired sessions caught by axios 401/403/419 interceptor (redirects to `/login`, refreshes CSRF if recoverable). Loading overlay has 30s timeout fallback showing "Session may have expired".
-- **Testing**: PHPUnit with SQLite in-memory DB (`:memory:`), sync queue, array cache/session (`phpunit.xml`). Standard `tests/Unit` and `tests/Feature` suites. Feature tests use `$this->actingAs($user)` and standard Laravel HTTP testing methods.
-- **Permissions**: Spatie `laravel-permission` package. Role/permission middleware on system routes. Cache reset via `permission:cache-reset`.
-- **Exports**: Excel (maatwebsite/excel), PDF (dompdf), CSV — controller `export()` method uses `BaseModel::collection()`.
-- **Activity log**: Spatie `laravel-activitylog`. Cleaned daily via scheduled command. Pages at `system/activity`.
-- **Backups**: Spatie `laravel-backup`. Managed at `system/backups`.
-
-<!-- /rtk-instructions -->
 
 ## Environment & configuration
 
@@ -461,57 +401,3 @@ class UserService extends CrudService {
 
 **Uploaded file 404s** — The `storage/{filepath}` route in `routes/web.php` serves files from `storage/app/public/` directly. PHP built-in server doesn't follow the `public/storage` symlink, and Apache may block `/storage/` URIs. This route is the fallback for both cases.
 
-
-## RTK (Rust Token Killer)
-
-RTK is a token optimization tool that filters command output to reduce tokens by 60-90% on common dev operations. Always prefix commands with `rtk` — it uses dedicated filters when available, otherwise passes through unchanged.
-
-**Usage in this project:**
-- `rtk php artisan test` — Shows test failures only (90% savings)
-- `rtk vendor/bin/pint --test` — Dry-run PHP code style (75% savings)
-- `rtk php artisan permission:*` — Compact permission commands (59-80% savings)
-- `rtk php artisan backup:*` — Compact backup commands (26-87% savings)
-- `rtk php artisan activitylog:clean` — Compact activity log cleaning
-- `rtk php artisan config:cache|route:cache|view:cache|optimize` — Compact cache commands
-- `rtk php artisan schedule:list|schedule:run` — Compact schedule commands
-
-See `~/.claude/CLAUDE.md` for complete RTK command list and savings details.
-
-
-## Getting Started
-
-1. **Environment setup**
-   - Copy `.env.example` → `.env`
-   - Run `composer install`
-   - Generate app key: `php artisan key:generate`
-   - Run migrations: `php artisan migrate`
-   - Seed database: `php artisan db:seed`
-
-2. **Frontend setup**
-   - Install JS deps: `npm install`
-   - Set frontend mode in `.env`: `VITE_APP_MODE=inertia` (default) or `spa`
-
-3. **Development**
-   - Full stack: `composer dev` (runs php serve, queue worker, pail logs, vite concurrently)
-   - Backend only: `php artisan serve`
-   - Frontend only: `npm run dev`
-   - Production build: `npm run build` (sourcemaps on, minify off)
-
-4. **Testing**
-   - All tests: `php artisan test`
-   - Single test: `php artisan test --filter=TestName`
-   - Failures only (RTK): `rtk php artisan test`
-   - PHP code style: `rtk vendor/bin/pint --test`
-
-5. **Common tasks**
-   - Clear caches: `clear.bat` (Windows shortcut) or run cache commands individually
-   - Manage permissions: `rtk php artisan permission:create-role "admin"` etc.
-   - Run backups: `rtk php artisan backup:run`
-   - View scheduled tasks: `rtk php artisan schedule:list`
-
-6. **Architecture notes**
-   - **Backend**: Laravel 11 with BaseModel pattern. Models define `columns()` method driving `query2()`, `rules()`, and `export()`.
-   - **Frontend**: Vue 3 + Inertia.js + Vuetify 3 + TypeScript. Supports Inertia (default) and SPA modes via `VITE_APP_MODE`.
-   - **Key pattern**: Declarative CRUD — define `columns()` on model, `fields`/`actions` on frontend for full CRUD with filtering, sorting, search, export, inline editing, bulk actions.
-   - **Critical**: Backend `columns()` keys must match frontend field `value`/`name` props. Use `php artisan columns:export` to generate TypeScript types.
-   - **SPA mode**: Always use `route('name')` helper from Ziggy for hrefs. Hardcoded paths cause 403 errors.

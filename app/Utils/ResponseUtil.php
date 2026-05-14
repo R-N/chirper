@@ -12,7 +12,7 @@ class ResponseUtil
     {
         $request = request();
 
-        if ($request->wantsJson() || $request->expectsJson()) {
+        if ($request->wantsJson() || $request->expectsJson() || $request->ajax()) {
             return response()->json($data, $statusCode);
         }
 
@@ -29,7 +29,7 @@ class ResponseUtil
     {
         $request = request();
 
-        if ($request->wantsJson() || $request->expectsJson()) {
+        if ($request->wantsJson() || $request->expectsJson() || $request->ajax()) {
             if ($route) {
                 $data['redirect'] = $route;
             }

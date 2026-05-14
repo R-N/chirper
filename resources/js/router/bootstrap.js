@@ -29,6 +29,13 @@ export async function bootstrap() {
     if (data.ziggy) {
       globalThis.Ziggy = data.ziggy;
     }
+
+    // Session valid but token lost — clear stale user to keep state consistent
+    if (!authStore.auth_token && pageProps.user) {
+      authStore.logout();
+      pageProps.user = null;
+      pageProps.auth.user = null;
+    }
   } catch (e) {
     console.error("SPA bootstrap failed:", e);
   }
