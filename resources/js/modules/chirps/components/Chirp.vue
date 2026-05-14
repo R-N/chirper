@@ -11,6 +11,7 @@ import {
   VList,
   VListItem,
   VImg,
+  VFileInput,
 } from "vuetify/components";
 import chirpService from "../services/chirp";
 
@@ -27,7 +28,8 @@ const emit = defineEmits<{
 const editing = ref(false);
 
 const formData = useForm({
-  message: ""
+  message: "",
+  photo: null as File | null,
 });
 
 onMounted(() => {
@@ -42,6 +44,7 @@ function resetForm(isEditing = false) {
   editing.value = isEditing;
   formData.reset();
   formData.message = props.chirp.message;
+  formData.photo = null;
 }
 
 async function updateChirp() {
@@ -100,6 +103,18 @@ async function destroyChirp() {
           auto-grow
         />
         <InputError :message="formData.errors.message" class="mt-2" />
+
+        <VFileInput
+          v-model="formData.photo"
+          accept="image/*"
+          :label="$t('chirp.photo')"
+          density="compact"
+          variant="underlined"
+          prepend-inner-icon="mdi-camera"
+          clearable
+          class="mt-2"
+        />
+        <InputError :message="formData.errors.photo" class="mt-2" />
 
         <div class="mt-4 d-flex gap-2">
           <VBtn color="primary" variant="elevated" type="submit">{{

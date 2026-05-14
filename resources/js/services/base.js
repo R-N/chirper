@@ -6,7 +6,8 @@ import {
   jsonToFormData,
   getData,
   bindMethod,
-  deepAssign
+  deepAssign,
+  isInertiaForm
 } from "@/libs/util";
 import { t } from "@/plugins/i18n";
 
@@ -162,11 +163,24 @@ class BaseService {
     // save original form for later use
     const form0 = form;
 
+    // For Inertia forms, extract raw data to preserve File objects
+    // The data() method on Inertia forms uses JSON.parse(JSON.stringify(data)) which loses Files
+    // Use __data property to access the raw form data
+    const isForm = isInertiaForm(form);
+    if (isForm && form.__data) {
+      const rawData = { ...form.__data };
+      if (filter && this.allFields?.length) {
+        form = filterObject(rawData, this.allFields);
+      } else {
+        form = rawData;
+      }
+    } else if (filter && this.allFields?.length) {
+      form = filterObject(form, this.allFields);
+    }
+
     // prepare files
     let hasFiles = false;
     if (form) {
-      if (filter && this.allFields?.length)
-        form = filterObject(form, this.allFields);
       form = this.checkFiles(form);
       hasFiles = form._has_files;
     }

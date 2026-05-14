@@ -77,8 +77,7 @@ const {
         <VFileInput
           accept="image/*"
           :label="$t('chirp.photo')"
-          :model-value="formData.photo ? [formData.photo] : []"
-          @update:model-value="(files: any) => formData.photo = files?.[0] ?? null"
+          v-model="formData.photo"
           :disabled="!interactable"
           density="compact"
           variant="underlined"

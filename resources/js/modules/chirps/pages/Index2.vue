@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from "@/layouts/AppLayout.vue";
-import Chirp from "@/modules/chirps/components/Chirp.vue";
+import ChirpComponent from "@/modules/chirps/components/Chirp.vue";
 import MediaViewer from "@/components/media/MediaViewer.vue";
 import { useForm } from "@/plugins/inertia";
 import { useViewBase } from "@/composables/useViewBase";
@@ -25,7 +25,7 @@ const formData = useForm({
 const viewingMedia = ref<{ src: string; caption: string } | null>(null);
 
 onMounted(() => {
-  tabStore.breadcrumbs = [{ title: t("navigation.chirps") }];
+  tabStore.breadcrumbs = [{ title: t("navigation.chirps2") }];
 });
 
 async function storeChirp() {
@@ -64,8 +64,7 @@ function viewMedia(payload: { src: string; caption: string }) {
           variant="outlined"
         />
         <VFileInput
-          :model-value="formData.photo ? [formData.photo] : []"
-          @update:model-value="(files: any) => formData.photo = files?.[0] ?? null"
+          v-model="formData.photo"
           accept="image/*"
           :label="$t('chirp.photo')"
           density="compact"
@@ -79,7 +78,7 @@ function viewMedia(payload: { src: string; caption: string }) {
         }}</VBtn>
       </form>
       <VCard class="mt-6">
-        <Chirp
+        <ChirpComponent
           v-for="chirp in chirps"
           :key="chirp.id"
           :chirp="chirp"

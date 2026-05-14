@@ -109,9 +109,81 @@ function makeBindingsHelper(f: any = null, data: any = null) {
 }
 </script>
 <template>
-  <!-- Custom component: pass old-style props, no GenericField editing chrome -->
+  <!-- Table mode with custom component that supports editing (editable: true + component) -->
+  <ConfirmationSlot
+    v-if="field.editable && isCustomComponent"
+    style="width: 100%"
+    :confirm-text-maker="() => confirmTextMaker(editValue)"
+    :on-confirm="doSave"
+    :on-cancel="cancelEdit"
+    v-slot="{ ask }"
+  >
+    <div v-if="showTitle_" class="d-flex">
+      <span class="font-weight-bold">{{ field.title ?? field.label }}</span>
+    </div>
+    <div
+      class="d-flex align-center justify-space-between"
+      @keydown.enter="(e: KeyboardEvent) => onEnter(e, ask)"
+    >
+      <!-- Edit mode: field input -->
+      <span v-if="editing" class="flex-grow-1">
+        <component
+          :is="component"
+          :model-value="editValue"
+          @update:model-value="(val: any) => (editValue = val)"
+          :label="showTitle_ ? undefined : field.label"
+          :name="name"
+          :disabled="disabled"
+          :required="field.required"
+          :rules="_rules"
+          :error-messages="formData?.errors?.[name]"
+          :editing="true"
+          :data="data"
+          v-bind="makeBindingsHelper(field, data || formData)"
+          class="bigger-input"
+        />
+      </span>
+      <!-- Display mode: use currentValue (field renders its own display) -->
+      <component
+        v-else
+        :is="component"
+        :model-value="currentValue"
+        :data="data"
+        :label="showTitle_ ? undefined : field.label"
+        :disabled="disabled"
+        :editing="false"
+        class="flex-grow-1 bigger-input"
+      />
+      <!-- Edit/save/cancel buttons -->
+      <span v-if="!disabled" class="flex-grow-0 flex-shrink-0">
+        <template v-if="editing">
+          <IconButton
+            @click.prevent.stop="finishEdit(ask)"
+            :disabled="disabled"
+            icon="mdi-check"
+            :text="t('form.save')"
+          />
+          <IconButton
+            @click.prevent.stop="cancelEdit"
+            :disabled="disabled"
+            icon="mdi-cancel"
+            :text="t('form.cancel')"
+          />
+        </template>
+        <IconButton
+          v-else
+          @click.prevent.stop="startEdit"
+          :disabled="disabled"
+          icon="mdi-pencil"
+          :text="t('form.edit')"
+        />
+      </span>
+    </div>
+  </ConfirmationSlot>
+
+  <!-- Custom component without editing: pass old-style props -->
   <component
-    v-if="isCustomComponent"
+    v-else-if="isCustomComponent"
     :is="component"
     :disabled="disabled"
     :data="data"
@@ -142,6 +214,7 @@ function makeBindingsHelper(f: any = null, data: any = null) {
     :required="field.required"
     :rules="_rules"
     :error-messages="formData?.errors[name]"
+    :data="data"
     v-bind="makeBindingsHelper(field, data || formData)"
     class="bigger-input"
   />
