@@ -106,14 +106,14 @@ if (!IS_SPA_MODE) {
         import.meta.glob("./modules/**/pages/*.vue", { eager: true })
       ),
     async setup({ el, App: InertiaApp, props, plugin }) {
-      await axios.init();
       let app = createApp({ render: () => h(App, { InertiaApp, props }) });
       const { pinia, busy } = createPlugins();
+      app.use(pinia);
+      await axios.init();
       const { i18n } = await createPluginsAsync();
       app = app
         .use(plugin)
         .use(ZiggyVue)
-        .use(pinia)
         .use(vuetify)
         .use(i18n);
       resetBusyFlags();
