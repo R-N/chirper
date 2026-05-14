@@ -23,5 +23,9 @@
   "export": "Ekspor",
   "export_csv": "CSV",
   "export_xlsx": "Excel (.xlsx)",
-  "export_pdf": "PDF"
+  "export_pdf": "PDF",
+  "filter_select": "Saring menurut",
+  "filter_add": "Tambah saringan",
+  "filter_clear_all": "Hapus semua saringan",
+  "filter_remove": "Hapus saringan"
 }

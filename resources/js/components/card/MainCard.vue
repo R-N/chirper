@@ -21,6 +21,9 @@ const slots = useSlots();
         <slot name="toolbar-right"></slot>
       </template>
     </CardToolbar>
+    <div v-if="slots.filtersBar" class="filters-bar w-100 px-0 pb-2">
+      <slot name="filtersBar"></slot>
+    </div>
     <VCardText>
       <slot name="content"></slot>
       <slot name="default"></slot>

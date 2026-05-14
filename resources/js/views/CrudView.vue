@@ -151,18 +151,26 @@ function slotFilled(name: string) {
       </VMenu>
     </template>
     <template v-slot:toolbar-right>
-      <slot name="toolbar-right" :busy="busy"></slot>
-      <slot name="filters" :busy="busy" :fetch="fetch"></slot>
-      <VTextField
-        v-if="!(typeof mySearch === 'undefined' || mySearch === null)"
-        class="pt-0 mt-0 search-field"
-        v-model="mySearch"
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        hide-details
-        :disabled="busy"
-      ></VTextField>
+      <div
+        class="toolbar-right-cluster d-flex flex-wrap align-center justify-end"
+      >
+        <slot name="toolbar-right" :busy="busy"></slot>
+        <slot name="sortBar" :busy="busy" :fetch="fetch"></slot>
+        <slot name="filterControls" :busy="busy" :fetch="fetch"></slot>
+        <VTextField
+          v-if="!(typeof mySearch === 'undefined' || mySearch === null)"
+          class="pt-0 mt-0 search-field"
+          v-model="mySearch"
+          append-icon="mdi-magnify"
+          label="Search"
+          single-line
+          hide-details
+          :disabled="busy"
+        ></VTextField>
+      </div>
+    </template>
+    <template v-slot:filtersBar v-if="slotFilled('filterFields')">
+      <slot name="filterFields" :busy="busy" :fetch="fetch"></slot>
     </template>
     <template v-slot:content>
       <slot name="content" :busy="busy"></slot>
@@ -173,6 +181,9 @@ function slotFilled(name: string) {
   </MainCard>
 </template>
 <style scoped>
+.toolbar-right-cluster {
+  gap: 0.35rem;
+}
 .search-field {
   width: 14rem;
 }

@@ -112,6 +112,50 @@ async function onDeclarativeFormSubmit() {
 
 const filterValues = ref<Record<string, any>>({});
 
+/** Filter field keys currently shown (opt-in; empty until user adds). */
+const activeFilterNames = ref<string[]>([]);
+const selectedFilterToAdd = ref<string | null>(null);
+
+const availableFiltersForSelect = computed(() =>
+  (props.filterFields || [])
+    .filter(
+      (ff: any) =>
+        !activeFilterNames.value.includes(String(ff.name))
+    )
+    .map((ff: any) => ({ title: ff.label, value: String(ff.name) }))
+);
+
+const activeFilterDefs = computed(() =>
+  activeFilterNames.value
+    .map((name) =>
+      (props.filterFields || []).find((ff: any) => String(ff.name) === String(name))
+    )
+    .filter(Boolean) as any[]
+);
+
+function addActiveFilter() {
+  const raw = selectedFilterToAdd.value;
+  const name = raw == null || raw === "" ? "" : String(raw);
+  if (!name || activeFilterNames.value.includes(name)) return;
+  activeFilterNames.value = [...activeFilterNames.value, name];
+  selectedFilterToAdd.value = null;
+}
+
+function removeActiveFilter(name: string) {
+  activeFilterNames.value = activeFilterNames.value.filter((n) => n !== name);
+  delete filterValues.value[name];
+  onFilterChange();
+}
+
+function clearAllActiveFilters() {
+  for (const name of activeFilterNames.value) {
+    delete filterValues.value[name];
+  }
+  activeFilterNames.value = [];
+  selectedFilterToAdd.value = null;
+  onFilterChange();
+}
+
 const autocompleteItems = ref<Record<string, any[]>>({});
 const autocompleteLoading = ref<Record<string, boolean>>({});
 
@@ -294,8 +338,8 @@ defineExpose({
         v-bind="ba.props"
       />
     </template>
-    <template v-slot:filters v-if="filterFields?.length || sortFields.length">
-      <div v-if="sortFields.length" class="mr-3 sort-builder">
+    <template v-slot:sortBar v-if="sortFields.length">
+      <div class="mr-3 sort-builder">
         <div class="sort-builder__controls">
           <VSelect
             v-model="selectedSortField"
@@ -352,56 +396,107 @@ defineExpose({
           </VChip>
         </div>
       </div>
-      <template v-for="ff in filterFields" :key="ff.name">
-        <VAutocomplete
-          v-if="ff.type === 'autocomplete'"
-          :model-value="filterValues[ff.name]"
-          @update:model-value="(v: any) => { filterValues[ff.name] = v; onFilterChange(); }"
-          :label="ff.label"
-          :items="autocompleteItems[ff.name] ?? ff.values ?? []"
-          :item-title="ff.itemTitle ?? 'name'"
-          :item-value="ff.itemValue ?? 'id'"
-          :clearable="true"
-          :loading="autocompleteLoading[ff.name]"
-          density="compact"
-          variant="underlined"
-          hide-details
-          class="mr-3 filter-field"
-        />
+    </template>
+    <template v-slot:filterControls v-if="filterFields?.length">
+      <div class="filter-controls-bar d-flex flex-wrap align-center">
         <VSelect
-          v-else-if="ff.values?.length"
-          :model-value="filterValues[ff.name]"
-          @update:model-value="(v: any) => { filterValues[ff.name] = v; onFilterChange(); }"
-          :label="ff.label"
-          :items="ff.values ?? []"
-          :clearable="true"
+          :key="activeFilterNames.join('|')"
+          v-model="selectedFilterToAdd"
+          :items="availableFiltersForSelect"
+          item-title="title"
+          item-value="value"
+          :label="$t('crud.filter_select')"
+          clearable
           density="compact"
           variant="underlined"
           hide-details
-          class="mr-3 filter-field"
+          class="filter-controls-bar__select"
         />
-        <VTextField
-          v-else-if="ff.type === 'date'"
-          :model-value="filterValues[ff.name]"
-          @update:model-value="(v: any) => { filterValues[ff.name] = v; onFilterChange(); }"
-          :label="ff.label"
-          type="date"
-          density="compact"
-          variant="underlined"
-          hide-details
-          class="mr-3 filter-field filter-date"
+        <VBtn
+          icon="mdi-plus"
+          :title="$t('crud.filter_add')"
+          size="small"
+          variant="text"
+          :disabled="!selectedFilterToAdd"
+          @click="addActiveFilter"
         />
-        <VTextField
-          v-else
-          :model-value="filterValues[ff.name]"
-          @update:model-value="(v: any) => { filterValues[ff.name] = v; onFilterChange(); }"
-          :label="ff.label"
-          density="compact"
-          variant="underlined"
-          hide-details
-          class="mr-3 filter-field"
+        <VBtn
+          v-if="activeFilterNames.length"
+          icon="mdi-close"
+          :title="$t('crud.filter_clear_all')"
+          size="small"
+          variant="text"
+          @click="clearAllActiveFilters"
         />
-      </template>
+      </div>
+    </template>
+    <template v-slot:filterFields v-if="activeFilterDefs.length">
+      <div class="filter-fields-grid">
+        <div
+          v-for="ff in activeFilterDefs"
+          :key="ff.name"
+          class="filter-fields-grid__cell"
+        >
+          <div class="filter-fields-grid__cell-inner">
+            <VAutocomplete
+              v-if="ff.type === 'autocomplete'"
+              :model-value="filterValues[ff.name]"
+              @update:model-value="(v: any) => { filterValues[ff.name] = v; onFilterChange(); }"
+              :label="ff.label"
+              :items="autocompleteItems[ff.name] ?? ff.values ?? []"
+              :item-title="ff.itemTitle ?? 'name'"
+              :item-value="ff.itemValue ?? 'id'"
+              :clearable="true"
+              :loading="autocompleteLoading[ff.name]"
+              density="compact"
+              variant="underlined"
+              hide-details
+              class="filter-field"
+            />
+            <VSelect
+              v-else-if="ff.values?.length"
+              :model-value="filterValues[ff.name]"
+              @update:model-value="(v: any) => { filterValues[ff.name] = v; onFilterChange(); }"
+              :label="ff.label"
+              :items="ff.values ?? []"
+              :clearable="true"
+              density="compact"
+              variant="underlined"
+              hide-details
+              class="filter-field"
+            />
+            <VTextField
+              v-else-if="ff.type === 'date'"
+              :model-value="filterValues[ff.name]"
+              @update:model-value="(v: any) => { filterValues[ff.name] = v; onFilterChange(); }"
+              :label="ff.label"
+              type="date"
+              density="compact"
+              variant="underlined"
+              hide-details
+              class="filter-field filter-date"
+            />
+            <VTextField
+              v-else
+              :model-value="filterValues[ff.name]"
+              @update:model-value="(v: any) => { filterValues[ff.name] = v; onFilterChange(); }"
+              :label="ff.label"
+              density="compact"
+              variant="underlined"
+              hide-details
+              class="filter-field"
+            />
+            <VBtn
+              icon="mdi-close"
+              :title="$t('crud.filter_remove')"
+              size="small"
+              variant="text"
+              class="filter-fields-grid__remove"
+              @click="removeActiveFilter(ff.name)"
+            />
+          </div>
+        </div>
+      </div>
     </template>
     <template v-slot:toolbar-left>
       <slot name="toolbar-left" :busy="busy" />
@@ -501,8 +596,36 @@ defineExpose({
   </CrudView>
 </template>
 <style scoped>
+.filter-controls-bar {
+  gap: 0.35rem;
+}
+.filter-controls-bar__select {
+  min-width: 11rem;
+}
+.filter-fields-grid {
+  align-items: end;
+  display: grid;
+  gap: 0.5rem 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  width: 100%;
+}
+.filter-fields-grid__cell {
+  min-width: 0;
+}
+.filter-fields-grid__cell-inner {
+  align-items: flex-end;
+  display: flex;
+  gap: 0.25rem;
+  min-width: 0;
+  width: 100%;
+}
+.filter-fields-grid__remove {
+  flex: 0 0 auto;
+  margin-bottom: 0.125rem;
+}
 .filter-field {
-  min-width: 10rem;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .filter-date {
   min-width: 8rem;
