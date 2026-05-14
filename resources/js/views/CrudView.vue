@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useSlots, Comment, Text } from "vue";
+import { computed, useSlots, Comment, Text, ref, mergeProps } from "vue";
 import { useViewBase } from "@/composables/useViewBase";
 
 import MainCard from "@/components/card/MainCard.vue";
@@ -37,8 +37,15 @@ const mySelecting = computed({
   set: (v) => emit("update:selecting", v),
 });
 
-import { ref } from "vue";
+const hasExport = computed(
+  () => !!(props.exportCsv || props.exportXlsx || props.exportPdf)
+);
+
 const _null = ref(null);
+
+function runExport(fn?: (() => void) | (() => Promise<void>) | null) {
+  if (typeof fn === "function") void fn();
+}
 
 function emitModel(value: any) {
   emit("update:modelValue", value);
@@ -95,34 +102,53 @@ function slotFilled(name: string) {
         size="default"
       />
       <slot name="toolbar-left" :busy="busy"></slot>
-      <VBtnToggle
-        v-model="_null"
-        prepend-icon="mdi-export"
-        class="fill-height d-inline-flex"
-        title="Export"
-      >
-        <VBtn
-          class="fill-height"
-          @click="exportCsv"
-          :disabled="busy"
-          v-if="!!exportCsv"
-          >csv</VBtn
-        >
-        <VBtn
-          class="fill-height"
-          @click="exportXlsx"
-          :disabled="busy"
-          v-if="!!exportXlsx"
-          >xlsx</VBtn
-        >
-        <VBtn
-          class="fill-height"
-          @click="exportPdf"
-          :disabled="busy"
-          v-if="!!exportPdf"
-          >pdf</VBtn
-        >
-      </VBtnToggle>
+      <VMenu v-if="hasExport" location="bottom">
+        <template #activator="{ props: menuProps }">
+          <VTooltip
+            location="bottom"
+            :disabled="busy"
+            class="fill-height d-inline-flex"
+          >
+            <template #activator="{ props: tipProps }">
+              <VBtn
+                icon
+                variant="plain"
+                class="d-inline-flex"
+                v-bind="mergeProps(menuProps, tipProps)"
+                :disabled="busy"
+                size="default"
+                :aria-label="$t('crud.export')"
+              >
+                <VIcon size="default">mdi-export</VIcon>
+              </VBtn>
+            </template>
+            <span>{{ $t("crud.export") }}</span>
+          </VTooltip>
+        </template>
+        <VList density="compact">
+          <VListItem
+            v-if="exportCsv"
+            :disabled="busy"
+            @click="runExport(exportCsv)"
+          >
+            <VListItemTitle>{{ $t("crud.export_csv") }}</VListItemTitle>
+          </VListItem>
+          <VListItem
+            v-if="exportXlsx"
+            :disabled="busy"
+            @click="runExport(exportXlsx)"
+          >
+            <VListItemTitle>{{ $t("crud.export_xlsx") }}</VListItemTitle>
+          </VListItem>
+          <VListItem
+            v-if="exportPdf"
+            :disabled="busy"
+            @click="runExport(exportPdf)"
+          >
+            <VListItemTitle>{{ $t("crud.export_pdf") }}</VListItemTitle>
+          </VListItem>
+        </VList>
+      </VMenu>
     </template>
     <template v-slot:toolbar-right>
       <slot name="toolbar-right" :busy="busy"></slot>

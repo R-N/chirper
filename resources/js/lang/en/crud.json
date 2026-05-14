@@ -19,5 +19,9 @@
   "created": "Created.",
   "create": "Create",
   "refresh": "Refresh",
-  "title": "CRUD"
+  "title": "CRUD",
+  "export": "Export",
+  "export_csv": "CSV",
+  "export_xlsx": "Excel (.xlsx)",
+  "export_pdf": "PDF"
 }
