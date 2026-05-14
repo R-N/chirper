@@ -10,13 +10,21 @@ class ValidationUtil
 
         foreach ($baseRules as $key => $baseRule) {
             if (array_key_exists($key, $newRules)) {
-                $mergedRules[$key] = $newRules[$key].'|'.$baseRule;
+                $mergedRules[$key] = array_merge(
+                    self::normalizeRules($newRules[$key]),
+                    self::normalizeRules($baseRule)
+                );
             } elseif ($union) {
                 $mergedRules[$key] = $baseRule;
             }
         }
 
         return $mergedRules;
+    }
+
+    private static function normalizeRules($rules)
+    {
+        return is_array($rules) ? $rules : explode('|', $rules);
     }
 
     public static function duplicateRules(array $rules)
@@ -40,11 +48,12 @@ class ValidationUtil
             if (is_string($rule)) {
                 $rule = preg_replace(
                     '/unique:(\w+),(\w+)(?![,\w])/',
-                    'unique:$1,$2,' . $id,
+                    'unique:$1,$2,'.$id,
                     $rule
                 );
             }
         }
+
         return $rules;
     }
 
@@ -109,11 +118,10 @@ class ValidationUtil
         $fields = array_merge($fields, array_map(function ($field) use ($item) {
             return "$item.$field";
         }, $fields));
-        $fields = array_merge($fields, array_map(function ($field) {
-            return "-$field";
-        }, $fields));
+        $fields = array_unique($fields);
+        $pattern = implode('|', array_map(fn ($field) => preg_quote($field, '/'), $fields));
 
-        return 'in:'.implode(',', $fields);
+        return ['nullable', 'string', "regex:/^-?({$pattern})(,-?({$pattern}))*$/"];
     }
 
     public static function buildQueryRules($item, $rules, $fields)

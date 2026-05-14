@@ -28,6 +28,7 @@ const props = defineProps<{
   query?: any;
   noCreate?: boolean;
   filterFields?: any[];
+  defaultSort?: string | string[];
 }>();
 
 const {
@@ -74,9 +75,9 @@ const normalizedFields = computed(() => normalizeFields(props.fields || []));
 const headers = computed(() => {
   let h = normalizedFields.value
     .filter((f: any) => f.table)
-    .map((f: any) => filterObject(f, ["title", "value"]));
+    .map((f: any) => ({ ...filterObject(f, ["title", "value"]), sortable: false }));
   if (props.actions?.length) {
-    h = [...h, { title: t("crud.actions"), value: "actions" }];
+    h = [...h, { title: t("crud.actions"), value: "actions", sortable: false }];
   }
   return h;
 });
@@ -139,8 +140,79 @@ function onFilterChange() {
       params[`filter[${key}]`] = val;
     }
   }
+  if (sortValues.value && sortValues.value.length) {
+    params.sort = sortValues.value.join(",");
+  }
+  page.value = 1;
   crudView._query.value = params;
   crudView.debouncedFetch();
+}
+
+function normalizeDefaultSort(value?: string | string[]) {
+  if (!value) return [];
+  return Array.isArray(value) ? value : [value];
+}
+
+const sortValues = ref<string[]>(normalizeDefaultSort(props.defaultSort));
+const selectedSortField = ref<string | null>(null);
+const selectedSortDirection = ref<"asc" | "desc">("asc");
+
+const sortFields = computed(() =>
+  normalizedFields.value
+    .filter((f: any) => f.sortable)
+    .map((f: any) => ({ title: f.title, value: f.value }))
+);
+
+const sortDirections = [
+  { title: "Asc", value: "asc", icon: "mdi-sort-ascending" },
+  { title: "Desc", value: "desc", icon: "mdi-sort-descending" },
+];
+
+function sortFieldName(value: string) {
+  return value.startsWith("-") ? value.slice(1) : value;
+}
+
+function sortToken(field: string, direction: "asc" | "desc") {
+  return direction === "desc" ? `-${field}` : field;
+}
+
+function getSortFieldTitle(value: string) {
+  const field = sortFields.value.find((f: any) => f.value === sortFieldName(value));
+  return field?.title ?? sortFieldName(value);
+}
+
+function getSortDirection(value: string) {
+  return value.startsWith("-") ? "Desc" : "Asc";
+}
+
+function addSort() {
+  if (!selectedSortField.value) return;
+
+  const field = selectedSortField.value;
+  sortValues.value = [
+    ...sortValues.value.filter((value) => sortFieldName(value) !== field),
+    sortToken(field, selectedSortDirection.value),
+  ];
+  selectedSortField.value = null;
+  selectedSortDirection.value = "asc";
+  onFilterChange();
+}
+
+function removeSort(value: string) {
+  sortValues.value = sortValues.value.filter((item) => item !== value);
+  onFilterChange();
+}
+
+function clearSorts() {
+  sortValues.value = [];
+  onFilterChange();
+}
+
+if (sortValues.value.length) {
+  crudView._query.value = {
+    ...crudView._query.value,
+    sort: sortValues.value.join(","),
+  };
 }
 
 const self = {
@@ -222,7 +294,64 @@ defineExpose({
         v-bind="ba.props"
       />
     </template>
-    <template v-slot:filters v-if="filterFields?.length">
+    <template v-slot:filters v-if="filterFields?.length || sortFields.length">
+      <div v-if="sortFields.length" class="mr-3 sort-builder">
+        <div class="sort-builder__controls">
+          <VSelect
+            v-model="selectedSortField"
+            :items="sortFields"
+            label="Sort column"
+            clearable
+            density="compact"
+            variant="underlined"
+            hide-details
+            class="sort-builder__field"
+          />
+          <VBtnToggle
+            v-model="selectedSortDirection"
+            mandatory
+            divided
+            density="compact"
+            class="sort-builder__direction"
+          >
+            <VBtn
+              v-for="direction in sortDirections"
+              :key="direction.value"
+              :value="direction.value"
+              :icon="direction.icon"
+              :title="direction.title"
+              size="small"
+            />
+          </VBtnToggle>
+          <VBtn
+            icon="mdi-plus"
+            title="Add sorting"
+            size="small"
+            variant="text"
+            :disabled="!selectedSortField"
+            @click="addSort"
+          />
+          <VBtn
+            v-if="sortValues.length"
+            icon="mdi-close"
+            title="Clear sorting"
+            size="small"
+            variant="text"
+            @click="clearSorts"
+          />
+        </div>
+        <div v-if="sortValues.length" class="sort-builder__chips">
+          <VChip
+            v-for="value in sortValues"
+            :key="value"
+            closable
+            size="small"
+            @click:close="removeSort(value)"
+          >
+            {{ getSortFieldTitle(value) }}: {{ getSortDirection(value) }}
+          </VChip>
+        </div>
+      </div>
       <template v-for="ff in filterFields" :key="ff.name">
         <VAutocomplete
           v-if="ff.type === 'autocomplete'"
@@ -377,5 +506,25 @@ defineExpose({
 }
 .filter-date {
   min-width: 8rem;
+}
+.sort-builder {
+  min-width: 20rem;
+}
+.sort-builder__controls {
+  align-items: center;
+  display: flex;
+  gap: 0.35rem;
+}
+.sort-builder__field {
+  min-width: 11rem;
+}
+.sort-builder__direction {
+  flex: 0 0 auto;
+}
+.sort-builder__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
 }
 </style>

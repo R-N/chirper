@@ -3,7 +3,7 @@
 export const CHIRP_FIELDS = {
   "id": { name: "id", label: "ID" as const, type: "integer" as const, filter: "exact" as const, sort: true as const, rules: "integer|min:0" as const },
   "message": { name: "message", label: "Message" as const, type: "string" as const, filter: "partial" as const, sort: true as const, search: true as const, rules: "required|string|max:255" as const },
-  "photo": { name: "photo", label: "Photo" as const, type: "string" as const, rules: "nullable" as const },
+  "photo": { name: "photo", label: "Photo" as const, type: "string" as const, sort: true as const, rules: "nullable" as const },
   "user.name": { name: "user.name", label: "User Name" as const, type: "relational" as const, filter: "partial" as const, sort: "custom:user.name" as const, search: "user->name" as const, rules: "required|string|max:255" as const },
   "created_at": { name: "created_at", label: "Created At" as const, type: "datetime" as const, filter: "partial" as const, sort: true as const, search: "chirps.created_at" as const, rules: "string|max:50|date_format:Y-m-d\\TH:i:s\\Z" as const }
 } as const;

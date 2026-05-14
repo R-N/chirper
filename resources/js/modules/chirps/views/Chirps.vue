@@ -25,6 +25,7 @@ const fields = computed(() => [
     title: t("crud.user"),
     table: true,
     detail: true,
+    sortable: true,
     propsMap: {
       text: "user.name",
     },
@@ -37,6 +38,7 @@ const fields = computed(() => [
     table: true,
     detail: true,
     editable: true,
+    sortable: true,
     props: {
       editable: true,
       format: null,
@@ -49,6 +51,7 @@ const fields = computed(() => [
     table: true,
     detail: true,
     editable: true,
+    sortable: true,
   },
   {
     component: Duration,
@@ -56,6 +59,7 @@ const fields = computed(() => [
     title: t("crud.created_at"),
     table: true,
     detail: true,
+    sortable: true,
     propsMap: {
       time: "created_at",
     },
@@ -114,6 +118,7 @@ const formDialog = computed(() => ({
     :actions="actions"
     :bulk-actions="bulkActions"
     :form-dialog="formDialog"
+    :default-sort="['-created_at']"
     :rules="rules"
   />
 </template>

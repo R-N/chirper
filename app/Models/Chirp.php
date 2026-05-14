@@ -12,11 +12,14 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Chirp extends BaseModel
 {
-    use HasFactory, HasRelationshipEntities, Validable, LogsActivity;
+    use HasFactory, HasRelationshipEntities, LogsActivity, Validable;
 
     public const TABLE = 'chirps';
+
     public const FILLABLE = ['message', 'photo'];
+
     protected $table = self::TABLE;
+
     protected $fillable = self::FILLABLE;
 
     protected $dispatchesEvents = [
@@ -57,6 +60,7 @@ class Chirp extends BaseModel
                 'type' => 'string',
                 'table' => true,
                 'editable' => false,
+                'sort' => true,
                 'rules' => 'nullable',
             ],
             'user.name' => [
@@ -78,6 +82,11 @@ class Chirp extends BaseModel
         ];
     }
 
+    public static function defaultSort()
+    {
+        return ['-created_at'];
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -85,9 +94,10 @@ class Chirp extends BaseModel
 
     public function getPhotoUrlAttribute(): ?string
     {
-        if (!$this->photo) {
+        if (! $this->photo) {
             return null;
         }
+
         return Storage::disk('public')->url($this->photo);
     }
 

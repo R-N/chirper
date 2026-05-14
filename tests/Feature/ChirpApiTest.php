@@ -29,6 +29,70 @@ class ChirpApiTest extends TestCase
         $response->assertJsonStructure(['items']);
     }
 
+    public function test_can_sort_chirps_by_multiple_columns(): void
+    {
+        $olderBeta = Chirp::factory()->create([
+            'user_id' => $this->user->id,
+            'message' => 'Beta',
+            'created_at' => now()->subDays(2),
+        ]);
+        $newerBeta = Chirp::factory()->create([
+            'user_id' => $this->user->id,
+            'message' => 'Beta',
+            'created_at' => now(),
+        ]);
+        $alpha = Chirp::factory()->create([
+            'user_id' => $this->user->id,
+            'message' => 'Alpha',
+            'created_at' => now()->subDay(),
+        ]);
+
+        $response = $this->actingAs($this->user)->getJson('/api/chirps?sort=message,-created_at');
+
+        $response->assertStatus(200);
+        $this->assertSame(
+            [$alpha->id, $newerBeta->id, $olderBeta->id],
+            collect($response->json('items.data'))->pluck('id')->all()
+        );
+    }
+
+    public function test_chirps_default_to_newest_first(): void
+    {
+        $older = Chirp::factory()->create([
+            'user_id' => $this->user->id,
+            'created_at' => now()->subDay(),
+        ]);
+        $newer = Chirp::factory()->create([
+            'user_id' => $this->user->id,
+            'created_at' => now(),
+        ]);
+
+        $response = $this->actingAs($this->user)->getJson('/api/chirps');
+
+        $response->assertStatus(200);
+        $this->assertSame(
+            [$newer->id, $older->id],
+            collect($response->json('items.data'))->pluck('id')->all()
+        );
+    }
+
+    public function test_relationship_sort_preserves_chirp_ids(): void
+    {
+        $adam = User::factory()->create(['name' => 'Adam']);
+        $zoe = User::factory()->create(['name' => 'Zoe']);
+
+        $zoeChirp = Chirp::factory()->create(['user_id' => $zoe->id]);
+        $adamChirp = Chirp::factory()->create(['user_id' => $adam->id]);
+
+        $response = $this->actingAs($this->user)->getJson('/api/chirps?sort=user.name');
+
+        $response->assertStatus(200);
+        $this->assertSame(
+            [$adamChirp->id, $zoeChirp->id],
+            collect($response->json('items.data'))->pluck('id')->all()
+        );
+    }
+
     public function test_can_create_chirp_via_api(): void
     {
         $response = $this->actingAs($this->user)->postJson('/api/chirps', [
