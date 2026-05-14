@@ -31,6 +31,30 @@ class UserApiTest extends TestCase
         $response->assertJsonStructure(['items']);
     }
 
+    public function test_can_fetch_available_roles_via_api(): void
+    {
+        Role::create(['name' => 'chirper', 'guard_name' => 'web']);
+
+        $response = $this->actingAs($this->admin)->getJson('/api/system/users/roles');
+
+        $response->assertOk();
+        $response->assertJsonStructure(['roles']);
+        $this->assertCount(1, $response->json('roles'));
+        $this->assertSame('chirper', $response->json('roles.0.name'));
+    }
+
+    public function test_can_fetch_available_permissions_via_api(): void
+    {
+        Permission::create(['name' => 'chirp.view', 'guard_name' => 'web']);
+
+        $response = $this->actingAs($this->admin)->getJson('/api/system/users/permissions');
+
+        $response->assertOk();
+        $response->assertJsonStructure(['permissions']);
+        $names = collect($response->json('permissions'))->pluck('name')->all();
+        $this->assertContains('chirp.view', $names);
+    }
+
     public function test_can_show_user_via_api(): void
     {
         $user = User::factory()->create();

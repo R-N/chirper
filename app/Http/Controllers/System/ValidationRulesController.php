@@ -20,18 +20,16 @@ class ValidationRulesController extends Controller
         };
     }
 
-    public function index($request)
+    public function index()
     {
         return response()->json(array_map(function ($item) {
             return $this->getRules($item);
         }, self::ITEMS));
     }
 
-    public function show($request, $item)
+    public function show(string $item)
     {
-        $request->validate([
-            'item' => 'in:'.implode(',', self::ITEMS),
-        ]);
+        abort_unless(in_array($item, self::ITEMS, true), 404);
 
         return response()->json([
             'data' => $this->getRules($item),

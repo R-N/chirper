@@ -181,4 +181,16 @@ class ChirpApiTest extends TestCase
 
         $response->assertStatus(401);
     }
+
+    public function test_chirp_list_with_export_type_returns_download(): void
+    {
+        Chirp::factory()->create(['user_id' => $this->user->id]);
+
+        $response = $this->actingAs($this->user)->get('/api/chirps?export_type=xlsx');
+
+        $response->assertOk();
+        $disposition = strtolower((string) $response->headers->get('content-disposition', ''));
+        $this->assertStringContainsString('attachment', $disposition);
+        $this->assertStringContainsString('.xlsx', $disposition);
+    }
 }
