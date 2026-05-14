@@ -338,53 +338,55 @@ defineExpose({
         v-bind="ba.props"
       />
     </template>
-    <template v-slot:sortBar v-if="sortFields.length">
-      <div class="mr-3 sort-builder">
-        <div class="sort-builder__controls">
-          <VSelect
-            v-model="selectedSortField"
-            :items="sortFields"
-            label="Sort column"
-            clearable
-            density="compact"
-            variant="underlined"
-            hide-details
-            class="sort-builder__field"
-          />
-          <VBtnToggle
-            v-model="selectedSortDirection"
-            mandatory
-            divided
-            density="compact"
-            class="sort-builder__direction"
-          >
-            <VBtn
-              v-for="direction in sortDirections"
-              :key="direction.value"
-              :value="direction.value"
-              :icon="direction.icon"
-              :title="direction.title"
-              size="small"
-            />
-          </VBtnToggle>
+    <template v-slot:sortControls v-if="sortFields.length">
+      <div class="sort-controls-bar d-flex flex-wrap align-center">
+        <VSelect
+          v-model="selectedSortField"
+          :items="sortFields"
+          label="Sort column"
+          clearable
+          density="compact"
+          variant="underlined"
+          hide-details
+          class="sort-builder__field"
+        />
+        <VBtnToggle
+          v-model="selectedSortDirection"
+          mandatory
+          divided
+          density="compact"
+          class="sort-builder__direction"
+        >
           <VBtn
-            icon="mdi-plus"
-            title="Add sorting"
+            v-for="direction in sortDirections"
+            :key="direction.value"
+            :value="direction.value"
+            :icon="direction.icon"
+            :title="direction.title"
             size="small"
-            variant="text"
-            :disabled="!selectedSortField"
-            @click="addSort"
           />
-          <VBtn
-            v-if="sortValues.length"
-            icon="mdi-close"
-            title="Clear sorting"
-            size="small"
-            variant="text"
-            @click="clearSorts"
-          />
-        </div>
-        <div v-if="sortValues.length" class="sort-builder__chips">
+        </VBtnToggle>
+        <VBtn
+          icon="mdi-plus"
+          title="Add sorting"
+          size="small"
+          variant="text"
+          :disabled="!selectedSortField"
+          @click="addSort"
+        />
+        <VBtn
+          v-if="sortValues.length"
+          icon="mdi-close"
+          title="Clear sorting"
+          size="small"
+          variant="text"
+          @click="clearSorts"
+        />
+      </div>
+    </template>
+    <template v-slot:sortChips v-if="sortFields.length && sortValues.length">
+      <div class="sort-chips-row w-100">
+        <div class="sort-builder__chips">
           <VChip
             v-for="value in sortValues"
             :key="value"
@@ -630,13 +632,11 @@ defineExpose({
 .filter-date {
   min-width: 8rem;
 }
-.sort-builder {
-  min-width: 20rem;
-}
-.sort-builder__controls {
-  align-items: center;
-  display: flex;
+.sort-controls-bar {
   gap: 0.35rem;
+}
+.sort-chips-row .sort-builder__chips {
+  margin-top: 0;
 }
 .sort-builder__field {
   min-width: 11rem;

@@ -155,7 +155,7 @@ function slotFilled(name: string) {
         class="toolbar-right-cluster d-flex flex-wrap align-center justify-end"
       >
         <slot name="toolbar-right" :busy="busy"></slot>
-        <slot name="sortBar" :busy="busy" :fetch="fetch"></slot>
+        <slot name="sortControls" :busy="busy" :fetch="fetch"></slot>
         <slot name="filterControls" :busy="busy" :fetch="fetch"></slot>
         <VTextField
           v-if="!(typeof mySearch === 'undefined' || mySearch === null)"
@@ -169,8 +169,24 @@ function slotFilled(name: string) {
         ></VTextField>
       </div>
     </template>
-    <template v-slot:filtersBar v-if="slotFilled('filterFields')">
-      <slot name="filterFields" :busy="busy" :fetch="fetch"></slot>
+    <template
+      v-slot:filtersBar
+      v-if="slotFilled('sortChips') || slotFilled('filterFields')"
+    >
+      <div class="filters-bar-stack w-100">
+        <div
+          v-if="slotFilled('sortChips')"
+          class="filters-bar-stack__row filters-bar-stack__row--sort-chips"
+        >
+          <slot name="sortChips" :busy="busy" :fetch="fetch"></slot>
+        </div>
+        <div
+          v-if="slotFilled('filterFields')"
+          class="filters-bar-stack__row filters-bar-stack__row--filter-fields"
+        >
+          <slot name="filterFields" :busy="busy" :fetch="fetch"></slot>
+        </div>
+      </div>
     </template>
     <template v-slot:content>
       <slot name="content" :busy="busy"></slot>
@@ -183,6 +199,15 @@ function slotFilled(name: string) {
 <style scoped>
 .toolbar-right-cluster {
   gap: 0.35rem;
+}
+.filters-bar-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+.filters-bar-stack__row {
+  width: 100%;
 }
 .search-field {
   width: 14rem;
