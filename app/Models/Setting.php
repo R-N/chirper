@@ -10,13 +10,14 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Setting extends BaseModel
 {
-    use Traits\Validable, LogsActivity;
+    use LogsActivity, Traits\Validable;
 
     public const TABLE = 'settings';
 
     protected $table = self::TABLE;
 
     public const FILLABLE = ['key', 'type', 'value', 'options'];
+
     protected $fillable = self::FILLABLE;
 
     public function getActivitylogOptions(): \Spatie\Activitylog\LogOptions
@@ -84,8 +85,16 @@ class Setting extends BaseModel
 
         static::creating(function ($setting) {
             if (array_key_exists('value', $setting->getAttributes())) {
-                $setting->validateValue($setting->value);
+                $setting->validateValue($setting->getAttributes()['value']);
             }
+        });
+
+        static::saved(function () {
+            Cacher::forgetAll(self::TABLE);
+        });
+
+        static::deleted(function () {
+            Cacher::forgetAll(self::TABLE);
         });
     }
 

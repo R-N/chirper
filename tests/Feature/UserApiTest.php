@@ -4,6 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class UserApiTest extends TestCase
@@ -91,5 +94,59 @@ class UserApiTest extends TestCase
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['email']);
+    }
+
+    public function test_can_set_user_enabled_and_verified_flags(): void
+    {
+        $user = User::factory()->unverified()->create(['enabled' => false]);
+
+        $this->actingAs($this->admin)
+            ->putJson("/api/system/users/{$user->id}/enabled", ['enabled' => true])
+            ->assertStatus(200);
+
+        $this->actingAs($this->admin)
+            ->putJson("/api/system/users/{$user->id}/verified", ['verified' => true])
+            ->assertStatus(200);
+
+        $user->refresh();
+        $this->assertTrue((bool) $user->enabled);
+        $this->assertTrue($user->verified);
+    }
+
+    public function test_can_update_user_roles_and_permissions_from_object_payloads(): void
+    {
+        Role::create(['name' => 'chirper']);
+        Permission::create(['name' => 'chirp.view']);
+        $user = User::factory()->create();
+
+        $this->actingAs($this->admin)
+            ->putJson("/api/system/users/{$user->id}/roles", [
+                'roles' => [['name' => 'chirper']],
+            ])
+            ->assertStatus(200);
+
+        $this->actingAs($this->admin)
+            ->putJson("/api/system/users/{$user->id}/permissions", [
+                'permissions' => [['name' => 'chirp.view']],
+            ])
+            ->assertStatus(200);
+
+        $this->assertTrue($user->fresh()->hasRole('chirper'));
+        $this->assertTrue($user->fresh()->hasPermissionTo('chirp.view'));
+    }
+
+    public function test_user_email_update_resets_verification(): void
+    {
+        Notification::fake();
+        $user = User::factory()->create(['email' => 'old@example.com']);
+
+        $this->actingAs($this->admin)->patchJson("/api/system/users/{$user->id}", [
+            'name' => $user->name,
+            'email' => 'new@example.com',
+        ])->assertStatus(200);
+
+        $user->refresh();
+        $this->assertSame('new@example.com', $user->email);
+        $this->assertNull($user->email_verified_at);
     }
 }

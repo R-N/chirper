@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Chirp;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ChirpApiTest extends TestCase
@@ -126,6 +127,34 @@ class ChirpApiTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertDatabaseMissing('chirps', ['id' => $chirp->id]);
+    }
+
+    public function test_can_bulk_delete_chirps_via_api(): void
+    {
+        $chirps = Chirp::factory()->count(2)->create(['user_id' => $this->user->id]);
+
+        $response = $this->actingAs($this->user)->postJson('/api/chirps/bulk/destroy', [
+            'ids' => $chirps->pluck('id')->all(),
+        ]);
+
+        $response->assertStatus(200);
+        $chirps->each(fn (Chirp $chirp) => $this->assertDatabaseMissing('chirps', ['id' => $chirp->id]));
+    }
+
+    public function test_deleting_chirp_removes_stored_photo(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('chirps/photo.jpg', 'photo');
+        $chirp = Chirp::factory()->create([
+            'user_id' => $this->user->id,
+            'photo' => 'chirps/photo.jpg',
+        ]);
+
+        $this->actingAs($this->user)
+            ->deleteJson("/api/chirps/{$chirp->id}")
+            ->assertStatus(200);
+
+        Storage::disk('public')->assertMissing('chirps/photo.jpg');
     }
 
     public function test_chirp_validation_requires_message(): void
