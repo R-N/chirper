@@ -460,3 +460,58 @@ class UserService extends CrudService {
 **Auth redirect loops** — SPA guard redirects logged-in users from guest routes to `dashboard`. Ensure guest pages have `meta: { guest: true }` in `router/index.js`.
 
 **Uploaded file 404s** — The `storage/{filepath}` route in `routes/web.php` serves files from `storage/app/public/` directly. PHP built-in server doesn't follow the `public/storage` symlink, and Apache may block `/storage/` URIs. This route is the fallback for both cases.
+
+
+## RTK (Rust Token Killer)
+
+RTK is a token optimization tool that filters command output to reduce tokens by 60-90% on common dev operations. Always prefix commands with `rtk` — it uses dedicated filters when available, otherwise passes through unchanged.
+
+**Usage in this project:**
+- `rtk php artisan test` — Shows test failures only (90% savings)
+- `rtk vendor/bin/pint --test` — Dry-run PHP code style (75% savings)
+- `rtk php artisan permission:*` — Compact permission commands (59-80% savings)
+- `rtk php artisan backup:*` — Compact backup commands (26-87% savings)
+- `rtk php artisan activitylog:clean` — Compact activity log cleaning
+- `rtk php artisan config:cache|route:cache|view:cache|optimize` — Compact cache commands
+- `rtk php artisan schedule:list|schedule:run` — Compact schedule commands
+
+See `~/.claude/CLAUDE.md` for complete RTK command list and savings details.
+
+
+## Getting Started
+
+1. **Environment setup**
+   - Copy `.env.example` → `.env`
+   - Run `composer install`
+   - Generate app key: `php artisan key:generate`
+   - Run migrations: `php artisan migrate`
+   - Seed database: `php artisan db:seed`
+
+2. **Frontend setup**
+   - Install JS deps: `npm install`
+   - Set frontend mode in `.env`: `VITE_APP_MODE=inertia` (default) or `spa`
+
+3. **Development**
+   - Full stack: `composer dev` (runs php serve, queue worker, pail logs, vite concurrently)
+   - Backend only: `php artisan serve`
+   - Frontend only: `npm run dev`
+   - Production build: `npm run build` (sourcemaps on, minify off)
+
+4. **Testing**
+   - All tests: `php artisan test`
+   - Single test: `php artisan test --filter=TestName`
+   - Failures only (RTK): `rtk php artisan test`
+   - PHP code style: `rtk vendor/bin/pint --test`
+
+5. **Common tasks**
+   - Clear caches: `clear.bat` (Windows shortcut) or run cache commands individually
+   - Manage permissions: `rtk php artisan permission:create-role "admin"` etc.
+   - Run backups: `rtk php artisan backup:run`
+   - View scheduled tasks: `rtk php artisan schedule:list`
+
+6. **Architecture notes**
+   - **Backend**: Laravel 11 with BaseModel pattern. Models define `columns()` method driving `query2()`, `rules()`, and `export()`.
+   - **Frontend**: Vue 3 + Inertia.js + Vuetify 3 + TypeScript. Supports Inertia (default) and SPA modes via `VITE_APP_MODE`.
+   - **Key pattern**: Declarative CRUD — define `columns()` on model, `fields`/`actions` on frontend for full CRUD with filtering, sorting, search, export, inline editing, bulk actions.
+   - **Critical**: Backend `columns()` keys must match frontend field `value`/`name` props. Use `php artisan columns:export` to generate TypeScript types.
+   - **SPA mode**: Always use `route('name')` helper from Ziggy for hrefs. Hardcoded paths cause 403 errors.
