@@ -5,6 +5,7 @@
   "chirps_crud": "Chirps CRUD",
   "system": "System",
   "users": "Users",
+  "roles": "Peran",
   "backup": "Backup",
   "settings": "Pengaturan",
   "activity_log": "Log Aktivitas",

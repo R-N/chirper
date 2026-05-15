@@ -128,6 +128,17 @@ const routes = [
     },
   },
   {
+    path: "/system/roles",
+    name: "system.roles.index",
+    component: () => import("@/modules/system/roles/views/Roles.vue"),
+    meta: {
+      breadcrumbs: [
+        { title: () => t("navigation.system") },
+        { title: () => t("navigation.roles") },
+      ],
+    },
+  },
+  {
     path: "/system/backups",
     name: "system.backups.index",
     component: () => import("@/modules/system/backups/views/Backups.vue"),

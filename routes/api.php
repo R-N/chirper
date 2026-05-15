@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\System\BootstrapController;
 use App\Http\Controllers\System\DebugController;
 use App\Http\Controllers\System\LanguageController;
+use App\Http\Controllers\System\RoleController;
 use App\Http\Controllers\System\SettingsController;
 use App\Http\Controllers\System\UserController;
 use App\Http\Controllers\System\ValidationRulesController;
@@ -31,6 +32,10 @@ Route::as('api.')->group(function () {
         Route::prefix('system/users')->as('system.users.')->middleware(['auth'])->group(function () {
             Route::get('/roles', [UserController::class, 'getAvailableRoles'])->name('get-available-roles');
             Route::get('/permissions', [UserController::class, 'getAvailablePermissions'])->name('get-available-permissions');
+        });
+
+        Route::prefix('system/roles')->as('system.roles.')->middleware(['auth'])->group(function () {
+            Route::get('/permissions', [RoleController::class, 'getAvailablePermissions'])->name('get-available-permissions');
         });
 
         Route::get('refresh-token', [AuthenticatedSessionController::class, 'refreshToken'])->name('token.refresh');

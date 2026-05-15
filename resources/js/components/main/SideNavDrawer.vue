@@ -57,6 +57,10 @@ const items = computed(() => [
         href: route("system.users.index")
       },
       {
+        text: t("navigation.roles"),
+        href: route("system.roles.index")
+      },
+      {
         text: t("navigation.backup"),
         href: route("system.backups.index")
       },

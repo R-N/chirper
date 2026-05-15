@@ -3,6 +3,7 @@ import type { Component } from "vue";
 export { CHIRP_FIELDS, type ChirpFieldName, type ChirpField } from "./generated/ChirpFields";
 export { USER_FIELDS, type UserFieldName, type UserField } from "./generated/UserFields";
 export { SETTING_FIELDS, type SettingFieldName, type SettingField } from "./generated/SettingFields";
+export { ROLE_FIELDS, type RoleFieldName, type RoleField } from "./generated/RoleFields";
 
 export interface FieldOverrides {
   component?: Component;

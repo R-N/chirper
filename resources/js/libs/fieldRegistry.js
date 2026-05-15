@@ -2,6 +2,7 @@ import { markRaw } from "vue";
 import FieldText from "@/components/form/field/FieldText.vue";
 import FieldTextArea from "@/components/form/field/FieldTextArea.vue";
 import FieldSelect from "@/components/form/field/FieldSelect.vue";
+import FieldMultiSelect from "@/components/form/field/FieldMultiSelect.vue";
 import FieldNumber from "@/components/form/field/FieldNumber.vue";
 import FieldCheckbox from "@/components/form/field/FieldCheckbox.vue";
 import FieldDate from "@/components/form/field/FieldDate.vue";
@@ -12,6 +13,7 @@ const registry = {
   string: { cell: markRaw(FieldText) },
   textarea: { cell: markRaw(FieldTextArea) },
   select: { cell: markRaw(FieldSelect) },
+  multiselect: { cell: markRaw(FieldMultiSelect) },
   currency: { cell: markRaw(FieldText) },
   number: { cell: markRaw(FieldNumber) },
   integer: { cell: markRaw(FieldNumber) },

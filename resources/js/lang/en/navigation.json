@@ -5,6 +5,7 @@
   "chirps_crud": "Chirps CRUD",
   "system": "System",
   "users": "Users",
+  "roles": "Roles",
   "backup": "Backup",
   "settings": "Settings",
   "activity_log": "Activity Log",

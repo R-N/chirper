@@ -1,0 +1,7 @@
+{
+  "title": "Roles",
+  "item": "Role",
+  "name": "Name",
+  "guard_name": "Guard",
+  "permissions": "Permissions"
+}

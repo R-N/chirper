@@ -12,6 +12,7 @@ use App\Http\Controllers\Chirps\ChirpController;
 use App\Http\Controllers\System\ActivityController;
 use App\Http\Controllers\System\BackupController;
 use App\Http\Controllers\System\LanguageController;
+use App\Http\Controllers\System\RoleController;
 use App\Http\Controllers\System\SettingsController;
 use App\Http\Controllers\System\UserController;
 use App\Http\Controllers\User\ApiTokenController;
@@ -106,6 +107,15 @@ Route::middleware([
         Route::put('/{user}/roles', [UserController::class, 'setRoles'])->name('set-roles');
         Route::put('/{user}/permissions', [UserController::class, 'setPermissions'])->name('set-permissions');
         Route::get('/export', [UserController::class, 'export'])->name('export');
+    });
+
+    Route::prefix('system/roles')->as('system.roles.')->middleware(['auth'])->group(function () {
+        Route::get('/', [RoleController::class, 'index'])->name('index');
+        Route::post('/', [RoleController::class, 'store'])->name('store');
+        Route::get('/export', [RoleController::class, 'export'])->name('export');
+        Route::match(['put', 'patch'], '/{role}', [RoleController::class, 'update'])->name('update');
+        Route::delete('/{role}', [RoleController::class, 'destroy'])->name('destroy');
+        Route::put('/{role}/permissions', [RoleController::class, 'setPermissions'])->name('set-permissions');
     });
 
     Route::prefix('system/activity')->as('system.activity.')->group(function () {
