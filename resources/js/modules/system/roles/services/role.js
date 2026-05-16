@@ -6,10 +6,11 @@ class RoleService extends CrudService {
       name: "Role",
       endpoint: "/api/system/roles",
       methods: ["get", "post", "patch", "delete", "put"],
-      fields: ["name", "guard_name", "permissions"],
+      fields: ["name", "level", "can_manage_peers", "permissions"],
       setters: [
         "name",
-        "guard_name",
+        "level",
+        "can_manage_peers",
         {
           field: "permissions",
           method: "put",

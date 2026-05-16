@@ -13,6 +13,13 @@ export function setupGuards(router) {
     if (!to.meta.guest && !isLoggedIn) {
       return { name: "login", query: { redirect: to.fullPath } };
     }
+
+    if (to.meta.permission && isLoggedIn) {
+      const permissions = new Set((authStore.user?.permissions ?? []).map((p) => p.name));
+      if (!permissions.has(to.meta.permission)) {
+        return { name: "dashboard" };
+      }
+    }
   });
 
   router.afterEach((to) => {

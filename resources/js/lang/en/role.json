@@ -2,6 +2,7 @@
   "title": "Roles",
   "item": "Role",
   "name": "Name",
-  "guard_name": "Guard",
+  "level": "Level",
+  "can_manage_peers": "Manage Peers",
   "permissions": "Permissions"
 }

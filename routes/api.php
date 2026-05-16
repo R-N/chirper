@@ -29,12 +29,12 @@ Route::as('api.')->group(function () {
             Route::get('/types', [SettingsController::class, 'fetchTypes'])->name('fetch-types');
         });
 
-        Route::prefix('system/users')->as('system.users.')->middleware(['auth'])->group(function () {
+        Route::prefix('system/users')->as('system.users.')->middleware(['auth', 'permission:user.edit'])->group(function () {
             Route::get('/roles', [UserController::class, 'getAvailableRoles'])->name('get-available-roles');
             Route::get('/permissions', [UserController::class, 'getAvailablePermissions'])->name('get-available-permissions');
         });
 
-        Route::prefix('system/roles')->as('system.roles.')->middleware(['auth'])->group(function () {
+        Route::prefix('system/roles')->as('system.roles.')->middleware(['auth', 'permission:role.edit'])->group(function () {
             Route::get('/permissions', [RoleController::class, 'getAvailablePermissions'])->name('get-available-permissions');
         });
 

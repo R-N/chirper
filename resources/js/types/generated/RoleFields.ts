@@ -3,7 +3,8 @@
 export const ROLE_FIELDS = {
   "id": { name: "id", label: "ID" as const, type: "number" as const, filter: "exact" as const, sort: true as const },
   "name": { name: "name", label: "Name" as const, type: "string" as const, filter: "partial" as const, sort: true as const, search: true as const, rules: "required|string|max:255|unique:roles,name" as const },
-  "guard_name": { name: "guard_name", label: "Guard" as const, type: "string" as const, filter: "partial" as const, sort: true as const, search: true as const, rules: "required|string|max:255" as const },
+  "level": { name: "level", label: "Level" as const, type: "number" as const, filter: "exact" as const, sort: true as const, rules: "required|integer|min:0" as const },
+  "can_manage_peers": { name: "can_manage_peers", label: "Manage Peers" as const, type: "bool" as const, filter: "exact" as const, sort: true as const, rules: "boolean" as const },
   "permissions.name": { name: "permissions.name", label: "Permissions" as const, type: "string" as const, filter: "partial" as const, sort: "custom:permissions.name" as const, search: "permissions->name" as const, rules: "string|max:255|exists:permissions,name" as const },
   "permissions": { name: "permissions", rules: "array" as const },
   "permissions.*": { name: "permissions.*", rules: "string|max:255|exists:permissions,name" as const }

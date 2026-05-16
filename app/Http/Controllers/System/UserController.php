@@ -4,6 +4,7 @@ namespace App\Http\Controllers\System;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\RoleAuthorization;
 use App\Utils\ArrayUtil;
 use App\Utils\ExportUtil;
 use App\Utils\ResponseUtil;
@@ -65,7 +66,13 @@ class UserController extends Controller
             )
         );
 
-        // Create the user without setting a password
+        if (isset($data['roles'])) {
+            RoleAuthorization::assertUserRoles($request->user(), new User, $data['roles']);
+        }
+        if (isset($data['permissions'])) {
+            RoleAuthorization::assertUserPermissions($request->user(), new User, $data['permissions']);
+        }
+
         $user = User::create([
             'email' => $data['email'],
             'name' => $data['name'],
@@ -100,11 +107,17 @@ class UserController extends Controller
 
         $data = $request->validate($rules);
 
+        if (isset($data['roles'])) {
+            $oldRoles = $user->roles->pluck('name')->toArray();
+            RoleAuthorization::assertUserRoles($request->user(), $user, $data['roles'], $oldRoles);
+        }
+        if (isset($data['permissions'])) {
+            $oldPermissions = $user->permissions->pluck('name')->toArray();
+            RoleAuthorization::assertUserPermissions($request->user(), $user, $data['permissions'], $oldPermissions);
+        }
+
         $user->update($data);
-
-        // Save the user
         $user->save();
-
         $user->loadEntities();
 
         return ResponseUtil::jsonRedirectResponse([
@@ -188,11 +201,11 @@ class UserController extends Controller
             ),
         );
 
-        // Update the email address
-        $user->update($data);
-        // Save the user
-        $user->save();
+        $oldRoles = $user->roles->pluck('name')->toArray();
+        RoleAuthorization::assertUserRoles($request->user(), $user, $data['roles'], $oldRoles);
 
+        $user->update($data);
+        $user->save();
         $user->loadEntities();
 
         return ResponseUtil::jsonRedirectResponse([
@@ -211,11 +224,11 @@ class UserController extends Controller
             ),
         );
 
-        // Update the email address
-        $user->update($data);
-        // Save the user
-        $user->save();
+        $oldPermissions = $user->permissions->pluck('name')->toArray();
+        RoleAuthorization::assertUserPermissions($request->user(), $user, $data['permissions'], $oldPermissions);
 
+        $user->update($data);
+        $user->save();
         $user->loadEntities();
 
         return ResponseUtil::jsonRedirectResponse([
@@ -239,22 +252,17 @@ class UserController extends Controller
         ], route('system.users.index'));
     }
 
-    public function getAvailableRoles()
+    public function getAvailableRoles(Request $request)
     {
-        $allowedRoles = ['chirper'];
-        $roles = Role::whereIn('name', $allowedRoles)->get();
-
         return response()->json([
-            'roles' => $roles,
+            'roles' => RoleAuthorization::assignableRoles($request->user()),
         ]);
     }
 
-    public function getAvailablePermissions()
+    public function getAvailablePermissions(Request $request)
     {
-        $permissions = Permission::all();
-
         return response()->json([
-            'permissions' => $permissions,
+            'permissions' => RoleAuthorization::assignablePermissions($request->user()),
         ]);
     }
 

@@ -2,8 +2,11 @@
 import { computed, onMounted, ref } from "vue";
 
 import DeclarativeCrudView from "@/views/DeclarativeCrudView.vue";
+import SyncCheckboxField from "@/components/checkbox/SyncCheckboxField.vue";
 import { getArrayText } from "@/libs/util";
 import { t } from "@/plugins/i18n";
+import { useCrud } from "@/composables/useCrud";
+import { useWorking } from "@/composables/useWorking";
 import roleService from "../services/role";
 
 const client = roleService;
@@ -12,9 +15,13 @@ const nameField = "name";
 const crud = ref<InstanceType<typeof DeclarativeCrudView> | null>(null);
 const availablePermissions = ref<any[]>([]);
 
+const { waitBusy } = useWorking();
+const crudHelper = useCrud({ client: roleService, waitBusy, nameField: "name" });
+
 const rules = {
   name: "required|string|max:255",
-  guard_name: "required|string|max:255",
+  level: "required|integer|min:0",
+  can_manage_peers: "boolean",
   permissions: "array",
   "permissions.*": "string|max:255|exists:permissions,name",
 };
@@ -35,14 +42,28 @@ const fields = computed(() => [
     sortable: true,
   },
   {
-    type: "text",
-    name: "guard_name",
-    value: "guard_name",
-    title: t("role.guard_name"),
-    label: t("role.guard_name"),
+    type: "number",
+    name: "level",
+    value: "level",
+    title: t("role.level"),
+    label: t("role.level"),
     table: true,
     editable: true,
     sortable: true,
+  },
+  {
+    component: SyncCheckboxField,
+    name: "can_manage_peers",
+    value: "can_manage_peers",
+    title: t("role.can_manage_peers"),
+    table: true,
+    editable: false,
+    confirmTextMaker: (data: any, _value: any) =>
+      crudHelper.toggleFieldConfirmText("can_manage_peers", t("role.disabling_peer_mgmt"), t("role.enabling_peer_mgmt"), data),
+    props: {
+      textEnable: t("crud.enable"),
+      textDisable: t("crud.disable"),
+    },
   },
   {
     type: "multiselect",
@@ -73,7 +94,7 @@ const formDialog = computed(() => ({
     ...field,
     table: false,
     form: true,
-    required: field.name !== "permissions",
+    required: field.name !== "permissions" && field.name !== "can_manage_peers",
   })),
 }));
 

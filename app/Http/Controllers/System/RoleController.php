@@ -4,6 +4,7 @@ namespace App\Http\Controllers\System;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;
+use App\Support\RoleAuthorization;
 use App\Utils\ArrayUtil;
 use App\Utils\ExportUtil;
 use App\Utils\ResponseUtil;
@@ -43,12 +44,19 @@ class RoleController extends Controller
         $data = $request->validate(
             ArrayUtil::filterArray(
                 Role::rules(),
-                ['name', 'guard_name', 'permissions', 'permissions.*']
+                ['name', 'level', 'can_manage_peers', 'permissions', 'permissions.*']
             )
         );
 
+        $level = (int) ($data['level'] ?? 0);
+        $canManagePeers = (bool) ($data['can_manage_peers'] ?? false);
+
+        RoleAuthorization::assertRoleCreate($request->user(), $level, $canManagePeers);
+
         $permissions = $data['permissions'] ?? [];
         unset($data['permissions']);
+
+        $data['guard_name'] = $data['guard_name'] ?? 'web';
 
         $role = Role::create($data);
         $role->syncPermissions($permissions);
@@ -67,7 +75,7 @@ class RoleController extends Controller
         $rules = ValidationUtil::filterRules(
             ArrayUtil::filterArray(
                 Role::rules(),
-                ['name', 'guard_name', 'permissions', 'permissions.*']
+                ['name', 'level', 'can_manage_peers', 'permissions', 'permissions.*']
             ),
             ['required']
         );
@@ -76,6 +84,13 @@ class RoleController extends Controller
         $data = $request->validate($rules);
         $permissions = $data['permissions'] ?? null;
         unset($data['permissions']);
+
+        RoleAuthorization::assertRoleUpdate(
+            $request->user(),
+            $role,
+            isset($data['level']) ? (int) $data['level'] : null,
+            isset($data['can_manage_peers']) ? (bool) $data['can_manage_peers'] : null,
+        );
 
         $role->update($data);
         if ($permissions !== null) {
@@ -91,6 +106,8 @@ class RoleController extends Controller
 
     public function destroy(Role $role)
     {
+        RoleAuthorization::assertRoleDelete(request()->user(), $role);
+
         $role->delete();
 
         return ResponseUtil::jsonRedirectResponse([
@@ -118,10 +135,10 @@ class RoleController extends Controller
         ], route('system.roles.index'));
     }
 
-    public function getAvailablePermissions()
+    public function getAvailablePermissions(Request $request)
     {
         return response()->json([
-            'permissions' => Permission::query()->orderBy('name')->get(),
+            'permissions' => RoleAuthorization::assignablePermissions($request->user()),
         ]);
     }
 

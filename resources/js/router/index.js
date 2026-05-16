@@ -110,6 +110,7 @@ const routes = [
     name: "system.users.index",
     component: () => import("@/modules/system/users/views/Users.vue"),
     meta: {
+      permission: "user.view",
       breadcrumbs: [
         { title: () => t("navigation.system") },
         { title: () => t("navigation.users") },
@@ -121,6 +122,7 @@ const routes = [
     name: "system.users.show",
     component: () => import("@/modules/system/users/views/User.vue"),
     meta: {
+      permission: "user.view",
       breadcrumbs: [
         { title: () => t("navigation.system") },
         { title: () => t("navigation.users") },
@@ -132,6 +134,7 @@ const routes = [
     name: "system.roles.index",
     component: () => import("@/modules/system/roles/views/Roles.vue"),
     meta: {
+      permission: "role.view",
       breadcrumbs: [
         { title: () => t("navigation.system") },
         { title: () => t("navigation.roles") },
@@ -143,6 +146,7 @@ const routes = [
     name: "system.backups.index",
     component: () => import("@/modules/system/backups/views/Backups.vue"),
     meta: {
+      permission: "user.view",
       breadcrumbs: [
         { title: () => t("navigation.system") },
         { title: () => t("navigation.backup") },
@@ -154,6 +158,7 @@ const routes = [
     name: "system.settings.index",
     component: () => import("@/modules/system/settings/views/Settings.vue"),
     meta: {
+      permission: "user.view",
       breadcrumbs: [
         { title: () => t("navigation.system") },
         { title: () => t("navigation.settings") },
@@ -165,6 +170,7 @@ const routes = [
     name: "system.activity.index",
     component: () => import("@/modules/system/activity/views/Activity.vue"),
     meta: {
+      permission: "user.view",
       breadcrumbs: [
         { title: () => t("navigation.system") },
         { title: () => t("navigation.activity_log") },
@@ -176,6 +182,7 @@ const routes = [
     name: "system.activity.show",
     component: () => import("@/modules/system/activity/views/ActivityShow.vue"),
     meta: {
+      permission: "user.view",
       breadcrumbs: [
         { title: () => t("navigation.system") },
         { title: () => t("navigation.activity_log") },

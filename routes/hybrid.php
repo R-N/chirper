@@ -95,27 +95,31 @@ Route::middleware([
         Route::get('/export', [BackupController::class, 'export'])->name('export');
     });
 
-    Route::prefix('system/users')->as('system.users.')->middleware(['auth'])->group(function () {
+    Route::prefix('system/users')->as('system.users.')->middleware(['auth', 'permission:user.view'])->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('index');
-        Route::post('/', [UserController::class, 'store'])->name('store');
-        Route::match(['put', 'patch'], '/{user}', [UserController::class, 'update'])->name('update');
         Route::get('/{user}', [UserController::class, 'show'])->name('show');
-        Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
-        Route::delete('/{user}/password', [UserController::class, 'clearPassword'])->name('clear-password');
-        Route::put('/{user}/verified', [UserController::class, 'setVerified'])->name('set-verified');
-        Route::put('/{user}/enabled', [UserController::class, 'setEnabled'])->name('set-enabled');
-        Route::put('/{user}/roles', [UserController::class, 'setRoles'])->name('set-roles');
-        Route::put('/{user}/permissions', [UserController::class, 'setPermissions'])->name('set-permissions');
         Route::get('/export', [UserController::class, 'export'])->name('export');
     });
+    Route::prefix('system/users')->as('system.users.')->middleware(['auth'])->group(function () {
+        Route::post('/', [UserController::class, 'store'])->middleware('permission:user.create')->name('store');
+        Route::match(['put', 'patch'], '/{user}', [UserController::class, 'update'])->middleware('permission:user.edit')->name('update');
+        Route::delete('/{user}', [UserController::class, 'destroy'])->middleware('permission:user.delete')->name('destroy');
+        Route::delete('/{user}/password', [UserController::class, 'clearPassword'])->middleware('permission:user.clear-password')->name('clear-password');
+        Route::put('/{user}/verified', [UserController::class, 'setVerified'])->middleware('permission:user.set-verified')->name('set-verified');
+        Route::put('/{user}/enabled', [UserController::class, 'setEnabled'])->middleware('permission:user.set-enabled')->name('set-enabled');
+        Route::put('/{user}/roles', [UserController::class, 'setRoles'])->middleware('permission:user.edit')->name('set-roles');
+        Route::put('/{user}/permissions', [UserController::class, 'setPermissions'])->middleware('permission:user.edit')->name('set-permissions');
+    });
 
-    Route::prefix('system/roles')->as('system.roles.')->middleware(['auth'])->group(function () {
+    Route::prefix('system/roles')->as('system.roles.')->middleware(['auth', 'permission:role.view'])->group(function () {
         Route::get('/', [RoleController::class, 'index'])->name('index');
-        Route::post('/', [RoleController::class, 'store'])->name('store');
         Route::get('/export', [RoleController::class, 'export'])->name('export');
-        Route::match(['put', 'patch'], '/{role}', [RoleController::class, 'update'])->name('update');
-        Route::delete('/{role}', [RoleController::class, 'destroy'])->name('destroy');
-        Route::put('/{role}/permissions', [RoleController::class, 'setPermissions'])->name('set-permissions');
+    });
+    Route::prefix('system/roles')->as('system.roles.')->middleware(['auth'])->group(function () {
+        Route::post('/', [RoleController::class, 'store'])->middleware('permission:role.create')->name('store');
+        Route::match(['put', 'patch'], '/{role}', [RoleController::class, 'update'])->middleware('permission:role.edit')->name('update');
+        Route::delete('/{role}', [RoleController::class, 'destroy'])->middleware('permission:role.delete')->name('destroy');
+        Route::put('/{role}/permissions', [RoleController::class, 'setPermissions'])->middleware('permission:role.edit')->name('set-permissions');
     });
 
     Route::prefix('system/activity')->as('system.activity.')->group(function () {

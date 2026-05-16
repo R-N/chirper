@@ -10,16 +10,16 @@ class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        // Clear cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Define roles and their permissions
         $rolesLevels = [
             'admin' => 10,
             'chirper' => 0,
         ];
+
         $rolesPermissions = [
             'admin' => [
+                // User management
                 'user.create',
                 'user.edit',
                 'user.view',
@@ -28,6 +28,11 @@ class RolePermissionSeeder extends Seeder
                 'user.set-verified',
                 'user.set-enabled',
                 'user.clear-password',
+                // Role management
+                'role.create',
+                'role.edit',
+                'role.view',
+                'role.delete',
             ],
             'chirper' => [
                 'chirp.create',
@@ -37,25 +42,21 @@ class RolePermissionSeeder extends Seeder
             ],
         ];
 
-        // Define permissions
-        $permissions = [];
         $permissions = collect($rolesPermissions)
             ->flatten()
-            ->merge($permissions)
             ->unique()
-            ->values()->all();
+            ->values()
+            ->all();
 
-        // Create permissions
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
         }
 
-        // Create roles and assign permissions
         foreach ($rolesPermissions as $roleName => $perms) {
             $role = Role::firstOrCreate(['name' => $roleName]);
             $role->syncPermissions($perms);
         }
-        // Set role levels
+
         foreach ($rolesLevels as $roleName => $level) {
             Role::updateOrCreate(
                 ['name' => $roleName],
@@ -63,5 +64,7 @@ class RolePermissionSeeder extends Seeder
             );
         }
 
+        // Set can_manage_peers on admin
+        Role::where('name', 'admin')->update(['can_manage_peers' => true]);
     }
 }

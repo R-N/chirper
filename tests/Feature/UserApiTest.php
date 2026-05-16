@@ -18,7 +18,20 @@ class UserApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        $adminRole = Role::create(['name' => 'admin', 'guard_name' => 'web', 'level' => 10, 'can_manage_peers' => true]);
+        Permission::create(['name' => 'chirp.view', 'guard_name' => 'web']);
+        Permission::create(['name' => 'chirp.create', 'guard_name' => 'web']);
+        Permission::create(['name' => 'user.create', 'guard_name' => 'web']);
+        Permission::create(['name' => 'user.edit', 'guard_name' => 'web']);
+        Permission::create(['name' => 'user.view', 'guard_name' => 'web']);
+        Permission::create(['name' => 'user.delete', 'guard_name' => 'web']);
+        Permission::create(['name' => 'user.set-verified', 'guard_name' => 'web']);
+        Permission::create(['name' => 'user.set-enabled', 'guard_name' => 'web']);
+        $adminRole->syncPermissions(['chirp.view', 'chirp.create', 'user.create', 'user.edit', 'user.view', 'user.delete', 'user.set-verified', 'user.set-enabled']);
+
         $this->admin = User::factory()->create();
+        $this->admin->assignRole('admin');
     }
 
     public function test_can_list_users_via_api(): void
@@ -33,20 +46,17 @@ class UserApiTest extends TestCase
 
     public function test_can_fetch_available_roles_via_api(): void
     {
-        Role::create(['name' => 'chirper', 'guard_name' => 'web']);
+        Role::create(['name' => 'chirper', 'guard_name' => 'web', 'level' => 0]);
 
         $response = $this->actingAs($this->admin)->getJson('/api/system/users/roles');
 
         $response->assertOk();
         $response->assertJsonStructure(['roles']);
-        $this->assertCount(1, $response->json('roles'));
-        $this->assertSame('chirper', $response->json('roles.0.name'));
+        $this->assertCount(2, $response->json('roles'));
     }
 
     public function test_can_fetch_available_permissions_via_api(): void
     {
-        Permission::create(['name' => 'chirp.view', 'guard_name' => 'web']);
-
         $response = $this->actingAs($this->admin)->getJson('/api/system/users/permissions');
 
         $response->assertOk();
@@ -94,7 +104,7 @@ class UserApiTest extends TestCase
 
     public function test_cannot_delete_enabled_user(): void
     {
-        $user = User::factory()->create(); // enabled & verified by default
+        $user = User::factory()->create();
 
         $response = $this->actingAs($this->admin)->deleteJson("/api/system/users/{$user->id}");
 
@@ -139,8 +149,7 @@ class UserApiTest extends TestCase
 
     public function test_can_update_user_roles_and_permissions_from_object_payloads(): void
     {
-        Role::create(['name' => 'chirper']);
-        Permission::create(['name' => 'chirp.view']);
+        $chirperRole = Role::create(['name' => 'chirper', 'guard_name' => 'web', 'level' => 0]);
         $user = User::factory()->create();
 
         $this->actingAs($this->admin)

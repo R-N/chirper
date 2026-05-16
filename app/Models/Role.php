@@ -18,12 +18,23 @@ class Role extends SpatieRole
     public const FILLABLE = [
         'name',
         'guard_name',
+        'level',
+        'can_manage_peers',
         'permissions',
     ];
 
     protected $table = self::TABLE;
 
     protected static array $relationshipEntities = ['permissions'];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $role) {
+            if (empty($role->guard_name)) {
+                $role->guard_name = 'web';
+            }
+        });
+    }
 
     public static function columns()
     {
@@ -42,13 +53,19 @@ class Role extends SpatieRole
                 'search' => true,
                 'rules' => 'required|string|max:255|unique:roles,name',
             ],
-            'guard_name' => [
-                'label' => 'Guard',
-                'type' => 'string',
-                'filter' => 'partial',
+            'level' => [
+                'label' => 'Level',
+                'type' => 'number',
+                'filter' => 'exact',
                 'sort' => true,
-                'search' => true,
-                'rules' => 'required|string|max:255',
+                'rules' => 'required|integer|min:0',
+            ],
+            'can_manage_peers' => [
+                'label' => 'Manage Peers',
+                'type' => 'bool',
+                'filter' => 'exact',
+                'sort' => true,
+                'rules' => 'boolean',
             ],
             'permissions.name' => [
                 'label' => 'Permissions',

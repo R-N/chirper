@@ -27,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
         $user = request()->user();
+        $user?->loadEntities();
         Inertia::share([
             'settings' => Schema::hasTable('settings') ? Setting::fetchDict() : [],
             'user' => $user,

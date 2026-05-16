@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Role;
 use App\Models\User;
+use Spatie\Permission\Models\Permission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
@@ -63,7 +65,12 @@ class SpaModeTest extends TestCase
 
     public function test_crud_endpoints_available_via_api(): void
     {
+        Permission::create(['name' => 'user.view']);
+        Permission::create(['name' => 'role.view']);
+        $role = Role::create(['name' => 'viewer', 'guard_name' => 'web', 'level' => 5]);
+        $role->syncPermissions(['user.view', 'role.view']);
         $user = User::factory()->create();
+        $user->assignRole($role);
 
         $endpoints = [
             ['get', '/api/chirps'],

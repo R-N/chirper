@@ -13,6 +13,7 @@ class BootstrapController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
+        $user?->loadEntities();
 
         return response()->json([
             'user' => $user,

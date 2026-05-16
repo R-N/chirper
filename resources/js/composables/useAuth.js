@@ -25,6 +25,23 @@ export function useAuth() {
     return [];
   });
 
+  const userPermissions = computed(() => {
+    if (isLoggedIn.value && user.value) {
+      return user.value.permissions ?? [];
+    }
+    return [];
+  });
+
+  const userPermissionNames = computed(() => new Set(userPermissions.value.map((p) => p.name)));
+
+  function hasPermission(permission) {
+    return userPermissionNames.value.has(permission);
+  }
+
+  function hasAnyPermission(permissions) {
+    return permissions.some((p) => userPermissionNames.value.has(p));
+  }
+
   const userRolesText = computed(() =>
     userRoles.value.map((r) => r.name).join(", ")
   );
@@ -45,6 +62,10 @@ export function useAuth() {
     auth_token,
     user,
     userRoles,
+    userPermissions,
+    userPermissionNames,
+    hasPermission,
+    hasAnyPermission,
     userRolesText,
     userName,
   };

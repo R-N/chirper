@@ -38,6 +38,9 @@ trait HasErrorCode
             if (method_exists($errorCode, 'getStatusCode')) {
                 return $errorCode->getStatusCode();
             }
+            if (method_exists($errorCode, 'statusCode')) {
+                return $errorCode->statusCode();
+            }
         }
         if (method_exists(get_parent_class($this), 'getStatusCode')) {
             return parent::getStatusCode();
