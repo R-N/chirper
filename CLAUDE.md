@@ -242,7 +242,7 @@ Intended layering — every protected endpoint should stack these gates explicit
 5. **Ownership** — resources tied to a user (`$userOwned` on `CrudController`) must be scoped to `$request->user()` for read/update/delete, not just create.
 6. **Mass-assignment** — `Validable::validateRequest()` filters `rules()` to `FILLABLE` before write, so only whitelisted fields persist.
 
-**CSRF**: server-side `validateCsrfTokens` is **commented out** in `bootstrap/app.php` — protection currently relies entirely on the axios 419 refresh-and-retry flow (client side). This is a deliberate but load-bearing trade-off; re-enabling server CSRF is the stricter posture.
+**CSRF**: server-side CSRF **is enforced** — Laravel 11's default `web` middleware group includes `ValidateCsrfToken`, so state-changing web requests without a valid token get `419` (verified: `POST /login` with no token → 419). The commented `$middleware->validateCsrfTokens()` call in `bootstrap/app.php` only *configures* the middleware (e.g. URI exceptions); commenting it does **not** disable CSRF. The frontend obtains the token via `/sanctum/csrf-cookie` and axios sends it as `X-XSRF-TOKEN`; the axios 419 interceptor refreshes the token once and retries queued requests.
 
 **File serving**: the `storage/{filepath}` route (`routes/web.php`) reads from `storage/app/public/`. Because `filepath` is `.*`, it is sanitized against directory traversal — the resolved `realpath` must stay under the public disk or it 404s. Keep that guard if you touch the route.
 
@@ -402,7 +402,7 @@ Domain services: `notification.js`, `activity.js` — extend `CrudService`.
 
 **Sanctum**: API tokens never expire (`expiration: null` in `config/sanctum.php`). Middleware: `api`, `authenticate_session`, `encrypt_cookies`, `validate_csrf_token`.
 
-**CSRF**: `validateCsrfTokens` middleware is **commented out** in `bootstrap/app.php`. CSRF protection relies entirely on the axios response interceptor handling 419 responses — it refreshes the CSRF token once via `/sanctum/csrf-cookie` and retries queued requests. If the refresh fails, the session is cleared and user redirected to login. Missing CSRF cookie triggers a page reload in `axios.js:initXsrf()`.
+**CSRF**: enforced by default via Laravel 11's `web` group (`ValidateCsrfToken`). The commented `$middleware->validateCsrfTokens()` in `bootstrap/app.php` only configures the middleware (URI exceptions) — it does not toggle it on/off. Client side, the axios interceptor handles 419 responses by refreshing the CSRF token once via `/sanctum/csrf-cookie` and retrying queued requests; if the refresh fails, the session is cleared and the user is redirected to login. Missing CSRF cookie triggers a page reload in `axios.js:initXsrf()`.
 
 **Session**: Database driver, table `sessions`, 120 min lifetime. Timeout handled on frontend: 300s idle + 300s logout countdown (SharedIdle + IdleOverlay components).
 
