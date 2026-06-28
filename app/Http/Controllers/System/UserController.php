@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\System;
 
+use App\Http\Controllers\Concerns\NormalizesRelationInput;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Support\RoleAuthorization;
@@ -11,23 +12,10 @@ use App\Utils\ResponseUtil;
 use App\Utils\ValidationUtil;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    private function normalizeRelationInput(Request $request, string $field): void
-    {
-        if ($request->has($field)) {
-            $values = $request->input($field);
-            if (is_array($values)) {
-                $request->merge([
-                    $field => array_map(fn($v) => is_string($v) ? $v : ($v['name'] ?? $v), $values),
-                ]);
-            }
-        }
-    }
+    use NormalizesRelationInput;
 
     public function index(Request $request)
     {

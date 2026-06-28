@@ -11,11 +11,17 @@ use Illuminate\Support\Facades\Storage;
 class ChirpController extends CrudController
 {
     protected $modelClass = Chirp::class;
+
     protected $resourcePagePath = 'chirps/pages';
+
     protected $routeBase = 'chirps';
+
     protected $translationKey = 'chirp';
+
     protected $hasRelationshipEntities = true;
+
     protected $mayExport = true;
+
     protected $userOwned = true;
 
     public function index2(Request $request)
@@ -30,51 +36,27 @@ class ChirpController extends CrudController
         ], 'chirps/pages/Index2');
     }
 
-    public function store(Request $request)
+    protected function beforeCreate(array $validated, Request $request): array
     {
-        if ($request->hasFile('photo')) {
-            $request->validate(['photo' => 'image|max:2048']);
-        }
-        $validated = $this->modelClass::validateRequest($request);
-        if ($request->hasFile('photo')) {
-            $validated['photo'] = $request->file('photo')->store('chirps', 'public');
-        }
-        if ($this->userOwned) {
-            $item = $request->user()->{$this->pluralName()}()->create($validated);
-        } else {
-            $item = $this->modelClass::create($validated);
-        }
-        if ($this->hasRelationshipEntities) {
-            $item->loadEntities();
-        }
-
-        return ResponseUtil::jsonRedirectResponse([
-            'message' => __($this->translationKey . '.created'),
-            'item' => $item,
-        ], route($this->routeBase . '.index'), 201, true);
+        return $this->handlePhoto($validated, $request);
     }
 
-    public function update(Request $request, $id)
+    protected function beforeUpdate(array $validated, Request $request, $item): array
     {
-        $item = $this->findItem($request, $id);
-        if ($request->hasFile('photo')) {
-            $request->validate(['photo' => 'image|max:2048']);
-        }
-        $validated = $this->modelClass::validateRequest($request, true, $id);
-        if ($request->hasFile('photo')) {
-            if ($item->photo) {
-                Storage::disk('public')->delete($item->photo);
-            }
-            $validated['photo'] = $request->file('photo')->store('chirps', 'public');
-        }
-        $item->update($validated);
-        if ($this->hasRelationshipEntities) {
-            $item->loadEntities();
+        if ($request->hasFile('photo') && $item->photo) {
+            Storage::disk('public')->delete($item->photo);
         }
 
-        return ResponseUtil::jsonRedirectResponse([
-            'message' => __($this->translationKey . '.updated'),
-            'item' => $item,
-        ], route($this->routeBase . '.index'));
+        return $this->handlePhoto($validated, $request);
+    }
+
+    private function handlePhoto(array $validated, Request $request): array
+    {
+        if ($request->hasFile('photo')) {
+            $request->validate(['photo' => 'image|max:2048']);
+            $validated['photo'] = $request->file('photo')->store('chirps', 'public');
+        }
+
+        return $validated;
     }
 }
