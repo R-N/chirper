@@ -24,6 +24,16 @@ abstract class CrudController extends Controller
 
     protected $userOwned = false;
 
+    /**
+     * Opt-in per-action permission gate: action name => permission name.
+     * When an action is listed, the current user must hold the permission
+     * or the request is rejected (403). Actions left out are not gated here
+     * and rely on route middleware and/or $userOwned ownership scoping.
+     *
+     * @var array<string, string>
+     */
+    protected array $permissions = [];
+
     public function __construct()
     {
         if (! $this->translationKey) {
@@ -32,8 +42,20 @@ abstract class CrudController extends Controller
         $this->hasRelationshipEntities = in_array(HasRelationshipEntities::class, class_uses($this->modelClass));
     }
 
+    /**
+     * Enforce the declared permission for an action, if any.
+     */
+    protected function authorizeAction(string $action): void
+    {
+        $permission = $this->permissions[$action] ?? null;
+        if ($permission && ! request()->user()?->can($permission)) {
+            abort(403);
+        }
+    }
+
     public function index(Request $request)
     {
+        $this->authorizeAction('index');
         if ($this->mayExport && $request->query('export_type')) {
             return $this->export();
         }
@@ -46,6 +68,7 @@ abstract class CrudController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorizeAction('store');
         $validated = $this->modelClass::validateRequest($request);
         $validated = $this->beforeCreate($validated, $request);
         if ($this->userOwned) {
@@ -65,6 +88,7 @@ abstract class CrudController extends Controller
 
     public function show($id)
     {
+        $this->authorizeAction('show');
         $item = $this->modelClass::findOrFail($id);
         if ($this->hasRelationshipEntities) {
             $item->loadEntities();
@@ -77,6 +101,7 @@ abstract class CrudController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->authorizeAction('update');
         $item = $this->findItem($request, $id);
         $validated = $this->modelClass::validateRequest($request, true, $id);
         $validated = $this->beforeUpdate($validated, $request, $item);
@@ -94,6 +119,7 @@ abstract class CrudController extends Controller
 
     public function destroy(Request $request, $id)
     {
+        $this->authorizeAction('destroy');
         $item = $this->findItem($request, $id);
         $item->delete();
 
@@ -149,6 +175,7 @@ abstract class CrudController extends Controller
 
     public function bulkDestroy(Request $request)
     {
+        $this->authorizeAction('bulkDestroy');
         $table = $this->modelClass::TABLE;
 
         $data = $request->validate([

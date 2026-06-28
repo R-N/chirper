@@ -123,7 +123,12 @@ Traits: `HasColumnDefinitions` (columns-driven query/rules/export), `HasRelation
 
 Controllers live in namespaced subdirs under `app/Http/Controllers/`: `Auth/`, `Chirps/`, `System/` (users, roles, settings, activity, backups, bootstrap, language, debug, validation rules), `User/` (profile, notifications, api tokens), `General/`, `Guest/`.
 
-Generic CRUD controllers extend `CrudController` (`app/Http/Controllers/CrudController.php`) — an abstract class providing `index`, `store`, `show`, `update`, `destroy`, `bulkDestroy`, `export`. Subclasses set `$modelClass`, `$resourcePagePath`, `$routeBase`, `$translationKey`, `$mayExport`, `$userOwned`. Thin — they delegate to `BaseModel::query2()` for listing and `BaseModel::rules()` for validation. Controllers with custom authorization (e.g. `System\RoleController`, `System\UserController`) extend the base `Controller` instead and call `RoleAuthorization` asserts directly.
+Generic CRUD controllers extend `CrudController` (`app/Http/Controllers/CrudController.php`) — an abstract class providing `index`, `store`, `show`, `update`, `destroy`, `bulkDestroy`, `export` (e.g. `Chirps\ChirpController`, `System\ActivityController`). Subclasses set `$modelClass`, `$resourcePagePath`, `$routeBase`, `$translationKey`, `$mayExport`, `$userOwned`. Thin — they delegate to `BaseModel::query2()` for listing and `BaseModel::rules()` for validation. Extension points:
+- `$permissions` — opt-in `action => permission` map; `authorizeAction()` enforces it (403) at the start of each action. Layers on top of route middleware and `$userOwned` ownership scoping.
+- `beforeCreate()` / `beforeUpdate()` — hooks to mutate validated data (e.g. file uploads) without reimplementing `store()`/`update()`. `ChirpController` uses them for photo handling.
+- `findItem()` — scopes single-record lookups to the owner when `$userOwned`, preventing IDOR on update/destroy.
+
+Controllers with bespoke authorization or per-field logic (`System\RoleController`, `System\UserController`) extend the base `Controller` instead and call `RoleAuthorization` asserts directly.
 
 `Validable` trait (`app/Models/Traits/Validable.php`) provides `validateRequest()` — filters `rules()` to FILLABLE fields, then drops `required` rules on updates.
 
