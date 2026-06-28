@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 
 import CrudView from "@/views/CrudView.vue";
 import { combineCollection, makeBindings, filterObject } from "@/libs/util";
@@ -10,11 +10,12 @@ import { provideCrudContext } from "@/composables/useCrudContext";
 
 import { useWorking } from "@/composables/useWorking";
 import { useCrudView } from "@/composables/useCrudView";
+import { useSortBuilder } from "@/composables/useSortBuilder";
+import { useFilterBuilder } from "@/composables/useFilterBuilder";
 import { t } from "@/plugins/i18n";
 import GenericField from "@/components/form/GenericField.vue";
 import DeclarativeFormView from "@/components/form/DeclarativeFormView.vue";
 import FormDialog from "@/components/form/FormDialog.vue";
-import axios from "axios";
 
 const props = defineProps<{
   client?: object;
@@ -110,71 +111,39 @@ async function onDeclarativeFormSubmit() {
   if (result !== undefined) fetch();
 }
 
-const filterValues = ref<Record<string, any>>({});
+// Filters and sorting are managed by dedicated builders; they call
+// onFilterChange() after any mutation so the query is rebuilt from both.
+const {
+  filterValues,
+  activeFilterNames,
+  selectedFilterToAdd,
+  autocompleteItems,
+  autocompleteLoading,
+  availableFiltersForSelect,
+  activeFilterDefs,
+  addActiveFilter,
+  removeActiveFilter,
+  clearAllActiveFilters,
+} = useFilterBuilder({
+  filterFields: computed(() => props.filterFields ?? []),
+  onChange: () => onFilterChange(),
+});
 
-/** Filter field keys currently shown (opt-in; empty until user adds). */
-const activeFilterNames = ref<string[]>([]);
-const selectedFilterToAdd = ref<string | null>(null);
-
-const availableFiltersForSelect = computed(() =>
-  (props.filterFields || [])
-    .filter(
-      (ff: any) =>
-        !activeFilterNames.value.includes(String(ff.name))
-    )
-    .map((ff: any) => ({ title: ff.label, value: String(ff.name) }))
-);
-
-const activeFilterDefs = computed(() =>
-  activeFilterNames.value
-    .map((name) =>
-      (props.filterFields || []).find((ff: any) => String(ff.name) === String(name))
-    )
-    .filter(Boolean) as any[]
-);
-
-function addActiveFilter() {
-  const raw = selectedFilterToAdd.value;
-  const name = raw == null || raw === "" ? "" : String(raw);
-  if (!name || activeFilterNames.value.includes(name)) return;
-  activeFilterNames.value = [...activeFilterNames.value, name];
-  selectedFilterToAdd.value = null;
-}
-
-function removeActiveFilter(name: string) {
-  activeFilterNames.value = activeFilterNames.value.filter((n) => n !== name);
-  delete filterValues.value[name];
-  onFilterChange();
-}
-
-function clearAllActiveFilters() {
-  for (const name of activeFilterNames.value) {
-    delete filterValues.value[name];
-  }
-  activeFilterNames.value = [];
-  selectedFilterToAdd.value = null;
-  onFilterChange();
-}
-
-const autocompleteItems = ref<Record<string, any[]>>({});
-const autocompleteLoading = ref<Record<string, boolean>>({});
-
-onMounted(async () => {
-  for (const ff of props.filterFields || []) {
-    if (ff.type === "autocomplete" && ff.endpoint) {
-      autocompleteLoading.value[ff.name] = true;
-      try {
-        const res = await axios.get(ff.endpoint, { params: { per_page: 100 } });
-        let data = res.data?.items?.data ?? res.data?.data ?? res.data?.items ?? res.data;
-        if (data && !Array.isArray(data) && data.data) data = data.data;
-        autocompleteItems.value[ff.name] = Array.isArray(data) ? data : [];
-      } catch {
-        autocompleteItems.value[ff.name] = [];
-      } finally {
-        autocompleteLoading.value[ff.name] = false;
-      }
-    }
-  }
+const {
+  sortValues,
+  selectedSortField,
+  selectedSortDirection,
+  sortDirections,
+  sortFields,
+  getSortFieldTitle,
+  getSortDirection,
+  addSort,
+  removeSort,
+  clearSorts,
+} = useSortBuilder({
+  normalizedFields,
+  defaultSort: props.defaultSort,
+  onChange: () => onFilterChange(),
 });
 
 function onFilterChange() {
@@ -190,66 +159,6 @@ function onFilterChange() {
   page.value = 1;
   crudView._query.value = params;
   crudView.debouncedFetch();
-}
-
-function normalizeDefaultSort(value?: string | string[]) {
-  if (!value) return [];
-  return Array.isArray(value) ? value : [value];
-}
-
-const sortValues = ref<string[]>(normalizeDefaultSort(props.defaultSort));
-const selectedSortField = ref<string | null>(null);
-const selectedSortDirection = ref<"asc" | "desc">("asc");
-
-const sortFields = computed(() =>
-  normalizedFields.value
-    .filter((f: any) => f.sortable)
-    .map((f: any) => ({ title: f.title, value: f.value }))
-);
-
-const sortDirections = [
-  { title: "Asc", value: "asc", icon: "mdi-sort-ascending" },
-  { title: "Desc", value: "desc", icon: "mdi-sort-descending" },
-];
-
-function sortFieldName(value: string) {
-  return value.startsWith("-") ? value.slice(1) : value;
-}
-
-function sortToken(field: string, direction: "asc" | "desc") {
-  return direction === "desc" ? `-${field}` : field;
-}
-
-function getSortFieldTitle(value: string) {
-  const field = sortFields.value.find((f: any) => f.value === sortFieldName(value));
-  return field?.title ?? sortFieldName(value);
-}
-
-function getSortDirection(value: string) {
-  return value.startsWith("-") ? "Desc" : "Asc";
-}
-
-function addSort() {
-  if (!selectedSortField.value) return;
-
-  const field = selectedSortField.value;
-  sortValues.value = [
-    ...sortValues.value.filter((value) => sortFieldName(value) !== field),
-    sortToken(field, selectedSortDirection.value),
-  ];
-  selectedSortField.value = null;
-  selectedSortDirection.value = "asc";
-  onFilterChange();
-}
-
-function removeSort(value: string) {
-  sortValues.value = sortValues.value.filter((item) => item !== value);
-  onFilterChange();
-}
-
-function clearSorts() {
-  sortValues.value = [];
-  onFilterChange();
 }
 
 if (sortValues.value.length) {
