@@ -11,6 +11,8 @@ composer dev
 # Frontend only
 npm run dev          # Vite dev server
 npm run build        # Production build (sourcemaps on, minify off)
+npm test             # Vitest (run once) — unit tests under resources/js/**/*.spec.js
+npm run test:watch   # Vitest watch mode
 
 # Backend
 php artisan serve
@@ -85,7 +87,7 @@ The architecture exists to serve these aims. When extending the codebase, preser
 - **Consistent in code and usage** — backend and frontend mirror each other: `BaseModel`/`CrudController`/`CrudService`/`useCrud` share the same shape, and `columns:export` keeps TypeScript field consts in lockstep with backend `columns()`. Same patterns top to bottom, so usage is predictable.
 - **User-friendly, fluid, intuitive** — composables layer UX concerns (busy overlays via `useBusy`, error dialogs, i18n, idle/session handling) so pages stay focused; navigation and loading state are uniform.
 - **Strict yet robust (leeway)** — strictness via `rules()` validation and `permission:`-gated routes + `RoleAuthorization` asserts; leeway/idempotency via `Validable` dropping `required` on updates, `firstOrCreate`/`syncPermissions`/`updateOrCreate` in seeders, `_method` spoofing for multipart PUT, and the axios CSRF refresh+retry/queue and token-refresh flows. Wrong input is rejected; safe retries don't break.
-- **Clean, decoupled, testable** — thin controllers delegate to models; cross-cutting logic lives in traits, `Support/`, `Utils/`, and `Filters/`; behavior is exercised by feature tests (`tests/Feature/*`). Each piece is verifiable in isolation.
+- **Clean, decoupled, testable** — thin controllers delegate to models; cross-cutting logic lives in traits, `Support/`, `Utils/`, and `Filters/`; behavior is exercised by backend feature tests (`tests/Feature/*`) and frontend unit tests (Vitest, `resources/js/**/*.spec.js`). Each piece is verifiable in isolation.
 - **Secure by access control** — every state-changing endpoint should sit behind explicit authentication, email verification, and a permission/ownership check. Access is layered: route middleware (`auth:sanctum` → `verified` → `permission:*`), hierarchy enforcement via `RoleAuthorization` (you can't act on equal/higher levels), and mass-assignment limited to each model's `FILLABLE` (validation filtered to fillable by `Validable::validateRequest()`). New endpoints inherit nothing implicitly — they must declare their own gate. See **Backend: Security & access control**.
 
 ## Architecture
