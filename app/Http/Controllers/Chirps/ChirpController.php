@@ -56,7 +56,7 @@ class ChirpController extends CrudController
 
     public function update(Request $request, $id)
     {
-        $item = $this->modelClass::findOrFail($id);
+        $item = $this->findItem($request, $id);
         if ($request->hasFile('photo')) {
             $request->validate(['photo' => 'image|max:2048']);
         }

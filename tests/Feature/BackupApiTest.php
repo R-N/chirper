@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class BackupApiTest extends TestCase
@@ -13,6 +14,8 @@ class BackupApiTest extends TestCase
     public function test_can_list_backups_when_empty(): void
     {
         $user = User::factory()->create();
+        Permission::create(['name' => 'backup.manage', 'guard_name' => 'web']);
+        $user->givePermissionTo('backup.manage');
 
         $response = $this->actingAs($user)->getJson('/api/system/backups');
 

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class SettingsApiTest extends TestCase
@@ -16,7 +17,10 @@ class SettingsApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Permission::create(['name' => 'setting.view', 'guard_name' => 'web']);
+        Permission::create(['name' => 'setting.edit', 'guard_name' => 'web']);
         $this->user = User::factory()->create();
+        $this->user->givePermissionTo(['setting.view', 'setting.edit']);
     }
 
     public function test_can_list_settings_via_api(): void

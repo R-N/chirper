@@ -33,6 +33,11 @@ class RolePermissionSeeder extends Seeder
                 'role.edit',
                 'role.view',
                 'role.delete',
+                // System management
+                'setting.view',
+                'setting.edit',
+                'activity.view',
+                'backup.manage',
             ],
             'chirper' => [
                 'chirp.create',

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Chirp;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
 
 class ActivityApiTest extends TestCase
@@ -16,7 +17,9 @@ class ActivityApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        Permission::create(['name' => 'activity.view', 'guard_name' => 'web']);
         $this->user = User::factory()->create();
+        $this->user->givePermissionTo('activity.view');
     }
 
     public function test_can_list_activity_via_api(): void

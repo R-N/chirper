@@ -44,7 +44,7 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
                 ])->save();
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
-            dd($e->errors());
+            throw $e;
         }
     }
 

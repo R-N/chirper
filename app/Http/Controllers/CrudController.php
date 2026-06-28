@@ -72,7 +72,7 @@ abstract class CrudController extends Controller
 
     public function update(Request $request, $id)
     {
-        $item = $this->modelClass::findOrFail($id);
+        $item = $this->findItem($request, $id);
         $validated = $this->modelClass::validateRequest($request, true, $id);
         $item->update($validated);
         $item->save();
@@ -86,14 +86,27 @@ abstract class CrudController extends Controller
         ], route($this->routeBase . '.index'));
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $item = $this->modelClass::findOrFail($id);
+        $item = $this->findItem($request, $id);
         $item->delete();
 
         return ResponseUtil::jsonRedirectResponse([
             'message' => __($this->translationKey . '.deleted'),
         ], route($this->routeBase . '.index'));
+    }
+
+    /**
+     * Resolve a single record, scoped to the current user when $userOwned.
+     * Prevents IDOR on update/destroy of user-owned resources.
+     */
+    protected function findItem(Request $request, $id)
+    {
+        if ($this->userOwned) {
+            return $request->user()->{$this->pluralName()}()->findOrFail($id);
+        }
+
+        return $this->modelClass::findOrFail($id);
     }
 
     protected function lowerName()
@@ -117,9 +130,13 @@ abstract class CrudController extends Controller
             'ids' => 'required|array',
             'ids.*' => "exists:{$table},id",
         ]);
-    
-        $this->modelClass::whereIn('id', $data['ids'])->delete();
-    
+
+        if ($this->userOwned) {
+            $request->user()->{$this->pluralName()}()->whereIn('id', $data['ids'])->delete();
+        } else {
+            $this->modelClass::whereIn('id', $data['ids'])->delete();
+        }
+
         return ResponseUtil::jsonRedirectResponse([
             'message' => __($this->translationKey . '.deleted'),
         ], route($this->routeBase . '.index'));

@@ -45,8 +45,12 @@ require __DIR__.'/hybrid.php';
 // Serve uploaded files from storage disk.
 // PHP built-in server doesn't follow symlinks. Apache may also block /storage/ URIs.
 Route::get('storage/{filepath}', function (string $filepath) {
-    $real = storage_path('app/public/' . $filepath);
-    abort_unless(file_exists($real), 404);
+    $base = realpath(storage_path('app/public'));
+    $real = realpath($base . DIRECTORY_SEPARATOR . $filepath);
+    abort_unless(
+        $base && $real && str_starts_with($real, $base . DIRECTORY_SEPARATOR) && is_file($real),
+        404
+    );
     return response()->file($real);
 })->where('filepath', '.*')->name('storage.serve');
 

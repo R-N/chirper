@@ -84,7 +84,7 @@ Route::middleware([
     });
     Route::get('/chirps2', [ChirpController::class, 'index2'])->name('chirps.index2');
 
-    Route::prefix('system/backups')->as('system.backups.')->group(function () {
+    Route::prefix('system/backups')->as('system.backups.')->middleware('permission:backup.manage')->group(function () {
         Route::get('/', [BackupController::class, 'index'])->name('index');
         Route::post('/', [BackupController::class, 'store'])->name('store');
         Route::put('/', [BackupController::class, 'upload'])->name('upload');
@@ -122,15 +122,17 @@ Route::middleware([
         Route::put('/{role}/permissions', [RoleController::class, 'setPermissions'])->middleware('permission:role.edit')->name('set-permissions');
     });
 
-    Route::prefix('system/activity')->as('system.activity.')->group(function () {
+    Route::prefix('system/activity')->as('system.activity.')->middleware('permission:activity.view')->group(function () {
         Route::get('/', [ActivityController::class, 'index'])->name('index');
         Route::get('/{activity}', [ActivityController::class, 'show'])->name('show');
     });
 
-    Route::prefix('system/settings')->as('system.settings.')->group(function () {
-        Route::post('/', [SettingsController::class, 'store'])->name('store');
+    Route::prefix('system/settings')->as('system.settings.')->middleware('permission:setting.view')->group(function () {
         Route::get('/', [SettingsController::class, 'index'])->name('index');
         Route::get('/{setting}', [SettingsController::class, 'show'])->name('show');
+    });
+    Route::prefix('system/settings')->as('system.settings.')->middleware('permission:setting.edit')->group(function () {
+        Route::post('/', [SettingsController::class, 'store'])->name('store');
         Route::match(['put', 'patch'], '/{setting}', [SettingsController::class, 'update'])->name('update');
         Route::delete('/{setting}', [SettingsController::class, 'destroy'])->name('destroy');
     });

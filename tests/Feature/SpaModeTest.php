@@ -67,8 +67,10 @@ class SpaModeTest extends TestCase
     {
         Permission::create(['name' => 'user.view']);
         Permission::create(['name' => 'role.view']);
+        Permission::create(['name' => 'activity.view']);
+        Permission::create(['name' => 'setting.view']);
         $role = Role::create(['name' => 'viewer', 'guard_name' => 'web', 'level' => 5]);
-        $role->syncPermissions(['user.view', 'role.view']);
+        $role->syncPermissions(['user.view', 'role.view', 'activity.view', 'setting.view']);
         $user = User::factory()->create();
         $user->assignRole($role);
 
