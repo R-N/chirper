@@ -1,66 +1,73 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Chirper
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel 11 + Vue 3 starter/admin app combining Inertia.js, Vuetify 3 and TypeScript. It ships a columns-driven CRUD engine, a dual web/API response layer, role-based access control, and a switchable Inertia-or-SPA frontend.
 
-## About Laravel
+## Goals
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The project is built to make general features **easy to develop declaratively** (one `columns()` definition drives query, validation and exports; config-driven CRUD views and services) while staying **flexible, extendable and scalable** for custom logic and optimization (custom filters, registrable field types, caching, escape hatches on the generic path). It aims to be **consistent** — backend and frontend mirror the same patterns and stay type-synced — and **user-friendly, fluid and intuitive** through shared composables for loading, errors and i18n. It balances **strictness** (validation rules, permission-gated routes, hierarchy authorization) with **robustness/leeway** (idempotent operations, CSRF refresh-and-retry, safe update semantics). Underneath: **clean, decoupled, testable** code — thin controllers, cross-cutting logic in traits/utils, covered by feature tests. See [`CLAUDE.md` → Design goals](CLAUDE.md#design-goals) for how each aim maps to concrete mechanisms.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Backend**: Laravel 11, Fortify (auth + 2FA), Sanctum (API tokens), Spatie Permission (RBAC), Spatie Activity Log + Backup.
+- **Frontend**: Vue 3 (`<script setup>`), Inertia.js, Vuetify 3 (auto-import, labs), Pinia, Vue Router (SPA mode), Vite, TypeScript.
+- **Database**: SQLite by default, MySQL supported.
 
-## Learning Laravel
+## Requirements
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP 8.2+, Composer
+- Node 18+, npm
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Setup
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed        # creates tables, seeds roles/permissions
+php artisan storage:link
+php artisan make:admin-user        # interactive: creates an admin user
+```
 
-## Laravel Sponsors
+## Running
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+composer dev    # runs php serve + queue worker + pail logs + vite concurrently
+```
 
-### Premium Partners
+Or individually:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+```bash
+php artisan serve
+npm run dev
+```
 
-## Contributing
+## Common commands
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+php artisan test                          # run tests
+php artisan test --filter=RoleApiTest     # single test
+vendor/bin/pint --test                    # PHP code-style dry-run
+npm run build                             # production frontend build
+clear.bat                                 # (Windows) clear all Laravel caches
+php artisan db:seed --class=RolePermissionSeeder   # roles & permissions only
+```
 
-## Code of Conduct
+## Frontend mode
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Set `VITE_APP_MODE` in `.env`:
 
-## Security Vulnerabilities
+- `inertia` (default) — server returns a full page component per visit.
+- `spa` — Vue Router handles navigation client-side; Laravel serves a single HTML shell.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Always use the Ziggy `route('name')` helper for links so navigation works in both modes.
 
-## License
+## Key concepts
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Columns-driven models** — each model's `columns()` method drives query filters/sorts, validation rules, and exports (`HasColumnDefinitions` trait).
+- **Dual web/API responses** — `routes/hybrid.php` endpoints serve both Inertia (web) and JSON (API) via `ResponseUtil`.
+- **RBAC** — level-based role hierarchy enforced by `App\Support\RoleAuthorization`; routes gated with Spatie `permission:` middleware. Seeded roles: `admin` (level 10), `chirper` (level 0).
+
+## Documentation
+
+Deep architecture notes, file map, and debugging pitfalls live in [`CLAUDE.md`](CLAUDE.md) (and the identical [`AGENTS.md`](AGENTS.md)) — read these before making non-trivial changes.

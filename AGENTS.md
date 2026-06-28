@@ -75,6 +75,19 @@ rtk php artisan schedule:list   # Show scheduled tasks
 rtk php artisan schedule:run    # Run due tasks (cron calls this)
 ```
 
+## Design goals
+
+The architecture exists to serve these aims. When extending the codebase, preserve them — prefer the declarative path, and reach for custom code only where the generic path can't express the need.
+
+- **Declarative by default** — general features should be data, not boilerplate. A model's `columns()` drives query/filter/sort, validation `rules()`, and exports at once; `DeclarativeCrudView` builds a full CRUD page from `fields`/`actions`/`rules` props; services are configured with a single options object; field types are looked up in `fieldRegistry`. Add a column, not a controller method.
+- **Flexible & extendable** — escape hatches everywhere the declarative path runs out: `filter: 'custom'` + `filter_class`, `registerFieldType()`, custom `component` on a field, overridable model methods (`update()`, `defaultSort()`), trait composition. New behavior plugs in without forking the core.
+- **Scalable for custom stuff & optimization** — `Cacher` prefix-keyed caching, `query2()` Spatie QueryBuilder pipeline, dual web/API responses, and the Inertia-or-SPA switch let features grow and be tuned independently.
+- **Consistent in code and usage** — backend and frontend mirror each other: `BaseModel`/`CrudController`/`CrudService`/`useCrud` share the same shape, and `columns:export` keeps TypeScript field consts in lockstep with backend `columns()`. Same patterns top to bottom, so usage is predictable.
+- **User-friendly, fluid, intuitive** — composables layer UX concerns (busy overlays via `useBusy`, error dialogs, i18n, idle/session handling) so pages stay focused; navigation and loading state are uniform.
+- **Strict yet robust (leeway)** — strictness via `rules()` validation and `permission:`-gated routes + `RoleAuthorization` asserts; leeway/idempotency via `Validable` dropping `required` on updates, `firstOrCreate`/`syncPermissions`/`updateOrCreate` in seeders, `_method` spoofing for multipart PUT, and the axios CSRF refresh+retry/queue and token-refresh flows. Wrong input is rejected; safe retries don't break.
+- **Clean, decoupled, testable** — thin controllers delegate to models; cross-cutting logic lives in traits, `Support/`, `Utils/`, and `Filters/`; behavior is exercised by feature tests (`tests/Feature/*`). Each piece is verifiable in isolation.
+- **Secure by access control** — every state-changing endpoint should sit behind explicit authentication, email verification, and a permission/ownership check. Access is layered: route middleware (`auth:sanctum` → `verified` → `permission:*`), hierarchy enforcement via `RoleAuthorization` (you can't act on equal/higher levels), and mass-assignment limited to each model's `FILLABLE` (validation filtered to fillable by `Validable::validateRequest()`). New endpoints inherit nothing implicitly — they must declare their own gate. See **Backend: Security & access control**.
+
 ## Architecture
 
 **Stack**: Laravel 11 + Vue 3 + Inertia.js + Vuetify 3 + TypeScript. SQLite default, MySQL supported.
@@ -94,9 +107,9 @@ Models define a `columns()` method returning field metadata (label, type, filter
 
 The columns-driven logic lives in the `HasColumnDefinitions` trait (`app/Models/Traits/HasColumnDefinitions.php`). `BaseModel` uses it. Models that can't extend BaseModel (e.g., `User` which extends `Authenticatable`) use the trait directly.
 
-All models use `columns()`: `Chirp` (extends BaseModel), `Setting` (extends BaseModel), `User` (uses trait, extends Authenticatable). `Activity` extends Spatie's `SpatieActivity` for activity log.
+All models use `columns()`: `Chirp` (extends BaseModel), `Setting` (extends BaseModel), `User` (uses trait, extends Authenticatable), `Role` (uses trait, extends Spatie's `SpatieRole`). `Activity` extends Spatie's `SpatieActivity` for activity log.
 
-Custom filter support in `columns()`: set `filter: 'custom'` with `filter_class` (FQCN) and optional `filter_column`. Sort on a different column via `sort_column`. Example in `User::columns()` for `verified` using `NotNullFilter` on `email_verified_at`.
+Custom filter support in `columns()`: set `filter: 'custom'` with `filter_class` (FQCN) and optional `filter_column`. Sort on a different column via `sort_column`, or `sort: 'custom:relation.column'` for relation sorting (e.g. `Role::columns()` `permissions.name` uses `sort: 'custom:permissions.name'`). Example in `User::columns()` for `verified` using `NotNullFilter` on `email_verified_at`.
 
 Models use constants for `TABLE` and `FILLABLE`. Example: `app/Models/Chirp.php`.
 
@@ -106,7 +119,9 @@ Models use constants for `TABLE` and `FILLABLE`. Example: `app/Models/Chirp.php`
 
 Traits: `HasColumnDefinitions` (columns-driven query/rules/export), `HasRelationshipEntities` (eager-loads relations), `Validable`.
 
-Controllers extend `CrudController` (`app/Http/Controllers/CrudController.php`) — an abstract class providing `index`, `store`, `show`, `update`, `destroy`, `bulkDestroy`, `export`. Subclasses set `$modelClass`, `$resourcePagePath`, `$routeBase`, `$translationKey`, `$mayExport`, `$userOwned`. Thin — they delegate to `BaseModel::query2()` for listing and `BaseModel::rules()` for validation.
+Controllers live in namespaced subdirs under `app/Http/Controllers/`: `Auth/`, `Chirps/`, `System/` (users, roles, settings, activity, backups, bootstrap, language, debug, validation rules), `User/` (profile, notifications, api tokens), `General/`, `Guest/`.
+
+Generic CRUD controllers extend `CrudController` (`app/Http/Controllers/CrudController.php`) — an abstract class providing `index`, `store`, `show`, `update`, `destroy`, `bulkDestroy`, `export`. Subclasses set `$modelClass`, `$resourcePagePath`, `$routeBase`, `$translationKey`, `$mayExport`, `$userOwned`. Thin — they delegate to `BaseModel::query2()` for listing and `BaseModel::rules()` for validation. Controllers with custom authorization (e.g. `System\RoleController`, `System\UserController`) extend the base `Controller` instead and call `RoleAuthorization` asserts directly.
 
 `Validable` trait (`app/Models/Traits/Validable.php`) provides `validateRequest()` — filters `rules()` to FILLABLE fields, then drops `required` rules on updates.
 
@@ -145,6 +160,8 @@ Custom middleware in `app/Http/Middleware/`:
 - `InjectSettingsIntoResponse` — appends `Setting::fetchDict()` to all JSON responses
 - `EnsureTokenIsNotExpired` — validates API token expiry on API routes
 - `HandleInertiaRequests` — Inertia middleware (shared props via `share()` method)
+
+Spatie Permission middleware is aliased in `bootstrap/app.php` as `role`, `permission`, `role_or_permission` — used to gate route groups (e.g. `permission:role.view`).
 
 ### Backend: Support classes
 
@@ -191,6 +208,39 @@ Listeners are **not queued** (no `ShouldQueue` interface).
 
 Fortify action classes in `app/Actions/Fortify/`: `CreateNewUser`, `UpdateUserProfileInformation`, `UpdateUserPassword`, `ResetUserPassword`. Registered by `FortifyServiceProvider` with login rate limiter (5 attempts/min).
 
+### Backend: Role-based authorization (RBAC)
+
+Spatie Permission powers roles/permissions. Middleware aliases registered in `bootstrap/app.php`: `role`, `permission`, `role_or_permission`. Routes are gated with `->middleware('permission:role.edit')` etc. (see `routes/hybrid.php` for `system/users` and `system/roles` groups).
+
+**`Role` model** (`app/Models/Role.php`) — extends `SpatieRole`, uses `HasColumnDefinitions` + `HasRelationshipEntities` (`['permissions']`) + `Validable`. Adds `level` (int hierarchy rank) and `can_manage_peers` (bool) columns beyond Spatie defaults. `defaultSort()` → `['name']`. `booted()` defaults `guard_name` to `web` on create.
+
+**`RoleAuthorization`** (`app/Support/RoleAuthorization.php`) — static level-based hierarchy enforcement. Core idea: each user's effective rank is the **max `level`** of their roles; you may only manage targets at a strictly lower level, unless one of your roles has `can_manage_peers` (then you may also manage same-level "peers", with restrictions). Key methods:
+- `highestLevel($user)`, `canManagePeers($user)`, `isTargetPeer($actor, $target)`
+- `assignableRoles($user)` / `assignablePermissions($user)` — what the actor may grant (roles below own level, plus own level if `can_manage_peers`; permissions limited to those the actor already holds)
+- `canCreate/Edit/DeleteRole()`, `canEditUserRoles()`, `canRemoveUserRole/Permission()` — boolean checks
+- `assertRoleCreate/Update/Delete()`, `assertUserRoles()`, `assertUserPermissions()` — throw `AuthorizationException` (translation keys in `role.*` / `user.*`). Peers can't have their level or `can_manage_peers` changed, and can't be assigned a level ≥ the actor's.
+
+`System\RoleController` (extends `Controller`, not `CrudController`) — `index`/`store`/`update`/`destroy`/`setPermissions`/`getAvailablePermissions`/`export`. Calls `RoleAuthorization::assert*` before mutating. `normalizeRelationInput()` coerces permission objects to name strings. `System\UserController` likewise asserts via `RoleAuthorization` in `store`/`update`/`setRoles`/`setPermissions`, and `getAvailableRoles`/`getAvailablePermissions` return `assignableRoles`/`assignablePermissions`.
+
+`RolePermissionSeeder` (`php artisan db:seed --class=RolePermissionSeeder`) — seeds `admin` (level 10, `can_manage_peers = true`, all `user.*` + `role.*` + system perms `setting.view`/`setting.edit`/`activity.view`/`backup.manage`) and `chirper` (level 0, `chirp.*` permissions). Migration `*_add_can_manage_peers_to_roles_table` adds the column. System route groups (`system/settings`, `system/activity`, `system/backups`) are gated on these permissions in `routes/hybrid.php`.
+
+### Backend: Security & access control
+
+Intended layering — every protected endpoint should stack these gates explicitly (no implicit inheritance):
+
+1. **Authentication** — `auth:sanctum` + `config('jetstream.auth_session')`. API tokens (`auth_token`, never expiring) or stateful session for `SANCTUM_STATEFUL_DOMAINS`.
+2. **Email verification** — `verified` middleware on all app route groups.
+3. **Permission** — Spatie `permission:<name>` middleware (e.g. `permission:user.edit`, `role.view`). Permissions are seeded per role; the frontend mirrors with `meta.permission` route guards and `hasPermission()` UI gating (defense in depth, not a substitute for server checks).
+4. **Hierarchy** — `RoleAuthorization` asserts inside controllers prevent acting on equal-or-higher levels even when the permission is held (a low admin can't edit a higher admin).
+5. **Ownership** — resources tied to a user (`$userOwned` on `CrudController`) must be scoped to `$request->user()` for read/update/delete, not just create.
+6. **Mass-assignment** — `Validable::validateRequest()` filters `rules()` to `FILLABLE` before write, so only whitelisted fields persist.
+
+**CSRF**: server-side `validateCsrfTokens` is **commented out** in `bootstrap/app.php` — protection currently relies entirely on the axios 419 refresh-and-retry flow (client side). This is a deliberate but load-bearing trade-off; re-enabling server CSRF is the stricter posture.
+
+**File serving**: the `storage/{filepath}` route (`routes/web.php`) reads from `storage/app/public/`. Because `filepath` is `.*`, it is sanitized against directory traversal — the resolved `realpath` must stay under the public disk or it 404s. Keep that guard if you touch the route.
+
+When adding an endpoint: pick its permission, gate the route, add a `RoleAuthorization` assert if it touches roles/users, and scope by owner if `$userOwned`. A route under `auth`+`verified` only is reachable by **every** verified user.
+
 ### Backend: Model-specific behaviors
 
 **User** (`app/Models/User.php`) — extends `Authenticatable`, uses trait directly instead of BaseModel. `$appends = ['profile_photo_url', 'verified']`. `update()` override syncs roles/permissions and handles email change (resets verification). `refreshToken()` deletes old Sanctum token, creates new `auth_token`.
@@ -228,6 +278,7 @@ Mode switch lives in `resources/js/plugins/inertia.js`:
 **Guards** (`router/guards.js`):
 - Guest route + logged in → redirect to dashboard
 - Protected route + not logged in → redirect to login with `redirect` query
+- `meta.permission` set + logged in lacking that permission → redirect to dashboard (e.g. `system.roles.index` has `meta.permission: 'role.view'`)
 - After each navigation, breadcrumbs set from `route.meta.breadcrumbs`
 - `routerBusy` flag toggled on navigation start/end (used by loading overlays)
 
@@ -237,7 +288,7 @@ Mode switch lives in `resources/js/plugins/inertia.js`:
 
 All Vue components use `<script setup>` with Composition API. Composables in `resources/js/composables/` build on each other in layers:
 
-- **Base**: `useBase()` → `useAuth()` → `useWorking()` → `useViewBase()` — each wraps the previous
+- **Base**: `useBase()` → `useAuth()` → `useWorking()` → `useViewBase()` — each wraps the previous. `useAuth()` exposes `user`, `userRoles`, `userPermissions`, `userPermissionNames` (Set), `hasPermission(name)`, `hasAnyPermission([...])`, `userRolesText` — used to permission-gate nav items (`SideNavDrawer.vue`) and UI actions.
 - **Forms**: `useFormBase()` + `useDialog()` → `useCrudForm()` → `useCrudFormDialog()` — bundles 4 composables for form dialog boilerplate
 - **CRUD**: `useCrud()` (fetch/create/delete/setField/toggleField) → `useCrudView()` (adds table state: pagination, search, export, selection)
 - **Context**: `useCrudContext()` — provide/inject for CRUD context, used by `GenericField`
@@ -257,7 +308,7 @@ Most CRUD pages use `DeclarativeCrudView` — config-driven table taking `fields
 
 **`makeBindings(f, item)`** — only spreads `f.props`. Properties like `items`, `multiple`, `itemTitle` must go inside `props`, not at field root level.
 
-**`fieldRegistry.js`** maps types to components: `text`/`string`, `textarea`, `select`, `number`/`integer`, `bool`/`boolean`, `date`/`datetime`, `currency`, `json`, `relational`. Register new types via `registerFieldType(type, components)`.
+**`fieldRegistry.js`** maps types to components: `text`/`string`, `textarea`, `select`, `multiselect` (→ `FieldMultiSelect.vue`, used for role permissions), `number`/`integer`, `bool`/`boolean`, `date`/`datetime`, `currency`, `json`, `relational`. Register new types via `registerFieldType(type, components)`.
 
 **`CrudForm`** — iterates field definitions, renders `<GenericField>` per field with `bypassEditableCell` and `:show-title`.
 
@@ -362,6 +413,9 @@ Domain services: `notification.js`, `activity.js` — extend `CrudService`.
 | `app/Models/BaseModel.php` | Base model using HasColumnDefinitions |
 | `app/Models/Setting.php` | Key-value typed settings with Cacher integration |
 | `app/Models/User.php` | User model with roles, permissions, 2FA, profile photo |
+| `app/Models/Role.php` | Role model (extends SpatieRole) with `level` + `can_manage_peers` |
+| `app/Support/RoleAuthorization.php` | Level-based RBAC hierarchy enforcement (assert*/can*/assignable*) |
+| `app/Http/Controllers/System/RoleController.php` | Role CRUD + permission sync (extends base Controller) |
 | `app/Support/Cacher.php` | Prefix-keyed cache layer with key tracking |
 | `app/Support/Decimal.php` | Cents-stored decimal value object |
 | `app/Exceptions/` | Exception classes with enum error codes + traits |
