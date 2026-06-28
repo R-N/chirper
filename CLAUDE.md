@@ -302,7 +302,7 @@ All Vue components use `<script setup>` with Composition API. Composables in `re
 
 `useBusy()` — global singleton busy counter via provide/inject. Prefer `run(fn)` over `start()/end()` (try/finally safety).
 
-Most CRUD pages use `DeclarativeCrudView` — config-driven table taking `fields`, `actions`, `bulkActions`, `rules` props. Renders `<GenericField>` per cell, `<FormDialog>` for create/edit.
+Most CRUD pages use `DeclarativeCrudView` — config-driven table taking `fields`, `actions`, `bulkActions`, `rules` props. Renders `<GenericField>` per cell, `<FormDialog>` for create/edit. Its sort and filter controls are backed by the `useSortBuilder` / `useFilterBuilder` composables (the view owns `onFilterChange()`, which both call to rebuild the query) — these hold the testable logic; the view holds the template.
 
 ### Frontend: Field system
 
