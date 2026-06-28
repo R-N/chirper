@@ -4,7 +4,7 @@ A Laravel 11 + Vue 3 starter/admin app combining Inertia.js, Vuetify 3 and TypeS
 
 ## Goals
 
-The project is built to make general features **easy to develop declaratively** (one `columns()` definition drives query, validation and exports; config-driven CRUD views and services) while staying **flexible, extendable and scalable** for custom logic and optimization (custom filters, registrable field types, caching, escape hatches on the generic path). It aims to be **consistent** — backend and frontend mirror the same patterns and stay type-synced — and **user-friendly, fluid and intuitive** through shared composables for loading, errors and i18n. It balances **strictness** (validation rules, permission-gated routes, hierarchy authorization) with **robustness/leeway** (idempotent operations, CSRF refresh-and-retry, safe update semantics). Underneath: **clean, decoupled, testable** code — thin controllers, cross-cutting logic in traits/utils, covered by feature tests. See [`CLAUDE.md` → Design goals](CLAUDE.md#design-goals) for how each aim maps to concrete mechanisms.
+The project is built to make general features **easy to develop declaratively** (one `columns()` definition drives query, validation and exports; config-driven CRUD views and services) while staying **flexible, extendable and scalable** for custom logic and optimization (custom filters, registrable field types, caching, escape hatches on the generic path). It aims to be **consistent** — backend and frontend mirror the same patterns and stay type-synced — and **user-friendly, fluid and intuitive** through shared composables for loading, errors and i18n. It balances **strictness** (validation rules, permission-gated routes, hierarchy authorization) with **robustness/leeway** (idempotent operations, CSRF refresh-and-retry, safe update semantics). It is **secure by access control** — every state-changing endpoint sits behind layered authentication, email verification, permission and ownership checks, with mass-assignment limited to each model's fillable fields. Underneath: **clean, decoupled, testable** code — thin controllers, cross-cutting logic in traits/utils, covered by backend feature tests and frontend Vitest tests. See [`CLAUDE.md` → Design goals](CLAUDE.md#design-goals) for how each aim maps to concrete mechanisms.
 
 ## Stack
 
@@ -67,6 +67,14 @@ Always use the Ziggy `route('name')` helper for links so navigation works in bot
 - **Columns-driven models** — each model's `columns()` method drives query filters/sorts, validation rules, and exports (`HasColumnDefinitions` trait).
 - **Dual web/API responses** — `routes/hybrid.php` endpoints serve both Inertia (web) and JSON (API) via `ResponseUtil`.
 - **RBAC** — level-based role hierarchy enforced by `App\Support\RoleAuthorization`; routes gated with Spatie `permission:` middleware. Seeded roles: `admin` (level 10), `chirper` (level 0).
+- **Access control** — layered gates (`auth:sanctum` → `verified` → `permission:*`), owner-scoped reads/writes for user-owned resources (no IDOR), server-side CSRF enforced, and traversal-safe static file serving.
+
+## Testing
+
+```bash
+php artisan test     # backend (PHPUnit, in-memory sqlite)
+npm test             # frontend (Vitest: pure logic + jsdom component tests)
+```
 
 ## Documentation
 
