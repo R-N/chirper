@@ -37,9 +37,9 @@ const systemChildren = computed(() => {
   const children = [];
   if (hasPermission("user.view")) children.push({ text: t("navigation.users"), href: route("system.users.index") });
   if (hasPermission("role.view")) children.push({ text: t("navigation.roles"), href: route("system.roles.index") });
-  if (hasPermission("user.view")) children.push({ text: t("navigation.backup"), href: route("system.backups.index") });
-  if (hasPermission("user.view")) children.push({ text: t("navigation.settings"), href: route("system.settings.index") });
-  if (hasPermission("user.view")) children.push({ text: t("navigation.activity_log"), href: route("system.activity.index") });
+  if (hasPermission("backup.manage")) children.push({ text: t("navigation.backup"), href: route("system.backups.index") });
+  if (hasPermission("setting.view")) children.push({ text: t("navigation.settings"), href: route("system.settings.index") });
+  if (hasPermission("activity.view")) children.push({ text: t("navigation.activity_log"), href: route("system.activity.index") });
   return children;
 });
 
